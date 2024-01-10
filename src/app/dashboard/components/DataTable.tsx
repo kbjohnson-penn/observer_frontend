@@ -8,12 +8,12 @@ interface DataTableProps {
 }
 
 const tableHeaderClasses = "px-3 py-1.5 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider";
-const tableDataClasses = "px-3 py-2 whitespace-no-wrap border-b border-gray-200 text-sm";
+const tableDataClasses = "px-3 py-2 whitespace-no-wrap border-b border-gray-200 text-left text-sm";
 
 const DataTable: React.FC<DataTableProps> = ({ data }) => (
   <div className="overflow-x-auto">
     <div className="align-middle inline-block min-w-full shadow overflow-hidden sm:rounded-lg border-b border-gray-200">
-      <table className="min-w-full">
+      <table className="min-w-full border-separate">
         <thead>
           <tr>
             <th className={tableHeaderClasses}>Case</th>

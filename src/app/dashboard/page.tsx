@@ -18,12 +18,14 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <>
-      <h1 className="text-4xl font-bold mb-5 text-blue-700">Dashboard</h1>
+    <div className="flex flex-col min-h-screen items-center justify-start p-10 text-center">
+      <h1 className="text-4xl font-bold mb-4">
+        Dashboard
+      </h1>
       <div className="w-full max-w-4xl p-4 bg-white rounded-md shadow-md">
         <DataTable data={data} />
       </div>
-    </>
+    </div>
   );
 };
 
