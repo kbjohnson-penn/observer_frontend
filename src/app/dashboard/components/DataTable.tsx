@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   EncouterDataType,
   DepartmentDataType,
@@ -26,22 +26,75 @@ const DataTable: React.FC<DataTableProps> = ({
   departmentData,
   encounterMediaTypeChoicesData,
 }) => {
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortedData, setSortedData] = useState<EncouterDataType[]>([]);
+
+  useEffect(() => {
+    let sorted = [...encounterData];
+    if (sortField) {
+      sorted.sort((a, b) => {
+        // Sort other fields
+        if (a[sortField] < b[sortField])
+          return sortDirection === "asc" ? -1 : 1;
+        if (a[sortField] > b[sortField])
+          return sortDirection === "asc" ? 1 : -1;
+
+        return 0;
+      });
+    }
+    setSortedData(sorted);
+  }, [encounterData, sortField, sortDirection]);
+
+  const handleSort = (field: string) => {
+    setSortField(field);
+    setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+  };
+
   return (
     <div className="overflow-x-auto">
       <div className="align-middle inline-block min-w-full shadow overflow-hidden sm:rounded-lg border-b border-gray-200">
         <table className="min-w-full border-separate">
           <thead>
             <tr>
-              <th className={tableHeaderClasses}>Case</th>
-              <th className={tableHeaderClasses}>Date</th>
-              <th className={tableHeaderClasses}>Department</th>
-              <th className={tableHeaderClasses}>Visit Type</th>
+              <th
+                className={tableHeaderClasses}
+                onClick={() => handleSort("case_id")}
+              >
+                Case{" "}
+                {sortField === "case_id" &&
+                  (sortDirection === "asc" ? "↑" : "↓")}
+              </th>
+              <th
+                className={tableHeaderClasses}
+                onClick={() => handleSort("visit_date")}
+              >
+                Date{" "}
+                {sortField === "visit_date" &&
+                  (sortDirection === "asc" ? "↑" : "↓")}
+              </th>
+              <th
+                className={tableHeaderClasses}
+                onClick={() => handleSort("department")}
+              >
+                Department{" "}
+                {sortField === "department" &&
+                  (sortDirection === "asc" ? "↑" : "↓")}
+              </th>
+              <th
+                className={tableHeaderClasses}
+                onClick={() => handleSort("visit_type")}
+              >
+                Visit Type{" "}
+                {sortField === "visit_type" &&
+                  (sortDirection === "asc" ? "↑" : "↓")}
+              </th>
               <th className={tableHeaderClasses}>De-Identified</th>
               <th className={tableHeaderClasses}>Access Controlled</th>
             </tr>
           </thead>
           <tbody className="bg-white">
-            {encounterData.map((item) => (
+            {sortedData.map((item) => (
               <tr key={item.id}>
                 <td className={tableDataClasses}>{item.case_id}</td>
                 <td className={tableDataClasses}>
