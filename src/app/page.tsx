@@ -1,20 +1,48 @@
 "use client";
 
 import React from "react";
-import { useFetchData } from "../app/dashboard/useFetchData";
+import { useFetchData } from "./useFetchData";
 import DataTable from "./dashboard/components/DataTable";
+import LoadingPage from "./components/LoadingPage";
+
+import {
+  EncouterDataType,
+  DepartmentDataType,
+  EncounterMediaTypeChoicesDataType,
+} from "@/interfaces";
 
 const Home: React.FC = () => {
-  const { data, error } = useFetchData(
-    `${process.env.NEXT_PUBLIC_BACKEND_API}/encounters`
+  const { data: encounterData, error: encounterError } =
+    useFetchData<EncouterDataType>(
+      `${process.env.NEXT_PUBLIC_BACKEND_API}/encounters`
+    );
+
+  const { data: departmentData, error: departmentError } =
+    useFetchData<DepartmentDataType>(
+      `${process.env.NEXT_PUBLIC_BACKEND_API}/departments`
+    );
+
+  const {
+    data: encounterMediaTypeChoicesData,
+    error: encounterMediaTypeChoicesError,
+  } = useFetchData<EncounterMediaTypeChoicesDataType>(
+    `${process.env.NEXT_PUBLIC_BACKEND_API}/encounter_media_type_choices`
   );
 
-  if (error) {
+  if (encounterError || departmentError || encounterMediaTypeChoicesError) {
     return (
       <div className="m-4 p-4 bg-red-100 text-red-700 rounded-md">
-        Error: {error}
+        Error:{" "}
+        {encounterError || departmentError || encounterMediaTypeChoicesError}
       </div>
     );
+  }
+  if (
+    encounterData.length == 0 ||
+    departmentData.length == 0 ||
+    encounterMediaTypeChoicesData.length == 0
+  ) {
+    return <LoadingPage />;
   }
   return (
     <main>
@@ -41,7 +69,11 @@ const Home: React.FC = () => {
           culpa qui officia deserunt mollit anim id est laborum.
         </p>
         <div className="w-full max-w-4xl p-4 bg-white rounded-md shadow-md">
-          <DataTable data={data} />
+          <DataTable
+            encounterData={encounterData}
+            departmentData={departmentData}
+            encounterMediaTypeChoicesData={encounterMediaTypeChoicesData}
+          />
         </div>
       </div>
     </main>
