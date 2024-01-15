@@ -1,19 +1,21 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import {
   EncouterDataType,
   DepartmentDataType,
   EncounterMediaTypeChoicesDataType,
-} from "@/interfaces";
+} from "../../../interfaces";
 import {
   checkBoolean,
   formatDepartmentName,
   formatVisitDate,
-} from "@/lib/utils";
+} from "../../../lib/utils";
 
 interface DataTableProps {
-  encounterData: EncouterDataType[];
-  departmentData: DepartmentDataType[];
-  encounterMediaTypeChoicesData: EncounterMediaTypeChoicesDataType[];
+  encounterData: EncouterDataType;
+  departmentData: DepartmentDataType;
+  encounterMediaTypeChoicesData: EncounterMediaTypeChoicesDataType;
 }
 
 const tableHeaderClasses =
@@ -29,9 +31,8 @@ const DataTable: React.FC<DataTableProps> = ({
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [sortedData, setSortedData] = useState<EncouterDataType[]>([]);
-
   useEffect(() => {
-    let sorted = [...encounterData];
+    let sorted: EncouterDataType = encounterData;
     if (sortField) {
       sorted.sort((a, b) => {
         // Sort other fields
@@ -97,12 +98,10 @@ const DataTable: React.FC<DataTableProps> = ({
             {sortedData.map((item) => (
               <tr key={item.id}>
                 <td className={tableDataClasses}>{item.case_id}</td>
-                <td className={tableDataClasses}>
-                  {formatVisitDate(item.visit_date)}
-                </td>
+                <td className={tableDataClasses}>{formatVisitDate(item.visit_date)}</td>
                 <td className={tableDataClasses}>
                   {formatDepartmentName(
-                    departmentData[item.department].toString()
+                    departmentData[item.department as unknown as keyof DepartmentDataType].toString()
                   )}
                 </td>
                 <td className={tableDataClasses}>

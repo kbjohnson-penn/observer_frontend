@@ -1,49 +1,39 @@
-"use client";
-
-import React from "react";
-import { useFetchData } from "./useFetchData";
-import DataTable from "./dashboard/components/DataTable";
-import LoadingPage from "./components/LoadingPage";
+import React, { Suspense } from "react";
+import DataTable from "./dashboard/_components/DataTable";
+import LoadingPage from "../components/LoadingPage";
 
 import {
   EncouterDataType,
   DepartmentDataType,
   EncounterMediaTypeChoicesDataType,
-} from "@/interfaces";
+} from "../interfaces";
 
-const Home: React.FC = () => {
-  const { data: encounterData, error: encounterError } =
-    useFetchData<EncouterDataType>(
-      `${process.env.NEXT_PUBLIC_BACKEND_API}/encounters`
-    );
+const fetchEncouterData = async () => {
+  const res = await fetch(`${process.env.BACKEND_API}/encounters`);
+  const data: EncouterDataType = await res.json();
+  return data;
+};
 
-  const { data: departmentData, error: departmentError } =
-    useFetchData<DepartmentDataType>(
-      `${process.env.NEXT_PUBLIC_BACKEND_API}/departments`
-    );
+const fetchDepartmentData = async () => {
+  const res = await fetch(`${process.env.BACKEND_API}/departments`);
+  const data: DepartmentDataType = await res.json();
+  return data;
+};
 
-  const {
-    data: encounterMediaTypeChoicesData,
-    error: encounterMediaTypeChoicesError,
-  } = useFetchData<EncounterMediaTypeChoicesDataType>(
-    `${process.env.NEXT_PUBLIC_BACKEND_API}/encounter_media_type_choices`
+const fetchEncounterMediaTypeChoicesData = async () => {
+  const res = await fetch(
+    `${process.env.BACKEND_API}/encounter_media_type_choices`
   );
+  const data: EncounterMediaTypeChoicesDataType = await res.json();
+  return data;
+};
 
-  if (encounterError || departmentError || encounterMediaTypeChoicesError) {
-    return (
-      <div className="m-4 p-4 bg-red-100 text-red-700 rounded-md">
-        Error:{" "}
-        {encounterError || departmentError || encounterMediaTypeChoicesError}
-      </div>
-    );
-  }
-  if (
-    encounterData.length == 0 ||
-    departmentData.length == 0 ||
-    encounterMediaTypeChoicesData.length == 0
-  ) {
-    return <LoadingPage />;
-  }
+const Home: React.FC = async () => {
+  const encounterData = await fetchEncouterData();
+  const departmentData = await fetchDepartmentData();
+  const encounterMediaTypeChoicesData =
+    await fetchEncounterMediaTypeChoicesData();
+
   return (
     <main>
       <div className="flex flex-col min-h-screen items-center justify-start p-10 text-center">
@@ -69,11 +59,13 @@ const Home: React.FC = () => {
           culpa qui officia deserunt mollit anim id est laborum.
         </p>
         <div className="w-full max-w-4xl p-4 bg-white rounded-md shadow-md">
-          <DataTable
-            encounterData={encounterData}
-            departmentData={departmentData}
-            encounterMediaTypeChoicesData={encounterMediaTypeChoicesData}
-          />
+          <Suspense fallback={<LoadingPage />}>
+            <DataTable
+              encounterData={encounterData}
+              departmentData={departmentData}
+              encounterMediaTypeChoicesData={encounterMediaTypeChoicesData}
+            />
+          </Suspense>
         </div>
       </div>
     </main>
