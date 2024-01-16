@@ -21,6 +21,7 @@ export default function Navigation() {
               height={100}
               alt="Observer logo"
               className="h-12 ml-4"
+              priority
             />
           </Link>
           <div className="h-12 border-r ml-4"></div>
@@ -32,6 +33,7 @@ export default function Navigation() {
                 height={100}
                 alt="Observer logo"
                 className="h-12"
+                priority
               />
               <p className="mt-2 text-sm text-white">
                 A Digital Window into Medicine

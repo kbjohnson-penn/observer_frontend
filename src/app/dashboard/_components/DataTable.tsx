@@ -13,7 +13,7 @@ import {
 } from "../../../lib/utils";
 
 interface DataTableProps {
-  encounterData: EncouterDataType;
+  encounterData: EncouterDataType[];
   departmentData: DepartmentDataType;
   encounterMediaTypeChoicesData: EncounterMediaTypeChoicesDataType;
 }

@@ -1,3 +1,5 @@
+import { EncouterDataType, DepartmentDataType } from "../interfaces";
+
 export const capitalizeWords = (input: string): string => {
   return input.replace(/\b\w/g, (char) => char.toUpperCase());
 };
@@ -13,7 +15,73 @@ export const formatDepartmentName = (name: string): string => {
 };
 
 export const formatVisitDate = (date: string): string => {
-    const [year, month, day] = date.split("-");
-    const formattedDate = `${month}/${day}/${year}`;
-    return formattedDate;
+  const [year, month, day] = date.split("-");
+  const formattedDate = `${month}/${day}/${year}`;
+  return formattedDate;
+};
+
+export const getEncouterPerDepartment = (
+  encounters: EncouterDataType[],
+  departmentData: DepartmentDataType
+): { department: string; count: number }[] => {
+  const data = encounters.reduce(
+    (
+      acc: { department: string; count: number }[],
+      encounter: EncouterDataType
+    ) => {
+      const departmentName =
+        formatDepartmentName(departmentData[encounter.department]) || "Unknown";
+      const existing = acc.find((item) => item.department === departmentName);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        acc.push({ department: departmentName, count: 1 });
+      }
+      return acc;
+    },
+    []
+  );
+  return data;
+};
+
+export const getEncouterByDate = (
+  encounters: EncouterDataType[]
+): { visit_date: string; count: number }[] => {
+  const data = encounters.reduce(
+    (acc: { visit_date: string; count: number }[], encounter: EncouterDataType) => {
+      const visitDate = formatVisitDate(encounter.visit_date);
+      const existing = acc.find(
+        (item) => item.visit_date === visitDate
+      );
+      if (existing) {
+        existing.count += 1;
+      } else {
+        acc.push({ visit_date: visitDate, count: 1 });
+      }
+      return acc;
+    },
+    []
+  );
+  return data;
+};
+
+export const getEncounterByMediaType = (
+  encounters: EncouterDataType[],
+  encounterMediaTypeChoices: { [key: string]: string }
+): { mediaType: string; count: number }[] => {
+  const data = encounters.reduce(
+    (acc: { mediaType: string; count: number }[], encounter: EncouterDataType) => {
+      const mediaType = encounterMediaTypeChoices[encounter.visit_type] || "Unknown";
+      const existing = acc.find((item) => item.mediaType === mediaType);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        acc.push({ mediaType, count: 1 });
+      }
+      return acc;
+    },
+    []
+  );
+  console.log(data)
+  return data;
 };
