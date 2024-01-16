@@ -48,11 +48,12 @@ export const getEncouterByDate = (
   encounters: EncouterDataType[]
 ): { visit_date: string; count: number }[] => {
   const data = encounters.reduce(
-    (acc: { visit_date: string; count: number }[], encounter: EncouterDataType) => {
+    (
+      acc: { visit_date: string; count: number }[],
+      encounter: EncouterDataType
+    ) => {
       const visitDate = formatVisitDate(encounter.visit_date);
-      const existing = acc.find(
-        (item) => item.visit_date === visitDate
-      );
+      const existing = acc.find((item) => item.visit_date === visitDate);
       if (existing) {
         existing.count += 1;
       } else {
@@ -70,8 +71,12 @@ export const getEncounterByMediaType = (
   encounterMediaTypeChoices: { [key: string]: string }
 ): { mediaType: string; count: number }[] => {
   const data = encounters.reduce(
-    (acc: { mediaType: string; count: number }[], encounter: EncouterDataType) => {
-      const mediaType = encounterMediaTypeChoices[encounter.visit_type] || "Unknown";
+    (
+      acc: { mediaType: string; count: number }[],
+      encounter: EncouterDataType
+    ) => {
+      const mediaType =
+        encounterMediaTypeChoices[encounter.visit_type] || "Unknown";
       const existing = acc.find((item) => item.mediaType === mediaType);
       if (existing) {
         existing.count += 1;
@@ -82,6 +87,34 @@ export const getEncounterByMediaType = (
     },
     []
   );
-  console.log(data)
   return data;
 };
+
+export function countEncounters(encounterData: any[]) {
+  // Initialize an empty object to hold the counts
+  const counts: any = {};
+
+  // Loop over the encounter data
+  for (const encounter of encounterData) {
+    // Get the categories for this encounter
+    const racialCategory = encounter.racial_category;
+    const ethnicCategory = encounter.ethnic_category;
+    const gender = encounter.gender;
+
+    // If this combination of categories doesn't exist in the counts object yet, initialize it
+    if (!counts[racialCategory]) {
+      counts[racialCategory] = {};
+    }
+    if (!counts[racialCategory][ethnicCategory]) {
+      counts[racialCategory][ethnicCategory] = {};
+    }
+    if (!counts[racialCategory][ethnicCategory][gender]) {
+      counts[racialCategory][ethnicCategory][gender] = 0;
+    }
+
+    // Increment the count for this combination of categories
+    counts[racialCategory][ethnicCategory][gender]++;
+  }
+  console.log(counts);
+  return counts;
+}
