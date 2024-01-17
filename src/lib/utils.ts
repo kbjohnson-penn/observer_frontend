@@ -91,17 +91,13 @@ export const getEncounterByMediaType = (
 };
 
 export function countEncounters(encounterData: any[]) {
-  // Initialize an empty object to hold the counts
   const counts: any = {};
 
-  // Loop over the encounter data
   for (const encounter of encounterData) {
-    // Get the categories for this encounter
     const racialCategory = encounter.racial_category;
     const ethnicCategory = encounter.ethnic_category;
     const gender = encounter.gender;
 
-    // If this combination of categories doesn't exist in the counts object yet, initialize it
     if (!counts[racialCategory]) {
       counts[racialCategory] = {};
     }
@@ -112,9 +108,7 @@ export function countEncounters(encounterData: any[]) {
       counts[racialCategory][ethnicCategory][gender] = 0;
     }
 
-    // Increment the count for this combination of categories
     counts[racialCategory][ethnicCategory][gender]++;
   }
-  console.log(counts);
   return counts;
 }

@@ -9,11 +9,10 @@ import {
   Tooltip,
   Cell,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 import { EncouterDataType, DepartmentDataType } from "../../../interfaces";
-import {
-  getEncouterPerDepartment,
-} from "../../../lib/utils";
+import { getEncouterPerDepartment } from "../../../lib/utils";
 
 interface EncounterBarChartProps {
   encounters: EncouterDataType[];
@@ -28,10 +27,11 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
       <text
         x={0}
         y={0}
-        dy={16}
+        dy={10} // Decrease this value to move the ticks up
         textAnchor="end"
         fill="#666"
-        transform="rotate(-35)"
+        transform="rotate(-35)" // Decrease this value to reduce the rotation
+        fontSize={12} // Adjust this value to change the tick size
       >
         {payload.value}
       </text>

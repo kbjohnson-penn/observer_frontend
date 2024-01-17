@@ -17,7 +17,6 @@ const CummulativeDataTable: React.FC<CummulativeDataTableProps> = ({
   encounterData,
 }) => {
   const totalEncounters = countEncounters(encounterData);
-  console.log(totalEncounters);
   const rowTotals = Object.keys(RACIAL_CATEGORIES).map((racialCategory) =>
     Object.keys(ETHNIC_CATEGORIES).reduce(
       (sum, ethnicCategory) =>

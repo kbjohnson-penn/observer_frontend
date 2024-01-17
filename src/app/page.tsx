@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
-import DataTable from "./dashboard/_components/DataTable";
 import LoadingPage from "../components/LoadingPage";
+import CummulativeDataTable from "./dashboard/_components/CummalativeDataTable";
 
 import {
   EncouterDataType,
@@ -10,7 +10,7 @@ import {
 
 const fetchEncouterData = async () => {
   const res = await fetch(`${process.env.BACKEND_API}/encounters`);
-  const data: EncouterDataType = await res.json();
+  const data: EncouterDataType[] = await res.json();
   return data;
 };
 
@@ -35,37 +35,49 @@ const Home: React.FC = async () => {
     await fetchEncounterMediaTypeChoicesData();
 
   return (
-    <main>
-      <div className="flex flex-col min-h-screen items-center justify-start p-10 text-center">
-        <h1 className="text-4xl font-bold mb-4">
-          Welcome to the Observer Project
-        </h1>
-        <p className="text-lg text-justify mx-8 py-8">
-          The mission of the Observer Repository is to build a repository of
-          clinical encounter data that supports clinical care research,
-          translation, improvement, and education related to clinical care and
-          technology. This project will collect data on the clinic visit in
-          multiple formats, including screen captures, EHR audit log data, room
-          videos, and encounter reviews, which will be used later in different
-          research studies.
-        </p>
-        <p className="text-lg text-justify mx-8">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum.
-        </p>
-        <div className="w-full max-w-4xl p-4 bg-white rounded-md shadow-md">
-          <Suspense fallback={<LoadingPage />}>
-            <DataTable
-              encounterData={encounterData}
-              departmentData={departmentData}
-              encounterMediaTypeChoicesData={encounterMediaTypeChoicesData}
-            />
-          </Suspense>
+    <main className="bg-gray-100 py-10">
+      <div className="container mx-auto px-4">
+        <div className="bg-white p-6 rounded shadow">
+          <h1 className="text-4xl font-bold mb-4 text-center text-blue-700">
+            Welcome to the Observer Project
+          </h1>
+          <p className="text-lg text-justify mx-8 py-8 text-gray-700">
+            Welcome to The Observer Repository. We specialize in aggregating and
+            curating comprehensive clinic visit data, including video, audio,
+            transcript, EHR data, and audit log information, to provide an
+            unparalleled view of the dynamics of patient-provider interactions.
+            Adhering to the FAIR data management principles, our repository is
+            designed for researchers seeking to delve into the depths of
+            telemedicine and in-person consultations. Here, we invite
+            collaboration, foster innovation, and aim to unlock new insights in
+            medical research and pave the way for advancements in patient care
+            and healthcare delivery.
+          </p>
+          <p className="text-lg text-justify mx-8 text-gray-700">
+            The Observer Repository is a state-of-the-art multimodal platform
+            equipped to store a variety of data formats, including MOV and MP4
+            for high-quality video, MP3 for audio, TXT for text transcripts, and
+            EHR audit log files in formats like .log, .xml, .csv, or .txt. This
+            range ensures a detailed capture of clinic visit dynamics, providing
+            a rich, multidimensional dataset for exploring the complexities of
+            patient-provider interactions, from verbal exchanges to non-verbal
+            cues.
+          </p>
+          <div className="flex flex-col items-center justify-center py-5">
+            <div className="w-full max-w-4xl p-4 bg-gray-200 rounded-md shadow-md mt-6">
+              <h2 className="text-2xl font-bold mb-2 text-blue-700">
+                Demographics Table
+              </h2>
+              <Suspense fallback={<LoadingPage />}>
+                <CummulativeDataTable encounterData={encounterData} />
+              </Suspense>
+            </div>
+            <p className="text-lg text-justify mx-8 mt-6 text-gray-700">
+              This table contains real-time details regarding patient
+              participant population demographics for visits housed in The
+              Observer Repository.
+            </p>
+          </div>
         </div>
       </div>
     </main>

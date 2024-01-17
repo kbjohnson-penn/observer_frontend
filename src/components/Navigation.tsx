@@ -28,8 +28,8 @@ export default function Navigation() {
           <div className="ml-4">
             <Link href="https://www.med.upenn.edu/observer/">
               <Image
-                src="/observer-logo.png"
-                width={180}
+                src="/observer-light.png"
+                width={200}
                 height={100}
                 alt="Observer logo"
                 className="h-12"
