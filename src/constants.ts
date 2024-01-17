@@ -1,17 +1,3 @@
-export const DEPARTMENTS_NAMES: { [key: string]: string } = {
-  "1": "cardiology",
-  "2": "neurology",
-  "3": "orthopedics",
-};
-
-export const VISIT_TYPE: { [key: string]: string } = {
-  VAT: "Video + Audio + Transcript",
-  V: "Video Only",
-  A: "Audio Only",
-  T: "Transcript Only",
-  OTH: "Others",
-};
-
 export const RACIAL_CATEGORIES: { [key: string]: string } = {
   AI: "American Indian or Alaska Native",
   A: "Asian",
@@ -32,4 +18,21 @@ export const GENDER_CATEGORIES: { [key: string]: string } = {
   M: "Male",
   F: "Female",
   UN: "Unknown or Not Reported",
+};
+
+export const DEPARTMENT_COLORS: { [key: string]: string } = {
+  "Sim Center": "#8ED081",
+  Oncology: "#B4D2BA",
+  "Primary Care": "#DCE2AA",
+  Neurology: "#FFD700",
+  "Fmaily Medicine": "#B57F50",
+  Cardiology: "#FFC0CB",
+  Orthopedics: "#4B543B",
+};
+
+export const MEDIA_TYPE_COLORS: { [key: string]: string } = {
+  Video: "#afca82",
+  Transcript: "#ca9d82",
+  Audio: "#82ca9d",
+  Annotation: "#9d82ca  ",
 };

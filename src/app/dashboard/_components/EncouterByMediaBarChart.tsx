@@ -9,15 +9,19 @@ import {
   Tooltip,
   Cell,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
-import { EncouterDataType, DepartmentDataType } from "../../../interfaces";
-import { getEncouterPerDepartment } from "../../../lib/utils";
-import { DEPARTMENT_COLORS } from "../../../constants";
+import {
+  EncouterDataType,
+  DepartmentDataType,
+  EncounterMediaChoicesDataType,
+} from "../../../interfaces";
+import { getMediaChoicesByDepartments } from "../../../lib/utils";
+import { MEDIA_TYPE_COLORS } from "../../../constants";
 
-interface EncounterBarChartProps {
+interface EncouterByMediaBarChartProps {
   encounterData: EncouterDataType[];
   departmentData: DepartmentDataType;
+  encounterMediaChoicesData: EncounterMediaChoicesDataType;
 }
 
 const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
@@ -38,10 +42,17 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
   );
 };
 
-const EncounterBarChart: React.FC<EncounterBarChartProps> = ({
+const EncouterByMediaBarChart: React.FC<EncouterByMediaBarChartProps> = ({
   encounterData,
+  departmentData,
+  encounterMediaChoicesData,
 }) => {
-  const data = getEncouterPerDepartment(encounterData);
+  const data = getMediaChoicesByDepartments(
+    encounterData,
+    departmentData,
+    encounterMediaChoicesData
+  );
+
   return (
     <ResponsiveContainer width="100%" height={400}>
       <BarChart width={500} height={300} data={data}>
@@ -58,20 +69,20 @@ const EncounterBarChart: React.FC<EncounterBarChartProps> = ({
         />
         <YAxis
           allowDecimals={false}
-          label={{ value: "No. of Encouters", angle: -90, position: "middle" }}
+          label={{ value: "Total", angle: -90, position: "middle" }}
         />
         <Tooltip />
-        <Bar dataKey="count" fill="#8884d8" label={{ position: "top" }}>
-          {data.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={DEPARTMENT_COLORS[entry.department]}
-            />
-          ))}
-        </Bar>
+        {Object.keys(MEDIA_TYPE_COLORS).map((mediaType) => (
+          <Bar
+            key={mediaType}
+            dataKey={mediaType}
+            stackId="a"
+            fill={MEDIA_TYPE_COLORS[mediaType]}
+          />
+        ))}
       </BarChart>
     </ResponsiveContainer>
   );
 };
 
-export default EncounterBarChart;
+export default EncouterByMediaBarChart;

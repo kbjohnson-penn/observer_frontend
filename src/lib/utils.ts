@@ -1,4 +1,8 @@
-import { EncouterDataType, DepartmentDataType } from "../interfaces";
+import {
+  EncouterDataType,
+  DepartmentDataType,
+  EncounterMediaChoicesDataType,
+} from "../interfaces";
 
 export const capitalizeWords = (input: string): string => {
   return input.replace(/\b\w/g, (char) => char.toUpperCase());
@@ -14,23 +18,24 @@ export const formatDepartmentName = (name: string): string => {
   return formattedName;
 };
 
-export const formatVisitDate = (date: string): string => {
-  const [year, month, day] = date.split("-");
-  const formattedDate = `${month}/${day}/${year}`;
-  return formattedDate;
+export const formatVisitDate = (date: string) => {
+  const d = new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
 export const getEncouterPerDepartment = (
-  encounters: EncouterDataType[],
-  departmentData: DepartmentDataType
+  encounterData: EncouterDataType[]
 ): { department: string; count: number }[] => {
-  const data = encounters.reduce(
+  const data = encounterData.reduce(
     (
       acc: { department: string; count: number }[],
       encounter: EncouterDataType
     ) => {
       const departmentName =
-        formatDepartmentName(departmentData[encounter.department]) || "Unknown";
+        formatDepartmentName(String(encounter.department)) || "Unknown";
       const existing = acc.find((item) => item.department === departmentName);
       if (existing) {
         existing.count += 1;
@@ -45,9 +50,9 @@ export const getEncouterPerDepartment = (
 };
 
 export const getEncouterByDate = (
-  encounters: EncouterDataType[]
+  encounterData: EncouterDataType[]
 ): { visit_date: string; count: number }[] => {
-  const data = encounters.reduce(
+  const data = encounterData.reduce(
     (
       acc: { visit_date: string; count: number }[],
       encounter: EncouterDataType
@@ -66,28 +71,34 @@ export const getEncouterByDate = (
   return data;
 };
 
-export const getEncounterByMediaType = (
-  encounters: EncouterDataType[],
-  encounterMediaTypeChoices: { [key: string]: string }
-): { mediaType: string; count: number }[] => {
-  const data = encounters.reduce(
-    (
-      acc: { mediaType: string; count: number }[],
-      encounter: EncouterDataType
-    ) => {
-      const mediaType =
-        encounterMediaTypeChoices[encounter.visit_type] || "Unknown";
-      const existing = acc.find((item) => item.mediaType === mediaType);
-      if (existing) {
-        existing.count += 1;
-      } else {
-        acc.push({ mediaType, count: 1 });
+export const getMediaChoicesByDepartments = (
+  encounterData: EncouterDataType[],
+  departmentData: DepartmentDataType,
+  encounterMediaChoicesData: EncounterMediaChoicesDataType
+) => {
+  const data = Object.values(departmentData).reduce((acc, department) => {
+    const formattedDepartment = formatDepartmentName(department);
+    // Initialize the department in the accumulator with all media types set to 0
+    acc[formattedDepartment] = { department: formattedDepartment };
+    Object.values(encounterMediaChoicesData).forEach((mediaType) => {
+      acc[formattedDepartment][mediaType] = 0;
+    });
+
+    // Iterate over the encounters and increment the count of the media types for the department
+    encounterData.forEach((encounter) => {
+      if (formatDepartmentName(encounter.department) === formattedDepartment) {
+        (encounter.media_types || []).forEach((mediaType) => {
+          if (Object.values(encounterMediaChoicesData).includes(mediaType)) {
+            acc[formattedDepartment][mediaType]++;
+          }
+        });
       }
-      return acc;
-    },
-    []
-  );
-  return data;
+    });
+
+    return acc;
+  }, {} as { [key: string]: any });
+
+  return Object.values(data);
 };
 
 export function countEncounters(encounterData: any[]) {

@@ -88,7 +88,10 @@ const CummulativeDataTable: React.FC<CummulativeDataTableProps> = ({
             </td>
             {Object.keys(ETHNIC_CATEGORIES).flatMap((ethnicCategory) =>
               Object.keys(GENDER_CATEGORIES).map((gender) => (
-                <td className="border border-black p-2">
+                <td
+                  className="border border-black p-2"
+                  key={`${ethnicCategory}-${gender}`}
+                >
                   {totalEncounters[racialCategory]?.[ethnicCategory]?.[
                     gender
                   ] || 0}

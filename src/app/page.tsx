@@ -2,11 +2,7 @@ import React, { Suspense } from "react";
 import LoadingPage from "../components/LoadingPage";
 import CummulativeDataTable from "./dashboard/_components/CummalativeDataTable";
 
-import {
-  EncouterDataType,
-  DepartmentDataType,
-  EncounterMediaTypeChoicesDataType,
-} from "../interfaces";
+import { EncouterDataType } from "../interfaces";
 
 const fetchEncouterData = async () => {
   const res = await fetch(`${process.env.BACKEND_API}/encounters`);
@@ -14,25 +10,8 @@ const fetchEncouterData = async () => {
   return data;
 };
 
-const fetchDepartmentData = async () => {
-  const res = await fetch(`${process.env.BACKEND_API}/departments`);
-  const data: DepartmentDataType = await res.json();
-  return data;
-};
-
-const fetchEncounterMediaTypeChoicesData = async () => {
-  const res = await fetch(
-    `${process.env.BACKEND_API}/encounter_media_type_choices`
-  );
-  const data: EncounterMediaTypeChoicesDataType = await res.json();
-  return data;
-};
-
 const Home: React.FC = async () => {
   const encounterData = await fetchEncouterData();
-  const departmentData = await fetchDepartmentData();
-  const encounterMediaTypeChoicesData =
-    await fetchEncounterMediaTypeChoicesData();
 
   return (
     <main className="bg-gray-100 py-10">

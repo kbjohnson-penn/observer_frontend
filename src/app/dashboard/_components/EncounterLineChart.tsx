@@ -6,20 +6,14 @@ import {
   Line,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
 import { EncouterDataType } from "../../../interfaces";
-import {
-  checkBoolean,
-  formatDepartmentName,
-  formatVisitDate,
-  getEncouterByDate,
-} from "../../../lib/utils";
+import { getEncouterByDate } from "../../../lib/utils";
 
 interface EncounterLineChartProps {
-  encounters: EncouterDataType[];
+  encounterData: EncouterDataType[];
 }
 
 const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
@@ -40,9 +34,9 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
 };
 
 const EncounterLineChart: React.FC<EncounterLineChartProps> = ({
-  encounters,
+  encounterData,
 }) => {
-  const data = getEncouterByDate(encounters);
+  const data = getEncouterByDate(encounterData);
 
   return (
     <ResponsiveContainer width="100%" height={400}>
@@ -60,7 +54,7 @@ const EncounterLineChart: React.FC<EncounterLineChartProps> = ({
         />
         <YAxis
           allowDecimals={false}
-          label={{ value: "No. of Patients", angle: -90, position: "middle" }}
+          label={{ value: "No. of Encouters", angle: -90, position: "middle" }}
         />
         <Tooltip />
         <Line

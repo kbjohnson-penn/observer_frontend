@@ -1,8 +1,8 @@
 export interface EncouterDataType {
   id: number;
   case_id: string;
-  department: number;
-  visit_type: string;
+  department: string;
+  media_types: Array<string>;
   racial_category: string;
   ethnic_category: string;
   gender: string;
@@ -16,6 +16,6 @@ export interface DepartmentDataType {
   [key: number]: string;
 }
 
-export interface EncounterMediaTypeChoicesDataType {
+export interface EncounterMediaChoicesDataType {
   [key: string]: string;
 }
