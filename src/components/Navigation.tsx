@@ -50,7 +50,7 @@ export default function Navigation() {
                 useActiveLink("/")
                   ? "font-bold text-zinc-50"
                   : "font-semibold text-white text-zinc-400"
-              } hover:text-yellow-500 ml-3 mr-4`}
+              } hover:text-yellow-500 ml-3 mr-4 text-lg`}
             >
               Home
             </Link>
@@ -62,7 +62,7 @@ export default function Navigation() {
                 useActiveLink("/dashboard")
                   ? "font-bold text-zinc-50"
                   : "font-semibold text-white text-zinc-400"
-              } hover:text-yellow-500 ml-3 mr-4`}
+              } hover:text-yellow-500 ml-3 mr-4 text-lg`}
             >
               Dashboard
             </Link>
