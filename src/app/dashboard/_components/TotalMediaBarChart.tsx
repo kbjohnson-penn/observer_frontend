@@ -9,15 +9,18 @@ import {
   Tooltip,
   Cell,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
-import { EncouterDataType, DepartmentDataType } from "../../../interfaces";
-import { getEncouterPerDepartment } from "../../../lib/utils";
-import { DEPARTMENT_COLORS } from "../../../constants";
+import {
+  EncouterDataType,
+  DepartmentDataType,
+  EncounterMediaChoicesDataType,
+} from "../../../interfaces";
+import { getTotalMediaCount } from "../../../lib/utils";
+import { MEDIA_TYPE_COLORS } from "../../../constants";
 
-interface EncounterBarChartProps {
+interface TotalMediaBarChartProps {
   encounterData: EncouterDataType[];
-  departmentData: DepartmentDataType;
+  encounterMediaChoicesData: EncounterMediaChoicesDataType;
 }
 
 const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
@@ -38,43 +41,36 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
   );
 };
 
-const EncounterBarChart: React.FC<EncounterBarChartProps> = ({
+const TotalMediaBarChart: React.FC<TotalMediaBarChartProps> = ({
   encounterData,
+  encounterMediaChoicesData,
 }) => {
-  const data = getEncouterPerDepartment(encounterData);
+  const data = getTotalMediaCount(encounterData, encounterMediaChoicesData);
+
   return (
     <ResponsiveContainer width="100%" height={400}>
-      <BarChart
-        width={500}
-        height={300}
-        data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-      >
+      <BarChart width={500} height={300} data={data}>
         <XAxis
-          dataKey="department"
+          dataKey="mediaType"
           height={70}
           tick={<CustomizedAxisTick />}
           padding={{ left: 5, right: 5 }}
           label={{
-            value: "Departments",
+            value: "Media Types",
             position: "insideBottomRight",
             offset: 0,
           }}
         />
         <YAxis
           allowDecimals={false}
-          label={{ value: "No. of Encouters", angle: -90, position: "middle" }}
+          label={{ value: "Total", angle: -90, position: "middle" }}
         />
         <Tooltip />
-        <Bar
-          dataKey="count"
-          fill="#8884d8"
-          barSize={70}
-        >
+        <Bar dataKey="count" barSize={70}>
           {data.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
-              fill={DEPARTMENT_COLORS[entry.department]}
+              fill={MEDIA_TYPE_COLORS[entry.mediaType]}
             />
           ))}
         </Bar>
@@ -83,4 +79,4 @@ const EncounterBarChart: React.FC<EncounterBarChartProps> = ({
   );
 };
 
-export default EncounterBarChart;
+export default TotalMediaBarChart;

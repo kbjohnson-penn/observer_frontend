@@ -123,3 +123,29 @@ export function countEncounters(encounterData: any[]) {
   }
   return counts;
 }
+
+export const getTotalMediaCount = (
+  encounterData: EncouterDataType[],
+  encounterMediaChoicesData: EncounterMediaChoicesDataType
+) => {
+  const mediaCounts = Object.values(encounterMediaChoicesData).reduce(
+    (acc, mediaType) => {
+      acc[mediaType] = 0;
+      return acc;
+    },
+    {} as { [key: string]: number }
+  );
+
+  encounterData.forEach((encounter) => {
+    encounter.media_types.forEach((mediaType) => {
+      if (mediaCounts[mediaType] !== undefined) {
+        mediaCounts[mediaType]++;
+      }
+    });
+  });
+
+  return Object.entries(mediaCounts).map(([mediaType, count]) => ({
+    mediaType,
+    count,
+  }));
+};
