@@ -17,7 +17,7 @@ const Home: React.FC = async () => {
     <main className="bg-gray-100 py-10">
       <div className="container mx-auto px-4">
         <div className="bg-white p-6 rounded shadow">
-          <h1 className="text-4xl font-bold mb-4 text-center text-blue-700">
+          <h1 style={{ color: '#950019' }} className="text-4xl font-bold mb-4 text-center text-blue-700">
             Welcome to the Observer Project
           </h1>
           <p className="text-lg text-justify mx-8 py-8 text-gray-700">

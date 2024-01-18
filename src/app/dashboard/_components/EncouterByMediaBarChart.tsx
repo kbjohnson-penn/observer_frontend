@@ -78,6 +78,7 @@ const EncouterByMediaBarChart: React.FC<EncouterByMediaBarChartProps> = ({
             dataKey={mediaType}
             stackId="a"
             fill={MEDIA_TYPE_COLORS[mediaType]}
+            barSize={70}
           />
         ))}
       </BarChart>
