@@ -19,7 +19,7 @@ export default function Navigation() {
               src="/penn-med.png"
               width={180}
               height={100}
-              alt="Observer logo"
+              alt="Penn Medicine logo"
               className="h-12 ml-4"
               priority
             />
@@ -28,15 +28,14 @@ export default function Navigation() {
           <div className="ml-4">
             <Link href="https://www.med.upenn.edu/observer/">
               <Image
-                src="/observer-light.png"
+                src="/REDUCE-logo.png"
                 width={200}
                 height={100}
                 alt="Observer logo"
-                className="h-12"
                 priority
               />
-              <p className="mt-2 text-sm text-white">
-                A Digital Window into Medicine
+              <p className="text-sm text-white">
+                Automating Healthcare Beyond Documentation
               </p>
             </Link>
           </div>
