@@ -26,7 +26,7 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
       <text
         x={0}
         y={0}
-        dy={10} // Decrease this value to move the ticks up
+        dy={5} // Decrease this value to move the ticks up
         textAnchor="end"
         fill="#666"
         transform="rotate(-35)"
@@ -44,12 +44,7 @@ const EncounterBarChart: React.FC<EncounterBarChartProps> = ({
   const data = getEncouterPerDepartment(encounterData);
   return (
     <ResponsiveContainer width="100%" height={400}>
-      <BarChart
-        width={500}
-        height={300}
-        data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-      >
+      <BarChart width={500} height={300} data={data}>
         <XAxis
           dataKey="department"
           height={70}
@@ -58,7 +53,7 @@ const EncounterBarChart: React.FC<EncounterBarChartProps> = ({
           label={{
             value: "Departments",
             position: "insideBottomRight",
-            offset: 0,
+            offset: -5,
           }}
         />
         <YAxis
@@ -66,11 +61,7 @@ const EncounterBarChart: React.FC<EncounterBarChartProps> = ({
           label={{ value: "No. of Encouters", angle: -90, position: "middle" }}
         />
         <Tooltip />
-        <Bar
-          dataKey="count"
-          fill="#8884d8"
-          barSize={70}
-        >
+        <Bar dataKey="count" fill="#8884d8" barSize={70}>
           {data.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
