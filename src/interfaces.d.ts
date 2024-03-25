@@ -1,21 +1,37 @@
-export interface EncouterDataType {
-  id: number;
-  case_id: string;
-  department: string;
-  media_types: Array<string>;
-  racial_category: string;
-  ethnic_category: string;
-  gender: string;
-  age_range: string;
-  is_deidentified: boolean;
-  is_restricted: boolean;
-  visit_date: string;
+export interface PatientDataType {
+  patient_id: string;
+  date_of_birth: string;
+  sex: string;
+  race: string;
+  ethnicity: string;
+}
+
+export interface ProviderDataType {
+  provider_id: string;
+  date_of_birth: string;
+  sex: string;
+  race: string;
+  ethnicity: string;
 }
 
 export interface DepartmentDataType {
-  [key: number]: string;
+  name: string;
 }
 
-export interface EncounterMediaChoicesDataType {
-  [key: string]: string;
+export interface MultiModalDataPathsDataType {
+  multi_modal_data_id: string;
+  [key: string]: string | number | undefined;
+}
+
+export interface EncouterDataType {
+  case_id: string;
+  provider: string;
+  patient: string;
+  department: string;
+  multi_modal_data: string;
+  encounter_date_and_time: string;
+  patient_satisfaction: number;
+  provider_satisfaction: number;
+  is_deidentified: boolean;
+  is_restricted: boolean;
 }

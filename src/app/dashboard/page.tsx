@@ -3,14 +3,28 @@ import LoadingPage from "../../components/LoadingPage";
 import EncouterBarChart from "./_components/EncouterBarChart";
 import EncounterLineChart from "./_components/EncounterLineChart";
 import CummulativeDataTable from "./_components/CummalativeDataTable";
-import EncouterByMediaBarChart from "./_components/EncouterByMediaBarChart";
-import TotalMediaBarChart from "./_components/TotalMediaBarChart";
+import EncouterByMultiModalDataBarChart from "./_components/EncouterByMultiModalDataBarChart";
+import TotalMultiModalDataBarChart from "./_components/TotalMultiModalDataBarChart";
 
 import {
-  EncouterDataType,
+  PatientDataType,
+  ProviderDataType,
   DepartmentDataType,
-  EncounterMediaChoicesDataType,
+  MultiModalDataPathsDataType,
+  EncouterDataType,
 } from "../../interfaces";
+
+const fetchPatientsData = async () => {
+  const res = await fetch(`${process.env.BACKEND_API}/patients`);
+  const data: PatientDataType[] = await res.json();
+  return data;
+};
+
+const fetchProvidersData = async () => {
+  const res = await fetch(`${process.env.BACKEND_API}/providers`);
+  const data: ProviderDataType[] = await res.json();
+  return data;
+};
 
 const fetchEncouterData = async () => {
   const res = await fetch(`${process.env.BACKEND_API}/encounters`);
@@ -20,20 +34,22 @@ const fetchEncouterData = async () => {
 
 const fetchDepartmentData = async () => {
   const res = await fetch(`${process.env.BACKEND_API}/departments`);
-  const data: DepartmentDataType = await res.json();
+  const data: DepartmentDataType[] = await res.json();
   return data;
 };
 
-const fetchEncounterMediaChoicesData = async () => {
-  const res = await fetch(`${process.env.BACKEND_API}/media_choices`);
-  const data: EncounterMediaChoicesDataType = await res.json();
+const fetchMultiModalDataPathsData = async () => {
+  const res = await fetch(`${process.env.BACKEND_API}/datapaths`);
+  const data: MultiModalDataPathsDataType[] = await res.json();
   return data;
 };
 
 const Dashboard: React.FC = async () => {
+  const patientsData = await fetchPatientsData();
+  const providersData = await fetchProvidersData();
   const encounterData = await fetchEncouterData();
   const departmentData = await fetchDepartmentData();
-  const encounterMediaChoicesData = await fetchEncounterMediaChoicesData();
+  const multiModalDataPathsData = await fetchMultiModalDataPathsData();
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-start p-10 text-center space-y-8 bg-gray-100 py-10">
@@ -57,26 +73,26 @@ const Dashboard: React.FC = async () => {
           </div>
           <div className="bg-white rounded-md shadow-md p-2">
             <h2 className="text-xl mt-4 mb-8">
-              Number of Encouters by Department & Media Type
+              Number of Encouters by Department & Data Type
             </h2>
-            <EncouterByMediaBarChart
+            <EncouterByMultiModalDataBarChart
               encounterData={encounterData}
               departmentData={departmentData}
-              encounterMediaChoicesData={encounterMediaChoicesData}
+              multiModalDataPathsData={multiModalDataPathsData}
             />
           </div>
           <div className="bg-white rounded-md shadow-md p-2">
-            <h2 className="text-xl mt-4 mb-8">Total Media Types</h2>
-            <TotalMediaBarChart
+            <h2 className="text-xl mt-4 mb-8">Total Multi Modal Data Types</h2>
+            <TotalMultiModalDataBarChart
               encounterData={encounterData}
-              encounterMediaChoicesData={encounterMediaChoicesData}
+              multiModalDataPathsData={multiModalDataPathsData}
             />
           </div>
         </div>
-        <div className="w-full max-w-5xl p-6 bg-white rounded-md shadow-md border border-gray-300">
+        {/* <div className="w-full max-w-5xl p-6 bg-white rounded-md shadow-md border border-gray-300">
           <h2 className="text-xl mb-8">Demographics Table</h2>
           <CummulativeDataTable encounterData={encounterData} />
-        </div>
+        </div> */}
       </Suspense>
     </div>
   );

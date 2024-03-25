@@ -1,7 +1,7 @@
 import {
   EncouterDataType,
   DepartmentDataType,
-  EncounterMediaChoicesDataType,
+  MultiModalDataPathsDataType,
 } from "../interfaces";
 
 export const capitalizeWords = (input: string): string => {
@@ -27,42 +27,34 @@ export const formatVisitDate = (date: string) => {
 };
 
 export const getEncouterPerDepartment = (
-  encounterData: EncouterDataType[]
+  encounterData: EncouterDataType[],
+  departmentData: DepartmentDataType[]
 ): { department: string; count: number }[] => {
-  const data = encounterData.reduce(
-    (
-      acc: { department: string; count: number }[],
-      encounter: EncouterDataType
-    ) => {
-      const departmentName =
-        formatDepartmentName(String(encounter.department)) || "Unknown";
-      const existing = acc.find((item) => item.department === departmentName);
-      if (existing) {
-        existing.count += 1;
-      } else {
-        acc.push({ department: departmentName, count: 1 });
-      }
-      return acc;
-    },
-    []
-  );
+  const data = departmentData.map((department) => {
+    const count = encounterData.filter(
+      (encounter) => encounter.department === department.name
+    ).length;
+    return { department: department.name, count };
+  });
   return data;
 };
 
 export const getEncouterByDate = (
   encounterData: EncouterDataType[]
-): { visit_date: string; count: number }[] => {
+): { encounter_date: string; count: number }[] => {
   const data = encounterData.reduce(
     (
-      acc: { visit_date: string; count: number }[],
+      acc: { encounter_date: string; count: number }[],
       encounter: EncouterDataType
     ) => {
-      const visitDate = formatVisitDate(encounter.visit_date);
-      const existing = acc.find((item) => item.visit_date === visitDate);
+      const encounterDate = encounter.encounter_date_and_time.split("T")[0];
+      const existing = acc.find(
+        (item) => item.encounter_date === encounterDate
+      );
       if (existing) {
         existing.count += 1;
       } else {
-        acc.push({ visit_date: visitDate, count: 1 });
+        acc.push({ encounter_date: encounterDate, count: 1 });
       }
       return acc;
     },
@@ -71,34 +63,43 @@ export const getEncouterByDate = (
   return data;
 };
 
-export const getMediaChoicesByDepartments = (
+export const getMultiModalDataByDepartments = (
   encounterData: EncouterDataType[],
-  departmentData: DepartmentDataType,
-  encounterMediaChoicesData: EncounterMediaChoicesDataType
-) => {
-  const data = Object.values(departmentData).reduce((acc, department) => {
-    const formattedDepartment = formatDepartmentName(department);
-    // Initialize the department in the accumulator with all media types set to 0
-    acc[formattedDepartment] = { department: formattedDepartment };
-    Object.values(encounterMediaChoicesData).forEach((mediaType) => {
-      acc[formattedDepartment][mediaType] = 0;
-    });
-
-    // Iterate over the encounters and increment the count of the media types for the department
-    encounterData.forEach((encounter) => {
-      if (formatDepartmentName(encounter.department) === formattedDepartment) {
-        (encounter.media_types || []).forEach((mediaType) => {
-          if (Object.values(encounterMediaChoicesData).includes(mediaType)) {
-            acc[formattedDepartment][mediaType]++;
+  departmentData: DepartmentDataType[],
+  multiModalDataPathsData: MultiModalDataPathsDataType[]
+): { department: string; data: { [key: string]: number } }[] => {
+  const data = departmentData.map((department) => {
+    const departmentEncounters = encounterData.filter(
+      (encounter) => encounter.department === department.name
+    );
+    const departmentMultiModalData = departmentEncounters
+      .map((encounter) =>
+        multiModalDataPathsData.find(
+          (data) => data.multi_modal_data_id === encounter.multi_modal_data
+        )
+      )
+      .filter(Boolean);
+    const newData: { [key: string]: number } = {
+      provider_view: 0,
+      patient_view: 0,
+      room_view: 0,
+      audio: 0,
+      transcript: 0,
+      patient_survey: 0,
+      provider_survey: 0,
+    };
+    departmentMultiModalData.forEach((multiModalData) => {
+      if (multiModalData) {
+        Object.keys(multiModalData).forEach((key) => {
+          if (key !== "multi_modal_data_id" && multiModalData[key]) {
+            newData[key] += 1;
           }
         });
       }
     });
-
-    return acc;
-  }, {} as { [key: string]: any });
-
-  return Object.values(data);
+    return { department: department.name, data: newData };
+  });
+  return data;
 };
 
 export function countEncounters(encounterData: any[]) {
@@ -124,28 +125,32 @@ export function countEncounters(encounterData: any[]) {
   return counts;
 }
 
-export const getTotalMediaCount = (
+export const getTotalMultiModalDataCount = (
   encounterData: EncouterDataType[],
-  encounterMediaChoicesData: EncounterMediaChoicesDataType
-) => {
-  const mediaCounts = Object.values(encounterMediaChoicesData).reduce(
-    (acc, mediaType) => {
-      acc[mediaType] = 0;
-      return acc;
-    },
-    {} as { [key: string]: number }
-  );
+  multiModalDataPathsData: MultiModalDataPathsDataType[]
+): { [key: string]: number } => {
+  const multiModalDataCounts: { [key: string]: number } = {
+    provider_view: 0,
+    patient_view: 0,
+    room_view: 0,
+    audio: 0,
+    transcript: 0,
+    patient_survey: 0,
+    provider_survey: 0,
+  };
 
   encounterData.forEach((encounter) => {
-    encounter.media_types.forEach((mediaType) => {
-      if (mediaCounts[mediaType] !== undefined) {
-        mediaCounts[mediaType]++;
-      }
-    });
+    const multiModalData = multiModalDataPathsData.find(
+      (data) => data.multi_modal_data_id === encounter.multi_modal_data
+    );
+    if (multiModalData) {
+      Object.keys(multiModalData).forEach((key) => {
+        if (key !== "multi_modal_data_id" && multiModalData[key]) {
+          multiModalDataCounts[key]++;
+        }
+      });
+    }
   });
 
-  return Object.entries(mediaCounts).map(([mediaType, count]) => ({
-    mediaType,
-    count,
-  }));
+  return multiModalDataCounts;
 };

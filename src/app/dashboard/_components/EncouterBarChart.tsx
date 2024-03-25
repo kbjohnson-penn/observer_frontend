@@ -17,7 +17,7 @@ import { DEPARTMENT_COLORS } from "../../../constants";
 
 interface EncounterBarChartProps {
   encounterData: EncouterDataType[];
-  departmentData: DepartmentDataType;
+  departmentData: DepartmentDataType[];
 }
 
 const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
@@ -40,8 +40,9 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
 
 const EncounterBarChart: React.FC<EncounterBarChartProps> = ({
   encounterData,
+  departmentData,
 }) => {
-  const data = getEncouterPerDepartment(encounterData);
+  const data = getEncouterPerDepartment(encounterData, departmentData);
   return (
     <ResponsiveContainer width="100%" height={400}>
       <BarChart width={500} height={300} data={data}>
