@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { EncouterDataType, DepartmentDataType } from "../../../interfaces";
+import { EncouterDataType, DepartmentDataType } from "../../../interfaces/interfaces";
 import { getEncouterPerDepartment } from "../../../lib/utils";
 import { DEPARTMENT_COLORS } from "../../../constants";
 

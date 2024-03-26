@@ -14,7 +14,7 @@ import {
   EncouterDataType,
   DepartmentDataType,
   MultiModalDataPathsDataType,
-} from "../../../interfaces";
+} from "../../../interfaces/interfaces";
 import { getMultiModalDataByDepartments } from "../../../lib/utils";
 import { MULTI_MODAL_DATA_PATHS_COLORS } from "../../../constants";
 

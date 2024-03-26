@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import LoadingPage from "../components/LoadingPage";
 import CummulativeDataTable from "./dashboard/_components/CummalativeDataTable";
 
-import { EncouterDataType } from "../interfaces";
+import { EncouterDataType } from "../interfaces/interfaces";
 
 const fetchEncouterData = async () => {
   const res = await fetch(`${process.env.BACKEND_API}/encounters`);

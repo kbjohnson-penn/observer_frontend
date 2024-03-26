@@ -40,3 +40,11 @@ export const MULTI_MODAL_DATA_PATHS_COLORS: { [key: string]: string } = {
   patient_survey: "#DCE2AA",
   provider_survey: "#9d82ff",
 };
+
+export const NODE_COLORS: { [key: string]: string } = {
+  MultiModalDataPathNode: "#9d82ca",
+  ProviderNode: "#EC7063",
+  EncounterNode: "#2ECC71",
+  PatientNode: "#3498DB",
+  DepartmentNode: "#F1C40F",
+};

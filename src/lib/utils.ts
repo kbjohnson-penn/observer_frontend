@@ -2,7 +2,7 @@ import {
   EncouterDataType,
   DepartmentDataType,
   MultiModalDataPathsDataType,
-} from "../interfaces";
+} from "../interfaces/interfaces";
 
 export const capitalizeWords = (input: string): string => {
   return input.replace(/\b\w/g, (char) => char.toUpperCase());

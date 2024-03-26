@@ -12,7 +12,7 @@ import {
   DepartmentDataType,
   MultiModalDataPathsDataType,
   EncouterDataType,
-} from "../../interfaces";
+} from "../../interfaces/interfaces";
 
 const fetchPatientsData = async () => {
   const res = await fetch(`${process.env.BACKEND_API}/patients`);

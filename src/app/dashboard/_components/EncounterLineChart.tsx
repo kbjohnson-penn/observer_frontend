@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { EncouterDataType } from "../../../interfaces";
+import { EncouterDataType } from "../../../interfaces/interfaces";
 import { getEncouterByDate } from "../../../lib/utils";
 
 interface EncounterLineChartProps {
