@@ -30,9 +30,21 @@ export const DEPARTMENT_COLORS: { [key: string]: string } = {
   Orthopedics: "#4B543B",
 };
 
-export const MEDIA_TYPE_COLORS: { [key: string]: string } = {
-  Video: "#afca82",
-  Transcript: "#ca9d82",
-  Audio: "#82ca9d",
-  Annotation: "#9d82ca  ",
+export const MULTI_MODAL_DATA_PATHS_COLORS: { [key: string]: string } = {
+  multi_modal_data_id: "#9d82ca",
+  provider_view: "#FFD700",
+  patient_view: "#FFC0CB",
+  room_view: "#8ED081",
+  audio: "#B57F50",
+  transcript: "#4B543B",
+  patient_survey: "#DCE2AA",
+  provider_survey: "#9d82ff",
+};
+
+export const NODE_COLORS: { [key: string]: string } = {
+  MultiModalDataPathNode: "#9d82ca",
+  ProviderNode: "#EC7063",
+  EncounterNode: "#2ECC71",
+  PatientNode: "#3498DB",
+  DepartmentNode: "#F1C40F",
 };

@@ -12,15 +12,14 @@ import {
 } from "recharts";
 import {
   EncouterDataType,
-  DepartmentDataType,
-  EncounterMediaChoicesDataType,
-} from "../../../interfaces";
-import { getTotalMediaCount } from "../../../lib/utils";
-import { MEDIA_TYPE_COLORS } from "../../../constants";
+  MultiModalDataPathsDataType,
+} from "../../../interfaces/interfaces";
+import { getTotalMultiModalDataCount } from "../../../lib/utils";
+import { MULTI_MODAL_DATA_PATHS_COLORS } from "../../../constants";
 
-interface TotalMediaBarChartProps {
+interface TotalMultiModalDataBarChartProps {
   encounterData: EncouterDataType[];
-  encounterMediaChoicesData: EncounterMediaChoicesDataType;
+  multiModalDataPathsData: MultiModalDataPathsDataType[];
 }
 
 const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
@@ -41,22 +40,29 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
   );
 };
 
-const TotalMediaBarChart: React.FC<TotalMediaBarChartProps> = ({
-  encounterData,
-  encounterMediaChoicesData,
-}) => {
-  const data = getTotalMediaCount(encounterData, encounterMediaChoicesData);
+const TotalMultiModalDataBarChart: React.FC<
+  TotalMultiModalDataBarChartProps
+> = ({ encounterData, multiModalDataPathsData }) => {
+  const data = getTotalMultiModalDataCount(
+    encounterData,
+    multiModalDataPathsData
+  );
+
+  const chartData = Object.keys(data).map((key) => ({
+    multiModalDataType: key,
+    count: data[key],
+  }));
 
   return (
     <ResponsiveContainer width="100%" height={400}>
-      <BarChart width={500} height={300} data={data}>
+      <BarChart width={500} height={300} data={chartData}>
         <XAxis
-          dataKey="mediaType"
+          dataKey="multiModalDataType"
           height={70}
           tick={<CustomizedAxisTick />}
           padding={{ left: 5, right: 5 }}
           label={{
-            value: "Media Types",
+            value: "Data Types",
             position: "insideBottomRight",
             offset: 0,
           }}
@@ -67,10 +73,10 @@ const TotalMediaBarChart: React.FC<TotalMediaBarChartProps> = ({
         />
         <Tooltip />
         <Bar dataKey="count" barSize={70}>
-          {data.map((entry, index) => (
+          {chartData.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
-              fill={MEDIA_TYPE_COLORS[entry.mediaType]}
+              fill={MULTI_MODAL_DATA_PATHS_COLORS[entry.multiModalDataType]}
             />
           ))}
         </Bar>
@@ -79,4 +85,4 @@ const TotalMediaBarChart: React.FC<TotalMediaBarChartProps> = ({
   );
 };
 
-export default TotalMediaBarChart;
+export default TotalMultiModalDataBarChart;

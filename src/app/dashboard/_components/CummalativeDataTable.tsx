@@ -1,5 +1,5 @@
 import React from "react";
-import { EncouterDataType } from "../../../interfaces";
+import { EncouterDataType } from "../../../interfaces/interfaces";
 import { countEncounters } from "../../../lib/utils";
 import {
   RACIAL_CATEGORIES,

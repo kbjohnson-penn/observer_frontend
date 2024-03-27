@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { EncouterDataType } from "../../../interfaces";
+import { EncouterDataType } from "../../../interfaces/interfaces";
 import { getEncouterByDate } from "../../../lib/utils";
 
 interface EncounterLineChartProps {
@@ -37,12 +37,11 @@ const EncounterLineChart: React.FC<EncounterLineChartProps> = ({
   encounterData,
 }) => {
   const data = getEncouterByDate(encounterData);
-
   return (
     <ResponsiveContainer width="100%" height={400}>
       <LineChart width={500} height={300} data={data}>
         <XAxis
-          dataKey="visit_date"
+          dataKey="encounter_date"
           height={70}
           tick={<CustomizedAxisTick />}
           padding={{ left: 10, right: 10 }}
