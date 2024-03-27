@@ -13,15 +13,15 @@ import {
 import {
   EncouterDataType,
   DepartmentDataType,
-  EncounterMediaChoicesDataType,
-} from "../../../interfaces";
-import { getMediaChoicesByDepartments } from "../../../lib/utils";
-import { MEDIA_TYPE_COLORS } from "../../../constants";
+  MultiModalDataPathsDataType,
+} from "../../../interfaces/interfaces";
+import { getMultiModalDataByDepartments } from "../../../lib/utils";
+import { MULTI_MODAL_DATA_PATHS_COLORS } from "../../../constants";
 
-interface EncouterByMediaBarChartProps {
+interface EncouterByMultiModalDataBarChartProps {
   encounterData: EncouterDataType[];
-  departmentData: DepartmentDataType;
-  encounterMediaChoicesData: EncounterMediaChoicesDataType;
+  departmentData: DepartmentDataType[];
+  multiModalDataPathsData: MultiModalDataPathsDataType[];
 }
 
 const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
@@ -42,15 +42,13 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
   );
 };
 
-const EncouterByMediaBarChart: React.FC<EncouterByMediaBarChartProps> = ({
-  encounterData,
-  departmentData,
-  encounterMediaChoicesData,
-}) => {
-  const data = getMediaChoicesByDepartments(
+const EncouterByMultiModalDataBarChart: React.FC<
+  EncouterByMultiModalDataBarChartProps
+> = ({ encounterData, departmentData, multiModalDataPathsData }) => {
+  const data = getMultiModalDataByDepartments(
     encounterData,
     departmentData,
-    encounterMediaChoicesData
+    multiModalDataPathsData
   );
 
   return (
@@ -72,12 +70,12 @@ const EncouterByMediaBarChart: React.FC<EncouterByMediaBarChartProps> = ({
           label={{ value: "Total", angle: -90, position: "middle" }}
         />
         <Tooltip />
-        {Object.keys(MEDIA_TYPE_COLORS).map((mediaType) => (
+        {Object.keys(data[0].data).map((dataType) => (
           <Bar
-            key={mediaType}
-            dataKey={mediaType}
+            key={dataType}
+            dataKey={`data.${dataType}`}
             stackId="a"
-            fill={MEDIA_TYPE_COLORS[mediaType]}
+            fill={MULTI_MODAL_DATA_PATHS_COLORS[dataType]}
             barSize={70}
           />
         ))}
@@ -86,4 +84,4 @@ const EncouterByMediaBarChart: React.FC<EncouterByMediaBarChartProps> = ({
   );
 };
 
-export default EncouterByMediaBarChart;
+export default EncouterByMultiModalDataBarChart;
