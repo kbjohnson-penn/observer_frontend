@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import SpriteText from "three-spritetext";
 
 import { ApiResponse } from "../../../interfaces/interfacesGraph";
 
@@ -118,7 +117,6 @@ const GraphBrowser: React.FC<GraphBrowserProps> = ({ knowledgeGraphData }) => {
             overflow: "auto",
           }}
         >
-          {/* Display the properties of the node here */}
           {hoverNode &&
             Object.entries(hoverNode.properties).map(([key, value]) => {
               const category = categories[key];
