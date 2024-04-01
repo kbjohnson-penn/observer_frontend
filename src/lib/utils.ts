@@ -1,5 +1,7 @@
 import {
-  EncouterDataType,
+  PatientDataType,
+  ProviderDataType,
+  EncounterDataType,
   DepartmentDataType,
   MultiModalDataPathsDataType,
 } from "../interfaces/interfaces";
@@ -26,12 +28,12 @@ export const formatVisitDate = (date: string) => {
   )}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
-export const getEncouterPerDepartment = (
-  encounterData: EncouterDataType[],
+export const getEncounterPerDepartment = (
+  filteredEncounterData: EncounterDataType[],
   departmentData: DepartmentDataType[]
 ): { department: string; count: number }[] => {
   const data = departmentData.map((department) => {
-    const count = encounterData.filter(
+    const count = filteredEncounterData.filter(
       (encounter) => encounter.department === department.name
     ).length;
     return { department: department.name, count };
@@ -39,97 +41,51 @@ export const getEncouterPerDepartment = (
   return data;
 };
 
-export const getEncouterByDate = (
-  encounterData: EncouterDataType[]
-): { encounter_date: string; count: number }[] => {
-  const data = encounterData.reduce(
-    (
-      acc: { encounter_date: string; count: number }[],
-      encounter: EncouterDataType
-    ) => {
-      const encounterDate = encounter.encounter_date_and_time.split("T")[0];
-      const existing = acc.find(
-        (item) => item.encounter_date === encounterDate
-      );
-      if (existing) {
-        existing.count += 1;
-      } else {
-        acc.push({ encounter_date: encounterDate, count: 1 });
-      }
-      return acc;
-    },
-    []
-  );
-  return data;
-};
-
-export const getMultiModalDataByDepartments = (
-  encounterData: EncouterDataType[],
-  departmentData: DepartmentDataType[],
-  multiModalDataPathsData: MultiModalDataPathsDataType[]
-): { department: string; data: { [key: string]: number } }[] => {
-  const data = departmentData.map((department) => {
-    const departmentEncounters = encounterData.filter(
-      (encounter) => encounter.department === department.name
-    );
-    const departmentMultiModalData = departmentEncounters
-      .map((encounter) =>
-        multiModalDataPathsData.find(
-          (data) => data.multi_modal_data_id === encounter.multi_modal_data
-        )
-      )
-      .filter(Boolean);
-    const newData: { [key: string]: number } = {
-      provider_view: 0,
-      patient_view: 0,
-      room_view: 0,
-      audio: 0,
-      transcript: 0,
-      patient_survey: 0,
-      provider_survey: 0,
-    };
-    departmentMultiModalData.forEach((multiModalData) => {
-      if (multiModalData) {
-        Object.keys(multiModalData).forEach((key) => {
-          if (key !== "multi_modal_data_id" && multiModalData[key]) {
-            newData[key] += 1;
-          }
-        });
-      }
-    });
-    return { department: department.name, data: newData };
+export const getEncountersByAccess = (
+  filteredEncounterData: EncounterDataType[]
+): { access: string; count: number }[] => {
+  const data = ["Access Controlled", "Not Access Controlled"].map((access) => {
+    const count = filteredEncounterData.filter(
+      (encounter) =>
+        (access === "Access Controlled" && encounter.is_restricted) ||
+        (access === "Not Access Controlled" && !encounter.is_restricted)
+    ).length;
+    return { access, count };
   });
   return data;
 };
 
-export function countEncounters(encounterData: any[]) {
-  const counts: any = {};
+export const getAccessControlByDepartment = (
+  filteredEncounterData: EncounterDataType[],
+  departmentData: DepartmentDataType[]
+): {
+  department: string;
+  accessControlled: number;
+  notAccessControlled: number;
+}[] => {
+  const data = departmentData.map((department) => {
+    const accessControlled = filteredEncounterData.filter(
+      (encounter) =>
+        encounter.department === department.name && encounter.is_restricted
+    ).length;
+    const notAccessControlled = filteredEncounterData.filter(
+      (encounter) =>
+        encounter.department === department.name && !encounter.is_restricted
+    ).length;
+    return {
+      department: department.name,
+      accessControlled,
+      notAccessControlled,
+    };
+  });
+  return data;
+};
 
-  for (const encounter of encounterData) {
-    const racialCategory = encounter.racial_category;
-    const ethnicCategory = encounter.ethnic_category;
-    const gender = encounter.gender;
-
-    if (!counts[racialCategory]) {
-      counts[racialCategory] = {};
-    }
-    if (!counts[racialCategory][ethnicCategory]) {
-      counts[racialCategory][ethnicCategory] = {};
-    }
-    if (!counts[racialCategory][ethnicCategory][gender]) {
-      counts[racialCategory][ethnicCategory][gender] = 0;
-    }
-
-    counts[racialCategory][ethnicCategory][gender]++;
-  }
-  return counts;
-}
-
-export const getTotalMultiModalDataCount = (
-  encounterData: EncouterDataType[],
+export const getEncountersByMultiModalData = (
+  filteredEncounterData: EncounterDataType[],
   multiModalDataPathsData: MultiModalDataPathsDataType[]
-): { [key: string]: number } => {
-  const multiModalDataCounts: { [key: string]: number } = {
+): { name: string; count: number }[] => {
+  const data: { [key: string]: number } = {
     provider_view: 0,
     patient_view: 0,
     room_view: 0,
@@ -137,20 +93,55 @@ export const getTotalMultiModalDataCount = (
     transcript: 0,
     patient_survey: 0,
     provider_survey: 0,
+    rias_transcript: 0,
+    rias_codes: 0,
   };
 
-  encounterData.forEach((encounter) => {
-    const multiModalData = multiModalDataPathsData.find(
-      (data) => data.multi_modal_data_id === encounter.multi_modal_data
-    );
-    if (multiModalData) {
-      Object.keys(multiModalData).forEach((key) => {
-        if (key !== "multi_modal_data_id" && multiModalData[key]) {
-          multiModalDataCounts[key]++;
+  const multiModalDataPathsLookup = multiModalDataPathsData.reduce(
+    (lookup, dataPath) => {
+      lookup[dataPath.multi_modal_data_id] = dataPath;
+      return lookup;
+    },
+    {} as { [key: string]: MultiModalDataPathsDataType }
+  );
+
+  filteredEncounterData.forEach((encounter) => {
+    const matchedMultiModalDataPath =
+      multiModalDataPathsLookup[encounter.multi_modal_data];
+
+    if (matchedMultiModalDataPath) {
+      Object.keys(data).forEach((key) => {
+        if (
+          matchedMultiModalDataPath[key as keyof MultiModalDataPathsDataType]
+        ) {
+          data[key]++;
         }
       });
     }
   });
 
-  return multiModalDataCounts;
+  // Convert the data object to an array of objects
+  return Object.keys(data).map((key) => ({
+    name: key,
+    count: data[key],
+  }));
+};
+
+export const getEncountersOverTime = (
+  filteredEncounterData: EncounterDataType[]
+): { date: string; count: number }[] => {
+  const data = filteredEncounterData.reduce((acc, encounter) => {
+    const date = new Date(encounter.encounter_date_and_time)
+      .toISOString()
+      .split("T")[0];
+    const found = acc.find((item) => item.date === date);
+    if (found) {
+      found.count++;
+    } else {
+      acc.push({ date, count: 1 });
+    }
+    return acc;
+  }, [] as { date: string; count: number }[]);
+
+  return data;
 };

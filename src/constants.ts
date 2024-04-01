@@ -30,6 +30,43 @@ export const DEPARTMENT_COLORS: { [key: string]: string } = {
   Orthopedics: "#4B543B",
 };
 
+export const SOURCE_OPTIONS = [
+  { value: "All", label: "All" },
+  { value: "RIAS", label: "RIAS" },
+  { value: "Sim Center", label: "Sim Center" },
+  { value: "Clinic", label: "Clinic" },
+];
+
+export const RACE_OPTIONS = [
+  { value: "All", label: "All" },
+  { value: "AI", label: "American Indian or Alaska Native" },
+  { value: "A", label: "Asian" },
+  { value: "NHPI", label: "Native Hawaiian or Other Pacific Islander" },
+  { value: "B", label: "Black or African American" },
+  { value: "W", label: "White" },
+  { value: "M", label: "More than One Race" },
+  { value: "UN", label: "Unknown or Not Reported" },
+];
+
+export const ACCESS_OPTIONS = [
+  { value: "All", label: "All" },
+  { value: "Yes", label: "Yes" },
+  { value: "No", label: "No" },
+];
+
+export const MULTI_MODAL_DATA_OPTIONS = [
+  { value: "All", label: "All" },
+  { value: "provider_view", label: "Provider View" },
+  { value: "patient_view", label: "Patient View" },
+  { value: "room_view", label: "Room View" },
+  { value: "audio", label: "Audio" },
+  { value: "transcript", label: "Transcript" },
+  { value: "patient_survey", label: "Patient Survey" },
+  { value: "provider_survey", label: "Provider Survey" },
+  { value: "rias_transcript", label: "RIAS Transcript" },
+  { value: "rias_codes", label: "RIAS Codes" },
+];
+
 export const MULTI_MODAL_DATA_PATHS_COLORS: { [key: string]: string } = {
   multi_modal_data_id: "#9d82ca",
   provider_view: "#FFD700",
@@ -48,3 +85,10 @@ export const NODE_COLORS: { [key: string]: string } = {
   PatientNode: "#3498DB",
   DepartmentNode: "#F1C40F",
 };
+
+export const DUMMY_DATA = [
+  { name: "Option 1", value: 400 },
+  { name: "Option 2", value: 300 },
+  { name: "Option 3", value: 200 },
+  { name: "Option 4", value: 100 },
+];

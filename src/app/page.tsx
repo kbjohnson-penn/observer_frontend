@@ -1,18 +1,7 @@
 import React, { Suspense } from "react";
 import LoadingPage from "../components/LoadingPage";
-import CummulativeDataTable from "./dashboard/_components/CummalativeDataTable";
-
-import { EncouterDataType } from "../interfaces/interfaces";
-
-const fetchEncouterData = async () => {
-  const res = await fetch(`${process.env.BACKEND_API}/encounters`);
-  const data: EncouterDataType[] = await res.json();
-  return data;
-};
 
 const Home: React.FC = async () => {
-  const encounterData = await fetchEncouterData();
-
   return (
     <main className="bg-gray-100 py-10">
       <div className="container mx-auto px-4">
@@ -50,9 +39,7 @@ const Home: React.FC = async () => {
               <h2 className="text-2xl font-bold mb-2 text-blue-700">
                 Demographics Table
               </h2>
-              <Suspense fallback={<LoadingPage />}>
-                <CummulativeDataTable encounterData={encounterData} />
-              </Suspense>
+              <Suspense fallback={<LoadingPage />}></Suspense>
             </div>
             <p className="text-lg text-justify mx-8 mt-6 text-gray-700">
               This table contains real-time details regarding patient

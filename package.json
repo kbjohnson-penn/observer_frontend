@@ -18,6 +18,7 @@
     "react-dom": "^18",
     "react-force-graph": "^1.44.3",
     "react-force-graph-2d": "^1.25.4",
+    "react-select": "^5.8.0",
     "recharts": "^2.10.4",
     "three-spritetext": "^1.8.2"
   },
