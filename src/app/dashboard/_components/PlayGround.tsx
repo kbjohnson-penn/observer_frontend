@@ -1,17 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
-import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from "recharts";
 import {
   PatientDataType,
   ProviderDataType,
@@ -20,7 +10,11 @@ import {
   MultiModalDataPathsDataType,
   EncounterDataType,
 } from "../../../interfaces/interfaces";
-import { SOURCE_OPTIONS, DUMMY_DATA } from "../../../constants";
+import EncounterPerDepartmentChart from "./charts/EncounterPerDepartmentChart";
+import AccessControlByDepartmentChart from "./charts/AccessControlByDepartmentChart";
+import EncountersByMultiModalDataChart from "./charts/EncountersByMultiModalDataChart";
+import EncountersOverTimeChart from "./charts/EncountersOverTimeChart";
+import { SOURCE_OPTIONS } from "../../../constants";
 import {
   getEncounterPerDepartment,
   getEncountersByAccess,
@@ -36,6 +30,7 @@ interface PlayGroundProps {
   departmentData: DepartmentDataType[];
   multiModalDataPathsData: MultiModalDataPathsDataType[];
   encounterData: EncounterDataType[];
+  departmentColors: { [key: string]: string };
 }
 
 const PlayGround: React.FC<PlayGroundProps> = ({
@@ -45,8 +40,9 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   departmentData,
   multiModalDataPathsData,
   encounterData,
+  departmentColors,
 }) => {
-  const [selectedSource, setsSlectedSource] = useState<string>("All");
+  const [selectedSource, setSelectedSource] = useState<string>("All");
   const [filteredEncounterData, setFilteredEncounterData] = useState<
     EncounterDataType[]
   >([]);
@@ -71,7 +67,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   >([]);
 
   const handleSourceChange = (selectedOption: any) => {
-    setsSlectedSource(selectedOption.value);
+    setSelectedSource(selectedOption.value);
   };
 
   const customStyles = {
@@ -135,46 +131,38 @@ const PlayGround: React.FC<PlayGroundProps> = ({
     setEncountersOverTime(getEncountersOverTime(filteredEncounterData));
   }, [filteredEncounterData]);
 
-  console.log({ encountersOverTime });
   return (
-    <div className="flex justify-around p-10">
-      <div className="grid grid-cols-2 gap-4">
-        <BarChart width={500} height={300} data={encounterPerDepartment}>
-          <XAxis dataKey="department" />
-          <YAxis allowDecimals={false} />
-          <Tooltip />
-          <Bar dataKey="count" fill="#8884d8" />
-        </BarChart>
-        <BarChart width={500} height={300} data={accessControlByDepartment}>
-          <XAxis dataKey="department" />
-          <YAxis allowDecimals={false} />
-          <Tooltip />
-          <Bar dataKey="accessControlled" fill="#413ea0" />
-          <Bar dataKey="notAccessControlled" fill="#8884d8" />
-        </BarChart>
-        <BarChart width={500} height={300} data={encountersByMultiModalData}>
-          <XAxis dataKey="name" />
-          <YAxis allowDecimals={false} />
-          <Tooltip />
-          <Bar dataKey="count" fill="#413ea0" />
-        </BarChart>
-        <LineChart width={500} height={300} data={encountersOverTime}>
-          <XAxis dataKey="date" />
-          <YAxis allowDecimals={false} />
-          <Tooltip />
-          <Line type="monotone" dataKey="count" stroke="#8884d8" />
-        </LineChart>
-      </div>
-      <div className="flex flex-col items-center">
-        <div className="mb-4">
-          <label>Select Source</label>
-          <Select
-            options={SOURCE_OPTIONS}
-            onChange={handleSourceChange}
-            defaultValue={SOURCE_OPTIONS[0]}
-            styles={customStyles}
+    <div className="flex justify-around p-10 bg-gray-200">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
+        {encounterPerDepartment && (
+          <EncounterPerDepartmentChart
+            data={encounterPerDepartment}
+            departmentColors={departmentColors}
           />
+        )}
+        {accessControlByDepartment && (
+          <AccessControlByDepartmentChart
+            data={accessControlByDepartment}
+            departmentColors={departmentColors}
+          />
+        )}
+        <div className="flex flex-col items-center p-5 bg-gray-300 rounded-lg">
+          <div className="mb-4">
+            <label className="text-lg text-blue-500">Select Source</label>
+            <Select
+              options={SOURCE_OPTIONS}
+              onChange={handleSourceChange}
+              defaultValue={SOURCE_OPTIONS[0]}
+              styles={customStyles}
+            />
+          </div>
         </div>
+        {encountersByMultiModalData && (
+          <EncountersByMultiModalDataChart data={encountersByMultiModalData} />
+        )}
+        {encountersOverTime && (
+          <EncountersOverTimeChart data={encountersOverTime} />
+        )}
       </div>
     </div>
   );

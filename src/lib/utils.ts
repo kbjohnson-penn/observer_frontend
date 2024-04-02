@@ -1,3 +1,4 @@
+import * as d3 from "d3";
 import {
   PatientDataType,
   ProviderDataType,
@@ -26,6 +27,17 @@ export const formatVisitDate = (date: string) => {
     2,
     "0"
   )}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+export const getDepartmentColors = (departmentData: DepartmentDataType[]) => {
+  const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+  const departmentColors: { [key: string]: string } = {}; // Add index signature
+
+  departmentData.forEach((department, index) => {
+    departmentColors[department.name] = colorScale(String(index));
+  });
+
+  return departmentColors;
 };
 
 export const getEncounterPerDepartment = (

@@ -1,4 +1,5 @@
 import React, { Suspense } from "react";
+import * as d3 from "d3";
 import LoadingPage from "../../components/LoadingPage";
 import PlayGround from "./_components/PlayGround";
 import {
@@ -9,6 +10,7 @@ import {
   MultiModalDataPathsDataType,
   EncounterDataType,
 } from "../../interfaces/interfaces";
+import { getDepartmentColors } from "../../lib/utils";
 
 const fetchPatientsData = async () => {
   const res = await fetch(`${process.env.BACKEND_API}/patients`);
@@ -53,6 +55,7 @@ const Dashboard: React.FC = async () => {
   const departmentData = await fetchDepartmentData();
   const multiModalDataPathsData = await fetchMultiModalDataPathsData();
   const encounterData = await fetchEncouterData();
+  const departmentColors = await getDepartmentColors(departmentData);
 
   return (
     <Suspense fallback={<LoadingPage />}>
@@ -63,6 +66,7 @@ const Dashboard: React.FC = async () => {
         departmentData={departmentData}
         multiModalDataPathsData={multiModalDataPathsData}
         encounterData={encounterData}
+        departmentColors={departmentColors}
       />
     </Suspense>
   );

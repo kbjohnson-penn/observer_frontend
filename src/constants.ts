@@ -68,14 +68,15 @@ export const MULTI_MODAL_DATA_OPTIONS = [
 ];
 
 export const MULTI_MODAL_DATA_PATHS_COLORS: { [key: string]: string } = {
-  multi_modal_data_id: "#9d82ca",
-  provider_view: "#FFD700",
-  patient_view: "#FFC0CB",
-  room_view: "#8ED081",
-  audio: "#B57F50",
-  transcript: "#4B543B",
-  patient_survey: "#DCE2AA",
-  provider_survey: "#9d82ff",
+  provider_view: "#0088FE",
+  patient_view: "#00C49F",
+  room_view: "#FFBB28",
+  audio: "#D84315",
+  transcript: "#6A1B9A",
+  patient_survey: "#00838F",
+  provider_survey: "#3E2723",
+  rias_transcript: "#FF8042",
+  rias_codes: "#F1C40F",
 };
 
 export const NODE_COLORS: { [key: string]: string } = {
@@ -85,10 +86,3 @@ export const NODE_COLORS: { [key: string]: string } = {
   PatientNode: "#3498DB",
   DepartmentNode: "#F1C40F",
 };
-
-export const DUMMY_DATA = [
-  { name: "Option 1", value: 400 },
-  { name: "Option 2", value: 300 },
-  { name: "Option 3", value: 200 },
-  { name: "Option 4", value: 100 },
-];
