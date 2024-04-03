@@ -33,7 +33,7 @@ export const DEPARTMENT_COLORS: { [key: string]: string } = {
 export const SOURCE_OPTIONS = [
   { value: "All", label: "All" },
   { value: "RIAS", label: "RIAS" },
-  { value: "Sim Center", label: "Sim Center" },
+  { value: "Sim Center", label: "Simulation Center" },
   { value: "Clinic", label: "Clinic" },
 ];
 

@@ -116,13 +116,23 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                     onChange={handleSourceChange}
                     defaultValue={SOURCE_OPTIONS[0]}
                   />
+                  <p className="mt-4 text-gray-600">
+                    <strong>RIAS:</strong> Roter interaction analysis system
+                    (RIAS) is a method for coding medical dialogue.
+                  </p>
+                  <p className="mt-4 text-gray-600">
+                    <strong>Simulation Center:</strong> Simulation center data.
+                  </p>
+                  <p className="mt-4 text-gray-600">
+                    <strong>Clinic:</strong> Clinical Encounters data
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
         {encounterPerDepartment && (
-          <div className="lg:col-span-1 bg-white shadow-md rounded p-4">
+          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
             <h2 className="text-center text-2xl font-bold mb-4">
               Encounter Per Department
             </h2>
@@ -135,7 +145,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
         {accessControlByDepartment && (
           <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
             <h2 className="text-center text-2xl font-bold mb-4">
-              Access Control By Department
+              Access Controlled
             </h2>
             <AccessControlByDepartmentChart
               data={accessControlByDepartment}
