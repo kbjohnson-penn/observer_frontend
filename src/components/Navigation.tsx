@@ -26,18 +26,9 @@ export default function Navigation() {
           </Link>
           <div className="h-12 border-r ml-4"></div>
           <div className="ml-4">
-            <Link href="https://www.med.upenn.edu/observer/">
-              <Image
-                src="/REDUCE-logo.png"
-                width={200}
-                height={100}
-                alt="Observer logo"
-                priority
-              />
-              <p className="text-sm text-white">
-                Automating Healthcare Beyond Documentation
-              </p>
-            </Link>
+            <p className="text-sm text-white">
+              Automating Healthcare Beyond Documentation
+            </p>
           </div>
         </div>
 
