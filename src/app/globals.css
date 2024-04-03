@@ -25,7 +25,7 @@ body {
     transparent,
     rgb(var(--background-end-rgb))
   ); */
-  background: #fcfcfc;
+  background: #f8fafc;
 }
 
 .loader {

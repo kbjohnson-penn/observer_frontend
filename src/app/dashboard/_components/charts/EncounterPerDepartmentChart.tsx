@@ -75,7 +75,7 @@ const EncounterPerDepartmentChart: React.FC<
       width={500}
       height={350}
       data={data}
-      margin={{ top: 5, right: 5, bottom: 30, left: 5 }}
+      margin={{ top: 5, bottom: 30 }}
     >
       <XAxis dataKey="department" tick={<CustomizedAxisTick />} interval={0} />
       <YAxis allowDecimals={false}>

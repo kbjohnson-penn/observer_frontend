@@ -1,5 +1,13 @@
 import React from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, Label } from "recharts";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Label,
+} from "recharts";
 
 interface EncountersOverTimeChartProps {
   data: any[];
@@ -45,21 +53,23 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
 const EncountersOverTimeChart: React.FC<EncountersOverTimeChartProps> = ({
   data,
 }) => (
-  <LineChart width={500} height={350} data={data}>
-    <XAxis
-      dataKey="date"
-      height={60}
-      tick={<CustomizedAxisTick />}
-      interval={0}
-    >
-      <Label value="Date" offset={2} position="insideBottomLeft" />
-    </XAxis>
-    <YAxis allowDecimals={false}>
-      <Label value="# of Encounters" angle={-90} position="inside" />
-    </YAxis>
-    <Tooltip content={<CustomTooltip />} />
-    <Line type="monotone" dataKey="count" stroke="#3d5afe" />
-  </LineChart>
+  <ResponsiveContainer width="100%" height={350}>
+    <LineChart width={500} height={350} data={data}>
+      <XAxis
+        dataKey="date"
+        height={60}
+        tick={<CustomizedAxisTick />}
+        interval={0}
+      >
+        <Label value="Date" offset={2} position="insideBottomLeft" />
+      </XAxis>
+      <YAxis allowDecimals={false}>
+        <Label value="# of Encounters" angle={-90} position="inside" />
+      </YAxis>
+      <Tooltip content={<CustomTooltip />} />
+      <Line type="monotone" dataKey="count" stroke="#3d5afe" />
+    </LineChart>
+  </ResponsiveContainer>
 );
 
 export default EncountersOverTimeChart;

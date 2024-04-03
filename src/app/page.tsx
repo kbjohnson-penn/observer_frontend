@@ -3,9 +3,9 @@ import LoadingPage from "../components/LoadingPage";
 
 const Home: React.FC = async () => {
   return (
-    <main className="bg-gray-100 py-10">
+    <main className="bg-slate-50 py-10">
       <div className="container mx-auto px-4">
-        <div className="bg-white p-6 rounded shadow">
+        <div className="bg-slate-50 p-6 rounded shadow">
           <h1
             style={{ color: "#950019" }}
             className="text-4xl font-bold mb-4 text-center text-blue-700"

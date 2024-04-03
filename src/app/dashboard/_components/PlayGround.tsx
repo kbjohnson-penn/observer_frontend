@@ -70,38 +70,6 @@ const PlayGround: React.FC<PlayGroundProps> = ({
     setSelectedSource(selectedOption.value);
   };
 
-  const customStyles = {
-    control: (provided: any, state: any) => ({
-      ...provided,
-      width: 300,
-      background: "#fff",
-      borderColor: "#9e9e9e",
-      minHeight: "30px",
-      height: "30px",
-      boxShadow: state.isFocused ? null : null,
-    }),
-
-    valueContainer: (provided: any, state: any) => ({
-      ...provided,
-      height: "30px",
-      padding: "0 6px",
-    }),
-
-    input: (provided: any, state: any) => ({
-      ...provided,
-      margin: "0px",
-    }),
-
-    indicatorSeparator: (state: any) => ({
-      display: "none",
-    }),
-
-    indicatorsContainer: (provided: any, state: any) => ({
-      ...provided,
-      height: "30px",
-    }),
-  };
-
   useEffect(() => {
     const updatedEncounterData = encounterData.filter((encounter) => {
       return (
@@ -132,36 +100,66 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   }, [filteredEncounterData]);
 
   return (
-    <div className="flex justify-around p-10 bg-gray-200">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
-        {encounterPerDepartment && (
-          <EncounterPerDepartmentChart
-            data={encounterPerDepartment}
-            departmentColors={departmentColors}
-          />
-        )}
-        {accessControlByDepartment && (
-          <AccessControlByDepartmentChart
-            data={accessControlByDepartment}
-            departmentColors={departmentColors}
-          />
-        )}
-        <div className="flex flex-col items-center p-5 bg-gray-300 rounded-lg">
-          <div className="mb-4">
-            <label className="text-lg text-blue-500">Select Source</label>
-            <Select
-              options={SOURCE_OPTIONS}
-              onChange={handleSourceChange}
-              defaultValue={SOURCE_OPTIONS[0]}
-              styles={customStyles}
-            />
+    <div className="p-12 bg-slate-50">
+      <div className="grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-x-12 gap-y-4 lg:grid-flow-row-dense">
+        <div className="lg:col-start-3">
+          <div className="grid grid-rows-2">
+            <div className="grid col-span-2">
+              <div className="flex flex-col items-center p-2 bg-white shadow-md rounded p-6">
+                <h2 className="text-2xl font-bold mb-4">Source Selection</h2>
+                <div className="mb-4">
+                  <label className="text-lg text-blue-500">
+                    Select from one of the data source
+                  </label>
+                  <Select
+                    options={SOURCE_OPTIONS}
+                    onChange={handleSourceChange}
+                    defaultValue={SOURCE_OPTIONS[0]}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+        {encounterPerDepartment && (
+          <div className="lg:col-span-1 bg-white shadow-md rounded p-4">
+            <h2 className="text-center text-2xl font-bold mb-4">
+              Encounter Per Department
+            </h2>
+            <EncounterPerDepartmentChart
+              data={encounterPerDepartment}
+              departmentColors={departmentColors}
+            />
+          </div>
+        )}
+        {accessControlByDepartment && (
+          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
+            <h2 className="text-center text-2xl font-bold mb-4">
+              Access Control By Department
+            </h2>
+            <AccessControlByDepartmentChart
+              data={accessControlByDepartment}
+              departmentColors={departmentColors}
+            />
+          </div>
+        )}
         {encountersByMultiModalData && (
-          <EncountersByMultiModalDataChart data={encountersByMultiModalData} />
+          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
+            <h2 className="text-center text-2xl font-bold mb-4">
+              Encounters By Multi Modal Data
+            </h2>
+            <EncountersByMultiModalDataChart
+              data={encountersByMultiModalData}
+            />
+          </div>
         )}
         {encountersOverTime && (
-          <EncountersOverTimeChart data={encountersOverTime} />
+          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
+            <h2 className="text-center text-2xl font-bold mb-4">
+              Encounters Over Time
+            </h2>
+            <EncountersOverTimeChart data={encountersOverTime} />
+          </div>
         )}
       </div>
     </div>
