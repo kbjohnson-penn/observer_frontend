@@ -7,8 +7,6 @@ import {
   YAxis,
   Tooltip,
   Cell,
-  CartesianGrid,
-  Legend,
   Label,
 } from "recharts";
 

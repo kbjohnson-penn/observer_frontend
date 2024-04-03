@@ -6,6 +6,7 @@ import {
   DepartmentDataType,
   MultiModalDataPathsDataType,
 } from "../interfaces/interfaces";
+import { ETHNIC_CATEGORIES, RACIAL_CATEGORIES } from "../constants";
 
 export const capitalizeWords = (input: string): string => {
   return input.replace(/\b\w/g, (char) => char.toUpperCase());
@@ -154,6 +155,95 @@ export const getEncountersOverTime = (
     }
     return acc;
   }, [] as { date: string; count: number }[]);
+
+  return data;
+};
+
+export const getEncountersByGroup = (
+  filteredEncounterData: EncounterDataType[],
+  patientsData: PatientDataType[],
+  providerData: ProviderDataType[],
+  groupKey: "race" | "ethnicity",
+  groupCategories: { [key: string]: string }
+): { name: string; patientCount: number; providerCount: number }[] => {
+  const groupNames = Object.keys(groupCategories);
+  const counts: {
+    [key: string]: { patientCount: Set<string>; providerCount: Set<string> };
+  } = {};
+
+  for (const encounter of filteredEncounterData) {
+    const patient = patientsData.find(
+      (p) => p.patient_id === encounter.patient
+    );
+    const provider = providerData.find(
+      (p) => p.provider_id === encounter.provider
+    );
+
+    if (patient && provider && patient[groupKey] && provider[groupKey]) {
+      if (!counts[patient[groupKey]]) {
+        counts[patient[groupKey]] = {
+          patientCount: new Set(),
+          providerCount: new Set(),
+        };
+      }
+
+      counts[patient[groupKey]].patientCount.add(patient.patient_id);
+
+      if (!counts[provider[groupKey]]) {
+        counts[provider[groupKey]] = {
+          patientCount: new Set(),
+          providerCount: new Set(),
+        };
+      }
+
+      counts[provider[groupKey]].providerCount.add(provider.provider_id);
+    }
+  }
+
+  return groupNames.map((group) => ({
+    name: groupCategories[group],
+    patientCount: counts[group]?.patientCount.size || 0,
+    providerCount: counts[group]?.providerCount.size || 0,
+  }));
+};
+
+export const getEncountersByEthinicGroups = (
+  filteredEncounterData: EncounterDataType[],
+  patientsData: PatientDataType[],
+  providerData: ProviderDataType[]
+): { name: string; patientCount: number; providerCount: number }[] => {
+  return getEncountersByGroup(
+    filteredEncounterData,
+    patientsData,
+    providerData,
+    "ethnicity",
+    ETHNIC_CATEGORIES
+  );
+};
+
+export const getEncountersByRacialGroups = (
+  filteredEncounterData: EncounterDataType[],
+  patientsData: PatientDataType[],
+  providerData: ProviderDataType[]
+): { name: string; patientCount: number; providerCount: number }[] => {
+  return getEncountersByGroup(
+    filteredEncounterData,
+    patientsData,
+    providerData,
+    "race",
+    RACIAL_CATEGORIES
+  );
+};
+
+export const getSatisfactionData = (
+  filteredEncounterData: EncounterDataType[]
+): { patientSatisfaction: number; providerSatisfaction: number }[] => {
+  const data = filteredEncounterData.map((encounter) => {
+    return {
+      patientSatisfaction: encounter.patient_satisfaction,
+      providerSatisfaction: encounter.provider_satisfaction,
+    };
+  });
 
   return data;
 };

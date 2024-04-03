@@ -14,6 +14,9 @@ import EncounterPerDepartmentChart from "./charts/EncounterPerDepartmentChart";
 import AccessControlByDepartmentChart from "./charts/AccessControlByDepartmentChart";
 import EncountersByMultiModalDataChart from "./charts/EncountersByMultiModalDataChart";
 import EncountersOverTimeChart from "./charts/EncountersOverTimeChart";
+import EncountersEthinicGroupsChart from "./charts/EncountersEthinicGroupsChart";
+import EncountersByRacialGroupChart from "./charts/EncountersByRacialGroupChart";
+import SatisfactionChart from "./charts/SatisfactionChart";
 import { SOURCE_OPTIONS } from "../../../constants";
 import {
   getEncounterPerDepartment,
@@ -21,6 +24,9 @@ import {
   getAccessControlByDepartment,
   getEncountersByMultiModalData,
   getEncountersOverTime,
+  getEncountersByEthinicGroups,
+  getEncountersByRacialGroups,
+  getSatisfactionData,
 } from "../../../lib/utils";
 
 interface PlayGroundProps {
@@ -50,7 +56,10 @@ const PlayGround: React.FC<PlayGroundProps> = ({
     { department: string; count: number }[]
   >([]);
   const [encountersByAccess, setEncountersByAccess] = useState<
-    { access: string; count: number }[]
+    {
+      access: string;
+      count: number;
+    }[]
   >([]);
   const [accessControlByDepartment, setAccessControlByDepartment] = useState<
     {
@@ -59,12 +68,23 @@ const PlayGround: React.FC<PlayGroundProps> = ({
       notAccessControlled: number;
     }[]
   >([]);
-  const [encountersByMultiModalData, setEncountersByMultiModalData] = useState<
-    { name: string; count: number }[] | undefined
-  >();
+  const [encountersByMultiModalData, setEncountersByMultiModalData] =
+    useState<{ name: string; count: number }[]>();
   const [encountersOverTime, setEncountersOverTime] = useState<
     { date: string; count: number }[]
   >([]);
+  const [encountersByEthinicGroups, setEncountersByEthinicGroups] =
+    useState<{ name: string; patientCount: number; providerCount: number }[]>();
+
+  const [encountersByRacialGroups, setEncountersByRacialGroups] =
+    useState<{ name: string; patientCount: number; providerCount: number }[]>();
+
+  const [satisfactionData, setSatisfactionData] = useState<
+    {
+      patientSatisfaction: number;
+      providerSatisfaction: number;
+    }[]
+  >();
 
   const handleSourceChange = (selectedOption: any) => {
     setSelectedSource(selectedOption.value);
@@ -97,6 +117,21 @@ const PlayGround: React.FC<PlayGroundProps> = ({
       )
     );
     setEncountersOverTime(getEncountersOverTime(filteredEncounterData));
+    setEncountersByEthinicGroups(
+      getEncountersByEthinicGroups(
+        filteredEncounterData,
+        patientsData,
+        providersData
+      )
+    );
+    setEncountersByRacialGroups(
+      getEncountersByRacialGroups(
+        filteredEncounterData,
+        patientsData,
+        providersData
+      )
+    );
+    setSatisfactionData(getSatisfactionData(filteredEncounterData));
   }, [filteredEncounterData]);
 
   return (
@@ -169,6 +204,30 @@ const PlayGround: React.FC<PlayGroundProps> = ({
               Encounters Over Time
             </h2>
             <EncountersOverTimeChart data={encountersOverTime} />
+          </div>
+        )}
+        {encountersByEthinicGroups && (
+          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
+            <h2 className="text-center text-2xl font-bold mb-4">
+              Ethinic Groups
+            </h2>
+            <EncountersEthinicGroupsChart data={encountersByEthinicGroups} />
+          </div>
+        )}
+        {encountersByRacialGroups && (
+          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
+            <h2 className="text-center text-2xl font-bold mb-4">
+              Racial Groups
+            </h2>
+            <EncountersByRacialGroupChart data={encountersByRacialGroups} />
+          </div>
+        )}
+        {satisfactionData && (
+          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
+            <h2 className="text-center text-2xl font-bold mb-4">
+              Patient and Provider Satisfaction
+            </h2>
+            <SatisfactionChart data={satisfactionData} />
           </div>
         )}
       </div>
