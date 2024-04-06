@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Select from "react-select";
+import Select, { ActionMeta } from "react-select";
 import {
   PatientDataType,
   ProviderDataType,
@@ -17,7 +17,7 @@ import EncountersOverTimeChart from "./charts/EncountersOverTimeChart";
 import EncountersEthinicGroupsChart from "./charts/EncountersEthinicGroupsChart";
 import EncountersByRacialGroupChart from "./charts/EncountersByRacialGroupChart";
 import SatisfactionChart from "./charts/SatisfactionChart";
-import { SOURCE_OPTIONS } from "../../../constants";
+import { SOURCE_OPTIONS, DEIDENTIFIED_OPTIONS } from "../../../constants";
 import {
   getEncounterPerDepartment,
   getEncountersByAccess,
@@ -39,6 +39,11 @@ interface PlayGroundProps {
   departmentColors: { [key: string]: string };
 }
 
+interface DropDownOption {
+  value: string;
+  label: string;
+}
+
 const PlayGround: React.FC<PlayGroundProps> = ({
   patientsData,
   providersData,
@@ -48,7 +53,8 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   encounterData,
   departmentColors,
 }) => {
-  const [selectedSource, setSelectedSource] = useState<string>("All");
+  const [selectedSources, setSelectedSources] = useState<DropDownOption[]>([]);
+  const [isDeidentified, setIsDeidentified] = useState<boolean | null>(null);
   const [filteredEncounterData, setFilteredEncounterData] = useState<
     EncounterDataType[]
   >([]);
@@ -86,19 +92,35 @@ const PlayGround: React.FC<PlayGroundProps> = ({
     }[]
   >();
 
-  const handleSourceChange = (selectedOption: any) => {
-    setSelectedSource(selectedOption.value);
+  const handleSourceChange = (selectedOptions: any) => {
+    if (selectedOptions === null) {
+      setSelectedSources([]);
+    } else {
+      setSelectedSources(selectedOptions);
+    }
+  };
+
+  const handleIsDeidentifiedChange = (selectedOption: any) => {
+    setIsDeidentified(selectedOption.value);
   };
 
   useEffect(() => {
-    const updatedEncounterData = encounterData.filter((encounter) => {
-      return (
-        selectedSource === "All" ||
-        encounter.encounter_source === selectedSource
-      );
-    });
-    setFilteredEncounterData(updatedEncounterData);
-  }, [selectedSource]);
+    if (selectedSources === null) {
+      setFilteredEncounterData([]);
+    } else {
+      const updatedEncounterData = encounterData.filter((encounter) => {
+        return (
+          (selectedSources.length === 0 ||
+            selectedSources.some(
+              (source) => source.value === encounter.encounter_source
+            )) &&
+          (isDeidentified === null ||
+            encounter.is_deidentified === isDeidentified)
+        );
+      });
+      setFilteredEncounterData(updatedEncounterData);
+    }
+  }, [selectedSources, isDeidentified]);
 
   useEffect(() => {
     setEncounterPerDepartment(
@@ -140,27 +162,26 @@ const PlayGround: React.FC<PlayGroundProps> = ({
         <div className="lg:col-start-3">
           <div className="grid grid-rows-2">
             <div className="grid col-span-2">
-              <div className="flex flex-col items-center p-2 bg-white shadow-md rounded p-6">
-                <h2 className="text-2xl font-bold mb-4">Source Selection</h2>
-                <div className="mb-4">
+              <div className="flex justify-between mb-4">
+                <div className="w-1/2 pr-2">
                   <label className="text-lg text-blue-500">
-                    Select from one of the data source
+                    Select Data Source
                   </label>
                   <Select
                     options={SOURCE_OPTIONS}
                     onChange={handleSourceChange}
-                    defaultValue={SOURCE_OPTIONS[0]}
+                    isMulti
                   />
-                  <p className="mt-4 text-gray-600">
-                    <strong>RIAS:</strong> Roter interaction analysis system
-                    (RIAS) is a method for coding medical dialogue.
-                  </p>
-                  <p className="mt-4 text-gray-600">
-                    <strong>Simulation Center:</strong> Simulation center data.
-                  </p>
-                  <p className="mt-4 text-gray-600">
-                    <strong>Clinic:</strong> Clinical Encounters data
-                  </p>
+                </div>
+                <div className="w-1/2 pl-2">
+                  <label className="text-lg text-blue-500">
+                    Select Deidentified data
+                  </label>
+                  <Select
+                    options={DEIDENTIFIED_OPTIONS}
+                    onChange={handleIsDeidentifiedChange}
+                    defaultValue={DEIDENTIFIED_OPTIONS[0]}
+                  />
                 </div>
               </div>
             </div>

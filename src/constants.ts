@@ -31,10 +31,15 @@ export const DEPARTMENT_COLORS: { [key: string]: string } = {
 };
 
 export const SOURCE_OPTIONS = [
-  { value: "All", label: "All" },
   { value: "RIAS", label: "RIAS" },
   { value: "Sim Center", label: "Simulation Center" },
   { value: "Clinic", label: "Clinic" },
+];
+
+export const DEIDENTIFIED_OPTIONS = [
+  { value: null, label: "All" },
+  { value: true, label: "Yes" },
+  { value: false, label: "No" },
 ];
 
 export const RACE_OPTIONS = [
