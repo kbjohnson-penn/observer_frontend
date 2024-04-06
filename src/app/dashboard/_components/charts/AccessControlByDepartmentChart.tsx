@@ -11,7 +11,11 @@ import {
 } from "recharts";
 
 interface AccessControlByDepartmentChartProps {
-  data: any[];
+  data: {
+    department: string;
+    accessControlled: number;
+    notAccessControlled: number;
+  }[];
   departmentColors: { [key: string]: string };
 }
 
@@ -108,7 +112,7 @@ const AccessControlByDepartmentChart: React.FC<
       <Tooltip
         content={<CustomTooltip departmentColors={departmentColors} />}
       />
-      <Bar dataKey="accessControlled" barSize={40}>
+      <Bar dataKey="accessControlled" barSize={40} stackId="a">
         {data.map((entry, index) => (
           <Cell
             key={`cell-${index}`}
@@ -116,7 +120,7 @@ const AccessControlByDepartmentChart: React.FC<
           />
         ))}
       </Bar>
-      <Bar dataKey="notAccessControlled" barSize={40}>
+      <Bar dataKey="notAccessControlled" barSize={40} stackId="a">
         {data.map((entry, index) => (
           <Cell key={`cell-${index}`} fill={`url(#diagonalHatch-${index})`} />
         ))}
