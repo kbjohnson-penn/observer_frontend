@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Select, { ActionMeta } from "react-select";
+import Select from "react-select";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   PatientDataType,
   ProviderDataType,
@@ -55,6 +57,9 @@ const PlayGround: React.FC<PlayGroundProps> = ({
 }) => {
   const [selectedSources, setSelectedSources] = useState<DropDownOption[]>([]);
   const [isDeidentified, setIsDeidentified] = useState<boolean | null>(null);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [isDatePickerEnabled, setIsDatePickerEnabled] = useState(false);
   const [filteredEncounterData, setFilteredEncounterData] = useState<
     EncounterDataType[]
   >([]);
@@ -109,18 +114,28 @@ const PlayGround: React.FC<PlayGroundProps> = ({
       setFilteredEncounterData([]);
     } else {
       const updatedEncounterData = encounterData.filter((encounter) => {
+        const encounterDate = new Date(encounter.encounter_date_and_time);
+
         return (
           (selectedSources.length === 0 ||
             selectedSources.some(
               (source) => source.value === encounter.encounter_source
             )) &&
           (isDeidentified === null ||
-            encounter.is_deidentified === isDeidentified)
+            encounter.is_deidentified === isDeidentified) &&
+          (!isDatePickerEnabled ||
+            (startDate <= encounterDate && encounterDate <= endDate))
         );
       });
       setFilteredEncounterData(updatedEncounterData);
     }
-  }, [selectedSources, isDeidentified]);
+  }, [
+    selectedSources,
+    isDeidentified,
+    isDatePickerEnabled,
+    startDate,
+    endDate,
+  ]);
 
   useEffect(() => {
     setEncounterPerDepartment(
@@ -160,8 +175,8 @@ const PlayGround: React.FC<PlayGroundProps> = ({
     <div className="p-12 bg-slate-50">
       <div className="grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-x-12 gap-y-4 lg:grid-flow-row-dense">
         <div className="lg:col-start-3">
-          <div className="grid grid-rows-2">
-            <div className="grid col-span-2">
+          <div className="grid grid-rows-2 gap-4">
+            <div className="p-4 bg-white rounded shadow">
               <div className="flex justify-between mb-4">
                 <div className="w-1/2 pr-2">
                   <label className="text-lg text-blue-500">
@@ -182,6 +197,63 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                     onChange={handleIsDeidentifiedChange}
                     defaultValue={DEIDENTIFIED_OPTIONS[0]}
                   />
+                </div>
+              </div>
+              <p className="mt-2 text-gray-600">
+                <strong>RIAS:</strong> Roter Interaction Analysis System is a
+                globally utilized method for coding medical dialogue.
+              </p>
+              <p className="mt-2 text-gray-600">
+                <strong>Simulation Center:</strong> Simulation center data.
+              </p>
+              <p className="mt-2 mb-4 text-gray-600">
+                <strong>Clinc:</strong> Clinical Encounters data.
+              </p>
+            </div>
+            <div className="p-4 bg-white rounded shadow">
+              <div className="mb-2">
+                <div className="flex items-center mb-4">
+                  <input
+                    type="checkbox"
+                    checked={isDatePickerEnabled}
+                    onChange={() =>
+                      setIsDatePickerEnabled(!isDatePickerEnabled)
+                    }
+                    className="mr-2"
+                  />
+                  <label>Enable Date Filter</label>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-lg text-blue-500 mb-2">
+                      Start Date
+                    </label>
+                    <DatePicker
+                      selected={startDate}
+                      onChange={(date: Date) => setStartDate(date)}
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm ${
+                        isDatePickerEnabled
+                          ? "focus:ring-indigo-500 focus:border-indigo-500"
+                          : "bg-gray-200 cursor-not-allowed"
+                      }`}
+                      disabled={!isDatePickerEnabled}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-lg text-blue-500 mb-2">
+                      End Date
+                    </label>
+                    <DatePicker
+                      selected={endDate}
+                      onChange={(date: Date) => setEndDate(date)}
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm ${
+                        isDatePickerEnabled
+                          ? "focus:ring-indigo-500 focus:border-indigo-500"
+                          : "bg-gray-200 cursor-not-allowed"
+                      }`}
+                      disabled={!isDatePickerEnabled}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
