@@ -1,10 +1,12 @@
 import * as d3 from "d3";
+import { unparse } from "papaparse";
 import {
   PatientDataType,
   ProviderDataType,
   EncounterDataType,
   DepartmentDataType,
   MultiModalDataPathsDataType,
+  CombinedDataType,
 } from "../interfaces/interfaces";
 import { ETHNIC_CATEGORIES, RACIAL_CATEGORIES } from "../constants";
 
@@ -133,7 +135,6 @@ export const getEncountersByMultiModalData = (
     }
   });
 
-  // Convert the data object to an array of objects
   return Object.keys(data).map((key) => ({
     name: key,
     count: data[key],
@@ -207,7 +208,7 @@ export const getEncountersByGroup = (
   }));
 };
 
-export const getEncountersByEthinicGroups = (
+export const getEncountersByEthnicGroups = (
   filteredEncounterData: EncounterDataType[],
   patientsData: PatientDataType[],
   providerData: ProviderDataType[]
@@ -246,4 +247,106 @@ export const getSatisfactionData = (
   });
 
   return data;
+};
+
+const addPrefixToKeys = (
+  obj: Record<string, any> | undefined,
+  prefix: string
+): Record<string, any> => {
+  const result: Record<string, any> = {};
+  if (obj) {
+    for (const key in obj) {
+      result[prefix + key] = obj[key];
+    }
+  }
+  return result;
+};
+
+export const compileData = (
+  filteredEncounterData: EncounterDataType[],
+  patientsData: PatientDataType[],
+  providerData: ProviderDataType[],
+  multiModalData: MultiModalDataPathsDataType[],
+  format: string
+): CombinedDataType[] => {
+  const patientsMap = new Map(
+    patientsData.map((item) => [item.patient_id, item])
+  );
+  const providersMap = new Map(
+    providerData.map((item) => [item.provider_id, item])
+  );
+  const multiModalDataMap = new Map(
+    multiModalData.map((item) => [item.multi_modal_data_id, item])
+  );
+
+  const combinedData = filteredEncounterData.map((encounter) => {
+    const patient =
+      format === "csv"
+        ? addPrefixToKeys(patientsMap.get(encounter.patient), "patient_")
+        : patientsMap.get(encounter.patient);
+    const provider =
+      format === "csv"
+        ? addPrefixToKeys(providersMap.get(encounter.provider), "provider_")
+        : providersMap.get(encounter.provider);
+    const multiModalDataPath = multiModalDataMap.get(
+      encounter.multi_modal_data
+    );
+
+    return format === "csv"
+      ? {
+          ...encounter,
+          ...patient,
+          ...provider,
+          ...multiModalDataPath,
+        }
+      : {
+          ...encounter,
+          patient,
+          provider,
+          multiModalDataPath,
+        };
+  });
+
+  return combinedData as CombinedDataType[];
+};
+
+export const downloadData = (
+  combinedData: CombinedDataType[],
+  format: string
+) => {
+  let dataString: string;
+  let mimeType: string;
+  let fileExtension: string;
+
+  if (format === "csv") {
+    const header = Object.keys(combinedData[0]).join(",");
+    const csvRows = [header];
+
+    for (const row of combinedData) {
+      const values = Object.values(row).map((value) =>
+        typeof value === "object" ? JSON.stringify(value) : String(value)
+      );
+      csvRows.push(values.join(","));
+    }
+
+    dataString = csvRows.join("\n");
+    mimeType = "text/csv";
+    fileExtension = "csv";
+  } else if (format === "json") {
+    dataString = JSON.stringify(combinedData, null, 2);
+    mimeType = "application/json";
+    fileExtension = "json";
+  } else {
+    throw new Error(`Unsupported export format: ${format}`);
+  }
+
+  const blob = new Blob([dataString], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `observer_platform_data_export.${fileExtension}`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };

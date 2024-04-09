@@ -91,3 +91,8 @@ export const NODE_COLORS: { [key: string]: string } = {
   PatientNode: "#3498DB",
   DepartmentNode: "#F1C40F",
 };
+
+export const EXPORT_OPTIONS = [
+  { value: "csv", label: "CSV" },
+  { value: "json", label: "JSON" },
+];
