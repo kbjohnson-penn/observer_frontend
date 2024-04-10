@@ -238,7 +238,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                 <strong>Simulation Center:</strong> Simulation center data.
               </p>
               <p className="mt-2 mb-4 text-gray-600">
-                <strong>Clinc:</strong> Clinical Encounters data.
+                <strong>Clinic:</strong> Clinical Encounters data.
               </p>
             </div>
             <div className="p-4 bg-white rounded shadow">
