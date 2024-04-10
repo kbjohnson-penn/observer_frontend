@@ -11,24 +11,31 @@ import {
   DepartmentDataType,
   MultiModalDataPathsDataType,
   EncounterDataType,
+  CombinedDataType,
 } from "../../../interfaces/interfaces";
 import EncounterPerDepartmentChart from "./charts/EncounterPerDepartmentChart";
 import AccessControlByDepartmentChart from "./charts/AccessControlByDepartmentChart";
 import EncountersByMultiModalDataChart from "./charts/EncountersByMultiModalDataChart";
 import EncountersOverTimeChart from "./charts/EncountersOverTimeChart";
-import EncountersEthinicGroupsChart from "./charts/EncountersEthinicGroupsChart";
+import EncountersEthnicGroupsChart from "./charts/EncountersEthnicGroupsChart";
 import EncountersByRacialGroupChart from "./charts/EncountersByRacialGroupChart";
 import SatisfactionChart from "./charts/SatisfactionChart";
-import { SOURCE_OPTIONS, DEIDENTIFIED_OPTIONS } from "../../../constants";
+import {
+  SOURCE_OPTIONS,
+  DEIDENTIFIED_OPTIONS,
+  EXPORT_OPTIONS,
+} from "../../../constants";
 import {
   getEncounterPerDepartment,
   getEncountersByAccess,
   getAccessControlByDepartment,
   getEncountersByMultiModalData,
   getEncountersOverTime,
-  getEncountersByEthinicGroups,
+  getEncountersByEthnicGroups,
   getEncountersByRacialGroups,
   getSatisfactionData,
+  compileData,
+  downloadData,
 } from "../../../lib/utils";
 
 interface PlayGroundProps {
@@ -84,7 +91,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   const [encountersOverTime, setEncountersOverTime] = useState<
     { date: string; count: number }[]
   >([]);
-  const [encountersByEthinicGroups, setEncountersByEthinicGroups] =
+  const [encountersByEthnicGroups, setEncountersByEthnicGroups] =
     useState<{ name: string; patientCount: number; providerCount: number }[]>();
 
   const [encountersByRacialGroups, setEncountersByRacialGroups] =
@@ -97,6 +104,9 @@ const PlayGround: React.FC<PlayGroundProps> = ({
     }[]
   >();
 
+  const [exportFormat, setExportFormat] = useState<string>("csv");
+  const [exportData, setExportData] = useState<CombinedDataType[]>([]);
+
   const handleSourceChange = (selectedOptions: any) => {
     if (selectedOptions === null) {
       setSelectedSources([]);
@@ -107,6 +117,18 @@ const PlayGround: React.FC<PlayGroundProps> = ({
 
   const handleIsDeidentifiedChange = (selectedOption: any) => {
     setIsDeidentified(selectedOption.value);
+  };
+
+  const handleFormatChange = (
+    selectedOption: { value: string; label: string } | null
+  ) => {
+    if (selectedOption) {
+      setExportFormat(selectedOption.value);
+    }
+  };
+
+  const handleExportClick = () => {
+    downloadData(exportData, exportFormat);
   };
 
   useEffect(() => {
@@ -154,8 +176,8 @@ const PlayGround: React.FC<PlayGroundProps> = ({
       )
     );
     setEncountersOverTime(getEncountersOverTime(filteredEncounterData));
-    setEncountersByEthinicGroups(
-      getEncountersByEthinicGroups(
+    setEncountersByEthnicGroups(
+      getEncountersByEthnicGroups(
         filteredEncounterData,
         patientsData,
         providersData
@@ -169,13 +191,22 @@ const PlayGround: React.FC<PlayGroundProps> = ({
       )
     );
     setSatisfactionData(getSatisfactionData(filteredEncounterData));
-  }, [filteredEncounterData]);
+    setExportData(
+      compileData(
+        filteredEncounterData,
+        patientsData,
+        providersData,
+        multiModalDataPathsData,
+        exportFormat
+      )
+    );
+  }, [filteredEncounterData, exportFormat]);
 
   return (
     <div className="p-12 bg-slate-50">
       <div className="grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-x-12 gap-y-4 lg:grid-flow-row-dense">
         <div className="lg:col-start-3">
-          <div className="grid grid-rows-2 gap-4">
+          <div className="grid grid-rows-2 gap-2">
             <div className="p-4 bg-white rounded shadow">
               <div className="flex justify-between mb-4">
                 <div className="w-1/2 pr-2">
@@ -207,12 +238,12 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                 <strong>Simulation Center:</strong> Simulation center data.
               </p>
               <p className="mt-2 mb-4 text-gray-600">
-                <strong>Clinc:</strong> Clinical Encounters data.
+                <strong>Clinic:</strong> Clinical Encounters data.
               </p>
             </div>
             <div className="p-4 bg-white rounded shadow">
               <div className="mb-2">
-                <div className="flex items-center mb-4">
+                <div className="flex items-center mb-2">
                   <input
                     type="checkbox"
                     checked={isDatePickerEnabled}
@@ -223,7 +254,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                   />
                   <label>Enable Date Filter</label>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-1">
                   <div>
                     <label className="block text-lg text-blue-500 mb-2">
                       Start Date
@@ -256,6 +287,24 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+          <div className="p-4 bg-white rounded shadow">
+            <div className="flex items-center mb-4">
+              <label className="block text-lg text-blue-500 mr-2">
+                Export Format
+              </label>
+              <Select
+                options={EXPORT_OPTIONS}
+                onChange={handleFormatChange}
+                className="mr-2"
+              />
+              <button
+                onClick={handleExportClick}
+                className="px-4 py-2 bg-blue-500 text-white rounded"
+              >
+                Export Data
+              </button>
             </div>
           </div>
         </div>
@@ -299,12 +348,12 @@ const PlayGround: React.FC<PlayGroundProps> = ({
             <EncountersOverTimeChart data={encountersOverTime} />
           </div>
         )}
-        {encountersByEthinicGroups && (
+        {encountersByEthnicGroups && (
           <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
             <h2 className="text-center text-2xl font-bold mb-4">
-              Ethinic Groups
+              Ethnic Groups
             </h2>
-            <EncountersEthinicGroupsChart data={encountersByEthinicGroups} />
+            <EncountersEthnicGroupsChart data={encountersByEthnicGroups} />
           </div>
         )}
         {encountersByRacialGroups && (
