@@ -204,44 +204,32 @@ const PlayGround: React.FC<PlayGroundProps> = ({
 
   return (
     <div className="p-12 bg-slate-50">
-      <div className="grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-x-12 gap-y-4 lg:grid-flow-row-dense">
-        <div className="lg:col-start-3">
-          <div className="grid grid-rows-2 gap-2">
-            <div className="p-4 bg-white rounded shadow">
-              <div className="flex justify-between mb-4">
-                <div className="w-1/2 pr-2">
-                  <label className="text-lg text-blue-500">
-                    Select Data Source
-                  </label>
-                  <Select
-                    options={SOURCE_OPTIONS}
-                    onChange={handleSourceChange}
-                    isMulti
-                  />
-                </div>
-                <div className="w-1/2 pl-2">
-                  <label className="text-lg text-blue-500">
-                    Select Deidentified data
-                  </label>
-                  <Select
-                    options={DEIDENTIFIED_OPTIONS}
-                    onChange={handleIsDeidentifiedChange}
-                    defaultValue={DEIDENTIFIED_OPTIONS[0]}
-                  />
-                </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-4">
+        <div className="order-first lg:order-2 lg:col-span-1">
+          <div className="p-4 bg-white rounded shadow mb-4">
+            <div className="flex justify-between mb-4">
+              <div className="w-1/2 pr-2">
+                <label className="text-lg text-blue-500">
+                  Select Data Source
+                </label>
+                <Select
+                  options={SOURCE_OPTIONS}
+                  onChange={handleSourceChange}
+                  isMulti
+                />
               </div>
-              <p className="mt-2 text-gray-600">
-                <strong>RIAS:</strong> Roter Interaction Analysis System is a
-                globally utilized method for coding medical dialogue.
-              </p>
-              <p className="mt-2 text-gray-600">
-                <strong>Simulation Center:</strong> Simulation center data.
-              </p>
-              <p className="mt-2 mb-4 text-gray-600">
-                <strong>Clinic:</strong> Clinical Encounters data.
-              </p>
+              <div className="w-1/2 pl-2">
+                <label className="text-lg text-blue-500">
+                  Select Deidentified data
+                </label>
+                <Select
+                  options={DEIDENTIFIED_OPTIONS}
+                  onChange={handleIsDeidentifiedChange}
+                  defaultValue={DEIDENTIFIED_OPTIONS[0]}
+                />
+              </div>
             </div>
-            <div className="p-4 bg-white rounded shadow">
+            <div className="p-4 bg-white rounded shadow mb-4">
               <div className="mb-2">
                 <div className="flex items-center mb-2">
                   <input
@@ -288,90 +276,94 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                 </div>
               </div>
             </div>
-          </div>
-          <div className="p-4 bg-white rounded shadow">
-            <div className="flex items-center mb-4">
-              <label className="block text-lg text-blue-500 mr-2">
-                Export Format
-              </label>
-              <Select
-                options={EXPORT_OPTIONS}
-                onChange={handleFormatChange}
-                className="mr-2"
-              />
-              <button
-                onClick={handleExportClick}
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-              >
-                Export Data
-              </button>
+            <div className="p-4 bg-white rounded shadow">
+              <div className="flex items-center mb-4">
+                <label className="block text-lg text-blue-500 mr-2">
+                  Export Format
+                </label>
+                <Select
+                  options={EXPORT_OPTIONS}
+                  onChange={handleFormatChange}
+                  className="mr-2"
+                />
+                <button
+                  onClick={handleExportClick}
+                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                  Export Data
+                </button>
+              </div>
             </div>
           </div>
         </div>
-        {encounterPerDepartment && (
-          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
-            <h2 className="text-center text-2xl font-bold mb-4">
-              Encounter Per Department
-            </h2>
-            <EncounterPerDepartmentChart
-              data={encounterPerDepartment}
-              departmentColors={departmentColors}
-            />
+        <div className="lg:order-1 lg:col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {encounterPerDepartment && (
+              <div className="bg-white shadow-md rounded p-6">
+                <h2 className="text-center text-2xl font-bold mb-4">
+                  Encounter Per Department
+                </h2>
+                <EncounterPerDepartmentChart
+                  data={encounterPerDepartment}
+                  departmentColors={departmentColors}
+                />
+              </div>
+            )}
+            {accessControlByDepartment && (
+              <div className="bg-white shadow-md rounded p-6">
+                <h2 className="text-center text-2xl font-bold mb-4">
+                  Access Controlled
+                </h2>
+                <AccessControlByDepartmentChart
+                  data={accessControlByDepartment}
+                  departmentColors={departmentColors}
+                />
+              </div>
+            )}
+            {encountersByMultiModalData && (
+              <div className="bg-white shadow-md rounded p-6">
+                <h2 className="text-center text-2xl font-bold mb-4">
+                  Encounters By Multi Modal Data
+                </h2>
+                <EncountersByMultiModalDataChart
+                  data={encountersByMultiModalData}
+                />
+              </div>
+            )}
+            {encountersOverTime && (
+              <div className="bg-white shadow-md rounded p-6">
+                <h2 className="text-center text-2xl font-bold mb-4">
+                  Encounters Over Time
+                </h2>
+                <EncountersOverTimeChart data={encountersOverTime} />
+              </div>
+            )}
+            {encountersByEthnicGroups && (
+              <div className="bg-white shadow-md rounded p-6">
+                <h2 className="text-center text-2xl font-bold mb-4">
+                  Ethnic Groups
+                </h2>
+                <EncountersEthnicGroupsChart data={encountersByEthnicGroups} />
+              </div>
+            )}
+            {encountersByRacialGroups && (
+              <div className="bg-white shadow-md rounded p-6">
+                <h2 className="text-center text-2xl font-bold mb-4">
+                  Racial Groups
+                </h2>
+                <EncountersByRacialGroupChart data={encountersByRacialGroups} />
+              </div>
+            )}
+            {satisfactionData && (
+              <div className="col-span-2 bg-white shadow-md rounded p-6">
+                <h2 className="text-center text-2xl font-bold mb-4">
+                  Patient and Provider Satisfaction
+                </h2>
+                <SatisfactionChart data={satisfactionData} />
+              </div>
+            )}
           </div>
-        )}
-        {accessControlByDepartment && (
-          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
-            <h2 className="text-center text-2xl font-bold mb-4">
-              Access Controlled
-            </h2>
-            <AccessControlByDepartmentChart
-              data={accessControlByDepartment}
-              departmentColors={departmentColors}
-            />
-          </div>
-        )}
-        {encountersByMultiModalData && (
-          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
-            <h2 className="text-center text-2xl font-bold mb-4">
-              Encounters By Multi Modal Data
-            </h2>
-            <EncountersByMultiModalDataChart
-              data={encountersByMultiModalData}
-            />
-          </div>
-        )}
-        {encountersOverTime && (
-          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
-            <h2 className="text-center text-2xl font-bold mb-4">
-              Encounters Over Time
-            </h2>
-            <EncountersOverTimeChart data={encountersOverTime} />
-          </div>
-        )}
-        {encountersByEthnicGroups && (
-          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
-            <h2 className="text-center text-2xl font-bold mb-4">
-              Ethnic Groups
-            </h2>
-            <EncountersEthnicGroupsChart data={encountersByEthnicGroups} />
-          </div>
-        )}
-        {encountersByRacialGroups && (
-          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
-            <h2 className="text-center text-2xl font-bold mb-4">
-              Racial Groups
-            </h2>
-            <EncountersByRacialGroupChart data={encountersByRacialGroups} />
-          </div>
-        )}
-        {satisfactionData && (
-          <div className="lg:col-span-1 bg-white shadow-md rounded p-6">
-            <h2 className="text-center text-2xl font-bold mb-4">
-              Patient and Provider Satisfaction
-            </h2>
-            <SatisfactionChart data={satisfactionData} />
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
