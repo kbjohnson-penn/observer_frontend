@@ -55,6 +55,7 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
     <g transform={`translate(${x},${y})`}>
       {words.map((word: string, index: number) => (
         <text
+          key={index}
           x={0}
           y={index * 16}
           dy={16}

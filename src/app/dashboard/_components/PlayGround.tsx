@@ -104,7 +104,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
     }[]
   >();
 
-  const [exportFormat, setExportFormat] = useState<string>("csv");
+  const [exportFormat, setExportFormat] = useState<string>("");
   const [exportData, setExportData] = useState<CombinedDataType[]>([]);
 
   const handleSourceChange = (selectedOptions: any) => {
@@ -288,12 +288,27 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                 />
                 <button
                   onClick={handleExportClick}
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                  className={`px-4 py-2 rounded ${
+                    exportFormat
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-500 text-gray-300 cursor-not-allowed"
+                  }`}
+                  disabled={!exportFormat}
                 >
                   Export Data
                 </button>
               </div>
             </div>
+            <p className="mt-2 mb-4 text-gray-600">
+              <strong>RIAS:</strong> Roter interaction analysis system (RIAS) is
+              a method for coding medical dialogue.
+            </p>
+            <p className="mt-2 mb-4 text-gray-600">
+              <strong>Simulation Center:</strong> Simulation center data.
+            </p>
+            <p className="mt-2 mb-4 text-gray-600">
+              <strong>Clinic:</strong> Clinical Encounters data.
+            </p>
           </div>
         </div>
         <div className="lg:order-1 lg:col-span-2">

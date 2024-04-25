@@ -34,19 +34,6 @@ const Home: React.FC = async () => {
             patient-provider interactions, from verbal exchanges to non-verbal
             cues.
           </p>
-          <div className="flex flex-col items-center justify-center py-5">
-            <div className="w-full max-w-4xl p-4 bg-gray-200 rounded-md shadow-md mt-6">
-              <h2 className="text-2xl font-bold mb-2 text-blue-700">
-                Demographics Table
-              </h2>
-              <Suspense fallback={<LoadingPage />}></Suspense>
-            </div>
-            <p className="text-lg text-justify mx-8 mt-6 text-gray-700">
-              This table contains real-time details regarding patient
-              participant population demographics for visits housed in The
-              Observer Repository.
-            </p>
-          </div>
         </div>
       </div>
     </main>
