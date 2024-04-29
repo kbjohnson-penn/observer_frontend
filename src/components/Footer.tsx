@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 
 const Footer = () => (
-  <footer className="bg-gray-900 text-white p-2">
+  <footer className="bg-gray-900 text-white p-2 mt-auto">
     <div className="container mx-auto p-4 md:p-8 lg:p-10">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <div>
