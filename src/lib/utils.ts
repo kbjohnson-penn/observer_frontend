@@ -1,5 +1,4 @@
 import * as d3 from "d3";
-import { unparse } from "papaparse";
 import {
   PatientDataType,
   ProviderDataType,
@@ -7,6 +6,8 @@ import {
   DepartmentDataType,
   MultiModalDataPathsDataType,
   CombinedDataType,
+  FlattenedCombinedDataType,
+  NestedCombinedDataType,
 } from "../interfaces/interfaces";
 import { ETHNIC_CATEGORIES, RACIAL_CATEGORIES } from "../constants";
 
@@ -114,7 +115,7 @@ export const getEncountersByMultiModalData = (
 
   const multiModalDataPathsLookup = multiModalDataPathsData.reduce(
     (lookup, dataPath) => {
-      lookup[dataPath.multi_modal_data_id] = dataPath;
+      lookup[dataPath.id] = dataPath;
       return lookup;
     },
     {} as { [key: string]: MultiModalDataPathsDataType }
@@ -122,7 +123,7 @@ export const getEncountersByMultiModalData = (
 
   filteredEncounterData.forEach((encounter) => {
     const matchedMultiModalDataPath =
-      multiModalDataPathsLookup[encounter.multi_modal_data];
+      multiModalDataPathsLookup[encounter.multi_modal_data_id];
 
     if (matchedMultiModalDataPath) {
       Object.keys(data).forEach((key) => {
@@ -157,6 +158,8 @@ export const getEncountersOverTime = (
     return acc;
   }, [] as { date: string; count: number }[]);
 
+  data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
   return data;
 };
 
@@ -169,15 +172,15 @@ export const getEncountersByGroup = (
 ): { name: string; patientCount: number; providerCount: number }[] => {
   const groupNames = Object.keys(groupCategories);
   const counts: {
-    [key: string]: { patientCount: Set<string>; providerCount: Set<string> };
+    [key: string]: { patientCount: Set<number>; providerCount: Set<number> };
   } = {};
 
   for (const encounter of filteredEncounterData) {
     const patient = patientsData.find(
-      (p) => p.patient_id === encounter.patient
+      (p) => p.patient_id === encounter.patient_id
     );
     const provider = providerData.find(
-      (p) => p.provider_id === encounter.provider
+      (p) => p.provider_id === encounter.provider_id
     );
 
     if (patient && provider && patient[groupKey] && provider[groupKey]) {
@@ -200,7 +203,6 @@ export const getEncountersByGroup = (
       counts[provider[groupKey]].providerCount.add(provider.provider_id);
     }
   }
-
   return groupNames.map((group) => ({
     name: groupCategories[group],
     patientCount: counts[group]?.patientCount.size || 0,
@@ -276,38 +278,48 @@ export const compileData = (
     providerData.map((item) => [item.provider_id, item])
   );
   const multiModalDataMap = new Map(
-    multiModalData.map((item) => [item.multi_modal_data_id, item])
+    multiModalData.map((item) => [item.id, item])
   );
 
   const combinedData = filteredEncounterData.map((encounter) => {
-    const patient =
-      format === "csv"
-        ? addPrefixToKeys(patientsMap.get(encounter.patient), "patient_")
-        : patientsMap.get(encounter.patient);
-    const provider =
-      format === "csv"
-        ? addPrefixToKeys(providersMap.get(encounter.provider), "provider_")
-        : providersMap.get(encounter.provider);
+    const patient = patientsMap.get(encounter.patient_id);
+    const provider = providersMap.get(encounter.provider_id);
     const multiModalDataPath = multiModalDataMap.get(
-      encounter.multi_modal_data
+      encounter.multi_modal_data_id
     );
 
-    return format === "csv"
-      ? {
-          ...encounter,
-          ...patient,
-          ...provider,
-          ...multiModalDataPath,
-        }
-      : {
-          ...encounter,
-          patient,
-          provider,
-          multiModalDataPath,
-        };
+    if (!patient || !provider || !multiModalDataPath) {
+      throw new Error("Patient, provider, or multi-modal data not found");
+    }
+
+    if (format === "csv") {
+      const { patient_id: _, ...patientWithoutId } = addPrefixToKeys(
+        patient,
+        "patient_"
+      );
+      const { provider_id: __, ...providerWithoutId } = addPrefixToKeys(
+        provider,
+        "provider_"
+      );
+
+      return {
+        ...encounter,
+        ...patientWithoutId,
+        ...providerWithoutId,
+        ...multiModalDataPath,
+        id: encounter.id,
+      } as FlattenedCombinedDataType;
+    } else {
+      return {
+        encounter,
+        patient,
+        provider,
+        multi_modal_data: multiModalDataPath,
+      } as NestedCombinedDataType;
+    }
   });
 
-  return combinedData as CombinedDataType[];
+  return combinedData;
 };
 
 export const downloadData = (

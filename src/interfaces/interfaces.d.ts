@@ -1,14 +1,14 @@
 export interface PatientDataType {
-  patient_id: string;
-  date_of_birth: string;
+  patient_id: number;
+  date_of_birth: string | null;
   sex: string;
   race: string;
   ethnicity: string;
 }
 
 export interface ProviderDataType {
-  provider_id: string;
-  date_of_birth: string;
+  provider_id: number;
+  date_of_birth: string | null;
   sex: string;
   race: string;
   ethnicity: string;
@@ -23,7 +23,7 @@ export interface DepartmentDataType {
 }
 
 export interface MultiModalDataPathsDataType {
-  multi_modal_data_id: string;
+  id: number;
   provider_view: boolean;
   patient_view: boolean;
   room_view: boolean;
@@ -36,12 +36,12 @@ export interface MultiModalDataPathsDataType {
 }
 
 export interface EncounterDataType {
-  case_id: string;
-  provider: string;
-  patient: string;
+  id: number;
+  provider_id: number;
+  patient_id: number;
   encounter_source: string;
   department: string;
-  multi_modal_data: string;
+  multi_modal_data_id: number;
   encounter_date_and_time: string;
   patient_satisfaction: number;
   provider_satisfaction: number;
@@ -49,24 +49,33 @@ export interface EncounterDataType {
   is_restricted: boolean;
 }
 
-export interface NestedCombinedDataType extends EncounterDataType {
+export interface NestedCombinedDataType {
+  encounter: EncounterDataType;
   patient: PatientDataType;
   provider: ProviderDataType;
   multi_modal_data: MultiModalDataPathsDataType;
 }
 
-export interface FlattenedCombinedDataType extends EncounterDataType {
-  patient_patient_id: string;
-  patient_date_of_birth: string;
+export interface FlattenedCombinedDataType {
+  id: number;
+  provider_id: number;
+  patient_id: number;
+  multi_modal_data_id: number;
+  encounter_source: string;
+  department: string;
+  encounter_date_and_time: string;
+  patient_satisfaction: number;
+  provider_satisfaction: number;
+  is_deidentified: boolean;
+  is_restricted: boolean;
+  patient_date_of_birth: string | null;
   patient_sex: string;
   patient_race: string;
   patient_ethnicity: string;
-  provider_provider_id: string;
-  provider_date_of_birth: string;
+  provider_date_of_birth: string | null;
   provider_sex: string;
   provider_race: string;
   provider_ethnicity: string;
-  multi_modal_data_id: string;
   provider_view: boolean;
   patient_view: boolean;
   room_view: boolean;
