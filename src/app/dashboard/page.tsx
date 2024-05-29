@@ -1,5 +1,4 @@
 import React, { Suspense } from "react";
-import * as d3 from "d3";
 import LoadingPage from "../../components/LoadingPage";
 import PlayGround from "./_components/PlayGround";
 import {
@@ -9,6 +8,8 @@ import {
   DepartmentDataType,
   MultiModalDataPathsDataType,
   EncounterDataType,
+  EncounterSimCenterDataType,
+  EncounterRIASDataType,
 } from "../../interfaces/interfaces";
 import { getDepartmentColors } from "../../lib/utils";
 
@@ -21,12 +22,6 @@ const fetchPatientsData = async () => {
 const fetchProvidersData = async () => {
   const res = await fetch(`${process.env.BACKEND_API}/providers`);
   const data: ProviderDataType[] = await res.json();
-  return data;
-};
-
-const fetchEncouterData = async () => {
-  const res = await fetch(`${process.env.BACKEND_API}/encounters`);
-  const data: EncounterDataType[] = await res.json();
   return data;
 };
 
@@ -48,6 +43,24 @@ const fetchMultiModalDataPathsData = async () => {
   return data;
 };
 
+const fetchEncouterData = async () => {
+  const res = await fetch(`${process.env.BACKEND_API}/encounters`);
+  const data: EncounterDataType[] = await res.json();
+  return data;
+};
+
+const fetchEncouterSimCenterData = async () => {
+  const res = await fetch(`${process.env.BACKEND_API}/encounters-simcenter/`);
+  const data: EncounterSimCenterDataType[] = await res.json();
+  return data;
+};
+
+const fetchEncouterRIASData = async () => {
+  const res = await fetch(`${process.env.BACKEND_API}/encounters-rias/`);
+  const data: EncounterRIASDataType[] = await res.json();
+  return data;
+};
+
 const Dashboard: React.FC = async () => {
   const patientsData = await fetchPatientsData();
   const providersData = await fetchProvidersData();
@@ -55,6 +68,8 @@ const Dashboard: React.FC = async () => {
   const departmentData = await fetchDepartmentData();
   const multiModalDataPathsData = await fetchMultiModalDataPathsData();
   const encounterData = await fetchEncouterData();
+  const encounterSimCenterData = await fetchEncouterSimCenterData();
+  const encounterRIASData = await fetchEncouterRIASData();
   const departmentColors = await getDepartmentColors(departmentData);
 
   return (
@@ -66,6 +81,8 @@ const Dashboard: React.FC = async () => {
         departmentData={departmentData}
         multiModalDataPathsData={multiModalDataPathsData}
         encounterData={encounterData}
+        encounterSimCenterData={encounterSimCenterData}
+        encounterRIASData={encounterRIASData}
         departmentColors={departmentColors}
       />
     </Suspense>

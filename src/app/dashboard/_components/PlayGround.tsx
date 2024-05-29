@@ -11,6 +11,9 @@ import {
   DepartmentDataType,
   MultiModalDataPathsDataType,
   EncounterDataType,
+  EncounterSimCenterDataType,
+  EncounterRIASDataType,
+  CombinedEncounterDataType,
   CombinedDataType,
 } from "../../../interfaces/interfaces";
 import EncounterPerDepartmentChart from "./charts/EncounterPerDepartmentChart";
@@ -45,6 +48,8 @@ interface PlayGroundProps {
   departmentData: DepartmentDataType[];
   multiModalDataPathsData: MultiModalDataPathsDataType[];
   encounterData: EncounterDataType[];
+  encounterSimCenterData: EncounterSimCenterDataType[];
+  encounterRIASData: EncounterRIASDataType[];
   departmentColors: { [key: string]: string };
 }
 
@@ -60,6 +65,8 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   departmentData,
   multiModalDataPathsData,
   encounterData,
+  encounterSimCenterData,
+  encounterRIASData,
   departmentColors,
 }) => {
   const [selectedSources, setSelectedSources] = useState<DropDownOption[]>([]);
@@ -68,7 +75,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   const [endDate, setEndDate] = useState(new Date());
   const [isDatePickerEnabled, setIsDatePickerEnabled] = useState(false);
   const [filteredEncounterData, setFilteredEncounterData] = useState<
-    EncounterDataType[]
+    CombinedEncounterDataType[]
   >([]);
   const [encounterPerDepartment, setEncounterPerDepartment] = useState<
     { department: string; count: number }[]
@@ -132,11 +139,21 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   };
 
   useEffect(() => {
+    const allEncounterData = [
+      ...encounterData,
+      ...encounterSimCenterData,
+      ...encounterRIASData,
+    ];
+
     if (selectedSources === null) {
       setFilteredEncounterData([]);
     } else {
-      const updatedEncounterData = encounterData.filter((encounter) => {
-        const encounterDate = new Date(encounter.encounter_date_and_time);
+      const updatedEncounterData = allEncounterData.filter((encounter) => {
+        const encounterDate =
+          "encounter_date_and_time" in encounter &&
+          encounter.encounter_date_and_time
+            ? new Date((encounter as EncounterDataType).encounter_date_and_time)
+            : null;
 
         return (
           (selectedSources.length === 0 ||
@@ -146,7 +163,9 @@ const PlayGround: React.FC<PlayGroundProps> = ({
           (isDeidentified === null ||
             encounter.is_deidentified === isDeidentified) &&
           (!isDatePickerEnabled ||
-            (startDate <= encounterDate && encounterDate <= endDate))
+            (encounterDate &&
+              startDate <= encounterDate &&
+              encounterDate <= endDate))
         );
       });
       setFilteredEncounterData(updatedEncounterData);
@@ -157,6 +176,9 @@ const PlayGround: React.FC<PlayGroundProps> = ({
     isDatePickerEnabled,
     startDate,
     endDate,
+    encounterData,
+    encounterSimCenterData,
+    encounterRIASData,
   ]);
 
   useEffect(() => {
@@ -175,7 +197,15 @@ const PlayGround: React.FC<PlayGroundProps> = ({
         multiModalDataPathsData
       )
     );
-    setEncountersOverTime(getEncountersOverTime(filteredEncounterData));
+    setEncountersOverTime(
+      getEncountersOverTime(
+        filteredEncounterData.filter(
+          (encounter) =>
+            "encounter_date_and_time" in encounter &&
+            encounter.encounter_date_and_time
+        ) as EncounterDataType[]
+      )
+    );
     setEncountersByEthnicGroups(
       getEncountersByEthnicGroups(
         filteredEncounterData,
@@ -190,7 +220,15 @@ const PlayGround: React.FC<PlayGroundProps> = ({
         providersData
       )
     );
-    setSatisfactionData(getSatisfactionData(filteredEncounterData));
+    setSatisfactionData(
+      getSatisfactionData(
+        filteredEncounterData.filter(
+          (encounter) =>
+            "patient_satisfaction" in encounter &&
+            "provider_satisfaction" in encounter
+        ) as EncounterDataType[]
+      )
+    );
     setExportData(
       compileData(
         filteredEncounterData,
@@ -200,7 +238,14 @@ const PlayGround: React.FC<PlayGroundProps> = ({
         exportFormat
       )
     );
-  }, [filteredEncounterData, exportFormat]);
+  }, [
+    filteredEncounterData,
+    exportFormat,
+    patientsData,
+    providersData,
+    multiModalDataPathsData,
+    departmentData,
+  ]);
 
   return (
     <div className="p-12 bg-slate-50">
