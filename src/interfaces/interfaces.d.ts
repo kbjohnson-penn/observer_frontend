@@ -1,4 +1,5 @@
 export interface PatientDataType {
+  id: number;
   patient_id: number;
   date_of_birth: string | null;
   sex: string;
@@ -7,6 +8,7 @@ export interface PatientDataType {
 }
 
 export interface ProviderDataType {
+  id: number;
   provider_id: number;
   date_of_birth: string | null;
   sex: string;
@@ -48,6 +50,34 @@ export interface EncounterDataType {
   is_deidentified: boolean;
   is_restricted: boolean;
 }
+
+export interface EncounterSimCenterDataType {
+  id: number;
+  provider_id: number;
+  patient_id: number;
+  encounter_source: string;
+  department: string;
+  multi_modal_data_id: number;
+  encounter_date_and_time: string;
+  is_deidentified: boolean;
+  is_restricted: boolean;
+}
+
+export interface EncounterRIASDataType {
+  id: number;
+  provider_id: number;
+  patient_id: number;
+  encounter_source: string;
+  department: string;
+  multi_modal_data_id: number;
+  is_deidentified: boolean;
+  is_restricted: boolean;
+}
+
+export type CombinedEncounterDataType =
+  | EncounterDataType
+  | EncounterSimCenterDataType
+  | EncounterRIASDataType;
 
 export interface NestedCombinedDataType {
   encounter: EncounterDataType;
