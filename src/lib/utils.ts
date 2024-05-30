@@ -3,13 +3,20 @@ import {
   PatientDataType,
   ProviderDataType,
   EncounterDataType,
+  EncounterSimCenterDataType,
+  EncounterRIASDataType,
+  CombinedEncounterDataType,
   DepartmentDataType,
   MultiModalDataPathsDataType,
   CombinedDataType,
   FlattenedCombinedDataType,
   NestedCombinedDataType,
 } from "../interfaces/interfaces";
-import { ETHNIC_CATEGORIES, RACIAL_CATEGORIES } from "../constants";
+import {
+  ETHNIC_CATEGORIES,
+  RACIAL_CATEGORIES,
+  CSV_COLUMN_ORDER,
+} from "../constants";
 
 export const capitalizeWords = (input: string): string => {
   return input.replace(/\b\w/g, (char) => char.toUpperCase());
@@ -45,7 +52,7 @@ export const getDepartmentColors = (departmentData: DepartmentDataType[]) => {
 };
 
 export const getEncounterPerDepartment = (
-  filteredEncounterData: EncounterDataType[],
+  filteredEncounterData: CombinedEncounterDataType[],
   departmentData: DepartmentDataType[]
 ): { department: string; count: number }[] => {
   const data = departmentData.map((department) => {
@@ -58,7 +65,7 @@ export const getEncounterPerDepartment = (
 };
 
 export const getEncountersByAccess = (
-  filteredEncounterData: EncounterDataType[]
+  filteredEncounterData: CombinedEncounterDataType[]
 ): { access: string; count: number }[] => {
   const data = ["Access Controlled", "Not Access Controlled"].map((access) => {
     const count = filteredEncounterData.filter(
@@ -72,7 +79,7 @@ export const getEncountersByAccess = (
 };
 
 export const getAccessControlByDepartment = (
-  filteredEncounterData: EncounterDataType[],
+  filteredEncounterData: CombinedEncounterDataType[],
   departmentData: DepartmentDataType[]
 ): {
   department: string;
@@ -98,7 +105,7 @@ export const getAccessControlByDepartment = (
 };
 
 export const getEncountersByMultiModalData = (
-  filteredEncounterData: EncounterDataType[],
+  filteredEncounterData: CombinedEncounterDataType[],
   multiModalDataPathsData: MultiModalDataPathsDataType[]
 ): { name: string; count: number }[] => {
   const data: { [key: string]: number } = {
@@ -164,7 +171,7 @@ export const getEncountersOverTime = (
 };
 
 export const getEncountersByGroup = (
-  filteredEncounterData: EncounterDataType[],
+  filteredEncounterData: CombinedEncounterDataType[],
   patientsData: PatientDataType[],
   providerData: ProviderDataType[],
   groupKey: "race" | "ethnicity",
@@ -211,7 +218,7 @@ export const getEncountersByGroup = (
 };
 
 export const getEncountersByEthnicGroups = (
-  filteredEncounterData: EncounterDataType[],
+  filteredEncounterData: CombinedEncounterDataType[],
   patientsData: PatientDataType[],
   providerData: ProviderDataType[]
 ): { name: string; patientCount: number; providerCount: number }[] => {
@@ -225,7 +232,7 @@ export const getEncountersByEthnicGroups = (
 };
 
 export const getEncountersByRacialGroups = (
-  filteredEncounterData: EncounterDataType[],
+  filteredEncounterData: CombinedEncounterDataType[],
   patientsData: PatientDataType[],
   providerData: ProviderDataType[]
 ): { name: string; patientCount: number; providerCount: number }[] => {
@@ -264,19 +271,26 @@ const addPrefixToKeys = (
   return result;
 };
 
+const orderObject = (
+  obj: Record<string, any>,
+  order: string[]
+): Record<string, any> => {
+  const ordered: Record<string, any> = {};
+  for (const key of order) {
+    ordered[key] = obj[key] === undefined ? "" : obj[key];
+  }
+  return ordered;
+};
+
 export const compileData = (
-  filteredEncounterData: EncounterDataType[],
+  filteredEncounterData: CombinedEncounterDataType[],
   patientsData: PatientDataType[],
   providerData: ProviderDataType[],
   multiModalData: MultiModalDataPathsDataType[],
   format: string
 ): CombinedDataType[] => {
-  const patientsMap = new Map(
-    patientsData.map((item) => [item.patient_id, item])
-  );
-  const providersMap = new Map(
-    providerData.map((item) => [item.provider_id, item])
-  );
+  const patientsMap = new Map(patientsData.map((item) => [item.id, item]));
+  const providersMap = new Map(providerData.map((item) => [item.id, item]));
   const multiModalDataMap = new Map(
     multiModalData.map((item) => [item.id, item])
   );
@@ -287,31 +301,51 @@ export const compileData = (
     const multiModalDataPath = multiModalDataMap.get(
       encounter.multi_modal_data_id
     );
-
     if (!patient || !provider || !multiModalDataPath) {
       throw new Error("Patient, provider, or multi-modal data not found");
     }
 
+    const safeEncounter = {
+      ...encounter,
+      encounter_date_and_time:
+        "encounter_date_and_time" in encounter
+          ? (encounter as EncounterDataType | EncounterSimCenterDataType)
+              .encounter_date_and_time
+          : null,
+      patient_satisfaction:
+        "patient_satisfaction" in encounter
+          ? (encounter as EncounterDataType).patient_satisfaction
+          : null,
+      provider_satisfaction:
+        "provider_satisfaction" in encounter
+          ? (encounter as EncounterDataType).provider_satisfaction
+          : null,
+      is_deidentified: encounter.is_deidentified,
+      is_restricted: encounter.is_restricted,
+    };
+
     if (format === "csv") {
-      const { patient_id: _, ...patientWithoutId } = addPrefixToKeys(
+      const { id: _, ...patientWithoutId } = addPrefixToKeys(
         patient,
         "patient_"
       );
-      const { provider_id: __, ...providerWithoutId } = addPrefixToKeys(
+      const { id: __, ...providerWithoutId } = addPrefixToKeys(
         provider,
         "provider_"
       );
 
-      return {
-        ...encounter,
+      const flattenedData = {
+        ...safeEncounter,
         ...patientWithoutId,
         ...providerWithoutId,
         ...multiModalDataPath,
         id: encounter.id,
       } as FlattenedCombinedDataType;
+
+      return orderObject(flattenedData, CSV_COLUMN_ORDER);
     } else {
       return {
-        encounter,
+        encounter: safeEncounter,
         patient,
         provider,
         multi_modal_data: multiModalDataPath,
@@ -319,7 +353,7 @@ export const compileData = (
     }
   });
 
-  return combinedData;
+  return combinedData as CombinedDataType[];
 };
 
 export const downloadData = (
@@ -331,12 +365,36 @@ export const downloadData = (
   let fileExtension: string;
 
   if (format === "csv") {
-    const header = Object.keys(combinedData[0]).join(",");
+    const flattenObject = (obj: any, prefix = "") => {
+      return Object.keys(obj).reduce((acc, k) => {
+        const pre = prefix.length ? prefix + "." : "";
+        if (
+          typeof obj[k] === "object" &&
+          obj[k] !== null &&
+          !Array.isArray(obj[k])
+        ) {
+          Object.assign(acc, flattenObject(obj[k], pre + k));
+        } else {
+          acc[pre + k] = obj[k];
+        }
+        return acc;
+      }, {} as Record<string, any>);
+    };
+
+    const flattenedData = combinedData.map((item) => flattenObject(item));
+    const orderedData = flattenedData.map((item) =>
+      orderObject(item, CSV_COLUMN_ORDER)
+    );
+    const header = CSV_COLUMN_ORDER.join(",");
     const csvRows = [header];
 
-    for (const row of combinedData) {
+    for (const row of orderedData) {
       const values = Object.values(row).map((value) =>
-        typeof value === "object" ? JSON.stringify(value) : String(value)
+        typeof value === "object"
+          ? JSON.stringify(value)
+          : value === null
+          ? ""
+          : String(value)
       );
       csvRows.push(values.join(","));
     }
