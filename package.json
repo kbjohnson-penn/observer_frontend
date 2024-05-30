@@ -23,6 +23,7 @@
     "react-force-graph-2d": "^1.25.4",
     "react-select": "^5.8.0",
     "recharts": "^2.10.4",
+    "sharp": "^0.33.4",
     "three-spritetext": "^1.8.2"
   },
   "devDependencies": {
