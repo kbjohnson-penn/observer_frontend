@@ -1,3 +1,5 @@
+"use server";
+
 import React, { Suspense } from "react";
 import LoadingPage from "../../components/LoadingPage";
 import PlayGround from "./_components/PlayGround";
@@ -14,49 +16,65 @@ import {
 import { getDepartmentColors } from "../../lib/utils";
 
 const fetchPatientsData = async () => {
-  const res = await fetch(`${process.env.BACKEND_API}/patients`);
+  const res = await fetch(`${process.env.BACKEND_API}/patients`, {
+    cache: "no-store",
+  });
   const data: PatientDataType[] = await res.json();
   return data;
 };
 
 const fetchProvidersData = async () => {
-  const res = await fetch(`${process.env.BACKEND_API}/providers`);
+  const res = await fetch(`${process.env.BACKEND_API}/providers`, {
+    cache: "no-store",
+  });
   const data: ProviderDataType[] = await res.json();
   return data;
 };
 
 const fetchEncounterSourceData = async () => {
-  const res = await fetch(`${process.env.BACKEND_API}/encountersources`);
+  const res = await fetch(`${process.env.BACKEND_API}/encountersources`, {
+    cache: "no-store",
+  });
   const data: EncounterSourceDataType[] = await res.json();
   return data;
 };
 
 const fetchDepartmentData = async () => {
-  const res = await fetch(`${process.env.BACKEND_API}/departments`);
+  const res = await fetch(`${process.env.BACKEND_API}/departments`, {
+    cache: "no-store",
+  });
   const data: DepartmentDataType[] = await res.json();
   return data;
 };
 
 const fetchMultiModalDataPathsData = async () => {
-  const res = await fetch(`${process.env.BACKEND_API}/datapaths`);
+  const res = await fetch(`${process.env.BACKEND_API}/datapaths`, {
+    cache: "no-store",
+  });
   const data: MultiModalDataPathsDataType[] = await res.json();
   return data;
 };
 
 const fetchEncouterData = async () => {
-  const res = await fetch(`${process.env.BACKEND_API}/encounters`);
+  const res = await fetch(`${process.env.BACKEND_API}/encounters`, {
+    cache: "no-store",
+  });
   const data: EncounterDataType[] = await res.json();
   return data;
 };
 
 const fetchEncouterSimCenterData = async () => {
-  const res = await fetch(`${process.env.BACKEND_API}/encounters-simcenter/`);
+  const res = await fetch(`${process.env.BACKEND_API}/encounters-simcenter/`, {
+    cache: "no-store",
+  });
   const data: EncounterSimCenterDataType[] = await res.json();
   return data;
 };
 
 const fetchEncouterRIASData = async () => {
-  const res = await fetch(`${process.env.BACKEND_API}/encounters-rias/`);
+  const res = await fetch(`${process.env.BACKEND_API}/encounters-rias/`, {
+    cache: "no-store",
+  });
   const data: EncounterRIASDataType[] = await res.json();
   return data;
 };
