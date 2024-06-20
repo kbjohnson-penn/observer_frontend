@@ -58,6 +58,17 @@ interface DropDownOption {
   label: string;
 }
 
+const dropDownSelectStyle = {
+  control: (provided: any) => ({
+    ...provided,
+    fontSize: "14px",
+  }),
+  option: (provided: any) => ({
+    ...provided,
+    fontSize: "14px",
+  }),
+};
+
 const PlayGround: React.FC<PlayGroundProps> = ({
   patientsData,
   providersData,
@@ -254,42 +265,33 @@ const PlayGround: React.FC<PlayGroundProps> = ({
           <div className="p-4 bg-white rounded shadow mb-4">
             <div className="flex justify-between mb-4">
               <div className="w-1/2 pr-2">
-                <label className="text-lg text-blue-500">
+                <label className="text-sm text-blue-500">
                   Select Data Source
                 </label>
                 <Select
                   options={SOURCE_OPTIONS}
                   onChange={handleSourceChange}
                   isMulti
+                  styles={dropDownSelectStyle}
                 />
               </div>
               <div className="w-1/2 pl-2">
-                <label className="text-lg text-blue-500">
+                <label className="text-sm text-blue-500">
                   Select Deidentified data
                 </label>
                 <Select
                   options={DEIDENTIFIED_OPTIONS}
                   onChange={handleIsDeidentifiedChange}
                   defaultValue={DEIDENTIFIED_OPTIONS[0]}
+                  styles={dropDownSelectStyle}
                 />
               </div>
             </div>
             <div className="p-4 bg-white rounded shadow mb-4">
               <div className="mb-2">
-                <div className="flex items-center mb-2">
-                  <input
-                    type="checkbox"
-                    checked={isDatePickerEnabled}
-                    onChange={() =>
-                      setIsDatePickerEnabled(!isDatePickerEnabled)
-                    }
-                    className="mr-2"
-                  />
-                  <label>Enable Date Filter</label>
-                </div>
                 <div className="grid grid-cols-2 gap-1">
                   <div>
-                    <label className="block text-lg text-blue-500 mb-2">
+                    <label className="block text-sm text-blue-500 mb-2">
                       Start Date
                     </label>
                     <DatePicker
@@ -304,7 +306,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-lg text-blue-500 mb-2">
+                    <label className="block text-sm text-blue-500 mb-2">
                       End Date
                     </label>
                     <DatePicker
@@ -319,21 +321,33 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                     />
                   </div>
                 </div>
+                <div className="flex items-center mt-4">
+                  <input
+                    type="checkbox"
+                    checked={isDatePickerEnabled}
+                    onChange={() =>
+                      setIsDatePickerEnabled(!isDatePickerEnabled)
+                    }
+                    className="mr-2"
+                  />
+                  <label className="text-xs">Enable Date Filter</label>
+                </div>
               </div>
             </div>
             <div className="p-4 bg-white rounded shadow">
+              <label className="block text-sm text-blue-500 mb-2">
+                Export Format
+              </label>
               <div className="flex items-center mb-4">
-                <label className="block text-lg text-blue-500 mr-2">
-                  Export Format
-                </label>
                 <Select
                   options={EXPORT_OPTIONS}
                   onChange={handleFormatChange}
-                  className="mr-2"
+                  className="mr-4"
+                  styles={dropDownSelectStyle}
                 />
                 <button
                   onClick={handleExportClick}
-                  className={`px-4 py-2 rounded ${
+                  className={`px-4 py-2 text-sm rounded ${
                     exportFormat
                       ? "bg-blue-500 text-white"
                       : "bg-gray-500 text-gray-300 cursor-not-allowed"
@@ -344,14 +358,14 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                 </button>
               </div>
             </div>
-            <p className="mt-2 mb-4 text-gray-600">
+            <p className="mt-2 mb-4 text-sm text-gray-600">
               <strong>RIAS:</strong> Roter interaction analysis system (RIAS) is
               a method for coding medical dialogue.
             </p>
-            <p className="mt-2 mb-4 text-gray-600">
+            <p className="mt-2 mb-4 text-sm text-gray-600">
               <strong>Simulation Center:</strong> Simulation center data.
             </p>
-            <p className="mt-2 mb-4 text-gray-600">
+            <p className="mt-2 mb-4 text-sm text-gray-600">
               <strong>Clinic:</strong> Clinical Encounters data.
             </p>
           </div>
@@ -359,8 +373,8 @@ const PlayGround: React.FC<PlayGroundProps> = ({
         <div className="lg:order-1 lg:col-span-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {encounterPerDepartment && (
-              <div className="bg-white shadow-md rounded p-6">
-                <h2 className="text-center text-2xl font-bold mb-4">
+              <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
+                <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
                   Encounter Per Department
                 </h2>
                 <EncounterPerDepartmentChart
@@ -370,8 +384,8 @@ const PlayGround: React.FC<PlayGroundProps> = ({
               </div>
             )}
             {accessControlByDepartment && (
-              <div className="bg-white shadow-md rounded p-6">
-                <h2 className="text-center text-2xl font-bold mb-4">
+              <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
+                <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
                   Access Controlled
                 </h2>
                 <AccessControlByDepartmentChart
@@ -381,8 +395,8 @@ const PlayGround: React.FC<PlayGroundProps> = ({
               </div>
             )}
             {encountersByMultiModalData && (
-              <div className="bg-white shadow-md rounded p-6">
-                <h2 className="text-center text-2xl font-bold mb-4">
+              <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
+                <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
                   Encounters By Multi Modal Data
                 </h2>
                 <EncountersByMultiModalDataChart
@@ -391,32 +405,32 @@ const PlayGround: React.FC<PlayGroundProps> = ({
               </div>
             )}
             {encountersOverTime && (
-              <div className="bg-white shadow-md rounded p-6">
-                <h2 className="text-center text-2xl font-bold mb-4">
+              <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
+                <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
                   Encounters Over Time
                 </h2>
                 <EncountersOverTimeChart data={encountersOverTime} />
               </div>
             )}
             {encountersByEthnicGroups && (
-              <div className="bg-white shadow-md rounded p-6">
-                <h2 className="text-center text-2xl font-bold mb-4">
+              <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
+                <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
                   Ethnic Groups
                 </h2>
                 <EncountersEthnicGroupsChart data={encountersByEthnicGroups} />
               </div>
             )}
             {encountersByRacialGroups && (
-              <div className="bg-white shadow-md rounded p-6">
-                <h2 className="text-center text-2xl font-bold mb-4">
+              <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
+                <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
                   Racial Groups
                 </h2>
                 <EncountersByRacialGroupChart data={encountersByRacialGroups} />
               </div>
             )}
             {satisfactionData && (
-              <div className="col-span-2 bg-white shadow-md rounded p-6">
-                <h2 className="text-center text-2xl font-bold mb-4">
+              <div className="col-span-2 bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
+                <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
                   Patient and Provider Satisfaction
                 </h2>
                 <SatisfactionChart data={satisfactionData} />
