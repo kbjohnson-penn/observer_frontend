@@ -39,6 +39,7 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({ data }) => {
           name="Patient Satisfaction"
           domain={[0, 5]}
           ticks={[0, 1, 2, 3, 4, 5]}
+          fontSize={14}
         >
           <Label
             value="Patient Satisfaction"
@@ -51,12 +52,9 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({ data }) => {
           name="Provider Satisfaction"
           domain={[0, 5]}
           ticks={[0, 1, 2, 3, 4, 5]}
+          fontSize={14}
         >
-          <Label
-            value="Provider Satisfaction"
-            angle={-90}
-            position="insideLeft"
-          />
+          <Label value="Provider Satisfaction" angle={-90} dy={10} dx={-10} />
         </YAxis>
         <Tooltip content={<CustomTooltip />} />
         <Scatter data={data} fill="#8884d8" />

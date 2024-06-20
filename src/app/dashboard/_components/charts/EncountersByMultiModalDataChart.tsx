@@ -30,6 +30,7 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
           textAnchor="end"
           fill="#666"
           transform="rotate(0)"
+          fontSize={12}
         >
           {word}
         </text>
@@ -85,11 +86,12 @@ const EncountersByMultiModalDataChart: React.FC<
         tick={<CustomizedAxisTick />}
         interval={0}
       />
-      <XAxis type="number" allowDecimals={false}>
+      <XAxis type="number" allowDecimals={false} fontSize={12}>
         <Label
           value="Total Available Data "
           offset={-10}
           position="insideBottom"
+          fontSize={14}
         />
       </XAxis>
       <Tooltip content={<CustomTooltip />} />

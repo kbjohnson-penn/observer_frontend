@@ -29,6 +29,7 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
           textAnchor="end"
           fill="#666"
           transform="rotate(-20)" // Adjust this value to change the angle of rotation
+          fontSize={14}
         >
           {word}
         </text>
@@ -76,8 +77,14 @@ const EncounterPerDepartmentChart: React.FC<
       margin={{ top: 5, bottom: 30 }}
     >
       <XAxis dataKey="department" tick={<CustomizedAxisTick />} interval={0} />
-      <YAxis allowDecimals={false}>
-        <Label value="Encounters" angle={-90} position="inside" />
+      <YAxis allowDecimals={false} fontSize={12}>
+        <Label
+          value="Encounters"
+          angle={-90}
+          position="inside"
+          fontSize={14}
+          dx={-10}
+        />
       </YAxis>
       <Tooltip
         content={<CustomTooltip departmentColors={departmentColors} />}
