@@ -25,7 +25,7 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
         }}
       >
         <p className="label">{`${new Date(label).toLocaleDateString()}`}</p>
-        <p className="intro">{`# of Encounters: ${payload[0].value}`}</p>
+        <p className="intro">{`Encounters: ${payload[0].value}`}</p>
       </div>
     );
   }
@@ -42,7 +42,8 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
         dy={16}
         textAnchor="end"
         fill="#666"
-        transform="rotate(-35)"
+        transform="rotate(-45)"
+        fontSize={14}
       >
         {new Date(payload.value).toLocaleDateString()}
       </text>
@@ -59,12 +60,18 @@ const EncountersOverTimeChart: React.FC<EncountersOverTimeChartProps> = ({
         dataKey="date"
         height={60}
         tick={<CustomizedAxisTick />}
-        interval={0}
+        interval="equidistantPreserveStart"
       >
-        <Label value="Date" offset={2} position="insideBottomLeft" />
+        {/* <Label value="Date" offset={2} position="insideBottomLeft" fontSize={14} dy={10}/> */}
       </XAxis>
-      <YAxis allowDecimals={false}>
-        <Label value="# of Encounters" angle={-90} position="inside" />
+      <YAxis allowDecimals={false} fontSize={12}>
+        <Label
+          value="# of Encounters"
+          angle={-90}
+          position="inside"
+          fontSize={14}
+          dx={-10}
+        />
       </YAxis>
       <Tooltip content={<CustomTooltip />} />
       <Line type="monotone" dataKey="count" stroke="#3d5afe" />

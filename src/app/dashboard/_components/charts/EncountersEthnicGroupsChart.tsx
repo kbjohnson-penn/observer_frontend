@@ -59,9 +59,10 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
           x={0}
           y={index * 16}
           dy={16}
-          textAnchor="end"
+          textAnchor="middle"
           fill="#666"
-          transform="rotate(-10)"
+          transform="rotate(0)"
+          fontSize={14}
         >
           {word}
         </text>
@@ -85,8 +86,14 @@ const EncountersEthinicGroupsChart: React.FC<
         }}
       >
         <XAxis dataKey="name" tick={<CustomizedAxisTick />} interval={0} />
-        <YAxis allowDecimals={false}>
-          <Label value="Total" angle={-90} position="inside" />
+        <YAxis allowDecimals={false} fontSize={12}>
+          <Label
+            value="Total"
+            angle={-90}
+            position="inside"
+            fontSize={14}
+            dx={-10}
+          />
         </YAxis>
         <Tooltip content={<CustomTooltip colors={["#8884d8", "#82ca9d"]} />} />
         <Legend verticalAlign="top" />
