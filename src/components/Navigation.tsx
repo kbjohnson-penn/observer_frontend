@@ -12,13 +12,13 @@ export function useActiveLink(href: string) {
 export default function Navigation() {
   return (
     <nav className="bg-nav-background">
-      <header className="flex justify-between items-center w-full p-4">
-        <div className="flex items-center pr-4">
+      <header className="flex justify-between items-center w-full p-2">
+        <div className="flex items-center pr-4 pt-1 pb-1">
           <Link href="https://www.med.upenn.edu/">
             <Image
-              src="/penn-med.png"
+              src="/psom_logo_white.svg"
               width={180}
-              height={100}
+              height={80}
               alt="Penn Medicine logo"
               className="h-12 ml-4"
               priority
@@ -40,7 +40,7 @@ export default function Navigation() {
                 useActiveLink("/")
                   ? "font-bold text-zinc-50"
                   : "font-semibold text-white text-zinc-400"
-              } hover:text-yellow-500 ml-3 mr-4 text-lg`}
+              } hover:text-yellow-500 mr-6`}
             >
               Home
             </Link>
@@ -52,7 +52,7 @@ export default function Navigation() {
                 useActiveLink("/dashboard")
                   ? "font-bold text-zinc-50"
                   : "font-semibold text-white text-zinc-400"
-              } hover:text-yellow-500 ml-3 mr-4 text-lg`}
+              } hover:text-yellow-500 mr-6`}
             >
               Dashboard
             </Link>

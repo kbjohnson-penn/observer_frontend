@@ -58,7 +58,7 @@ const CustomTooltip: React.FC<any> = ({
           className="label"
           style={{ color: departmentColors[label] }}
         >{`${label}`}</p>
-        <p className="intro">{`# Encounters: ${payload[0].value}`}</p>
+        <p className="intro">{`Encounters: ${payload[0].value}`}</p>
       </div>
     );
   }
