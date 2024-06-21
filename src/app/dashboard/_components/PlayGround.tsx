@@ -250,6 +250,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
       )
     );
   }, [
+    selectedSources,
     filteredEncounterData,
     exportFormat,
     patientsData,

@@ -65,8 +65,8 @@ const CustomTooltip: React.FC<any> = ({
         {payload.map((entry: any, index: number) => (
           <p key={index}>{`${
             entry.name === "accessControlled"
-              ? "# Restricted"
-              : "# Not Restricted"
+              ? "Restricted"
+              : "Not Restricted"
           }: ${entry.value}`}</p>
         ))}
       </div>

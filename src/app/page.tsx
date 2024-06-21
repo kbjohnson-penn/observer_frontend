@@ -12,7 +12,7 @@ const Home: React.FC = async () => {
           >
             Welcome to the Observer Project
           </h1>
-          <p className="text-lg text-justify mx-8 py-8 text-gray-700">
+          <p className="text-sm text-justify mx-8 py-8 text-gray-700">
             Welcome to The Observer Repository. We specialize in aggregating and
             curating comprehensive clinic visit data, including video, audio,
             transcript, EHR data, and audit log information, to provide an
@@ -24,7 +24,7 @@ const Home: React.FC = async () => {
             medical research and pave the way for advancements in patient care
             and healthcare delivery.
           </p>
-          <p className="text-lg text-justify mx-8 text-gray-700">
+          <p className="text-sm text-justify mx-8 text-gray-700">
             The Observer Repository is a state-of-the-art multimodal platform
             equipped to store a variety of data formats, including MOV and MP4
             for high-quality video, MP3 for audio, TXT for text transcripts, and
