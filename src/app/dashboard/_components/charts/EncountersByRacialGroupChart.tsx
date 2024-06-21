@@ -31,11 +31,11 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
         <p
           className="intro"
           style={{ color: colors[0] }}
-        >{`# Patient: ${payload[0].value}`}</p>
+        >{`Patient: ${payload[0].value}`}</p>
         <p
           className="intro"
           style={{ color: colors[1] }}
-        >{`# Provider: ${payload[1].value}`}</p>
+        >{`Provider: ${payload[1].value}`}</p>
       </div>
     );
   }

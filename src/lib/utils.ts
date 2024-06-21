@@ -183,12 +183,8 @@ export const getEncountersByGroup = (
   } = {};
 
   for (const encounter of filteredEncounterData) {
-    const patient = patientsData.find(
-      (p) => p.patient_id === encounter.patient_id
-    );
-    const provider = providerData.find(
-      (p) => p.provider_id === encounter.provider_id
-    );
+    const patient = patientsData.find((p) => p.id === encounter.patient_id);
+    const provider = providerData.find((p) => p.id === encounter.provider_id);
 
     if (patient && provider && patient[groupKey] && provider[groupKey]) {
       if (!counts[patient[groupKey]]) {
