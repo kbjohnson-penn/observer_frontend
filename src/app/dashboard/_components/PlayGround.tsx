@@ -125,6 +125,8 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   const [exportFormat, setExportFormat] = useState<string>("");
   const [exportData, setExportData] = useState<CombinedDataType[]>([]);
 
+  const [screenWidth, setScreenWidth] = useState(0);
+
   const handleSourceChange = (selectedOptions: any) => {
     if (selectedOptions === null) {
       setSelectedSources([]);
@@ -148,6 +150,20 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   const handleExportClick = () => {
     downloadData(exportData, exportFormat);
   };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const handleResize = () => {
+        setScreenWidth(window.innerWidth);
+      };
+
+      setScreenWidth(window.innerWidth);
+
+      window.addEventListener("resize", handleResize);
+
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
 
   useEffect(() => {
     const allEncounterData = [
@@ -260,12 +276,12 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   ]);
 
   return (
-    <div className="p-12 bg-slate-50">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-4">
+    <div className="p-4 sm:p-8 md:p-12 bg-slate-50">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-4 md:gap-x-8 lg:gap-x-12 gap-y-4">
         <div className="order-first lg:order-2 lg:col-span-1">
           <div className="p-4 bg-white rounded shadow mb-4">
-            <div className="flex justify-between mb-4">
-              <div className="w-1/2 pr-2">
+            <div className="flex flex-col md:flex-row justify-between mb-4">
+              <div className="w-full md:w-1/2 pr-0 md:pr-2 mb-4 md:mb-0">
                 <label className="text-sm text-blue-500">
                   Select Data Source
                 </label>
@@ -276,7 +292,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                   styles={dropDownSelectStyle}
                 />
               </div>
-              <div className="w-1/2 pl-2">
+              <div className="w-full md:w-1/2 pl-0 md:pl-2">
                 <label className="text-sm text-blue-500">
                   Select Deidentified data
                 </label>
@@ -290,7 +306,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
             </div>
             <div className="p-4 bg-white rounded shadow mb-4">
               <div className="mb-2">
-                <div className="grid grid-cols-2 gap-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block text-sm text-blue-500 mb-2">
                       Start Date
@@ -339,11 +355,11 @@ const PlayGround: React.FC<PlayGroundProps> = ({
               <label className="block text-sm text-blue-500 mb-2">
                 Export Format
               </label>
-              <div className="flex items-center mb-4">
+              <div className="flex flex-col md:flex-row items-center mb-4">
                 <Select
                   options={EXPORT_OPTIONS}
                   onChange={handleFormatChange}
-                  className="mr-4"
+                  className="mr-0 md:mr-4 mb-4 md:mb-0"
                   styles={dropDownSelectStyle}
                 />
                 <button
@@ -372,7 +388,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
           </div>
         </div>
         <div className="lg:order-1 lg:col-span-2">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {encounterPerDepartment && (
               <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
                 <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
@@ -381,6 +397,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                 <EncounterPerDepartmentChart
                   data={encounterPerDepartment}
                   departmentColors={departmentColors}
+                  screenWidth={screenWidth}
                 />
               </div>
             )}
@@ -392,6 +409,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                 <AccessControlByDepartmentChart
                   data={accessControlByDepartment}
                   departmentColors={departmentColors}
+                  screenWidth={screenWidth}
                 />
               </div>
             )}
@@ -402,6 +420,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                 </h2>
                 <EncountersByMultiModalDataChart
                   data={encountersByMultiModalData}
+                  screenWidth={screenWidth}
                 />
               </div>
             )}
@@ -410,7 +429,10 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                 <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
                   Encounters Over Time
                 </h2>
-                <EncountersOverTimeChart data={encountersOverTime} />
+                <EncountersOverTimeChart
+                  data={encountersOverTime}
+                  screenWidth={screenWidth}
+                />
               </div>
             )}
             {encountersByEthnicGroups && (
@@ -418,7 +440,10 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                 <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
                   Ethnic Groups
                 </h2>
-                <EncountersEthnicGroupsChart data={encountersByEthnicGroups} />
+                <EncountersEthnicGroupsChart
+                  data={encountersByEthnicGroups}
+                  screenWidth={screenWidth}
+                />
               </div>
             )}
             {encountersByRacialGroups && (
@@ -426,15 +451,21 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                 <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
                   Racial Groups
                 </h2>
-                <EncountersByRacialGroupChart data={encountersByRacialGroups} />
+                <EncountersByRacialGroupChart
+                  data={encountersByRacialGroups}
+                  screenWidth={screenWidth}
+                />
               </div>
             )}
             {satisfactionData && (
-              <div className="col-span-2 bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
+              <div className="col-span-1 md:col-span-2 bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
                 <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
                   Patient and Provider Satisfaction
                 </h2>
-                <SatisfactionChart data={satisfactionData} />
+                <SatisfactionChart
+                  data={satisfactionData}
+                  screenWidth={screenWidth}
+                />
               </div>
             )}
           </div>

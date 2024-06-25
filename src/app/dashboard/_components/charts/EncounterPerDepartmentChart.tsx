@@ -13,27 +13,60 @@ import {
 interface EncounterPerDepartmentChartProps {
   data: any[];
   departmentColors: { [key: string]: string };
+  screenWidth: number;
 }
 
-const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
+const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
   const words = payload.value.split(" ");
+  const isMobile = screenWidth <= 768;
+  const isTablet = screenWidth > 768 && screenWidth <= 1024;
 
   return (
     <g transform={`translate(${x},${y})`}>
-      {words.map((word: string, index: number) => (
-        <text
-          key={index}
-          x={0}
-          dy={8}
-          y={index * 18} // Adjust this value to change the line height
-          textAnchor="end"
-          fill="#666"
-          transform="rotate(-20)" // Adjust this value to change the angle of rotation
-          fontSize={14}
-        >
-          {word}
-        </text>
-      ))}
+      {isMobile
+        ? words.map((word: string, index: number) => (
+            <text
+              key={index}
+              x={-5}
+              y={index * 12}
+              dy={8}
+              textAnchor="middle"
+              fill="#666"
+              transform="rotate(0)"
+              fontSize={10}
+            >
+              {word}
+            </text>
+          ))
+        : isTablet
+        ? words.map((word: string, index: number) => (
+            <text
+              key={index}
+              x={0}
+              y={index * 12}
+              dy={8}
+              textAnchor="end"
+              fill="#666"
+              transform="rotate(-30)"
+              fontSize={10}
+            >
+              {word}
+            </text>
+          ))
+        : words.map((word: string, index: number) => (
+            <text
+              key={index}
+              x={0}
+              y={index * 12}
+              dy={8}
+              textAnchor="middle"
+              fill="#666"
+              transform="rotate(0)"
+              fontSize={12}
+            >
+              {word}
+            </text>
+          ))}
     </g>
   );
 };
@@ -68,15 +101,19 @@ const CustomTooltip: React.FC<any> = ({
 
 const EncounterPerDepartmentChart: React.FC<
   EncounterPerDepartmentChartProps
-> = ({ data, departmentColors }) => (
+> = ({ data, departmentColors, screenWidth }) => (
   <ResponsiveContainer width="100%" height={350}>
     <BarChart
       width={500}
       height={350}
       data={data}
-      margin={{ top: 5, bottom: 30 }}
+      margin={{ top: 0, bottom: 30 }}
     >
-      <XAxis dataKey="department" tick={<CustomizedAxisTick />} interval={0} />
+      <XAxis
+        dataKey="department"
+        tick={<CustomizedAxisTick screenWidth={screenWidth} />}
+        interval={0}
+      />
       <YAxis allowDecimals={false} fontSize={12}>
         <Label
           value="Encounters"
