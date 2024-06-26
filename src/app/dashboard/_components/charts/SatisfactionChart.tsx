@@ -10,6 +10,7 @@ import {
 
 interface SatisfactionChartProps {
   data: { patientSatisfaction: number; providerSatisfaction: number }[];
+  screenWidth: number;
 }
 const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -30,7 +31,10 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
 
   return null;
 };
-const SatisfactionChart: React.FC<SatisfactionChartProps> = ({ data }) => {
+const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
+  data,
+  screenWidth,
+}) => {
   return (
     <ResponsiveContainer width="100%" height={350}>
       <ScatterChart width={400} height={400}>
@@ -39,12 +43,13 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({ data }) => {
           name="Patient Satisfaction"
           domain={[0, 5]}
           ticks={[0, 1, 2, 3, 4, 5]}
-          fontSize={14}
+          fontSize={12}
         >
           <Label
             value="Patient Satisfaction"
             offset={-5}
             position="insideBottom"
+            fontSize={14}
           />
         </XAxis>
         <YAxis
@@ -52,9 +57,15 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({ data }) => {
           name="Provider Satisfaction"
           domain={[0, 5]}
           ticks={[0, 1, 2, 3, 4, 5]}
-          fontSize={14}
+          fontSize={12}
         >
-          <Label value="Provider Satisfaction" angle={-90} dy={10} dx={-10} />
+          <Label
+            value="Provider Satisfaction"
+            angle={-90}
+            dy={10}
+            dx={-10}
+            fontSize={14}
+          />
         </YAxis>
         <Tooltip content={<CustomTooltip />} />
         <Scatter data={data} fill="#8884d8" />

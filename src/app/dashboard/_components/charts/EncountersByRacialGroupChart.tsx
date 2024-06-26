@@ -12,6 +12,7 @@ import {
 
 interface EncountersByRacialGroupChartProps {
   data: { name: string; patientCount: number; providerCount: number }[];
+  screenWidth: number;
 }
 
 const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
@@ -43,37 +44,69 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
   return null;
 };
 
-const CustomizedAxisTick: React.FC<any> = ({ x, y, payload }) => {
+const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
   let value = payload.value;
   if (value === "Unknown or Not Reported") {
     value = "Unknown";
   }
 
   const words = value.split(" ");
+  const isMobile = screenWidth <= 768;
+  const isTablet = screenWidth > 768 && screenWidth <= 1024;
 
   return (
     <g transform={`translate(${x},${y})`}>
-      {words.map((word: string, index: number) => (
-        <text
-          key={index}
-          x={0}
-          y={index * 12}
-          dy={10}
-          textAnchor="middle"
-          fill="#666"
-          transform="rotate(0)"
-          fontSize={14}
-        >
-          {word}
-        </text>
-      ))}
+      {isMobile
+        ? words.map((word: string, index: number) => (
+            <text
+              key={index}
+              x={-5}
+              y={index * 10}
+              dy={10}
+              textAnchor="middle"
+              fill="#666"
+              transform="rotate(0)"
+              fontSize={10}
+            >
+              {word}
+            </text>
+          ))
+        : isTablet
+        ? words.map((word: string, index: number) => (
+            <text
+              key={index}
+              x={0}
+              y={index * 10}
+              dy={10}
+              textAnchor="middle"
+              fill="#666"
+              transform="rotate(0)"
+              fontSize={8}
+            >
+              {word}
+            </text>
+          ))
+        : words.map((word: string, index: number) => (
+            <text
+              key={index}
+              x={0}
+              y={index * 12}
+              dy={10}
+              textAnchor="middle"
+              fill="#666"
+              transform="rotate(0)"
+              fontSize={12}
+            >
+              {word}
+            </text>
+          ))}
     </g>
   );
 };
 
 const EncountersByRacialGroupChart: React.FC<
   EncountersByRacialGroupChartProps
-> = ({ data }) => {
+> = ({ data, screenWidth }) => {
   return (
     <ResponsiveContainer width="100%" height={350}>
       <BarChart
@@ -81,11 +114,14 @@ const EncountersByRacialGroupChart: React.FC<
         height={350}
         data={data}
         margin={{
-          top: 5,
           bottom: 50,
         }}
       >
-        <XAxis dataKey="name" tick={<CustomizedAxisTick />} interval={0} />
+        <XAxis
+          dataKey="name"
+          tick={<CustomizedAxisTick screenWidth={screenWidth} />}
+          interval={0}
+        />
         <YAxis allowDecimals={false} fontSize={12}>
           <Label
             value="Total"
