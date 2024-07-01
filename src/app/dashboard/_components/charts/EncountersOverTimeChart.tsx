@@ -7,6 +7,7 @@ import {
   YAxis,
   Tooltip,
   Label,
+  Legend,
 } from "recharts";
 
 interface EncountersOverTimeChartProps {
@@ -27,6 +28,7 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
       >
         <p className="label">{`${new Date(label).toLocaleDateString()}`}</p>
         <p className="intro">{`Encounters: ${payload[0].value}`}</p>
+        <p className="intro">{`Cumulative Encounters: ${payload[1].value}`}</p>
       </div>
     );
   }
@@ -84,39 +86,63 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
 const EncountersOverTimeChart: React.FC<EncountersOverTimeChartProps> = ({
   data,
   screenWidth,
-}) => (
-  <ResponsiveContainer width="100%" height={350}>
-    <LineChart
-      width={500}
-      height={350}
-      data={data}
-      margin={{
-        top: 0,
-        bottom: 0,
-        right: 5,
-      }}
-    >
-      <XAxis
-        dataKey="date"
-        height={60}
-        tick={<CustomizedAxisTick screenWidth={screenWidth} />}
-        interval="equidistantPreserveStart"
+}) => {
+  return (
+    <ResponsiveContainer width="100%" height={350}>
+      <LineChart
+        width={500}
+        height={350}
+        data={data}
+        margin={{
+          top: 0,
+          bottom: 0,
+          right: 5,
+        }}
       >
-        <Label value="Date" position="insideBottom" fontSize={14} />
-      </XAxis>
-      <YAxis allowDecimals={false} fontSize={12}>
-        <Label
-          value="Encounters"
-          angle={-90}
-          position="inside"
-          fontSize={14}
-          dx={-10}
+        <XAxis
+          dataKey="date"
+          height={60}
+          tick={<CustomizedAxisTick screenWidth={screenWidth} />}
+          interval="equidistantPreserveStart"
+        >
+          <Label value="Date" position="insideBottom" fontSize={14} />
+        </XAxis>
+        <YAxis yAxisId="left" allowDecimals={false} fontSize={12}>
+          <Label
+            value="Encounters"
+            angle={-90}
+            position="inside"
+            fontSize={14}
+            dx={-10}
+          />
+        </YAxis>
+        <YAxis yAxisId="right" orientation="right" fontSize={12}>
+          <Label
+            value="Cumulative Encounters"
+            angle={-90}
+            position="inside"
+            fontSize={14}
+            dx={10}
+          />
+        </YAxis>
+        <Tooltip content={<CustomTooltip />} />
+        <Line
+          yAxisId="left"
+          type="monotone"
+          dataKey="count"
+          stroke="#3d5afe"
+          dot={false}
         />
-      </YAxis>
-      <Tooltip content={<CustomTooltip />} />
-      <Line type="monotone" dataKey="count" stroke="#3d5afe" />
-    </LineChart>
-  </ResponsiveContainer>
-);
+        <Line
+          yAxisId="right"
+          type="monotone"
+          dataKey="cumulativeCount"
+          stroke="#82ca9d"
+          dot={false}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+};
 
 export default EncountersOverTimeChart;
