@@ -151,7 +151,7 @@ export const getEncountersByMultiModalData = (
 
 export const getEncountersOverTime = (
   filteredEncounterData: EncounterDataType[]
-): { date: string; count: number }[] => {
+): { date: string; count: number; cumulativeCount: number }[] => {
   const data = filteredEncounterData.reduce((acc, encounter) => {
     const date = new Date(encounter.encounter_date_and_time)
       .toISOString()
@@ -167,7 +167,14 @@ export const getEncountersOverTime = (
 
   data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  return data;
+  // Calculate cumulative counts
+  let cumulativeCount = 0;
+  const dataWithCumulative = data.map((item) => {
+    cumulativeCount += item.count;
+    return { ...item, cumulativeCount };
+  });
+
+  return dataWithCumulative;
 };
 
 export const getEncountersByGroup = (
