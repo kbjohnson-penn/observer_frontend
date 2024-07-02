@@ -16,6 +16,7 @@ import {
   CombinedEncounterDataType,
   CombinedDataType,
 } from "../../../interfaces/interfaces";
+import StatCard from "./StatCard";
 import EncounterPerDepartmentChart from "./charts/EncounterPerDepartmentChart";
 import AccessControlByDepartmentChart from "./charts/AccessControlByDepartmentChart";
 import EncountersByMultiModalDataChart from "./charts/EncountersByMultiModalDataChart";
@@ -29,6 +30,7 @@ import {
   EXPORT_OPTIONS,
 } from "../../../constants";
 import {
+  getSummaryStats,
   getEncounterPerDepartment,
   getEncountersByAccess,
   getAccessControlByDepartment,
@@ -85,6 +87,9 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [isDatePickerEnabled, setIsDatePickerEnabled] = useState(false);
+  const [summaryStats, setSummaryStats] = useState<{ [key: string]: number }>(
+    {}
+  );
   const [filteredEncounterData, setFilteredEncounterData] = useState<
     CombinedEncounterDataType[]
   >([]);
@@ -164,6 +169,15 @@ const PlayGround: React.FC<PlayGroundProps> = ({
       return () => window.removeEventListener("resize", handleResize);
     }
   }, []);
+
+  useEffect(() => {
+    const allEncounterData = [
+      ...encounterData,
+      ...encounterSimCenterData,
+      ...encounterRIASData,
+    ];
+    setSummaryStats(getSummaryStats(allEncounterData));
+  }, [encounterData, encounterSimCenterData, encounterRIASData]);
 
   useEffect(() => {
     const allEncounterData = [
@@ -277,6 +291,27 @@ const PlayGround: React.FC<PlayGroundProps> = ({
 
   return (
     <div className="p-4 sm:p-8 md:p-12 bg-slate-50">
+      {summaryStats && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <StatCard
+            title="Total Encounters"
+            value={summaryStats.totalEncounters}
+          />
+          <StatCard
+            title="Total Deidentified"
+            value={summaryStats.totalDeidentified}
+          />
+          <StatCard
+            title="Total Access Controlled"
+            value={summaryStats.totalAccessControlled}
+          />
+          <StatCard
+            title="Total Departments"
+            value={summaryStats.totalDepartments}
+          />
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-4 md:gap-x-8 lg:gap-x-12 gap-y-4">
         <div className="order-first lg:order-2 lg:col-span-1">
           <div className="p-4 bg-white rounded shadow mb-4">
