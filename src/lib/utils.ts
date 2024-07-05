@@ -51,6 +51,26 @@ export const getDepartmentColors = (departmentData: DepartmentDataType[]) => {
   return departmentColors;
 };
 
+export const getSummaryStats = (
+  allEncounterData: CombinedEncounterDataType[]
+): { [key: string]: number } => {
+  const stats: { [key: string]: number } = {
+    totalEncounters: allEncounterData.length,
+    totalPatients: new Set(allEncounterData.map((e) => e.patient_id)).size,
+    totalProviders: new Set(allEncounterData.map((e) => e.provider_id)).size,
+    totalDepartments: new Set(allEncounterData.map((e) => e.department)).size,
+    totalAccessControlled: allEncounterData.filter((e) => e.is_restricted)
+      .length,
+    totalNotAccessControlled: allEncounterData.filter((e) => !e.is_restricted)
+      .length,
+    totalDeidentified: allEncounterData.filter((e) => e.is_deidentified).length,
+    totalNotDeidentified: allEncounterData.filter((e) => !e.is_deidentified)
+      .length,
+  };
+
+  return stats;
+};
+
 export const getEncounterPerDepartment = (
   filteredEncounterData: CombinedEncounterDataType[],
   departmentData: DepartmentDataType[]
