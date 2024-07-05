@@ -1,7 +1,7 @@
 export interface PatientDataType {
   id: number;
   patient_id: number;
-  date_of_birth: string | null;
+  year_of_birth: string | null;
   sex: string;
   race: string;
   ethnicity: string;
@@ -10,7 +10,7 @@ export interface PatientDataType {
 export interface ProviderDataType {
   id: number;
   provider_id: number;
-  date_of_birth: string | null;
+  year_of_birth: string | null;
   sex: string;
   race: string;
   ethnicity: string;
@@ -98,11 +98,11 @@ export interface FlattenedCombinedDataType {
   provider_satisfaction: number;
   is_deidentified: boolean;
   is_restricted: boolean;
-  patient_date_of_birth: string | null;
+  patient_year_of_birth: string | null;
   patient_sex: string;
   patient_race: string;
   patient_ethnicity: string;
-  provider_date_of_birth: string | null;
+  provider_year_of_birth: string | null;
   provider_sex: string;
   provider_race: string;
   provider_ethnicity: string;
