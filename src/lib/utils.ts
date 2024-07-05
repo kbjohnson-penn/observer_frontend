@@ -51,6 +51,26 @@ export const getDepartmentColors = (departmentData: DepartmentDataType[]) => {
   return departmentColors;
 };
 
+export const getSummaryStats = (
+  allEncounterData: CombinedEncounterDataType[]
+): { [key: string]: number } => {
+  const stats: { [key: string]: number } = {
+    totalEncounters: allEncounterData.length,
+    totalPatients: new Set(allEncounterData.map((e) => e.patient_id)).size,
+    totalProviders: new Set(allEncounterData.map((e) => e.provider_id)).size,
+    totalDepartments: new Set(allEncounterData.map((e) => e.department)).size,
+    totalAccessControlled: allEncounterData.filter((e) => e.is_restricted)
+      .length,
+    totalNotAccessControlled: allEncounterData.filter((e) => !e.is_restricted)
+      .length,
+    totalDeidentified: allEncounterData.filter((e) => e.is_deidentified).length,
+    totalNotDeidentified: allEncounterData.filter((e) => !e.is_deidentified)
+      .length,
+  };
+
+  return stats;
+};
+
 export const getEncounterPerDepartment = (
   filteredEncounterData: CombinedEncounterDataType[],
   departmentData: DepartmentDataType[]
@@ -151,7 +171,7 @@ export const getEncountersByMultiModalData = (
 
 export const getEncountersOverTime = (
   filteredEncounterData: EncounterDataType[]
-): { date: string; count: number }[] => {
+): { date: string; count: number; cumulativeCount: number }[] => {
   const data = filteredEncounterData.reduce((acc, encounter) => {
     const date = new Date(encounter.encounter_date_and_time)
       .toISOString()
@@ -167,7 +187,14 @@ export const getEncountersOverTime = (
 
   data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  return data;
+  // Calculate cumulative counts
+  let cumulativeCount = 0;
+  const dataWithCumulative = data.map((item) => {
+    cumulativeCount += item.count;
+    return { ...item, cumulativeCount };
+  });
+
+  return dataWithCumulative;
 };
 
 export const getEncountersByGroup = (
