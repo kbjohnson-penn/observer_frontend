@@ -35,15 +35,15 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
   data,
   screenWidth,
 }) => {
+  console.log("data", data);
   return (
     <ResponsiveContainer width="100%" height={350}>
       <ScatterChart width={400} height={400}>
         <XAxis
           dataKey="patientSatisfaction"
           name="Patient Satisfaction"
-          domain={[0, 5]}
-          ticks={[0, 1, 2, 3, 4, 5]}
           fontSize={12}
+          reversed={true}
         >
           <Label
             value="Patient Satisfaction"
@@ -55,8 +55,6 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
         <YAxis
           dataKey="providerSatisfaction"
           name="Provider Satisfaction"
-          domain={[0, 5]}
-          ticks={[0, 1, 2, 3, 4, 5]}
           fontSize={12}
         >
           <Label

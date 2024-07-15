@@ -271,14 +271,22 @@ export const getEncountersByRacialGroups = (
 export const getSatisfactionData = (
   filteredEncounterData: EncounterDataType[]
 ): { patientSatisfaction: number; providerSatisfaction: number }[] => {
-  const data = filteredEncounterData.map((encounter) => {
-    return {
-      patientSatisfaction: encounter.patient_satisfaction,
-      providerSatisfaction: encounter.provider_satisfaction,
-    };
-  });
+  return filteredEncounterData
+    .filter(encounter => !(encounter.patient_satisfaction === 0 && encounter.provider_satisfaction === 0))
+    .map((encounter) => {
+      const patientMaxScore = encounter.id < 35 ? 4 : 5;
+      const providerMaxScore = encounter.id < 35 ? 4 : 5;
 
-  return data;
+      const normalizedPatientSatisfaction =
+        (encounter.patient_satisfaction / patientMaxScore) * 100;
+      const normalizedProviderSatisfaction =
+        (encounter.provider_satisfaction / providerMaxScore) * 100;
+
+      return {
+        patientSatisfaction: normalizedPatientSatisfaction,
+        providerSatisfaction: normalizedProviderSatisfaction,
+      };
+    });
 };
 
 const addPrefixToKeys = (
