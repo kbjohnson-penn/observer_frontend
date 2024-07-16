@@ -12,7 +12,7 @@ interface SatisfactionChartProps {
   data: { patientSatisfaction: number; providerSatisfaction: number }[];
   screenWidth: number;
 }
-const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
+const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div
@@ -23,14 +23,8 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
           padding: "10px",
         }}
       >
-        <p
-          className="text-sm"
-          style={{ color: colors[0] }}
-        >{`Patient Satisfaction : ${payload[0].value}`}</p>
-        <p
-          className="text-sm"
-          style={{ color: colors[1] }}
-        >{`Provider Satisfaction : ${payload[0].payload.providerSatisfaction}`}</p>
+        <p className="label">{`Patient Satisfaction : ${payload[0].value}`}</p>
+        <p className="intro">{`Provider Satisfaction : ${payload[0].payload.providerSatisfaction}`}</p>
       </div>
     );
   }
@@ -52,7 +46,7 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
           reversed={true}
         >
           <Label
-            value="Patient Satisfaction (%)"
+            value="Patient Satisfaction"
             offset={-5}
             position="insideBottom"
             fontSize={14}
@@ -64,15 +58,15 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
           fontSize={12}
         >
           <Label
-            value="Provider Satisfaction (%)"
+            value="Provider Satisfaction"
             angle={-90}
             dy={10}
             dx={-10}
             fontSize={14}
           />
         </YAxis>
-        <Tooltip content={<CustomTooltip colors={["#8884d8", "#82ca9d"]} />} />
-        <Scatter data={data} fill="#85AAB8" />
+        <Tooltip content={<CustomTooltip />} />
+        <Scatter data={data} fill="#8884d8" />
       </ScatterChart>
     </ResponsiveContainer>
   );

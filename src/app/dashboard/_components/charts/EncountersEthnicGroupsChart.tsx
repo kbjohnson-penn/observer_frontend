@@ -26,13 +26,15 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
           padding: "10px",
         }}
       >
-        <p className="text-base font-medium">{`${label}`}</p>
+        <p className="label">
+          <strong>{`${label}`}</strong>
+        </p>
         <p
-          className="text-sm"
+          className="intro"
           style={{ color: colors[0] }}
         >{`Patient: ${payload[0].value}`}</p>
         <p
-          className="text-sm"
+          className="intro"
           style={{ color: colors[1] }}
         >{`Provider: ${payload[1].value}`}</p>
       </div>
@@ -130,11 +132,7 @@ const EncountersEthinicGroupsChart: React.FC<
           />
         </YAxis>
         <Tooltip content={<CustomTooltip colors={["#8884d8", "#82ca9d"]} />} />
-        <Legend
-          verticalAlign="top"
-          iconSize={12}
-          wrapperStyle={{ fontSize: "14px" }}
-        />
+        <Legend verticalAlign="top" />
         <Bar
           dataKey="patientCount"
           name="Patients"
