@@ -15,7 +15,7 @@ interface EncountersOverTimeChartProps {
   screenWidth: number;
 }
 
-const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
+const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
   if (active && payload && payload.length) {
     return (
       <div
@@ -26,9 +26,17 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
           border: "1px solid #ddd",
         }}
       >
-        <p className="label">{`${new Date(label).toLocaleDateString()}`}</p>
-        <p className="intro">{`Encounters: ${payload[0].value}`}</p>
-        <p className="intro">{`Cumulative Encounters: ${payload[1].value}`}</p>
+        <p className="text-base font-medium">{`${new Date(
+          label
+        ).toLocaleDateString()}`}</p>
+        <p
+          className="text-sm"
+          style={{ color: colors[0] }}
+        >{`Encounters: ${payload[0].value}`}</p>
+        <p
+          className="text-sm"
+          style={{ color: colors[1] }}
+        >{`Cumulative Encounters: ${payload[1].value}`}</p>
       </div>
     );
   }
@@ -125,12 +133,12 @@ const EncountersOverTimeChart: React.FC<EncountersOverTimeChartProps> = ({
             dx={10}
           />
         </YAxis>
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={<CustomTooltip colors={["#8884d8", "#82ca9d"]} />} />
         <Line
           yAxisId="left"
           type="monotone"
           dataKey="count"
-          stroke="#3d5afe"
+          stroke="#8884d8"
           dot={false}
         />
         <Line
