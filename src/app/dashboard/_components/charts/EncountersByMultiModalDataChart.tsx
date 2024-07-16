@@ -91,10 +91,10 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
         }}
       >
         <p
-          className="text-base font-medium"
+          className="label"
           style={{ color: MULTI_MODAL_DATA_PATHS_COLORS[label] }}
         >{`${words}`}</p>
-        <p className="text-sm">{`Total: ${payload[0].value}`}</p>
+        <p>{`Total: ${payload[0].value}`}</p>
       </div>
     );
   }

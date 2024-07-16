@@ -10,8 +10,12 @@ import {
   Label,
 } from "recharts";
 
-interface EncounterPerDepartmentChartProps {
-  data: any[];
+interface AccessControlByDepartmentChartProps {
+  data: {
+    department: string;
+    accessControlled: number;
+    notAccessControlled: number;
+  }[];
   departmentColors: { [key: string]: string };
   screenWidth: number;
 }
@@ -91,7 +95,11 @@ const CustomTooltip: React.FC<any> = ({
           className="label"
           style={{ color: departmentColors[label] }}
         >{`${label}`}</p>
-        <p className="intro">{`Encounters: ${payload[0].value}`}</p>
+        {payload.map((entry: any, index: number) => (
+          <p key={index}>{`${
+            entry.name === "accessControlled" ? "Restricted" : "Not Restricted"
+          }: ${entry.value}`}</p>
+        ))}
       </div>
     );
   }
@@ -99,8 +107,8 @@ const CustomTooltip: React.FC<any> = ({
   return null;
 };
 
-const EncounterPerDepartmentChart: React.FC<
-  EncounterPerDepartmentChartProps
+const AccessControlByDepartmentChart: React.FC<
+  AccessControlByDepartmentChartProps
 > = ({ data, departmentColors, screenWidth }) => (
   <ResponsiveContainer width="100%" height={350}>
     <BarChart
@@ -109,6 +117,26 @@ const EncounterPerDepartmentChart: React.FC<
       data={data}
       margin={{ top: 0, bottom: 30 }}
     >
+      {data.map((entry, index) => (
+        <defs key={`def-${index}`}>
+          <pattern
+            id={`diagonalHatch-${index}`}
+            patternUnits="userSpaceOnUse"
+            width="4"
+            height="4"
+          >
+            <path
+              d="M-1,1 l2,-2
+                 M0,4 l4,-4
+                 M3,5 l2,-2"
+              style={{
+                stroke: departmentColors[entry.department],
+                strokeWidth: 1.5,
+              }}
+            />
+          </pattern>
+        </defs>
+      ))}
       <XAxis
         dataKey="department"
         tick={<CustomizedAxisTick screenWidth={screenWidth} />}
@@ -126,7 +154,7 @@ const EncounterPerDepartmentChart: React.FC<
       <Tooltip
         content={<CustomTooltip departmentColors={departmentColors} />}
       />
-      <Bar dataKey="count" barSize={50}>
+      <Bar dataKey="accessControlled" barSize={40} stackId="a">
         {data.map((entry, index) => (
           <Cell
             key={`cell-${index}`}
@@ -134,8 +162,13 @@ const EncounterPerDepartmentChart: React.FC<
           />
         ))}
       </Bar>
+      <Bar dataKey="notAccessControlled" barSize={40} stackId="a">
+        {data.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={`url(#diagonalHatch-${index})`} />
+        ))}
+      </Bar>
     </BarChart>
   </ResponsiveContainer>
 );
 
-export default EncounterPerDepartmentChart;
+export default AccessControlByDepartmentChart;
