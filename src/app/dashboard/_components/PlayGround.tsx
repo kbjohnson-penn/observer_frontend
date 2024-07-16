@@ -18,7 +18,6 @@ import {
 } from "../../../interfaces/interfaces";
 import StatCard from "./StatCard";
 import EncounterPerDepartmentChart from "./charts/EncounterPerDepartmentChart";
-import AccessControlByDepartmentChart from "./charts/AccessControlByDepartmentChart";
 import EncountersByMultiModalDataChart from "./charts/EncountersByMultiModalDataChart";
 import EncountersOverTimeChart from "./charts/EncountersOverTimeChart";
 import EncountersEthnicGroupsChart from "./charts/EncountersEthnicGroupsChart";
@@ -423,49 +422,41 @@ const PlayGround: React.FC<PlayGroundProps> = ({
           </div>
         </div>
         <div className="lg:order-1 lg:col-span-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {encounterPerDepartment && (
-              <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
-                <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
-                  Encounter Per Department
-                </h2>
-                <EncounterPerDepartmentChart
-                  data={encounterPerDepartment}
-                  departmentColors={departmentColors}
-                  screenWidth={screenWidth}
-                />
-              </div>
-            )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
             {accessControlByDepartment && (
-              <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
-                <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
-                  Access Controlled
-                </h2>
-                <AccessControlByDepartmentChart
-                  data={accessControlByDepartment}
-                  departmentColors={departmentColors}
-                  screenWidth={screenWidth}
-                />
-              </div>
-            )}
-            {encountersByMultiModalData && (
-              <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
-                <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
-                  Encounters By Multi Modal Data
-                </h2>
-                <EncountersByMultiModalDataChart
-                  data={encountersByMultiModalData}
-                  screenWidth={screenWidth}
-                />
+              <div className="col-span-1 md:col-span-2 lg:col-span-2">
+                <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
+                  <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
+                    Enncounter Per Department
+                  </h2>
+                  <EncounterPerDepartmentChart
+                    data={accessControlByDepartment}
+                    departmentColors={departmentColors}
+                    screenWidth={screenWidth}
+                  />
+                </div>
               </div>
             )}
             {encountersOverTime && (
-              <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
+              <div className="col-span-1 md:col-span-2 lg:col-span-2">
+                <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
+                  <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
+                    Encounters Over Time
+                  </h2>
+                  <EncountersOverTimeChart
+                    data={encountersOverTime}
+                    screenWidth={screenWidth}
+                  />
+                </div>
+              </div>
+            )}
+            {satisfactionData && (
+              <div className="col-span-1 md:col-span-2 lg:col-span-2 bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
                 <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
-                  Encounters Over Time
+                  Patient and Provider Satisfaction
                 </h2>
-                <EncountersOverTimeChart
-                  data={encountersOverTime}
+                <SatisfactionChart
+                  data={satisfactionData}
                   screenWidth={screenWidth}
                 />
               </div>
@@ -492,13 +483,13 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                 />
               </div>
             )}
-            {satisfactionData && (
-              <div className="col-span-1 md:col-span-2 bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
+            {encountersByMultiModalData && (
+              <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
                 <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
-                  Patient and Provider Satisfaction
+                  Encounters By Multi Modal Data
                 </h2>
-                <SatisfactionChart
-                  data={satisfactionData}
+                <EncountersByMultiModalDataChart
+                  data={encountersByMultiModalData}
                   screenWidth={screenWidth}
                 />
               </div>
