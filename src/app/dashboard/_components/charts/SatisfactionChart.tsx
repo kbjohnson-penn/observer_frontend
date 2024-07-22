@@ -1,3 +1,4 @@
+import React from "react";
 import {
   ScatterChart,
   XAxis,
@@ -6,12 +7,15 @@ import {
   Scatter,
   Label,
   ResponsiveContainer,
+  Legend,
+  CartesianGrid,
 } from "recharts";
 
 interface SatisfactionChartProps {
   data: { patientSatisfaction: number; providerSatisfaction: number }[];
   screenWidth: number;
 }
+
 const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
   if (active && payload && payload.length) {
     return (
@@ -37,19 +41,21 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
 
   return null;
 };
+
 const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
   data,
   screenWidth,
 }) => {
-  console.log("data", data);
   return (
     <ResponsiveContainer width="100%" height={350}>
       <ScatterChart width={400} height={400}>
+        <CartesianGrid strokeDasharray="3 3" />
         <XAxis
+          type="number"
           dataKey="patientSatisfaction"
           name="Patient Satisfaction"
           fontSize={12}
-          reversed={true}
+          domain={[0, 100]}
         >
           <Label
             value="Patient Satisfaction (%)"
@@ -59,9 +65,11 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
           />
         </XAxis>
         <YAxis
+          type="number"
           dataKey="providerSatisfaction"
           name="Provider Satisfaction"
           fontSize={12}
+          domain={[0, 100]}
         >
           <Label
             value="Provider Satisfaction (%)"
@@ -72,7 +80,17 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
           />
         </YAxis>
         <Tooltip content={<CustomTooltip colors={["#8884d8", "#82ca9d"]} />} />
-        <Scatter data={data} fill="#85AAB8" />
+        <Legend
+          verticalAlign="top"
+          iconSize={12}
+          wrapperStyle={{ fontSize: "14px" }}
+        />
+        <Scatter
+          name="Satisfaction Scores"
+          data={data}
+          fill="#8884d8"
+          shape="circle"
+        />
       </ScatterChart>
     </ResponsiveContainer>
   );

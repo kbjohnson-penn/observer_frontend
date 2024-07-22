@@ -20,6 +20,12 @@ interface EncounterPerDepartmentChartProps {
   screenWidth: number;
 }
 
+const getBarSize = (screenWidth: number) => {
+  if (screenWidth <= 768) return 20;
+  if (screenWidth > 768 && screenWidth <= 1024) return 40;
+  return 60;
+};
+
 const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
   const words = payload.value.split(" ");
   const isMobile = screenWidth <= 768;
@@ -115,66 +121,70 @@ const CustomTooltip: React.FC<any> = ({
 
 const EncounterPerDepartmentChart: React.FC<
   EncounterPerDepartmentChartProps
-> = ({ data, departmentColors, screenWidth }) => (
-  <ResponsiveContainer width="100%" height={350}>
-    <BarChart
-      width={500}
-      height={350}
-      data={data}
-      margin={{ top: 0, bottom: 30 }}
-    >
-      {data.map((entry, index) => (
-        <defs key={`def-${index}`}>
-          <pattern
-            id={`diagonalHatch-${index}`}
-            patternUnits="userSpaceOnUse"
-            width="4"
-            height="4"
-          >
-            <path
-              d="M-1,1 l2,-2
-                 M0,4 l4,-4
-                 M3,5 l2,-2"
-              style={{
-                stroke: departmentColors[entry.department],
-                strokeWidth: 1.5,
-              }}
-            />
-          </pattern>
-        </defs>
-      ))}
-      <XAxis
-        dataKey="department"
-        tick={<CustomizedAxisTick screenWidth={screenWidth} />}
-        interval={0}
-      />
-      <YAxis allowDecimals={false} fontSize={12}>
-        <Label
-          value="Encounters"
-          angle={-90}
-          position="inside"
-          fontSize={14}
-          dx={-10}
+> = ({ data, departmentColors, screenWidth }) => {
+  const barSize = getBarSize(screenWidth);
+
+  return (
+    <ResponsiveContainer width="100%" height={350}>
+      <BarChart
+        width={500}
+        height={350}
+        data={data}
+        margin={{ top: 0, bottom: 30 }}
+      >
+        {data.map((entry, index) => (
+          <defs key={`def-${index}`}>
+            <pattern
+              id={`diagonalHatch-${index}`}
+              patternUnits="userSpaceOnUse"
+              width="4"
+              height="4"
+            >
+              <path
+                d="M-1,1 l2,-2
+                   M0,4 l4,-4
+                   M3,5 l2,-2"
+                style={{
+                  stroke: departmentColors[entry.department],
+                  strokeWidth: 1.5,
+                }}
+              />
+            </pattern>
+          </defs>
+        ))}
+        <XAxis
+          dataKey="department"
+          tick={<CustomizedAxisTick screenWidth={screenWidth} />}
+          interval={0}
         />
-      </YAxis>
-      <Tooltip
-        content={<CustomTooltip departmentColors={departmentColors} />}
-      />
-      <Bar dataKey="accessControlled" barSize={40} stackId="a">
-        {data.map((entry, index) => (
-          <Cell
-            key={`cell-${index}`}
-            fill={departmentColors[entry.department]}
+        <YAxis allowDecimals={false} fontSize={12}>
+          <Label
+            value="Encounters"
+            angle={-90}
+            position="inside"
+            fontSize={14}
+            dx={-10}
           />
-        ))}
-      </Bar>
-      <Bar dataKey="notAccessControlled" barSize={40} stackId="a">
-        {data.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={`url(#diagonalHatch-${index})`} />
-        ))}
-      </Bar>
-    </BarChart>
-  </ResponsiveContainer>
-);
+        </YAxis>
+        <Tooltip
+          content={<CustomTooltip departmentColors={departmentColors} />}
+        />
+        <Bar dataKey="accessControlled" barSize={barSize} stackId="a">
+          {data.map((entry, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={departmentColors[entry.department]}
+            />
+          ))}
+        </Bar>
+        <Bar dataKey="notAccessControlled" barSize={barSize} stackId="a">
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={`url(#diagonalHatch-${index})`} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+};
 
 export default EncounterPerDepartmentChart;

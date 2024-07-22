@@ -427,7 +427,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
               <div className="col-span-1 md:col-span-2 lg:col-span-2">
                 <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
                   <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
-                    Enncounter Per Department
+                    Encounter Per Department
                   </h2>
                   <EncounterPerDepartmentChart
                     data={accessControlByDepartment}
@@ -447,6 +447,13 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                     data={encountersOverTime}
                     screenWidth={screenWidth}
                   />
+                  <div className="flex justify-end">
+                    <p className="font-medium text-sm text-gray-600 mt-4">
+                      Last updated:{" "}
+                      {encountersOverTime[encountersOverTime.length - 1] &&
+                        encountersOverTime[encountersOverTime.length - 1].date}
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
@@ -459,6 +466,19 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                   data={satisfactionData}
                   screenWidth={screenWidth}
                 />
+              </div>
+            )}
+            {encountersByMultiModalData && (
+              <div className="col-span-1 md:col-span-2 lg:col-span-2">
+                <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
+                  <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
+                    Encounters By Multi Modal Data
+                  </h2>
+                  <EncountersByMultiModalDataChart
+                    data={encountersByMultiModalData}
+                    screenWidth={screenWidth}
+                  />
+                </div>
               </div>
             )}
             {encountersByEthnicGroups && (
@@ -479,17 +499,6 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                 </h2>
                 <EncountersByRacialGroupChart
                   data={encountersByRacialGroups}
-                  screenWidth={screenWidth}
-                />
-              </div>
-            )}
-            {encountersByMultiModalData && (
-              <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
-                <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
-                  Encounters By Multi Modal Data
-                </h2>
-                <EncountersByMultiModalDataChart
-                  data={encountersByMultiModalData}
                   screenWidth={screenWidth}
                 />
               </div>
