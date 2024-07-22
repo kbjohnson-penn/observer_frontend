@@ -1,3 +1,4 @@
+import React from "react";
 import {
   ScatterChart,
   XAxis,
@@ -6,13 +7,16 @@ import {
   Scatter,
   Label,
   ResponsiveContainer,
+  Legend,
+  CartesianGrid,
 } from "recharts";
 
 interface SatisfactionChartProps {
   data: { patientSatisfaction: number; providerSatisfaction: number }[];
   screenWidth: number;
 }
-const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
+
+const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
   if (active && payload && payload.length) {
     return (
       <div
@@ -23,50 +27,70 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
           padding: "10px",
         }}
       >
-        <p className="label">{`Patient Satisfaction : ${payload[0].value}`}</p>
-        <p className="intro">{`Provider Satisfaction : ${payload[0].payload.providerSatisfaction}`}</p>
+        <p
+          className="text-sm"
+          style={{ color: colors[0] }}
+        >{`Patient Satisfaction : ${payload[0].value}`}</p>
+        <p
+          className="text-sm"
+          style={{ color: colors[1] }}
+        >{`Provider Satisfaction : ${payload[0].payload.providerSatisfaction}`}</p>
       </div>
     );
   }
 
   return null;
 };
+
 const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
   data,
   screenWidth,
 }) => {
-  console.log("data", data);
   return (
     <ResponsiveContainer width="100%" height={350}>
       <ScatterChart width={400} height={400}>
+        <CartesianGrid strokeDasharray="3 3" />
         <XAxis
+          type="number"
           dataKey="patientSatisfaction"
           name="Patient Satisfaction"
           fontSize={12}
-          reversed={true}
+          domain={[0, 100]}
         >
           <Label
-            value="Patient Satisfaction"
+            value="Patient Satisfaction (%)"
             offset={-5}
             position="insideBottom"
             fontSize={14}
           />
         </XAxis>
         <YAxis
+          type="number"
           dataKey="providerSatisfaction"
           name="Provider Satisfaction"
           fontSize={12}
+          domain={[0, 100]}
         >
           <Label
-            value="Provider Satisfaction"
+            value="Provider Satisfaction (%)"
             angle={-90}
             dy={10}
             dx={-10}
             fontSize={14}
           />
         </YAxis>
-        <Tooltip content={<CustomTooltip />} />
-        <Scatter data={data} fill="#8884d8" />
+        <Tooltip content={<CustomTooltip colors={["#8884d8", "#82ca9d"]} />} />
+        <Legend
+          verticalAlign="top"
+          iconSize={12}
+          wrapperStyle={{ fontSize: "14px" }}
+        />
+        <Scatter
+          name="Satisfaction Scores"
+          data={data}
+          fill="#8884d8"
+          shape="circle"
+        />
       </ScatterChart>
     </ResponsiveContainer>
   );

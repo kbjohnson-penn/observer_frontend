@@ -30,13 +30,13 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
         ? words.map((word: string, index: number) => (
             <text
               key={index}
-              x={0}
-              y={index * 12}
-              dy={-3}
-              textAnchor="end"
+              x={-5}
+              y={index * 8}
+              dy={8}
+              textAnchor="middle"
               fill="#666"
-              transform="rotate(0)"
-              fontSize={12}
+              transform="rotate(-30)"
+              fontSize={8}
             >
               {word}
             </text>
@@ -46,12 +46,12 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
             <text
               key={index}
               x={0}
-              y={index * 12}
-              dy={-3}
-              textAnchor="end"
+              y={index * 10}
+              dy={10}
+              textAnchor="middle"
               fill="#666"
               transform="rotate(0)"
-              fontSize={12}
+              fontSize={8}
             >
               {word}
             </text>
@@ -61,8 +61,8 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
               key={index}
               x={0}
               y={index * 12}
-              dy={-3}
-              textAnchor="end"
+              dy={10}
+              textAnchor="middle"
               fill="#666"
               transform="rotate(0)"
               fontSize={12}
@@ -91,10 +91,10 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
         }}
       >
         <p
-          className="label"
+          className="text-base font-medium"
           style={{ color: MULTI_MODAL_DATA_PATHS_COLORS[label] }}
         >{`${words}`}</p>
-        <p>{`Total: ${payload[0].value}`}</p>
+        <p className="text-sm">{`Total: ${payload[0].value}`}</p>
       </div>
     );
   }
@@ -111,40 +111,29 @@ const EncountersByMultiModalDataChart: React.FC<
         width={500}
         height={350}
         data={data}
-        layout="vertical"
         margin={{ top: 0, bottom: 10, left: 5 }}
         barGap={5}
         barCategoryGap={20}
       >
         <YAxis
+          type="number"
+          allowDecimals={false}
+          fontSize={screenWidth <= 768 ? 10 : 12}
+        >
+          <Label
+            value="Total Available Data"
+            position="inside"
+            angle={-90}
+            fontSize={14}
+            dx={-10}
+          />
+        </YAxis>
+        <XAxis
           dataKey="name"
           type="category"
           tick={<CustomizedAxisTick screenWidth={screenWidth} />}
           interval={0}
         />
-
-        {screenWidth > 768 && (
-          <XAxis type="number" allowDecimals={false} fontSize={12}>
-            <Label
-              value="Total Available Data "
-              offset={-10}
-              position="insideBottom"
-              fontSize={14}
-            />
-          </XAxis>
-        )}
-
-        {screenWidth <= 768 && (
-          <XAxis type="number" allowDecimals={false} fontSize={10}>
-            <Label
-              value="Total Available Data "
-              offset={-10}
-              position="insideBottom"
-              fontSize={14}
-            />
-          </XAxis>
-        )}
-
         <Tooltip content={<CustomTooltip />} />
         <Bar dataKey="count" barSize={50}>
           {data.map((entry: any) => (
