@@ -10,6 +10,8 @@ import {
   Legend,
 } from "recharts";
 
+import { format, toZonedTime } from "date-fns-tz";
+
 interface EncountersOverTimeChartProps {
   data: any[];
   screenWidth: number;
@@ -48,6 +50,11 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
   const isMobile = screenWidth <= 768;
   const isTablet = screenWidth > 768 && screenWidth <= 1024;
 
+  const date = new Date(payload.value + 'T00:00:00Z');
+  const zonedDate = toZonedTime(date, Intl.DateTimeFormat().resolvedOptions().timeZone);
+
+  const displayDate = format(zonedDate, 'MMM dd, yyyy');
+
   return (
     <g transform={`translate(${x},${y})`}>
       {isMobile ? (
@@ -60,7 +67,7 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
           transform="rotate(-30)"
           fontSize={10}
         >
-          {new Date(payload.value).toLocaleDateString()}
+          {displayDate}
         </text>
       ) : isTablet ? (
         <text
@@ -72,7 +79,7 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
           transform="rotate(-45)"
           fontSize={12}
         >
-          {new Date(payload.value).toLocaleDateString()}
+          {displayDate}
         </text>
       ) : (
         <text
@@ -84,7 +91,7 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
           transform="rotate(-30)"
           fontSize={12}
         >
-          {new Date(payload.value).toLocaleDateString()}
+          {displayDate}
         </text>
       )}
     </g>
@@ -111,7 +118,7 @@ const EncountersOverTimeChart: React.FC<EncountersOverTimeChartProps> = ({
           dataKey="date"
           height={60}
           tick={<CustomizedAxisTick screenWidth={screenWidth} />}
-          interval="equidistantPreserveStart"
+          interval="preserveEnd"
         >
           <Label value="Date" position="insideBottom" fontSize={14} />
         </XAxis>

@@ -272,15 +272,25 @@ export const getSatisfactionData = (
   filteredEncounterData: EncounterDataType[]
 ): { patientSatisfaction: number; providerSatisfaction: number }[] => {
   return filteredEncounterData
-    .filter(encounter => !(encounter.patient_satisfaction === 0 && encounter.provider_satisfaction === 0))
+    .filter(
+      (encounter) =>
+        !(
+          encounter.patient_satisfaction === 0 &&
+          encounter.provider_satisfaction === 0
+        )
+    )
     .map((encounter) => {
-      const patientMaxScore = encounter.id < 35 ? 4 : 5;
-      const providerMaxScore = encounter.id < 35 ? 4 : 5;
+      const patientMaxScore = encounter.id <= 35 ? 4 : 5;
+      const providerMaxScore = encounter.id <= 35 ? 4 : 5;
 
-      const normalizedPatientSatisfaction =
-        (encounter.patient_satisfaction / patientMaxScore) * 100;
-      const normalizedProviderSatisfaction =
-        (encounter.provider_satisfaction / providerMaxScore) * 100;
+      const normalizedPatientSatisfaction = Math.min(
+        (encounter.patient_satisfaction / patientMaxScore) * 100,
+        100
+      );
+      const normalizedProviderSatisfaction = Math.min(
+        (encounter.provider_satisfaction / providerMaxScore) * 100,
+        100
+      );
 
       return {
         patientSatisfaction: normalizedPatientSatisfaction,
