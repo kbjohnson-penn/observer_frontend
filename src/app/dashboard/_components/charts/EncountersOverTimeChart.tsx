@@ -50,10 +50,13 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
   const isMobile = screenWidth <= 768;
   const isTablet = screenWidth > 768 && screenWidth <= 1024;
 
-  const date = new Date(payload.value + 'T00:00:00Z');
-  const zonedDate = toZonedTime(date, Intl.DateTimeFormat().resolvedOptions().timeZone);
+  const date = new Date(payload.value + "T00:00:00Z");
+  const zonedDate = toZonedTime(
+    date,
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  );
 
-  const displayDate = format(zonedDate, 'MMM dd, yyyy');
+  const displayDate = format(zonedDate, "MMM dd, yyyy");
 
   return (
     <g transform={`translate(${x},${y})`}>
