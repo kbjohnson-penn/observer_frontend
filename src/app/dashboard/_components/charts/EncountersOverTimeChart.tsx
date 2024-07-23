@@ -28,9 +28,10 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
           border: "1px solid #ddd",
         }}
       >
-        <p className="text-base font-medium">{`${new Date(
-          label
-        ).toLocaleDateString()}`}</p>
+        <p
+          className="text-base font-medium"
+          style={{ color: "#CF1259" }}
+        >{`${new Date(label).toLocaleDateString()}`}</p>
         <p
           className="text-sm"
           style={{ color: colors[0] }}
@@ -123,7 +124,7 @@ const EncountersOverTimeChart: React.FC<EncountersOverTimeChartProps> = ({
           tick={<CustomizedAxisTick screenWidth={screenWidth} />}
           interval="preserveEnd"
         >
-          <Label value="Date" position="insideBottom" fontSize={14} />
+          <Label value="Date" position="bottom" fontSize={14} dy={-16} />
         </XAxis>
         <YAxis yAxisId="left" allowDecimals={false} fontSize={12}>
           <Label
