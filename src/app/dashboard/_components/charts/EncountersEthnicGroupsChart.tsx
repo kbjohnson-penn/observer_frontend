@@ -26,7 +26,10 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
           padding: "10px",
         }}
       >
-        <p className="text-base font-medium">{`${label}`}</p>
+        <p
+          className="text-base font-medium"
+          style={{ color: "#CF1259" }}
+        >{`${label}`}</p>
         <p
           className="text-sm"
           style={{ color: colors[0] }}

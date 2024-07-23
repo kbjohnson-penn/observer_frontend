@@ -28,13 +28,17 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
         }}
       >
         <p
+          className="text-base font-medium"
+          style={{ color: "#CF1259" }}
+        >{`Encounters: ${payload[0].payload.count}`}</p>
+        <p
           className="text-sm"
           style={{ color: colors[0] }}
-        >{`Patient Satisfaction : ${payload[0].value}`}</p>
+        >{`Patient Satisfaction: ${payload[0].value}`}</p>
         <p
           className="text-sm"
           style={{ color: colors[1] }}
-        >{`Provider Satisfaction : ${payload[0].payload.providerSatisfaction}`}</p>
+        >{`Provider Satisfaction: ${payload[0].payload.providerSatisfaction}`}</p>
       </div>
     );
   }
@@ -80,11 +84,6 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
           />
         </YAxis>
         <Tooltip content={<CustomTooltip colors={["#8884d8", "#82ca9d"]} />} />
-        <Legend
-          verticalAlign="top"
-          iconSize={12}
-          wrapperStyle={{ fontSize: "14px" }}
-        />
         <Scatter
           name="Satisfaction Scores"
           data={data}
