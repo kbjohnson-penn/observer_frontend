@@ -268,10 +268,22 @@ export const getEncountersByRacialGroups = (
   );
 };
 
+interface GroupedDataType {
+  [key: string]: {
+    patientSatisfaction: number;
+    providerSatisfaction: number;
+    count: number;
+  };
+}
+
 export const getSatisfactionData = (
   filteredEncounterData: EncounterDataType[]
-): { patientSatisfaction: number; providerSatisfaction: number }[] => {
-  return filteredEncounterData
+): {
+  patientSatisfaction: number;
+  providerSatisfaction: number;
+  count: number;
+}[] => {
+  const groupedData: GroupedDataType = filteredEncounterData
     .filter(
       (encounter) =>
         !(
@@ -296,7 +308,17 @@ export const getSatisfactionData = (
         patientSatisfaction: normalizedPatientSatisfaction,
         providerSatisfaction: normalizedProviderSatisfaction,
       };
-    });
+    })
+    .reduce((acc: GroupedDataType, curr) => {
+      const key = `${curr.patientSatisfaction}-${curr.providerSatisfaction}`;
+      if (!acc[key]) {
+        acc[key] = { ...curr, count: 0 };
+      }
+      acc[key].count += 1;
+      return acc;
+    }, {});
+
+  return Object.values(groupedData);
 };
 
 const addPrefixToKeys = (
