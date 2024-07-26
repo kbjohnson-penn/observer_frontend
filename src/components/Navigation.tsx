@@ -4,6 +4,8 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 export function useActiveLink(href: string) {
   const pathname = usePathname();
@@ -12,6 +14,8 @@ export function useActiveLink(href: string) {
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isActiveHome = useActiveLink("/");
+  const isActiveDashboard = useActiveLink("/dashboard");
 
   return (
     <nav className="bg-nav-background">
@@ -79,7 +83,7 @@ export default function Navigation() {
             <Link
               href="/"
               className={`${
-                useActiveLink("/")
+                isActiveHome
                   ? "font-bold text-zinc-50"
                   : "font-semibold text-zinc-400"
               } hover:text-yellow-500`}
@@ -91,7 +95,7 @@ export default function Navigation() {
             <Link
               href="/dashboard"
               className={`${
-                useActiveLink("/dashboard")
+                isActiveDashboard
                   ? "font-bold text-zinc-50"
                   : "font-semibold text-zinc-400"
               } hover:text-yellow-500`}
@@ -108,7 +112,7 @@ export default function Navigation() {
             <Link
               href="/"
               className={`block px-4 py-2 ${
-                useActiveLink("/")
+                isActiveHome
                   ? "font-bold text-zinc-50"
                   : "font-semibold text-zinc-400"
               } hover:text-yellow-500`}
@@ -120,7 +124,7 @@ export default function Navigation() {
             <Link
               href="/dashboard"
               className={`block px-4 py-2 ${
-                useActiveLink("/dashboard")
+                isActiveDashboard
                   ? "font-bold text-zinc-50"
                   : "font-semibold text-zinc-400"
               } hover:text-yellow-500`}
