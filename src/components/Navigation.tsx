@@ -27,7 +27,7 @@ export default function Navigation() {
               width={220}
               height={80}
               alt="Penn Medicine logo"
-              className="h-12 ml-4"
+              className="h-12 ml-2"
               priority
             />
           </Link>
