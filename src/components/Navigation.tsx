@@ -24,10 +24,10 @@ export default function Navigation() {
           <Link href="https://www.med.upenn.edu/">
             <Image
               src="/ObserverLogoDarkBackground.svg"
-              width={160}
+              width={220}
               height={80}
               alt="Penn Medicine logo"
-              className="h-12 ml-4"
+              className="h-12 ml-2"
               priority
             />
           </Link>
