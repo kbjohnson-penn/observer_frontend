@@ -460,7 +460,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
             {satisfactionData && (
               <div className="col-span-1 md:col-span-2 lg:col-span-2 bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
                 <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
-                  Patient and Provider Satisfaction
+                  Patient and Provider Satisfaction Score
                 </h2>
                 <SatisfactionChart
                   data={satisfactionData}

@@ -33,6 +33,19 @@ npm run dev
 
 Open http://localhost:3000 with your browser to see the result.
 
+## Deployment (Self-Hosting)
+
+1. Build application
+
+```bash
+npm run build
+```
+
+2. Start the Node.js server
+
+```bash
+npm run start
+```
 
 ## Contributing
 
