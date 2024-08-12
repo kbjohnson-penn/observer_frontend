@@ -68,6 +68,8 @@ export const MULTI_MODAL_DATA_OPTIONS = [
   { value: "transcript", label: "Transcript" },
   { value: "patient_survey", label: "Patient Survey" },
   { value: "provider_survey", label: "Provider Survey" },
+  { value: "patient_annotation", label: "Patient Annotation" },
+  { value: "provider_annotation", label: "Provider Annotation" },
   { value: "rias_transcript", label: "RIAS Transcript" },
   { value: "rias_codes", label: "RIAS Codes" },
 ];
@@ -80,6 +82,8 @@ export const MULTI_MODAL_DATA_PATHS_COLORS: { [key: string]: string } = {
   transcript: "#6A1B9A",
   patient_survey: "#00838F",
   provider_survey: "#3E2723",
+  patient_annotation: "#FFD600",
+  provider_annotation: "#FF6D00",
   rias_transcript: "#FF8042",
   rias_codes: "#F1C40F",
 };
@@ -126,6 +130,8 @@ export const CSV_COLUMN_ORDER = [
   "transcript",
   "patient_survey",
   "provider_survey",
+  "patient_annotation",
+  "provider_annotation",
   "rias_transcript",
   "rias_codes",
 ];

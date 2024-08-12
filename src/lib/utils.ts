@@ -136,6 +136,8 @@ export const getEncountersByMultiModalData = (
     transcript: 0,
     patient_survey: 0,
     provider_survey: 0,
+    patient_annotation: 0,
+    provider_annotation: 0,
     rias_transcript: 0,
     rias_codes: 0,
   };
