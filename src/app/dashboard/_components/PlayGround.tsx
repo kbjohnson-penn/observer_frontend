@@ -19,7 +19,6 @@ import {
 import StatCard from "./StatCard";
 import EncounterPerDepartmentChart from "./charts/EncounterPerDepartmentChart";
 import EncountersByMultiModalDataChart from "./charts/EncountersByMultiModalDataChart";
-import EncountersOverTimeChart from "./charts/EncountersOverTimeChart";
 import EncountersEthnicGroupsChart from "./charts/EncountersEthnicGroupsChart";
 import EncountersByRacialGroupChart from "./charts/EncountersByRacialGroupChart";
 import SatisfactionChart from "./charts/SatisfactionChart";
@@ -434,26 +433,6 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                     departmentColors={departmentColors}
                     screenWidth={screenWidth}
                   />
-                </div>
-              </div>
-            )}
-            {encountersOverTime && (
-              <div className="col-span-1 md:col-span-2 lg:col-span-2">
-                <div className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
-                  <h2 className="text-center text-xl font-semibold text-gray-800 mb-5">
-                    Encounters Over Time
-                  </h2>
-                  <EncountersOverTimeChart
-                    data={encountersOverTime}
-                    screenWidth={screenWidth}
-                  />
-                  <div className="flex justify-end">
-                    <p className="font-medium text-sm text-gray-600 mt-4">
-                      Last updated:{" "}
-                      {encountersOverTime[encountersOverTime.length - 1] &&
-                        encountersOverTime[encountersOverTime.length - 1].date}
-                    </p>
-                  </div>
                 </div>
               </div>
             )}
