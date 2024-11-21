@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import LoadingPage from "../components/LoadingPage";
+import LoadingPage from "../components/Loading";
 
 const Home: React.FC = () => {
   return (
