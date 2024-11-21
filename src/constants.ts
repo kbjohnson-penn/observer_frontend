@@ -21,7 +21,7 @@ export const GENDER_CATEGORIES: { [key: string]: string } = {
 };
 
 export const DEPARTMENT_COLORS: { [key: string]: string } = {
-  "Sim Center": "#8ED081",
+  "SimCenter": "#8ED081",
   Oncology: "#B4D2BA",
   "Primary Care": "#DCE2AA",
   Neurology: "#FFD700",
@@ -32,7 +32,7 @@ export const DEPARTMENT_COLORS: { [key: string]: string } = {
 
 export const SOURCE_OPTIONS = [
   { value: "RIAS", label: "RIAS" },
-  { value: "Sim Center", label: "Simulation Center" },
+  { value: "SimCenter", label: "Simulation Center" },
   { value: "Clinic", label: "Clinic" },
 ];
 
