@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Cookies from "js-cookie";
 import apiClient from "../../lib/apiClient";
 import { ProfileData } from "../../interfaces/profile";
 import { useAuth } from "../../contexts/AuthContext";
+import ProfileField from "./_components/ProfileField";
 
 const ProfilePage = () => {
   const { isAuthenticated, logout } = useAuth();
@@ -56,99 +56,27 @@ const ProfilePage = () => {
 
         {/* Profile Details */}
         <div className="mt-6 space-y-4">
-          {/* Render fields as per the interface */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-600">
-              First Name
-            </label>
-            <input
-              type="text"
-              value={profileData.first_name}
-              readOnly
-              className="w-full px-4 py-2 border border-transparent rounded bg-gray-100"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-600">
-              Last Name
-            </label>
-            <input
-              type="text"
-              value={profileData.last_name}
-              readOnly
-              className="w-full px-4 py-2 border border-transparent rounded bg-gray-100"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-600">
-              Username
-            </label>
-            <input
-              type="text"
-              value={profileData.username}
-              readOnly
-              className="w-full px-4 py-2 border border-transparent rounded bg-gray-100"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-600">
-              Email
-            </label>
-            <input
-              type="email"
-              value={profileData.email}
-              readOnly
-              className="w-full px-4 py-2 border border-transparent rounded bg-gray-100"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-600">
-              Organization
-            </label>
-            <input
-              type="text"
-              value={profileData.organization.name}
-              readOnly
-              className="w-full px-4 py-2 border border-transparent rounded bg-gray-100"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-600">
-              Tier
-            </label>
-            <input
-              type="text"
-              value={profileData.tier.tier_name}
-              readOnly
-              className="w-full px-4 py-2 border border-transparent rounded bg-gray-100"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-600">
-              Date Joined
-            </label>
-            <input
-              type="text"
-              value={new Date(profileData.date_joined).toLocaleDateString()}
-              readOnly
-              className="w-full px-4 py-2 border border-transparent rounded bg-gray-100"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-600">
-              Last Login
-            </label>
-            <input
-              type="text"
-              value={
-                profileData.last_login
-                  ? new Date(profileData.last_login).toLocaleDateString()
-                  : "Never"
-              }
-              readOnly
-              className="w-full px-4 py-2 border border-transparent rounded bg-gray-100"
-            />
-          </div>
+          <ProfileField label="First Name" value={profileData.first_name} />
+          <ProfileField label="Last Name" value={profileData.last_name} />
+          <ProfileField label="Username" value={profileData.username} />
+          <ProfileField label="Email" value={profileData.email} type="email" />
+          <ProfileField
+            label="Organization"
+            value={profileData.organization.name}
+          />
+          <ProfileField label="Tier" value={profileData.tier.tier_name} />
+          <ProfileField
+            label="Date Joined"
+            value={new Date(profileData.date_joined).toLocaleDateString()}
+          />
+          <ProfileField
+            label="Last Login"
+            value={
+              profileData.last_login
+                ? new Date(profileData.last_login).toLocaleDateString()
+                : "Never"
+            }
+          />
         </div>
       </div>
     </div>
