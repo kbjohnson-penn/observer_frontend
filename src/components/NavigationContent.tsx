@@ -3,25 +3,28 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
 
 const NavigationContent: React.FC = () => {
   const { isAuthenticated, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const pathname = usePathname();
 
-  // Ensure this renders only on the client
   useEffect(() => {
     setIsReady(true);
   }, []);
 
   const handleLogout = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default link behavior
-    logout(); // Call the logout function
-    setIsMenuOpen(false); // Close the mobile menu if open
+    e.preventDefault();
+    logout();
+    setIsMenuOpen(false);
   };
 
-  if (!isReady) return null; // Prevent rendering on the server
+  const isActive = (route: string) => pathname === route;
+
+  if (!isReady) return null;
 
   return (
     <nav className="bg-nav-background">
@@ -53,7 +56,7 @@ const NavigationContent: React.FC = () => {
               <Link
                 href="/"
                 className={`${
-                  location.pathname === "/"
+                  isActive("/")
                     ? "font-bold text-zinc-50"
                     : "font-semibold text-zinc-400"
                 } hover:text-yellow-500`}
@@ -66,8 +69,7 @@ const NavigationContent: React.FC = () => {
             <Link
               href={isAuthenticated ? "/dashboard" : "/dashboard-public"}
               className={`${
-                location.pathname === "/dashboard" ||
-                location.pathname === "/dashboard-public"
+                isActive("/dashboard") || isActive("/dashboard-public")
                   ? "font-bold text-zinc-50"
                   : "font-semibold text-zinc-400"
               } hover:text-yellow-500`}
@@ -80,7 +82,7 @@ const NavigationContent: React.FC = () => {
               <Link
                 href="/profile"
                 className={`${
-                  location.pathname === "/profile"
+                  isActive("/profile")
                     ? "font-bold text-zinc-50"
                     : "font-semibold text-zinc-400"
                 } hover:text-yellow-500`}
@@ -101,7 +103,11 @@ const NavigationContent: React.FC = () => {
             ) : (
               <Link
                 href="/login"
-                className="font-semibold text-zinc-400 hover:text-yellow-500"
+                className={`${
+                  isActive("/login")
+                    ? "font-bold text-zinc-50"
+                    : "font-semibold text-zinc-400"
+                } hover:text-yellow-500`}
               >
                 Login
               </Link>
@@ -161,7 +167,7 @@ const NavigationContent: React.FC = () => {
             <Link
               href="/"
               className={`block px-4 py-2 ${
-                location.pathname === "/"
+                isActive("/")
                   ? "font-bold text-zinc-50"
                   : "font-semibold text-zinc-400"
               } hover:text-yellow-500`}
@@ -173,8 +179,7 @@ const NavigationContent: React.FC = () => {
             <Link
               href={isAuthenticated ? "/dashboard" : "/dashboard-public"}
               className={`block px-4 py-2 ${
-                location.pathname === "/dashboard" ||
-                location.pathname === "/dashboard-public"
+                isActive("/dashboard") || isActive("/dashboard-public")
                   ? "font-bold text-zinc-50"
                   : "font-semibold text-zinc-400"
               } hover:text-yellow-500`}
@@ -187,7 +192,7 @@ const NavigationContent: React.FC = () => {
               <Link
                 href="/profile"
                 className={`block px-4 py-2 ${
-                  location.pathname === "/profile"
+                  isActive("/profile")
                     ? "font-bold text-zinc-50"
                     : "font-semibold text-zinc-400"
                 } hover:text-yellow-500`}
@@ -208,7 +213,11 @@ const NavigationContent: React.FC = () => {
             ) : (
               <Link
                 href="/login"
-                className="block px-4 py-2 text-zinc-400 hover:text-yellow-500"
+                className={`block px-4 py-2 ${
+                  isActive("/login")
+                    ? "font-bold text-zinc-50"
+                    : "font-semibold text-zinc-400"
+                } hover:text-yellow-500`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Login
