@@ -8,10 +8,10 @@ import {
   VStack,
   IconButton,
   Text,
-  Link,
   StackSeparator,
 } from "@chakra-ui/react";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
 import { MenuOpenIcon, MenuCloseIcon } from "../components/icons/MenuIcons";
@@ -41,7 +41,7 @@ const NavigationContent: React.FC = () => {
       <Flex justify="space-between" align="center">
         {/* Logo and Tagline */}
         <HStack>
-          <Link href="https://www.med.upenn.edu/">
+          <Link href="https://www.med.upenn.edu/" passHref>
             <Image
               src="/ObserverLogoDarkBackground.svg"
               width={220}
@@ -61,47 +61,51 @@ const NavigationContent: React.FC = () => {
         {/* Desktop Navigation Links */}
         <HStack display={{ base: "none", md: "flex" }}>
           {!isAuthenticated && (
-            <Link
-              href="/"
-              fontWeight={isActive("/") ? "bold" : "medium"}
-              mx="2"
-            >
-              Home
+            <Link href="/" passHref>
+              <Text fontWeight={isActive("/") ? "bold" : "medium"} mx="2">
+                Home
+              </Text>
             </Link>
           )}
           <Link
             href={isAuthenticated ? "/dashboard" : "/dashboard-public"}
-            fontWeight={
-              isActive("/dashboard") || isActive("/dashboard-public")
-                ? "bold"
-                : "medium"
-            }
-            mx="2"
+            passHref
           >
-            Dashboard
-          </Link>
-          {isAuthenticated && (
-            <Link
-              href="/profile"
-              fontWeight={isActive("/profile") ? "bold" : "medium"}
+            <Text
+              fontWeight={
+                isActive("/dashboard") || isActive("/dashboard-public")
+                  ? "bold"
+                  : "medium"
+              }
               mx="2"
             >
-              Profile
+              Dashboard
+            </Text>
+          </Link>
+          {isAuthenticated && (
+            <Link href="/profile" passHref>
+              <Text
+                fontWeight={isActive("/profile") ? "bold" : "medium"}
+                mx="2"
+              >
+                Profile
+              </Text>
             </Link>
           )}
-          <Link
-            href={isAuthenticated ? "#" : "/login"}
-            onClick={isAuthenticated ? handleLogout : undefined}
-            fontWeight={
-              isAuthenticated
-                ? "medium"
-                : isActive("/login")
-                ? "bold"
-                : "medium"
-            }
-            mx="2"
-          >
-            {isAuthenticated ? "Logout" : "Login"}
+          <Link href={isAuthenticated ? "#" : "/login"} passHref>
+            <Text
+              onClick={isAuthenticated ? handleLogout : undefined}
+              fontWeight={
+                isAuthenticated
+                  ? "medium"
+                  : isActive("/login")
+                  ? "bold"
+                  : "medium"
+              }
+              mx="2"
+            >
+              {isAuthenticated ? "Logout" : "Login"}
+            </Text>
           </Link>
         </HStack>
 
@@ -131,40 +135,44 @@ const NavigationContent: React.FC = () => {
           separator={<StackSeparator />}
         >
           {!isAuthenticated && (
-            <Link href="/" fontWeight={isActive("/") ? "bold" : "medium"}>
-              Home
+            <Link href="/" passHref>
+              <Text fontWeight={isActive("/") ? "bold" : "medium"}>Home</Text>
             </Link>
           )}
           <Link
             href={isAuthenticated ? "/dashboard" : "/dashboard-public"}
-            fontWeight={
-              isActive("/dashboard") || isActive("/dashboard-public")
-                ? "bold"
-                : "medium"
-            }
+            passHref
           >
-            Dashboard
+            <Text
+              fontWeight={
+                isActive("/dashboard") || isActive("/dashboard-public")
+                  ? "bold"
+                  : "medium"
+              }
+            >
+              Dashboard
+            </Text>
           </Link>
           {isAuthenticated && (
-            <Link
-              href="/profile"
-              fontWeight={isActive("/profile") ? "bold" : "medium"}
-            >
-              Profile
+            <Link href="/profile" passHref>
+              <Text fontWeight={isActive("/profile") ? "bold" : "medium"}>
+                Profile
+              </Text>
             </Link>
           )}
-          <Link
-            href={isAuthenticated ? "#" : "/login"}
-            onClick={isAuthenticated ? handleLogout : undefined}
-            fontWeight={
-              isAuthenticated
-                ? "medium"
-                : isActive("/login")
-                ? "bold"
-                : "medium"
-            }
-          >
-            {isAuthenticated ? "Logout" : "Login"}
+          <Link href={isAuthenticated ? "#" : "/login"} passHref>
+            <Text
+              onClick={isAuthenticated ? handleLogout : undefined}
+              fontWeight={
+                isAuthenticated
+                  ? "medium"
+                  : isActive("/login")
+                  ? "bold"
+                  : "medium"
+              }
+            >
+              {isAuthenticated ? "Logout" : "Login"}
+            </Text>
           </Link>
         </VStack>
       )}
