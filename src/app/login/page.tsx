@@ -1,13 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
+import { Input, Stack, Text, Box, Card } from "@chakra-ui/react";
+import { Field } from "@/components/ui/field";
+import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useAuth } from "../../contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
   const { login } = useAuth();
+  const router = useRouter(); // Use Next.js router for navigation
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,79 +22,113 @@ const LoginPage = () => {
       await login(username, password);
       window.location.href = "/dashboard"; // Redirect after login
     } catch {
-      setError("Invalid username or password");
+      setError("Invalid username or password.");
     }
   };
 
+  const handleCancel = () => {
+    setUsername("");
+    setPassword("");
+    setError(null);
+    router.push("/"); // Redirect to the homepage or any desired page
+  };
+
   return (
-    <div className="h-screen bg-slate-50 flex justify-center md:items-center md:px-4">
-      <div className="bg-white shadow-lg rounded-md w-full max-w-md mt-4 md:mt-0">
-        {/* Header */}
-        <div className="bg-blue-900 text-white py-6 px-4 md:px-8 rounded-t-md text-center">
-          <img
-            src="/ObserverLogoDarkBackground.svg"
-            alt="Penn Logo"
-            className="mx-auto w-20 md:w-24 mb-2"
-          />
-          <h2 className="text-lg md:text-xl font-semibold">
-            Login to Repository
-          </h2>
-        </div>
+    <Box
+      minH="100vh"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      bg="gray.100"
+      px={4}
+    >
+      <Card.Root
+        maxW="sm"
+        w="full"
+        rounded="md"
+        shadow="lg"
+        bg="white"
+        border="1px"
+      >
+        <Card.Header
+          bg="brand.penn-dark-blue"
+          color="white"
+          roundedTop="md"
+          p={4}
+          mb={4}
+        >
+          <Text fontSize="2xl" fontWeight="bold" textAlign="center">
+            Login
+          </Text>
+          <Text fontSize="sm" textAlign="center" mt={1}>
+            Enter your details to log in
+          </Text>
+        </Card.Header>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="px-4 py-6 space-y-4 md:px-8">
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+        <Card.Body>
+          <Stack gap={4}>
+            {error && (
+              <Text color="red.500" fontSize="sm" textAlign="center">
+                {error}
+              </Text>
+            )}
 
-          {/* Username */}
-          <div>
-            <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+            <Field label="Username" color="gray.600">
+              <Input
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                bg="gray.50"
+                borderColor="gray.300"
+                _focus={{
+                  borderColor: "blue.500",
+                  bg: "white",
+                }}
+                p={4}
+              />
+            </Field>
 
-          {/* Password */}
-          <div>
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+            <Field label="Password" color="gray.600">
+              <PasswordInput
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                bg="gray.50"
+                borderColor="gray.300"
+                _focus={{
+                  borderColor: "blue.500",
+                  bg: "white",
+                }}
+                p={4}
+              />
+            </Field>
+          </Stack>
+        </Card.Body>
 
-          {/* Show Password Checkbox */}
-          <div className="flex items-center space-x-2">
-            <input
-              id="show-password"
-              type="checkbox"
-              checked={showPassword}
-              onChange={() => setShowPassword(!showPassword)}
-              className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-            />
-            <label
-              htmlFor="show-password"
-              className="text-sm text-gray-600 cursor-pointer"
-            >
-              Show Password
-            </label>
-          </div>
-
-          {/* Submit Button */}
-          <div>
-            <input
-              type="submit"
-              value="Log in"
-              className="w-full bg-blue-900 text-white font-semibold py-2 rounded hover:bg-blue-800 transition"
-            />
-          </div>
-        </form>
-      </div>
-    </div>
+        <Card.Footer justifyContent="flex-end" display="flex" gap={2}>
+          <Button
+            size="lg"
+            variant="outline"
+            colorScheme="gray"
+            p={2}
+            onClick={handleCancel}
+            color="gray.600"
+          >
+            Cancel
+          </Button>
+          <Button
+            size="lg"
+            variant="solid"
+            colorPalette="blue"
+            p={2}
+            onClick={handleSubmit}
+            color="gray.600"
+          >
+            Sign in
+          </Button>
+        </Card.Footer>
+      </Card.Root>
+    </Box>
   );
 };
 

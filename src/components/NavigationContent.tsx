@@ -1,19 +1,29 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Flex,
+  HStack,
+  VStack,
+  IconButton,
+  Text,
+  StackSeparator,
+} from "@chakra-ui/react";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
+import { MenuOpenIcon, MenuCloseIcon } from "../components/icons/MenuIcons";
 
 const NavigationContent: React.FC = () => {
   const { isAuthenticated, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isReady, setIsReady] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
-    setIsReady(true);
+    setIsHydrated(true); // Ensure hydration for client-side rendering
   }, []);
 
   const handleLogout = (e: React.MouseEvent) => {
@@ -24,209 +34,149 @@ const NavigationContent: React.FC = () => {
 
   const isActive = (route: string) => pathname === route;
 
-  if (!isReady) return null;
+  if (!isHydrated) return null; // Prevent rendering until hydration is complete
 
   return (
-    <nav className="bg-nav-background">
-      <header className="flex justify-between items-center w-full p-4">
+    <Box as="nav" bg="brand.penn-dark-blue" color="white" py={4} px={6}>
+      <Flex justify="space-between" align="center">
         {/* Logo and Tagline */}
-        <div className="flex items-center">
-          <Link href="https://www.med.upenn.edu/">
+        <HStack>
+          <Link href="https://www.med.upenn.edu/" passHref>
             <Image
               src="/ObserverLogoDarkBackground.svg"
               width={220}
               height={80}
               alt="Penn Medicine logo"
-              className="h-12 ml-2"
-              priority
             />
           </Link>
-          <div className="hidden md:flex items-center ml-4">
-            <div className="h-12 border-r border-gray-300"></div>
-            <p className="text-sm text-white ml-4">
-              Automating Healthcare Beyond Documentation
-            </p>
-          </div>
-        </div>
+          <Text
+            fontSize="sm"
+            fontWeight="light"
+            display={{ base: "none", md: "block" }} // Hide tagline on small screens
+          >
+            Automating Healthcare Beyond Documentation
+          </Text>
+        </HStack>
 
         {/* Desktop Navigation Links */}
-        <ul className="hidden md:flex items-center space-x-8">
+        <HStack display={{ base: "none", md: "flex" }}>
           {!isAuthenticated && (
-            <li>
-              <Link
-                href="/"
-                className={`${
-                  isActive("/")
-                    ? "font-bold text-zinc-50"
-                    : "font-semibold text-zinc-400"
-                } hover:text-yellow-500`}
-              >
+            <Link href="/" passHref>
+              <Text fontWeight={isActive("/") ? "bold" : "medium"} mx="2">
                 Home
-              </Link>
-            </li>
-          )}
-          <li>
-            <Link
-              href={isAuthenticated ? "/dashboard" : "/dashboard-public"}
-              className={`${
-                isActive("/dashboard") || isActive("/dashboard-public")
-                  ? "font-bold text-zinc-50"
-                  : "font-semibold text-zinc-400"
-              } hover:text-yellow-500`}
-            >
-              {isAuthenticated ? "Dashboard" : "Dashboard"}
+              </Text>
             </Link>
-          </li>
+          )}
+          <Link
+            href={isAuthenticated ? "/dashboard" : "/dashboard-public"}
+            passHref
+          >
+            <Text
+              fontWeight={
+                isActive("/dashboard") || isActive("/dashboard-public")
+                  ? "bold"
+                  : "medium"
+              }
+              mx="2"
+            >
+              Dashboard
+            </Text>
+          </Link>
           {isAuthenticated && (
-            <li>
-              <Link
-                href="/profile"
-                className={`${
-                  isActive("/profile")
-                    ? "font-bold text-zinc-50"
-                    : "font-semibold text-zinc-400"
-                } hover:text-yellow-500`}
+            <Link href="/profile" passHref>
+              <Text
+                fontWeight={isActive("/profile") ? "bold" : "medium"}
+                mx="2"
               >
                 Profile
-              </Link>
-            </li>
+              </Text>
+            </Link>
           )}
-          <li>
-            {isAuthenticated ? (
-              <Link
-                href="#"
-                onClick={handleLogout}
-                className="font-semibold text-zinc-400 hover:text-yellow-500"
-              >
-                Logout
-              </Link>
-            ) : (
-              <Link
-                href="/login"
-                className={`${
-                  isActive("/login")
-                    ? "font-bold text-zinc-50"
-                    : "font-semibold text-zinc-400"
-                } hover:text-yellow-500`}
-              >
-                Login
-              </Link>
-            )}
-          </li>
-        </ul>
+          <Link href={isAuthenticated ? "#" : "/login"} passHref>
+            <Text
+              onClick={isAuthenticated ? handleLogout : undefined}
+              fontWeight={
+                isAuthenticated
+                  ? "medium"
+                  : isActive("/login")
+                  ? "bold"
+                  : "medium"
+              }
+              mx="2"
+            >
+              {isAuthenticated ? "Logout" : "Login"}
+            </Text>
+          </Link>
+        </HStack>
 
         {/* Mobile Menu Toggle */}
-        <div className="md:hidden flex items-center">
-          <Link
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              setIsMenuOpen(!isMenuOpen);
-            }}
-            className="text-white focus:outline-none"
-          >
-            {isMenuOpen ? (
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            ) : (
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16m-7 6h7"
-                />
-              </svg>
-            )}
-          </Link>
-        </div>
-      </header>
+        <IconButton
+          display={{ base: "flex", md: "none" }}
+          aria-label="Toggle menu"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          variant="ghost"
+          color="white"
+          _hover={{ bg: "blue.700" }}
+        >
+          {isMenuOpen ? <MenuOpenIcon /> : <MenuCloseIcon />}
+        </IconButton>
+      </Flex>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <ul className="md:hidden flex flex-col bg-nav-background border-t border-gray-700">
-          <li>
-            <Link
-              href="/"
-              className={`block px-4 py-2 ${
-                isActive("/")
-                  ? "font-bold text-zinc-50"
-                  : "font-semibold text-zinc-400"
-              } hover:text-yellow-500`}
-            >
-              Home
+        <VStack
+          mt={4}
+          display={{ md: "none" }} // Show only on small screens
+          align="start"
+          bg="brand.penn-dark-blue"
+          p={4}
+          rounded="md"
+          shadow="sm"
+          separator={<StackSeparator />}
+        >
+          {!isAuthenticated && (
+            <Link href="/" passHref>
+              <Text fontWeight={isActive("/") ? "bold" : "medium"}>Home</Text>
             </Link>
-          </li>
-          <li>
-            <Link
-              href={isAuthenticated ? "/dashboard" : "/dashboard-public"}
-              className={`block px-4 py-2 ${
-                isActive("/dashboard") || isActive("/dashboard-public")
-                  ? "font-bold text-zinc-50"
-                  : "font-semibold text-zinc-400"
-              } hover:text-yellow-500`}
-            >
-              {isAuthenticated ? "Dashboard" : "Dashboard"}
-            </Link>
-          </li>
-          {isAuthenticated && (
-            <li>
-              <Link
-                href="/profile"
-                className={`block px-4 py-2 ${
-                  isActive("/profile")
-                    ? "font-bold text-zinc-50"
-                    : "font-semibold text-zinc-400"
-                } hover:text-yellow-500`}
-              >
-                Profile
-              </Link>
-            </li>
           )}
-          <li>
-            {isAuthenticated ? (
-              <Link
-                href="#"
-                onClick={handleLogout}
-                className="block px-4 py-2 text-zinc-400 hover:text-yellow-500"
-              >
-                Logout
-              </Link>
-            ) : (
-              <Link
-                href="/login"
-                className={`block px-4 py-2 ${
-                  isActive("/login")
-                    ? "font-bold text-zinc-50"
-                    : "font-semibold text-zinc-400"
-                } hover:text-yellow-500`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Login
-              </Link>
-            )}
-          </li>
-        </ul>
+          <Link
+            href={isAuthenticated ? "/dashboard" : "/dashboard-public"}
+            passHref
+          >
+            <Text
+              fontWeight={
+                isActive("/dashboard") || isActive("/dashboard-public")
+                  ? "bold"
+                  : "medium"
+              }
+            >
+              Dashboard
+            </Text>
+          </Link>
+          {isAuthenticated && (
+            <Link href="/profile" passHref>
+              <Text fontWeight={isActive("/profile") ? "bold" : "medium"}>
+                Profile
+              </Text>
+            </Link>
+          )}
+          <Link href={isAuthenticated ? "#" : "/login"} passHref>
+            <Text
+              onClick={isAuthenticated ? handleLogout : undefined}
+              fontWeight={
+                isAuthenticated
+                  ? "medium"
+                  : isActive("/login")
+                  ? "bold"
+                  : "medium"
+              }
+            >
+              {isAuthenticated ? "Logout" : "Login"}
+            </Text>
+          </Link>
+        </VStack>
       )}
-    </nav>
+    </Box>
   );
 };
 
