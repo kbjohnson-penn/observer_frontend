@@ -1,49 +1,93 @@
 "use client";
 
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons";
+import {
+  Box,
+  Container,
+  Grid,
+  GridItem,
+  Text,
+  Link,
+  VStack,
+  Icon,
+  Group,
+  Stack,
+} from "@chakra-ui/react";
+import { LuPhone, LuMail } from "react-icons/lu";
 
 const Footer = () => (
-  <footer className="bg-nav-background text-white p-4 md:p-6 lg:p-8 mt-auto">
-    <div className="container mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div>
-          <h2 className="text-lg font-bold text-gray-200">Contact Us</h2>
-          <h3 className="text-md text-gray-300">The OBSERVER Project</h3>
-          <p className="text-sm mt-2 text-gray-400">
-            B202 Richards Medical Research Laboratories
-            <br />
-            3700 Hamilton Walk
-            <br />
-            University of Pennsylvania
-            <br />
-            Philadelphia, PA 19104-6116
-          </p>
-          <div className="mt-2">
-            <span className="block">
-              <FontAwesomeIcon icon={faPhone} className="text-gray-400 mr-2" />
-              <a href="tel:+1-2155735885" className="text-sm text-yellow-500">
-                (215) 573-5885
-              </a>
-            </span>
-            <span className="block mt-2">
-              <FontAwesomeIcon
-                icon={faEnvelope}
-                className="text-gray-400 mr-2"
-              />
-              <a
-                href="mailto:observerproject@pennmedicine.upenn.edu"
-                className="text-sm text-yellow-500"
-              >
-                Email Us
-              </a>
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <Box
+    as="footer"
+    bg="brand.penn-dark-blue"
+    color="white"
+    p={{ base: 4, md: 6, lg: 8 }}
+    mt="auto"
+  >
+    <Container>
+      <Grid
+        h="200px"
+        templateRows="repeat(2, 1fr)"
+        templateColumns="repeat(4, 1fr)"
+        gap="6"
+        mb={2}
+      >
+        <GridItem rowSpan={2} colSpan={1}>
+          <VStack display="grid" alignItems="left">
+            <Text textStyle="lg" fontWeight="black">
+              Contact Us
+            </Text>
+            <Text textStyle="md" fontWeight="medium">
+              The OBSERVER Project
+            </Text>
+            <Stack mt={1}>
+              <Text textStyle="sm" fontWeight="light" lineHeight="0.8">
+                B202 Richards Medical Research Laboratories
+              </Text>
+              <Text textStyle="sm" fontWeight="light" lineHeight="0.8">
+                3700 Hamilton Walk
+              </Text>
+              <Text textStyle="sm" fontWeight="light" lineHeight="0.8">
+                University of Pennsylvania
+              </Text>
+              <Text textStyle="sm" fontWeight="light" lineHeight="0.8">
+                Philadelphia, PA 19104-6116
+              </Text>
+            </Stack>
+            <Stack mt={1}>
+              <Group>
+                <Icon fontSize="lg">
+                  <LuPhone />
+                </Icon>
+                <Link
+                  href="tel:215-573-5707"
+                  textStyle="sm"
+                  fontWeight="light"
+                  color="yellow.400"
+                  lineHeight="1"
+                >
+                  215-573-5707
+                </Link>
+              </Group>
+              <Group>
+                <Icon fontSize="lg">
+                  <LuMail />
+                </Icon>
+                <Link
+                  href="mailto:observerproject@pennmedicine.upenn.edu"
+                  textStyle="sm"
+                  fontWeight="light"
+                  color="yellow.400"
+                  lineHeight="1"
+                >
+                  Email Us
+                </Link>
+              </Group>
+            </Stack>
+          </VStack>
+        </GridItem>
+      </Grid>
+    </Container>
+  </Box>
 );
 
 export default Footer;

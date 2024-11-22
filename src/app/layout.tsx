@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
+import { Provider } from "@/components/ui/provider";
 
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
@@ -23,14 +24,16 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head />
       <body className={`${inter.className} flex flex-col min-h-screen`}>
-        <AuthProvider>
-          <Navigation />
-          <div className="mb-auto">{children}</div>
-          <Footer />
-        </AuthProvider>
+        <Provider>
+          <AuthProvider>
+            <Navigation />
+            <div className="mb-auto">{children}</div>
+            <Footer />
+          </AuthProvider>
+        </Provider>
       </body>
     </html>
   );

@@ -4,7 +4,7 @@ import Loading from "./Loading";
 
 const Navigation: React.FC = () => {
   return (
-    <Suspense fallback={<Loading message="Loading navigation..." />}>
+    <Suspense fallback={<Loading />}>
       <NavigationContent />
     </Suspense>
   );
