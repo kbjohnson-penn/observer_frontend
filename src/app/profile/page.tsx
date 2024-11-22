@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Box, Button, Stack, Fieldset } from "@chakra-ui/react";
+import ProfileField from "./_components/ProfileField";
 import apiClient from "../../lib/apiClient";
 import { ProfileData } from "../../interfaces/profile";
 import { useAuth } from "../../contexts/AuthContext";
-import ProfileField from "./_components/ProfileField";
 
-const ProfilePage = () => {
-  const { isAuthenticated, logout } = useAuth();
+const ProfilePage: React.FC = () => {
+  const { logout } = useAuth();
   const [profileData, setProfileData] = useState<ProfileData>({
     first_name: "",
     last_name: "",
@@ -41,25 +42,34 @@ const ProfilePage = () => {
   }, []);
 
   return (
-    <div className="h-screen bg-gray-100 flex flex-col items-center py-8 px-4">
-      <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-2xl">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-800">Profile</h2>
-          <button
-            onClick={logout}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-          >
-            Logout
-          </button>
-        </div>
+    <Box
+      minH="100vh"
+      bg="gray.50"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      px={4}
+      py={8}
+    >
+      <Fieldset.Root
+        size="lg"
+        maxW="md"
+        bg="white"
+        p={6}
+        rounded="md"
+        shadow="lg"
+      >
+        <Stack mb={4}>
+          <Fieldset.Legend fontSize="2xl" fontWeight="bold" color="gray.800">
+            Profile Details
+          </Fieldset.Legend>
+        </Stack>
 
-        {/* Profile Details */}
-        <div className="mt-6 space-y-4">
+        <Fieldset.Content gap={4}>
           <ProfileField label="First Name" value={profileData.first_name} />
           <ProfileField label="Last Name" value={profileData.last_name} />
           <ProfileField label="Username" value={profileData.username} />
-          <ProfileField label="Email" value={profileData.email} type="email" />
+          <ProfileField label="Email Address" value={profileData.email} />
           <ProfileField
             label="Organization"
             value={profileData.organization.name}
@@ -77,9 +87,23 @@ const ProfilePage = () => {
                 : "Never"
             }
           />
-        </div>
-      </div>
-    </div>
+        </Fieldset.Content>
+
+        <Button
+          type="button"
+          color="red"
+          mt={6}
+          onClick={logout}
+          w="25%"
+          size="lg"
+          rounded="md"
+          shadow="sm"
+          alignSelf="flex-end"
+        >
+          Logout
+        </Button>
+      </Fieldset.Root>
+    </Box>
   );
 };
 

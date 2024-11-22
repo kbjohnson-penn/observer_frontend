@@ -1,4 +1,6 @@
 import React from "react";
+import { Input } from "@chakra-ui/react";
+import { Field } from "@/components/ui/field";
 
 interface ProfileFieldProps {
   label: string;
@@ -12,17 +14,22 @@ const ProfileField: React.FC<ProfileFieldProps> = ({
   type = "text",
 }) => {
   return (
-    <div>
-      <label className="block text-sm font-semibold text-gray-600">
-        {label}
-      </label>
-      <input
-        type={type}
+    <Field label={label}>
+      <Input
         value={value || ""}
         readOnly
-        className="w-full px-4 py-2 border border-transparent rounded bg-gray-100"
+        type={type}
+        bg="gray.100"
+        border="1px"
+        borderColor="gray.300"
+        _focus={{
+          borderColor: "blue.500",
+          bg: "white",
+        }}
+        p={4}
+        rounded="md"
       />
-    </div>
+    </Field>
   );
 };
 
