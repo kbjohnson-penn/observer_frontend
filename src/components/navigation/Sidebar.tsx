@@ -47,7 +47,7 @@ const Sidebar: React.FC = () => {
             </Text>
           </Link>
 
-          {isActive("/dashboard") && (
+          {/* {isActive("/dashboard") && (
             <VStack align="start" pl={4} gap={2}>
               <Link href="/dashboard/encounters" passHref>
                 <Text
@@ -77,7 +77,7 @@ const Sidebar: React.FC = () => {
                 </Text>
               </Link>
             </VStack>
-          )}
+          )} */}
 
           <Link href="/profile" passHref>
             <Text fontWeight={isActive("/profile") ? "bold" : "medium"}>

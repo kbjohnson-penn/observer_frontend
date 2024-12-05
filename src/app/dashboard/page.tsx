@@ -1,16 +1,9 @@
-"use client";
+import React from "react";
 
-import React, { useState, useEffect } from "react";
-import { Text } from "@chakra-ui/react";
+import PlayGround from "./_components/PlayGround";
 
 const Dashboard: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(true);
-
-  return (
-    <Text fontSize="2xl" fontWeight="bold" textAlign="center">
-      Dashboard Page
-    </Text>
-  );
+  return <PlayGround />;
 };
 
 export default Dashboard;
