@@ -41,7 +41,7 @@ const EncounterDetails: React.FC = () => {
     const fetchEncounter = async () => {
       try {
         const { data } = await apiClient.get<EncounterDataType>(
-          `/encounters/${id}`
+          `/private/encounters/${id}`
         );
         setEncounter(data);
       } catch (error) {
@@ -66,26 +66,39 @@ const EncounterDetails: React.FC = () => {
           providerResponse,
           departmentResponse,
           encounterSourceResponse,
-          encounterFileResponse,
         ] = await Promise.all([
-          apiClient.get<PatientDataType>(`/patients/${encounter.patient}`),
-          apiClient.get<ProviderDataType>(`/providers/${encounter.provider}`),
+          apiClient.get<PatientDataType>(
+            `/private/patients/${encounter.patient}`
+          ),
+          apiClient.get<ProviderDataType>(
+            `/private/providers/${encounter.provider}`
+          ),
           apiClient.get<DepartmentDataType>(
-            `/departments/${encounter.department}`
+            `/private/departments/${encounter.department}`
           ),
           apiClient.get<EncounterSourceDataType>(
-            `/encountersources/${encounter.encounter_source}`
+            `/private/encountersources/${encounter.encounter_source}`
           ),
-          apiClient.post<EncounterFileDataType[]>(`/encounterfiles/by-ids/`, {
-            ids: encounter.encounterfile_ids,
-          }),
         ]);
 
         setPatient(patientResponse.data);
         setProvider(providerResponse.data);
         setDepartment(departmentResponse.data);
         setEncounterSource(encounterSourceResponse.data);
-        setEncounterFile(encounterFileResponse.data);
+
+        if (
+          encounter.encounterfile_ids &&
+          encounter.encounterfile_ids.length > 0
+        ) {
+          const encounterFileResponse = await apiClient.post<
+            EncounterFileDataType[]
+          >(`/private/encounterfiles/by-ids/`, {
+            ids: encounter.encounterfile_ids,
+          });
+          setEncounterFile(encounterFileResponse.data);
+        } else {
+          setEncounterFile([]);
+        }
       } catch (error) {
         console.error("Failed to fetch encounter details:", error);
       } finally {
@@ -120,7 +133,10 @@ const EncounterDetails: React.FC = () => {
   ];
 
   const patientStats = [
-    { label: "Patient ID", value: `PT${patient?.patient_id.toString()}` || "N/A" },
+    {
+      label: "Patient ID",
+      value: `PT${patient?.patient_id.toString()}` || "N/A",
+    },
     { label: "Date of Birth", value: patient?.year_of_birth || "N/A" },
     { label: "Sex", value: patient?.sex || "N/A" },
     { label: "Race", value: patient?.race || "N/A" },
@@ -128,7 +144,10 @@ const EncounterDetails: React.FC = () => {
   ];
 
   const providerStats = [
-    { label: "Provider ID", value: `PR${provider?.provider_id.toString()}` || "N/A" },
+    {
+      label: "Provider ID",
+      value: `PR${provider?.provider_id.toString()}` || "N/A",
+    },
     { label: "Date of Birth", value: provider?.year_of_birth || "N/A" },
     { label: "Sex", value: provider?.sex || "N/A" },
     { label: "Race", value: provider?.race || "N/A" },

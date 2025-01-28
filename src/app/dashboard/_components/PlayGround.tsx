@@ -28,8 +28,8 @@ const PlayGround: React.FC = () => {
       setError(null);
       try {
         const [encounterResponse, encounterSourceResponse] = await Promise.all([
-          apiClient.get<EncounterDataType[]>("/encounters"),
-          apiClient.get<EncounterSourceDataType[]>("/encountersources"),
+          apiClient.get<EncounterDataType[]>("/private/encounters"),
+          apiClient.get<EncounterSourceDataType[]>("/private/encountersources"),
         ]);
         setEncounters(encounterResponse.data);
         setEncounterSource(encounterSourceResponse.data);
