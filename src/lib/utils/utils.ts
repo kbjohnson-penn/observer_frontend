@@ -11,12 +11,12 @@ import {
   CombinedDataType,
   FlattenedCombinedDataType,
   NestedCombinedDataType,
-} from "../interfaces/interfaces";
+} from "../../interfaces/interfaces";
 import {
   ETHNIC_CATEGORIES,
   RACIAL_CATEGORIES,
   CSV_COLUMN_ORDER,
-} from "../constants";
+} from "../../constants";
 
 export const capitalizeWords = (input: string): string => {
   return input.replace(/\b\w/g, (char) => char.toUpperCase());

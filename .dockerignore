@@ -1,7 +1,6 @@
 node_modules
-npm-debug.log
-Dockerfile
+.next
+*.log
+.env
 .dockerignore
-CHANGELOG.md
-CONTRIBUTING.md
-README.md
+Dockerfile

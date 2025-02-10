@@ -39,7 +39,7 @@ import {
   getSatisfactionData,
   compileData,
   downloadData,
-} from "../../../lib/utils";
+} from "../../../lib/utils/utils";
 
 interface PlayGroundProps {
   patientsData: PatientDataType[];

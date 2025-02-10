@@ -4,10 +4,8 @@ import "./globals.css";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import { Provider } from "@/components/ui/provider";
-
-import Navigation from "../components/Navigation";
-import Footer from "../components/Footer";
 import { AuthProvider } from "../contexts/AuthContext";
+import AppLayout from "./AppLayout"; // New client-side layout component
 
 config.autoAddCss = false;
 
@@ -18,7 +16,7 @@ export const metadata: Metadata = {
   description: "A Digital Window into Medicine",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -29,9 +27,7 @@ export default async function RootLayout({
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         <Provider>
           <AuthProvider>
-            <Navigation />
-            <div className="mb-auto">{children}</div>
-            <Footer />
+            <AppLayout>{children}</AppLayout>
           </AuthProvider>
         </Provider>
       </body>

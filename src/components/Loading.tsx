@@ -1,14 +1,20 @@
 "use client";
 
-import { Spinner, Text, VStack } from "@chakra-ui/react";
+import React from "react";
+import { Center, Spinner as ChakraSpinner, Text } from "@chakra-ui/react";
 
-const Loading = () => {
+const Spinner: React.FC = () => {
   return (
-    <VStack colorPalette="teal">
-      <Spinner color="colorPalette.600" />
-      <Text color="colorPalette.600">Loading...</Text>
-    </VStack>
+    <Center w="100%" h="100vh" bg="gray.50">
+      <ChakraSpinner
+        size="xl"
+        borderWidth="4px"
+        animationDuration="0.65s"
+        color="blue.500"
+      />
+      <Text color="blue.500">Loading...</Text>
+    </Center>
   );
 };
 
-export default Loading;
+export default Spinner;
