@@ -21,17 +21,17 @@ export const GENDER_CATEGORIES: { [key: string]: string } = {
 };
 
 export const DEPARTMENT_COLORS: { [key: string]: string } = {
-  "SimCenter": "#8ED081",
+  SimCenter: "#8ED081",
   Oncology: "#B4D2BA",
   "Primary Care": "#DCE2AA",
   Neurology: "#FFD700",
-  "Fmaily Medicine": "#B57F50",
+  "Family Medicine": "#B57F50",
   Cardiology: "#FFC0CB",
   Orthopedics: "#4B543B",
 };
 
 export const SOURCE_OPTIONS = [
-  { value: "RIAS", label: "RIAS" },
+  // { value: "RIAS", label: "RIAS" },
   { value: "SimCenter", label: "Simulation Center" },
   { value: "Clinic", label: "Clinic" },
 ];
@@ -70,8 +70,6 @@ export const MULTI_MODAL_DATA_OPTIONS = [
   { value: "provider_survey", label: "Provider Survey" },
   { value: "patient_annotation", label: "Patient Annotation" },
   { value: "provider_annotation", label: "Provider Annotation" },
-  { value: "rias_transcript", label: "RIAS Transcript" },
-  { value: "rias_codes", label: "RIAS Codes" },
 ];
 
 export const MULTI_MODAL_DATA_PATHS_COLORS: { [key: string]: string } = {
@@ -84,8 +82,8 @@ export const MULTI_MODAL_DATA_PATHS_COLORS: { [key: string]: string } = {
   provider_survey: "#3E2723",
   patient_annotation: "#FFD600",
   provider_annotation: "#FF6D00",
-  rias_transcript: "#FF8042",
-  rias_codes: "#F1C40F",
+  // rias_transcript: "#FF8042",
+  // rias_codes: "#F1C40F",
 };
 
 export const NODE_COLORS: { [key: string]: string } = {
@@ -132,6 +130,6 @@ export const CSV_COLUMN_ORDER = [
   "provider_survey",
   "patient_annotation",
   "provider_annotation",
-  "rias_transcript",
-  "rias_codes",
+  // "rias_transcript",
+  // "rias_codes",
 ];

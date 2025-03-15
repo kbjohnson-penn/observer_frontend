@@ -1,132 +1,129 @@
-// "use server";
+import React from "react";
+import PlayGround from "./_components/PlayGround";
+import axios from "axios";
+import { Box, Heading, Text } from "@chakra-ui/react";
 
-// import React, { Suspense } from "react";
-// import LoadingPage from "../../components/Loading";
-// import PlayGround from "./_components/PlayGround";
-// import {
-//   PatientDataType,
-//   ProviderDataType,
-//   EncounterSourceDataType,
-//   DepartmentDataType,
-//   MultiModalDataPathsDataType,
-//   EncounterDataType,
-//   EncounterSimCenterDataType,
-//   EncounterRIASDataType,
-// } from "../../interfaces/interfaces";
-// import { getDepartmentColors } from "../../lib/utils";
+import { PublicDepartmentDataType } from "@/interfaces/department";
+import { PublicPatientDataType } from "@/interfaces/patient";
+import { PublicProviderDataType } from "@/interfaces/provider";
+import { PublicEncounterDataType } from "@/interfaces/encounter";
+import { PublicMultiModalDataType } from "@/interfaces/mmd";
+import { PublicEncounterSourceDataType } from "@/interfaces/encounter";
 
-// const fetchPatientsData = async () => {
-//   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/patients`, {
-//     cache: "no-store",
-//   });
-//   const data: PatientDataType[] = await res.json();
-//   return data;
-// };
+import { getDepartmentColors } from "@/lib/utils/utils";
 
-// const fetchProvidersData = async () => {
-//   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/providers`, {
-//     cache: "no-store",
-//   });
-//   const data: ProviderDataType[] = await res.json();
-//   return data;
-// };
+const fetchPatientsData = async (): Promise<PublicPatientDataType[]> => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_API}/public/patients/`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching patients:", error);
+    return [];
+  }
+};
 
-// const fetchEncounterSourceData = async () => {
-//   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/encountersources`, {
-//     cache: "no-store",
-//   });
-//   const data: EncounterSourceDataType[] = await res.json();
-//   return data;
-// };
+const fetchProvidersData = async (): Promise<PublicProviderDataType[]> => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_API}/public/providers/`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching providers:", error);
+    return [];
+  }
+};
 
-// const fetchDepartmentData = async () => {
-//   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/departments`, {
-//     cache: "no-store",
-//   });
-//   const data: DepartmentDataType[] = await res.json();
-//   return data;
-// };
+const fetchDepartmentData = async (): Promise<PublicDepartmentDataType[]> => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_API}/public/departments/`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return [];
+  }
+};
 
-// const fetchMultiModalDataPathsData = async () => {
-//   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/datapaths`, {
-//     cache: "no-store",
-//   });
-//   const data: MultiModalDataPathsDataType[] = await res.json();
-//   return data;
-// };
+const fetchEncounterData = async (): Promise<PublicEncounterDataType[]> => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_API}/public/encounters/`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching encounters:", error);
+    return [];
+  }
+};
 
-// const fetchEncouterData = async () => {
-//   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/encounters`, {
-//     cache: "no-store",
-//   });
-//   const data: EncounterDataType[] = await res.json();
-//   return data;
-// };
+const fetchMultiModalData = async (): Promise<PublicMultiModalDataType[]> => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_API}/public/mmdata/`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching multimodal data:", error);
+    return [];
+  }
+};
 
-// const fetchEncouterSimCenterData = async () => {
-//   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/encounters-simcenter/`, {
-//     cache: "no-store",
-//   });
-//   const data: EncounterSimCenterDataType[] = await res.json();
-//   return data;
-// };
+const fetchEncounterSourceData = async (): Promise<
+  PublicEncounterSourceDataType[]
+> => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_API}/public/encountersources/`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching encounter sources:", error);
+    return [];
+  }
+};
 
-// const fetchEncouterRIASData = async () => {
-//   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/encounters-rias/`, {
-//     cache: "no-store",
-//   });
-//   const data: EncounterRIASDataType[] = await res.json();
-//   return data;
-// };
+const DashboardPublic = async () => {
+  const patients = await fetchPatientsData();
+  const providers = await fetchProvidersData();
+  const departments = await fetchDepartmentData();
+  const encounters = await fetchEncounterData();
+  const multiModalData = await fetchMultiModalData();
+  const encounterSources = await fetchEncounterSourceData();
+  const departmentColors = await getDepartmentColors(departments);
 
-// const Dashboard: React.FC = async () => {
-//   const patientsData = await fetchPatientsData();
-//   const providersData = await fetchProvidersData();
-//   const encounterSourceData = await fetchEncounterSourceData();
-//   const departmentData = await fetchDepartmentData();
-//   const multiModalDataPathsData = await fetchMultiModalDataPathsData();
-//   const encounterData = await fetchEncouterData();
-//   const encounterSimCenterData = await fetchEncouterSimCenterData();
-//   const encounterRIASData = await fetchEncouterRIASData();
-//   const departmentColors = await getDepartmentColors(departmentData);
+  return (
+    <Box
+      maxW="1400px"
+      mx="auto"
+      px={{ base: 2, md: 4, lg: 6 }}
+      className="dashboard-container"
+    >
+      <Box as="header" mb={6} pt={4}>
+        <Heading
+          as="h1"
+          size="xl"
+          fontWeight="bold"
+          color="brand.penn-dark-blue"
+        >
+          Observer Platform Dashboard
+        </Heading>
+      </Box>
 
-//   return (
-//     <Suspense fallback={<LoadingPage />}>
-//       <PlayGround
-//         patientsData={patientsData}
-//         providersData={providersData}
-//         encounterSourceData={encounterSourceData}
-//         departmentData={departmentData}
-//         multiModalDataPathsData={multiModalDataPathsData}
-//         encounterData={encounterData}
-//         encounterSimCenterData={encounterSimCenterData}
-//         encounterRIASData={encounterRIASData}
-//         departmentColors={departmentColors}
-//       />
-//     </Suspense>
-//   );
-// };
-
-// export default Dashboard;
-
-"use client";
-
-import React, { useState, useEffect } from "react";
-import Loading from "../../components/Loading";
-
-const DashboardPublic: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(true);
-
-  // useEffect(() => {
-  //   const timer = setTimeout(() => setIsLoading(false), 2000); // Simulate loading
-  //   return () => clearTimeout(timer);
-  // }, []);
-
-  // if (isLoading) {
-  //   return <Loading message="Loading dashboardPublic..." />;
-  // }
-
-  return <div>Welcome to the Public Dashboard!</div>;
+      <PlayGround
+        patients={patients}
+        providers={providers}
+        departments={departments}
+        encounters={encounters}
+        multiModalData={multiModalData}
+        encounterSources={encounterSources}
+        departmentColors={departmentColors}
+      />
+    </Box>
+  );
 };
 
 export default DashboardPublic;

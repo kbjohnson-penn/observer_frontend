@@ -57,47 +57,26 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
     Intl.DateTimeFormat().resolvedOptions().timeZone
   );
 
-  const displayDate = format(zonedDate, "MMM dd, yyyy");
+  // Format date as "MMM dd" and "yyyy" for multi-line display
+  const month = format(zonedDate, "MMM");
+  const day = format(zonedDate, "dd");
+  const year = format(zonedDate, "yyyy");
+  
+  const fontSize = isMobile ? "9px" : isTablet ? "10px" : "12px";
+  const lineHeight = parseInt(fontSize) * 1.2;
 
   return (
     <g transform={`translate(${x},${y})`}>
-      {isMobile ? (
-        <text
-          x={0}
-          y={0}
-          dy={8}
-          textAnchor="end"
-          fill="#666"
-          transform="rotate(-30)"
-          fontSize={10}
-        >
-          {displayDate}
-        </text>
-      ) : isTablet ? (
-        <text
-          x={0}
-          y={0}
-          dy={16}
-          textAnchor="end"
-          fill="#666"
-          transform="rotate(-45)"
-          fontSize={12}
-        >
-          {displayDate}
-        </text>
-      ) : (
-        <text
-          x={0}
-          y={0}
-          dy={8}
-          textAnchor="end"
-          fill="#666"
-          transform="rotate(-30)"
-          fontSize={12}
-        >
-          {displayDate}
-        </text>
-      )}
+      <text
+        x={0}
+        y={0}
+        textAnchor="middle"
+        fill="#666"
+        style={{ fontSize }}
+      >
+        <tspan x={0} dy="0.6em">{`${month} ${day}`}</tspan>
+        <tspan x={0} dy={lineHeight}>{year}</tspan>
+      </text>
     </g>
   );
 };
@@ -113,9 +92,10 @@ const EncountersOverTimeChart: React.FC<EncountersOverTimeChartProps> = ({
         height={350}
         data={data}
         margin={{
-          top: 0,
-          bottom: 0,
-          right: 5,
+          top: 20,
+          right: 20,
+          left: 20,
+          bottom: 40
         }}
       >
         <XAxis

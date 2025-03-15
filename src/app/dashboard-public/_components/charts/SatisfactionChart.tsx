@@ -12,8 +12,12 @@ import {
 } from "recharts";
 
 interface SatisfactionChartProps {
-  data: { patientSatisfaction: number; providerSatisfaction: number }[];
-  screenWidth: number;
+  data: {
+    patientSatisfaction: number;
+    providerSatisfaction: number;
+    count?: number;
+  }[];
+  screenWidth?: number;
 }
 
 const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
@@ -48,7 +52,7 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
 
 const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
   data,
-  screenWidth,
+  screenWidth = 1024,
 }) => {
   return (
     <ResponsiveContainer width="100%" height={350}>
@@ -58,29 +62,28 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
           type="number"
           dataKey="patientSatisfaction"
           name="Patient Satisfaction"
-          fontSize={12}
+          style={{ fontSize: screenWidth <= 768 ? "11px" : "12px" }}
           domain={[0, 100]}
         >
           <Label
             value="Patient Satisfaction (%)"
             offset={-5}
             position="insideBottom"
-            fontSize={14}
+            style={{ fontSize: "12px" }}
           />
         </XAxis>
         <YAxis
           type="number"
           dataKey="providerSatisfaction"
           name="Provider Satisfaction"
-          fontSize={12}
+          style={{ fontSize: screenWidth <= 768 ? "11px" : "12px" }}
           domain={[0, 100]}
         >
           <Label
             value="Provider Satisfaction (%)"
             angle={-90}
-            dy={10}
-            dx={-10}
-            fontSize={14}
+            style={{ fontSize: "12px" }}
+            offset={-5}
           />
         </YAxis>
         <Tooltip content={<CustomTooltip colors={["#8884d8", "#82ca9d"]} />} />
@@ -89,6 +92,12 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
           data={data}
           fill="#8884d8"
           shape="circle"
+          legendType="circle"
+        ></Scatter>
+        <Legend
+          verticalAlign="top"
+          iconSize={12}
+          wrapperStyle={{ fontSize: "12px", marginBottom: "10px" }}
         />
       </ScatterChart>
     </ResponsiveContainer>

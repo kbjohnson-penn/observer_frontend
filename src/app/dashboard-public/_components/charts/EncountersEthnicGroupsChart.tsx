@@ -12,7 +12,7 @@ import {
 
 interface EncountersEthinicGroupsChartProps {
   data: { name: string; patientCount: number; providerCount: number }[];
-  screenWidth: number;
+  screenWidth?: number;
 }
 
 const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
@@ -46,109 +46,106 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
 };
 
 const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
-  let value = payload.value;
-  if (value === "Unknown or Not Reported Ethnicity") {
-    value = "Unknown";
+  // Format the label text
+  let displayText = payload.value;
+  if (displayText === "Unknown or Not Reported Ethnicity") {
+    displayText = "Unknown";
   }
-
-  const words = value.split(" ");
+  
   const isMobile = screenWidth <= 768;
   const isTablet = screenWidth > 768 && screenWidth <= 1024;
 
+  // Adjust font size based on screen size
+  const fontSize = isMobile ? "9px" : isTablet ? "10px" : "12px";
+  const lineHeight = parseInt(fontSize) * 1.2;
+  
+  // For short text (1-2 words), keep it on one line
+  // For longer text, split into multiple lines
+  const shouldSplit = displayText.length > 14;
+  
+  let firstLine = displayText;
+  let secondLine = "";
+  
+  if (shouldSplit) {
+    // Find a space near the middle to split on
+    const middle = Math.floor(displayText.length / 2);
+    let splitIndex = displayText.lastIndexOf(" ", middle);
+    
+    if (splitIndex === -1) {
+      splitIndex = displayText.indexOf(" ", middle);
+    }
+    
+    if (splitIndex !== -1) {
+      firstLine = displayText.substring(0, splitIndex);
+      secondLine = displayText.substring(splitIndex + 1);
+    }
+  }
+  
   return (
     <g transform={`translate(${x},${y})`}>
-      {isMobile
-        ? words.map((word: string, index: number) => (
-            <text
-              key={index}
-              x={-5}
-              y={index * 12}
-              dy={10}
-              textAnchor="middle"
-              fill="#666"
-              transform="rotate(0)"
-              fontSize={10}
-            >
-              {word}
-            </text>
-          ))
-        : isTablet
-        ? words.map((word: string, index: number) => (
-            <text
-              key={index}
-              x={0}
-              y={index * 10}
-              dy={10}
-              textAnchor="middle"
-              fill="#666"
-              transform="rotate(0)"
-              fontSize={8}
-            >
-              {word}
-            </text>
-          ))
-        : words.map((word: string, index: number) => (
-            <text
-              key={index}
-              x={0}
-              y={index * 12}
-              dy={10}
-              textAnchor="middle"
-              fill="#666"
-              transform="rotate(0)"
-              fontSize={12}
-            >
-              {word}
-            </text>
-          ))}
+      <text
+        x={0}
+        y={0}
+        textAnchor="middle"
+        fill="#555"
+        style={{ fontSize }}
+      >
+        <tspan x={0} dy="0.6em">{firstLine}</tspan>
+        {secondLine && <tspan x={0} dy={lineHeight}>{secondLine}</tspan>}
+      </text>
     </g>
   );
 };
 
 const EncountersEthinicGroupsChart: React.FC<
   EncountersEthinicGroupsChartProps
-> = ({ data, screenWidth }) => {
+> = ({ data, screenWidth = 1024 }) => {
   return (
     <ResponsiveContainer width="100%" height={350}>
       <BarChart
         width={500}
         height={350}
         data={data}
-        margin={{
-          bottom: 50,
-        }}
+        barGap={5}
+        barCategoryGap={20}
       >
         <XAxis
           dataKey="name"
+          height={60}
           tick={<CustomizedAxisTick screenWidth={screenWidth} />}
+          tickMargin={10}
           interval={0}
         />
-        <YAxis allowDecimals={false} fontSize={12}>
+        <YAxis 
+          allowDecimals={false} 
+          style={{ fontSize: screenWidth <= 768 ? "11px" : "12px" }}
+        >
           <Label
             value="Total"
             angle={-90}
-            position="inside"
-            fontSize={14}
-            dx={-10}
+            style={{ fontSize: "12px" }}
+            offset={-5}
           />
         </YAxis>
         <Tooltip content={<CustomTooltip colors={["#8884d8", "#82ca9d"]} />} />
         <Legend
           verticalAlign="top"
           iconSize={12}
-          wrapperStyle={{ fontSize: "14px" }}
+          wrapperStyle={{ fontSize: "12px", marginBottom: "10px" }}
         />
         <Bar
           dataKey="patientCount"
           name="Patients"
           stackId="a"
           fill="#8884d8"
+          barSize={38}
         />
         <Bar
           dataKey="providerCount"
           name="Providers"
           stackId="a"
           fill="#82ca9d"
+          barSize={38}
         />
       </BarChart>
     </ResponsiveContainer>

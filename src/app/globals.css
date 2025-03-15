@@ -6,6 +6,22 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --penn-red: #990000;
+  --penn-blue: #011F5B;
+  --penn-light-blue: #82AFD3;
+}
+
+/* Custom text selection styling */
+::-moz-selection {
+  background-color: #3182ce; /* Chakra UI blue.500 */
+  color: white;
+  text-shadow: none;
+}
+
+::selection {
+  background-color: #3182ce; /* Chakra UI blue.500 */
+  color: white;
+  text-shadow: none;
 }
 
 /*
@@ -20,14 +36,10 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  /* background: linear-gradient(
-    to bottom,
-    transparent,
-    rgb(var(--background-end-rgb))
-  ); */
   background: #f8fafc;
 }
 
+/* Loader Animation */
 .loader {
   border-top-color: #3498db;
   -webkit-animation: spinner 1.5s linear infinite;
@@ -49,5 +61,352 @@ body {
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+/* Dashboard Styles */
+.dashboard-container {
+  min-height: calc(100vh - 150px);
+}
+
+.dashboard-content {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Filter Styles */
+.filter-select {
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+/* React-Select custom styling */
+.filter-select .react-select__control {
+  border-color: #e2e8f0;
+  box-shadow: none;
+  transition: all 0.2s;
+}
+
+.filter-select .react-select__control:hover {
+  border-color: #cbd5e0;
+}
+
+.filter-select .react-select__control--is-focused {
+  border-color: #3182ce !important;
+  box-shadow: 0 0 0 1px #3182ce !important;
+}
+
+.filter-select .react-select__option--is-focused {
+  background-color: #ebf8ff;
+}
+
+.filter-select .react-select__option--is-selected {
+  background-color: #3182ce;
+}
+
+.filter-select .react-select__multi-value {
+  background-color: #e6f6ff;
+}
+
+.filter-select .react-select__multi-value__label {
+  color: #2c5282;
+}
+
+/* DatePicker styles */
+.date-picker {
+  width: 100% !important;
+  padding: 0.5rem !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.375rem !important;
+  font-size: 0.875rem !important;
+  transition: all 0.2s ease-in-out !important;
+  background-color: white !important;
+  color: #1a202c !important;
+}
+
+.date-picker:focus {
+  border-color: #3182ce !important;
+  box-shadow: 0 0 0 1px #3182ce !important;
+  outline: none !important;
+}
+
+.date-picker:disabled {
+  background-color: #f7fafc !important;
+  color: #a0aec0 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+/* Fix for Chakra UI overrides */
+input.date-picker,
+.date-picker-container input,
+input.date-picker[data-invalid],
+.date-picker-container input[data-invalid],
+input.date-picker[data-valid],
+.date-picker-container input[data-valid] {
+  background-color: white !important;
+  color: #1a202c !important;
+}
+
+input.date-picker:disabled,
+.date-picker-container input:disabled {
+  background-color: #f7fafc !important;
+  color: #a0aec0 !important;
+}
+
+/* Override Chakra UI specific styles */
+[data-theme] input.date-picker,
+[data-theme] .date-picker-container input {
+  background-color: white !important;
+  color: #1a202c !important;
+}
+
+[data-theme] input.date-picker:disabled,
+[data-theme] .date-picker-container input:disabled {
+  background-color: #f7fafc !important;
+  color: #a0aec0 !important;
+}
+
+/* React DatePicker container styles */
+.date-picker-wrapper,
+.react-datepicker-wrapper {
+  width: 100% !important;
+  display: block !important;
+}
+
+.date-picker-container {
+  background-color: white !important;
+}
+
+.react-datepicker__input-container {
+  width: 100% !important;
+  display: block !important;
+}
+
+.react-datepicker__input-container input {
+  width: 100% !important;
+  padding: 0.5rem !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.375rem !important;
+  font-size: 0.875rem !important;
+  transition: all 0.2s ease-in-out !important;
+  background-color: white !important;
+  color: #1a202c !important;
+}
+
+.react-datepicker__input-container input:focus {
+  border-color: #3182ce !important;
+  box-shadow: 0 0 0 1px #3182ce !important;
+  outline: none !important;
+}
+
+.react-datepicker__input-container input:disabled {
+  background-color: #f7fafc !important;
+  color: #a0aec0 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+/* Style the datepicker popup calendar */
+.react-datepicker {
+  font-family: inherit !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.react-datepicker__header {
+  background-color: #f7fafc !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range {
+  background-color: #3182ce !important;
+  color: white !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: #ebf8ff !important;
+}
+
+/* Chart Containers */
+.chart-container {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  height: 100%;
+}
+
+/* Custom Checkbox styling for Chakra UI */
+/* Legacy styling for standard Checkbox */
+[data-theme] .chakra-checkbox__control {
+  border: 2px solid #718096 !important;
+  background-color: white !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.visible-checkbox .chakra-checkbox__control {
+  border: 2px solid #718096 !important;
+  background-color: white !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+[data-theme] .chakra-checkbox__control[data-checked] {
+  background-color: #3182CE !important;
+  border-color: #3182CE !important;
+}
+
+[data-theme] .chakra-checkbox__control[data-checked] svg {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  color: white !important;
+}
+
+/* New Checkbox compound component styling */
+.chakra-checkbox {
+  display: flex;
+  align-items: center;
+  vertical-align: top;
+  cursor: pointer;
+}
+
+.chakra-checkbox__control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #718096;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  color: white;
+  opacity: 1;
+  visibility: visible;
+  transition: all 0.2s;
+}
+
+.chakra-checkbox__control[data-checked] {
+  background-color: #3182CE;
+  border-color: #3182CE;
+}
+
+.chakra-checkbox__control[data-checked] svg {
+  opacity: 1;
+  visibility: visible;
+  display: block;
+}
+
+.chakra-checkbox__label {
+  margin-left: 8px;
+  user-select: none;
+  font-size: 14px;
+}
+
+/* Checkbox.Root styling for the compound components */
+.chakra-checkbox__root {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* Variant-based styling */
+.chakra-checkbox__root[data-variant='outline'] .chakra-checkbox__control {
+  border: 2px solid #718096;
+  background-color: transparent;
+}
+
+.chakra-checkbox__root[data-variant='subtle'] .chakra-checkbox__control {
+  border: 2px solid #CBD5E0;
+  background-color: #F7FAFC;
+}
+
+.chakra-checkbox__root[data-variant='solid'] .chakra-checkbox__control {
+  border: 2px solid #3182CE;
+  background-color: #EBF8FF;
+}
+
+/* Color palette for blue */
+.chakra-checkbox__root[data-palette='blue'][data-checked] .chakra-checkbox__control {
+  background-color: #3182CE;
+  border-color: #3182CE;
+}
+
+/* Color palette for green */
+.chakra-checkbox__root[data-palette='green'][data-checked] .chakra-checkbox__control {
+  background-color: #38A169;
+  border-color: #38A169;
+}
+
+/* Color palette for red */
+.chakra-checkbox__root[data-palette='red'][data-checked] .chakra-checkbox__control {
+  background-color: #E53E3E;
+  border-color: #E53E3E;
+}
+
+/* Color palette for purple */
+.chakra-checkbox__root[data-palette='purple'][data-checked] .chakra-checkbox__control {
+  background-color: #805AD5;
+  border-color: #805AD5;
+}
+
+/* Color palette for orange */
+.chakra-checkbox__root[data-palette='orange'][data-checked] .chakra-checkbox__control {
+  background-color: #DD6B20;
+  border-color: #DD6B20;
+}
+
+/* Color palette for teal */
+.chakra-checkbox__root[data-palette='teal'][data-checked] .chakra-checkbox__control {
+  background-color: #319795;
+  border-color: #319795;
+}
+
+/* Disabled state */
+.chakra-checkbox__root[data-disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Legacy fallback */
+.custom-checkbox {
+  width: 16px !important;
+  height: 16px !important;
+  border: 2px solid #718096 !important;
+  background-color: white !important;
+  margin-right: 8px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+  -moz-appearance: auto !important;
+}
+
+.custom-checkbox:checked {
+  background-color: #3182ce !important;
+  border-color: #3182ce !important;
+}
+
+/* Media Queries for Responsive Layout */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  .date-picker, .react-datepicker__input-container input {
+    font-size: 0.75rem;
+    padding: 0.375rem;
   }
 }

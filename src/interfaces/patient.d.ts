@@ -6,3 +6,12 @@ export interface PatientDataType {
   race: string;
   ethnicity: string;
 }
+
+export interface PublicPatientDataType {
+  id: number;
+  patient_id: number;
+  year_of_birth: string;
+  sex: string;
+  race: string;
+  ethnicity: string;
+}
