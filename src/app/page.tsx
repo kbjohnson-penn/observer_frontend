@@ -1,61 +1,119 @@
 "use client";
 
-import React, { Suspense } from "react";
-import { Box, Container, Heading, Text, VStack } from "@chakra-ui/react";
-import LoadingPage from "../components/Loading";
+import React from "react";
+import {
+  Box,
+  Container,
+  Flex,
+  Text,
+  VStack,
+  Image,
+  Button,
+} from "@chakra-ui/react";
+import { useRouter } from "next/navigation";
 
 const Home: React.FC = () => {
+  const router = useRouter();
+
+  const navigateToDashboard = () => {
+    router.push("/dashboard-public");
+  };
+
   return (
-    <Suspense fallback={<LoadingPage />}>
-      <Box bg="gray.50" py={10}>
-        <Container>
+    <Box py={8} className="min-h-[calc(100vh-120px)]">
+      <Container maxW="container.xl">
+        <Flex
+          direction={{ base: "column", lg: "row" }}
+          align="center"
+          justify="space-between"
+          gap={8}
+        >
           <VStack
+            flex="1"
             bg="white"
-            p={6}
+            p={8}
             rounded="lg"
-            shadow="sm"
-            margin={4}
+            shadow="md"
+            gap={6}
             align="stretch"
           >
-            <Text textStyle="4xl" textAlign="center" color="red.600" pb={4}>
+            <Text
+              fontSize={{ base: "3xl", md: "4xl" }}
+              fontWeight="bold"
+              textAlign="center"
+              color="blue.600"
+              pb={4}
+            >
               Welcome to the Observer Project
             </Text>
             <Text
-              fontSize="sm"
+              fontSize={{ base: "sm", md: "md" }}
               textAlign="justify"
-              px={[4, 8]}
               color="gray.700"
+              lineHeight="1.7"
             >
-              Welcome to The Observer Repository. We specialize in aggregating
-              and curating comprehensive clinic visit data, including video,
-              audio, transcript, EHR data, and audit log information, to provide
-              an unparalleled view of the dynamics of patient-provider
-              interactions. Adhering to the FAIR data management principles, our
-              repository is designed for researchers seeking to delve into the
-              depths of telemedicine and in-person consultations. Here, we
-              invite collaboration, foster innovation, and aim to unlock new
-              insights in medical research and pave the way for advancements in
-              patient care and healthcare delivery.
+              The Observer Repository specializes in aggregating and curating
+              comprehensive clinic visit data, including video, audio,
+              transcript, EHR data, and audit log information, to provide an
+              unparalleled view of patient-provider interactions. Adhering to
+              the FAIR data management principles, our repository is designed
+              for researchers seeking to explore telemedicine and in-person
+              consultations.
             </Text>
             <Text
-              fontSize="sm"
+              fontSize={{ base: "sm", md: "md" }}
               textAlign="justify"
-              px={[4, 8]}
               color="gray.700"
+              lineHeight="1.7"
             >
-              The Observer Repository is a state-of-the-art multimodal platform
-              equipped to store a variety of data formats, including MOV and MP4
-              for high-quality video, MP3 for audio, TXT for text transcripts,
-              and EHR audit log files in formats like .log, .xml, .csv, or .txt.
-              This range ensures a detailed capture of clinic visit dynamics,
-              providing a rich, multidimensional dataset for exploring the
-              complexities of patient-provider interactions, from verbal
-              exchanges to non-verbal cues.
+              This state-of-the-art multimodal platform stores a variety of data
+              formats, including video (MOV/MP4), audio (MP3), text transcripts,
+              and EHR audit log files. This ensures detailed capture of clinic
+              visit dynamics, providing a rich dataset for exploring the
+              complexities of patient-provider interactions.
             </Text>
+
+            <Button
+              mt={4}
+              size="lg"
+              colorScheme="blue"
+              onClick={navigateToDashboard}
+            >
+              Explore Public Dashboard
+            </Button>
           </VStack>
-        </Container>
-      </Box>
-    </Suspense>
+
+          <Box
+            flex="1"
+            display={{ base: "none", lg: "block" }}
+            position="relative"
+            h="400px"
+          >
+            <Box
+              position="absolute"
+              bg="blue.50"
+              borderRadius="full"
+              w="400px"
+              h="400px"
+              opacity="0.7"
+              right="20px"
+              zIndex="0"
+            />
+            <Image
+              src="/ObserverLogoDarkBackground.svg"
+              alt="Observer Project"
+              width={450}
+              height={450}
+              style={{
+                objectFit: "contain",
+                position: "relative",
+                zIndex: "1",
+              }}
+            />
+          </Box>
+        </Flex>
+      </Container>
+    </Box>
   );
 };
 

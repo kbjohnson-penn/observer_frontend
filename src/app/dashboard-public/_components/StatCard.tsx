@@ -1,20 +1,54 @@
 "use client";
 
 import React from "react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 
 interface StatCardProps {
   title: string;
   value: number;
+  icon?: React.ReactNode;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value }) => {
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon }) => {
   return (
-    <div className="bg-white shadow-lg rounded-lg p-2 hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
-      <h2 className="text-start text-sm font-semibold text-gray-800 mb-2">
-        {title}
-      </h2>
-      <p className="text-center text-2xl font-bold text-blue-500">{value}</p>
-    </div>
+    <Box 
+      bg="white" 
+      p={4} 
+      borderRadius="lg" 
+      boxShadow="sm"
+      transition="all 0.3s"
+      height="100%"
+      className="hover:-translate-y-1 hover:shadow-md"
+    >
+      <Flex direction="column" align="start" height="100%" position="relative">
+        <Text 
+          fontSize="sm" 
+          fontWeight="medium" 
+          color="gray.500" 
+          mb={1}
+          textTransform="uppercase"
+          letterSpacing="wider"
+        >
+          {title}
+        </Text>
+        
+        <Text 
+          fontSize={{ base: "xl", md: "2xl", lg: "3xl" }} 
+          fontWeight="bold" 
+          color="blue.600"
+          mt="auto"
+          pt={2}
+        >
+          {value.toLocaleString()}
+        </Text>
+        
+        {icon && (
+          <Box position="absolute" top={2} right={2}>
+            {icon}
+          </Box>
+        )}
+      </Flex>
+    </Box>
   );
 };
 
