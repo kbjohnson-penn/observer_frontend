@@ -9,15 +9,11 @@ import { useAuth } from "../../contexts/AuthContext";
 import { MenuOpenIcon, MenuCloseIcon } from "../icons/MenuIcons";
 
 const TopNavigation: React.FC = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
 
   const isActive = (route: string) => pathname === route;
-
-  if (isAuthenticated) {
-    return null;
-  }
 
   return (
     <Box as="nav" bg="brand.penn-dark-blue" color="white" py={4} px={6}>

@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Navigation from "../components/navigation/Navigation";
-import Footer from "../components/Footer";
 import Loading from "../components/Loading";
-import LayoutContent from "./LayoutContent";
 import { useAuth } from "../contexts/AuthContext";
+import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
+import PublicLayout from "./layouts/PublicLayout";
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -15,18 +14,14 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     setIsHydrated(true);
   }, []);
 
-  return (
-    <>
-      {!isHydrated ? (
-        <Loading />
-      ) : (
-        <>
-          <Navigation />
-          <LayoutContent>{children}</LayoutContent>
-          {!isAuthenticated && <Footer />}
-        </>
-      )}
-    </>
+  if (!isHydrated) {
+    return <Loading />;
+  }
+
+  return isAuthenticated ? (
+    <AuthenticatedLayout>{children}</AuthenticatedLayout>
+  ) : (
+    <PublicLayout>{children}</PublicLayout>
   );
 };
 

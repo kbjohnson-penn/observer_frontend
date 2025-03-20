@@ -99,19 +99,10 @@ const DashboardPublic = async () => {
     <Box
       w="full"
       px={{ base: 2, md: 4, lg: 6, xl: "5%", "2xl": "10%" }}
+      mt={4}
+      mb={8}
       className="dashboard-container"
     >
-      <Box as="header" mb={6} pt={4}>
-        <Heading
-          as="h1"
-          size="xl"
-          fontWeight="bold"
-          color="brand.penn-dark-blue"
-        >
-          Observer Platform Dashboard
-        </Heading>
-      </Box>
-
       <PlayGround
         patients={patients}
         providers={providers}
