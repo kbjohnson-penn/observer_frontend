@@ -30,7 +30,35 @@ interface ChartsDashboardProps {
   screenWidth: number;
   isFiltering: boolean;
   filteredEncounterDataLength: number;
+  // Add encounters from props to calculate last updated date
+  filteredEncounterData: any[];
 }
+
+// Function to get the most recent encounter date
+const getLastUpdatedDate = (encounters: any[]): string => {
+  if (!encounters || encounters.length === 0) {
+    return "N/A";
+  }
+
+  let latestDate: Date | null = null;
+
+  // Find the most recent encounter date
+  encounters.forEach((encounter) => {
+    if (encounter.encounter_date_and_time) {
+      const encounterDate = new Date(encounter.encounter_date_and_time);
+
+      // Check if this is a valid date
+      if (!isNaN(encounterDate.getTime())) {
+        if (!latestDate || encounterDate > latestDate) {
+          latestDate = encounterDate;
+        }
+      }
+    }
+  });
+
+  // Return formatted date or N/A if no valid dates found
+  return latestDate ? (latestDate as Date).toLocaleDateString() : "N/A";
+};
 
 const ChartsDashboard: React.FC<ChartsDashboardProps> = ({
   summaryStats,
@@ -44,9 +72,17 @@ const ChartsDashboard: React.FC<ChartsDashboardProps> = ({
   screenWidth,
   isFiltering,
   filteredEncounterDataLength,
+  filteredEncounterData,
 }) => {
   return (
     <Box flex="1" p={{ base: 4, md: 6 }}>
+      {/* Last Updated Text */}
+      <Box mb={2} textAlign="right">
+        <Text fontSize="xs" color="gray.500">
+          Last Updated: {getLastUpdatedDate(filteredEncounterData)}
+        </Text>
+      </Box>
+
       {/* Summary Statistics Cards */}
       <Box
         display="grid"

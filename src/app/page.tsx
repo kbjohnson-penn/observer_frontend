@@ -21,7 +21,7 @@ const Home: React.FC = () => {
 
   return (
     <Box py={8} className="min-h-[calc(100vh-120px)]">
-      <Container maxW="container.xl">
+      <Container maxW="container.xl" mt={8}>
         <Flex
           direction={{ base: "column", lg: "row" }}
           align="center"

@@ -95,9 +95,10 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
           legendType="circle"
         ></Scatter>
         <Legend
-          verticalAlign="top"
+          verticalAlign="bottom"
+          align="right"
           iconSize={12}
-          wrapperStyle={{ fontSize: "12px", marginBottom: "10px" }}
+          wrapperStyle={{ fontSize: "12px" }}
         />
       </ScatterChart>
     </ResponsiveContainer>

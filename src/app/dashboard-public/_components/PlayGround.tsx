@@ -362,6 +362,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
           screenWidth={screenWidth}
           isFiltering={isFiltering}
           filteredEncounterDataLength={filteredEncounterData.length}
+          filteredEncounterData={filteredEncounterData}
         />
       </Flex>
     </Box>

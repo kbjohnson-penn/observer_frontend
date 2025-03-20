@@ -46,52 +46,77 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
 };
 
 const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
-  // Format the label text
+  // Get the original label text
   let displayText = payload.value;
-  if (displayText === "Unknown or Not Reported") {
-    displayText = "Unknown";
-  }
+
+  // Create optimized display text based on specific label values
+  // This handles the exact updated labels you provided
+  const labelMap: Record<string, string[]> = {
+    "American Indian or Alaska Native": [
+      "American",
+      "Indian or",
+      "Alaska Native",
+    ],
+    Asian: ["Asian"],
+    "Native Hawaiian or Other Pacific Islander": [
+      "Native Hawaiian",
+      "or Other",
+      "Pacific Islander",
+    ],
+    "Black or African American": ["Black", "or", "African American"],
+    White: ["White"],
+    "More than One Race": ["More than", "One Race"],
+    Unknown: ["Unknown"],
+  };
 
   const isMobile = screenWidth <= 768;
   const isTablet = screenWidth > 768 && screenWidth <= 1024;
 
   // Adjust font size based on screen size
-  const fontSize = isMobile ? "9px" : isTablet ? "10px" : "12px";
+  const fontSize = isMobile ? "8px" : isTablet ? "9px" : "10px";
   const lineHeight = parseInt(fontSize) * 1.2;
 
-  // For short text (1-2 words), keep it on one line
-  // For longer text, split into multiple lines
-  const shouldSplit = displayText.length > 14;
+  // Get predefined lines for this label if available
+  let lines = labelMap[displayText] || [];
 
-  let firstLine = displayText;
-  let secondLine = "";
+  // If no predefined mapping exists, handle it generically
+  if (lines.length === 0) {
+    const words = displayText.split(" ");
 
-  if (shouldSplit) {
-    // Find a space near the middle to split on
-    const middle = Math.floor(displayText.length / 2);
-    let splitIndex = displayText.lastIndexOf(" ", middle);
-
-    if (splitIndex === -1) {
-      splitIndex = displayText.indexOf(" ", middle);
-    }
-
-    if (splitIndex !== -1) {
-      firstLine = displayText.substring(0, splitIndex);
-      secondLine = displayText.substring(splitIndex + 1);
+    if (words.length >= 4) {
+      // For very long text, split into 3 lines
+      const third = Math.ceil(words.length / 3);
+      lines = [
+        words.slice(0, third).join(" "),
+        words.slice(third, third * 2).join(" "),
+        words.slice(third * 2).join(" "),
+      ];
+    } else if (words.length >= 2) {
+      // For medium text, split into 2 lines
+      const half = Math.ceil(words.length / 2);
+      lines = [words.slice(0, half).join(" "), words.slice(half).join(" ")];
+    } else {
+      // For short text, keep as is
+      lines = [displayText];
     }
   }
 
   return (
     <g transform={`translate(${x},${y})`}>
-      <text x={0} y={0} textAnchor="middle" fill="#555" style={{ fontSize }}>
-        <tspan x={0} dy="0.6em">
-          {firstLine}
-        </tspan>
-        {secondLine && (
-          <tspan x={0} dy={lineHeight}>
-            {secondLine}
+      <text
+        x={0}
+        y={0}
+        textAnchor="middle"
+        fill="#555"
+        style={{ fontSize }}
+        // Apply rotation for better spacing if needed
+        transform={isMobile && lines.length < 2 ? "rotate(-30)" : ""}
+      >
+        {lines.map((line, index) => (
+          <tspan key={index} x={0} dy={index === 0 ? "0.6em" : lineHeight}>
+            {line}
           </tspan>
-        )}
+        ))}
       </text>
     </g>
   );
@@ -100,30 +125,59 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
 const EncountersByRacialGroupChart: React.FC<
   EncountersByRacialGroupChartProps
 > = ({ data, screenWidth = 1024 }) => {
+  // Increase the chart height based on the number of X-axis labels
+  // Long labels with multiple lines need more vertical space
+  const baseHeight = 350;
+  const hasLongLabels = data.some((item) =>
+    [
+      "American Indian or Alaska Native",
+      "Native Hawaiian or Other Pacific Islander",
+      "Black or African American",
+    ].includes(item.name)
+  );
+
+  // Calculate dynamic height - more height for charts with long labels
+  const dynamicHeight = hasLongLabels
+    ? Math.max(baseHeight, 320 + data.length * 10)
+    : baseHeight;
+
+  // Calculate the appropriate bar category gap
+  // For your specific labels, use targeted values
+  const categoryGap =
+    data.length <= 7
+      ? screenWidth <= 768
+        ? 8
+        : screenWidth <= 1024
+        ? 15
+        : 22
+      : screenWidth <= 768
+      ? 10
+      : 20;
+
   return (
-    <ResponsiveContainer width="100%" height={350}>
+    <ResponsiveContainer width="100%" height={dynamicHeight}>
       <BarChart
         width={500}
-        height={350}
+        height={dynamicHeight}
         data={data}
         barGap={5}
-        barCategoryGap={20}
+        barCategoryGap={categoryGap}
       >
         <XAxis
           dataKey="name"
-          height={60}
+          height={90} // Adequate height for the X-axis with line breaks
           tick={<CustomizedAxisTick screenWidth={screenWidth} />}
-          tickMargin={10}
+          tickMargin={12} // Moderate tick margin
           interval={0}
         />
         <YAxis
           allowDecimals={false}
-          style={{ fontSize: screenWidth <= 768 ? "11px" : "12px" }}
+          style={{ fontSize: screenWidth <= 768 ? "10px" : "11px" }}
         >
           <Label
             value="Total"
             angle={-90}
-            style={{ fontSize: "12px" }}
+            style={{ fontSize: "11px" }}
             offset={-5}
           />
         </YAxis>
@@ -131,21 +185,21 @@ const EncountersByRacialGroupChart: React.FC<
         <Legend
           verticalAlign="top"
           iconSize={12}
-          wrapperStyle={{ fontSize: "12px", marginBottom: "10px" }}
+          wrapperStyle={{ fontSize: "12px", marginBottom: "5px" }}
         />
         <Bar
           dataKey="patientCount"
           name="Patients"
           stackId="a"
           fill="#8884d8"
-          barSize={38}
+          barSize={screenWidth <= 768 ? 28 : 34} // Slightly smaller bars to allow more space between them
         />
         <Bar
           dataKey="providerCount"
           name="Providers"
           stackId="a"
           fill="#82ca9d"
-          barSize={38}
+          barSize={screenWidth <= 768 ? 28 : 34}
         />
       </BarChart>
     </ResponsiveContainer>
