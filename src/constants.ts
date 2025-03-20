@@ -2,10 +2,10 @@ export const RACIAL_CATEGORIES: { [key: string]: string } = {
   AI: "American Indian or Alaska Native",
   A: "Asian",
   NHPI: "Native Hawaiian or Other Pacific Islander",
-  B: "Black or African American",
   W: "White",
+  B: "Black or African American",
   M: "More than One Race",
-  UN: "Unknown or Not Reported",
+  UN: "Unknown",
 };
 
 export const ETHNIC_CATEGORIES: { [key: string]: string } = {
@@ -32,8 +32,8 @@ export const DEPARTMENT_COLORS: { [key: string]: string } = {
 
 export const SOURCE_OPTIONS = [
   // { value: "RIAS", label: "RIAS" },
-  { value: "SimCenter", label: "Simulation Center" },
-  { value: "Clinic", label: "Clinic" },
+  { value: "simcenter", label: "Simulation Center" },
+  { value: "clinic", label: "Clinic" },
 ];
 
 export const DEIDENTIFIED_OPTIONS = [

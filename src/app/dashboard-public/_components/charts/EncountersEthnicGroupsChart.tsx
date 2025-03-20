@@ -51,47 +51,47 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
   if (displayText === "Unknown or Not Reported Ethnicity") {
     displayText = "Unknown";
   }
-  
+
   const isMobile = screenWidth <= 768;
   const isTablet = screenWidth > 768 && screenWidth <= 1024;
 
   // Adjust font size based on screen size
-  const fontSize = isMobile ? "9px" : isTablet ? "10px" : "12px";
+  const fontSize = isMobile ? "8px" : isTablet ? "9px" : "10px";
   const lineHeight = parseInt(fontSize) * 1.2;
-  
+
   // For short text (1-2 words), keep it on one line
   // For longer text, split into multiple lines
   const shouldSplit = displayText.length > 14;
-  
+
   let firstLine = displayText;
   let secondLine = "";
-  
+
   if (shouldSplit) {
     // Find a space near the middle to split on
     const middle = Math.floor(displayText.length / 2);
     let splitIndex = displayText.lastIndexOf(" ", middle);
-    
+
     if (splitIndex === -1) {
       splitIndex = displayText.indexOf(" ", middle);
     }
-    
+
     if (splitIndex !== -1) {
       firstLine = displayText.substring(0, splitIndex);
       secondLine = displayText.substring(splitIndex + 1);
     }
   }
-  
+
   return (
     <g transform={`translate(${x},${y})`}>
-      <text
-        x={0}
-        y={0}
-        textAnchor="middle"
-        fill="#555"
-        style={{ fontSize }}
-      >
-        <tspan x={0} dy="0.6em">{firstLine}</tspan>
-        {secondLine && <tspan x={0} dy={lineHeight}>{secondLine}</tspan>}
+      <text x={0} y={0} textAnchor="middle" fill="#555" style={{ fontSize }}>
+        <tspan x={0} dy="0.6em">
+          {firstLine}
+        </tspan>
+        {secondLine && (
+          <tspan x={0} dy={lineHeight}>
+            {secondLine}
+          </tspan>
+        )}
       </text>
     </g>
   );
@@ -116,8 +116,8 @@ const EncountersEthinicGroupsChart: React.FC<
           tickMargin={10}
           interval={0}
         />
-        <YAxis 
-          allowDecimals={false} 
+        <YAxis
+          allowDecimals={false}
           style={{ fontSize: screenWidth <= 768 ? "11px" : "12px" }}
         >
           <Label

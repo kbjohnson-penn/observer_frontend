@@ -34,7 +34,7 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
   const isTablet = screenWidth > 768 && screenWidth <= 1024;
 
   // Adjust font size based on screen size
-  const fontSize = isMobile ? "9px" : isTablet ? "10px" : "12px";
+  const fontSize = isMobile ? "8px" : isTablet ? "9px" : "10px";
   const lineHeight = parseInt(fontSize) * 1.2;
 
   // For short text (1-2 words), keep it on one line

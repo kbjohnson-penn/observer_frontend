@@ -61,21 +61,17 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
   const month = format(zonedDate, "MMM");
   const day = format(zonedDate, "dd");
   const year = format(zonedDate, "yyyy");
-  
+
   const fontSize = isMobile ? "9px" : isTablet ? "10px" : "12px";
   const lineHeight = parseInt(fontSize) * 1.2;
 
   return (
     <g transform={`translate(${x},${y})`}>
-      <text
-        x={0}
-        y={0}
-        textAnchor="middle"
-        fill="#666"
-        style={{ fontSize }}
-      >
+      <text x={0} y={0} textAnchor="middle" fill="#666" style={{ fontSize }}>
         <tspan x={0} dy="0.6em">{`${month} ${day}`}</tspan>
-        <tspan x={0} dy={lineHeight}>{year}</tspan>
+        <tspan x={0} dy={lineHeight}>
+          {year}
+        </tspan>
       </text>
     </g>
   );
@@ -95,7 +91,7 @@ const EncountersOverTimeChart: React.FC<EncountersOverTimeChartProps> = ({
           top: 20,
           right: 20,
           left: 20,
-          bottom: 40
+          bottom: 40,
         }}
       >
         <XAxis

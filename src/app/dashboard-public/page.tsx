@@ -97,9 +97,8 @@ const DashboardPublic = async () => {
 
   return (
     <Box
-      maxW="1400px"
-      mx="auto"
-      px={{ base: 2, md: 4, lg: 6 }}
+      w="full"
+      px={{ base: 2, md: 4, lg: 6, xl: "5%", "2xl": "10%" }}
       className="dashboard-container"
     >
       <Box as="header" mb={6} pt={4}>

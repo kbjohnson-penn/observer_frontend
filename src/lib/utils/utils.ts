@@ -153,6 +153,12 @@ export const getEncountersByMultiModalData = (
 
   filteredEncounterData.forEach((encounter) => {
     // Convert multi_modal_data_id to string to ensure consistent lookup
+    // Skip encounters that don't have a valid multi_modal_data_id
+    if (!encounter.multi_modal_data_id) {
+      console.warn(`Encounter ${encounter.id} has no multi_modal_data_id`);
+      return;
+    }
+
     const matchedMultiModalDataPath =
       multiModalDataPathsLookup[String(encounter.multi_modal_data_id)];
 
@@ -162,6 +168,10 @@ export const getEncountersByMultiModalData = (
           data[key]++;
         }
       });
+    } else {
+      console.warn(
+        `No multimodal data found for encounter ${encounter.id} with multi_modal_data_id ${encounter.multi_modal_data_id}`
+      );
     }
   });
 
@@ -215,44 +225,59 @@ export const getEncountersByGroup = (
     };
   } = {};
 
+  // Initialize all possible groups
+  groupNames.forEach((group) => {
+    counts[group] = {
+      patientCount: new Set<number | string>(),
+      providerCount: new Set<number | string>(),
+    };
+  });
+
+  // Convert to lookup maps for more efficient lookup
+  const patientsMap = new Map(
+    patientsData.map((patient) => [String(patient.id), patient])
+  );
+  const providersMap = new Map(
+    providerData.map((provider) => [String(provider.id), provider])
+  );
+
   for (const encounter of filteredEncounterData) {
-    // Convert to string for consistent comparison if IDs are strings
-    const patientId =
-      typeof encounter.patient_id === "string"
-        ? encounter.patient_id
-        : encounter.patient_id;
+    // Skip if patient_id or provider_id is missing
+    if (!encounter.patient_id || !encounter.provider_id) {
+      console.warn(
+        `Encounter ${encounter.id} has missing patient_id or provider_id`
+      );
+      continue;
+    }
 
-    const providerId =
-      typeof encounter.provider_id === "string"
-        ? encounter.provider_id
-        : encounter.provider_id;
+    // Convert to string for consistent comparison
+    const patientId = String(encounter.patient_id);
+    const providerId = String(encounter.provider_id);
 
-    // Find matching patient and provider
-    const patient = patientsData.find(
-      (p) => String(p.id) === String(patientId)
-    );
-    const provider = providerData.find(
-      (p) => String(p.id) === String(providerId)
-    );
+    // Find matching patient and provider using Map lookup
+    const patient = patientsMap.get(patientId);
+    const provider = providersMap.get(providerId);
 
-    if (patient && provider && patient[groupKey] && provider[groupKey]) {
-      if (!counts[patient[groupKey]]) {
-        counts[patient[groupKey]] = {
-          patientCount: new Set<number | string>(),
-          providerCount: new Set<number | string>(),
-        };
+    // Handle patient data
+    if (patient && patient[groupKey]) {
+      const patientGroup = patient[groupKey];
+      if (counts[patientGroup]) {
+        counts[patientGroup].patientCount.add(patient.patient_id);
+      } else {
+        console.warn(`Unknown ${groupKey} group for patient: ${patientGroup}`);
       }
+    }
 
-      counts[patient[groupKey]].patientCount.add(patient.patient_id);
-
-      if (!counts[provider[groupKey]]) {
-        counts[provider[groupKey]] = {
-          patientCount: new Set<number | string>(),
-          providerCount: new Set<number | string>(),
-        };
+    // Handle provider data
+    if (provider && provider[groupKey]) {
+      const providerGroup = provider[groupKey];
+      if (counts[providerGroup]) {
+        counts[providerGroup].providerCount.add(provider.provider_id);
+      } else {
+        console.warn(
+          `Unknown ${groupKey} group for provider: ${providerGroup}`
+        );
       }
-
-      counts[provider[groupKey]].providerCount.add(provider.provider_id);
     }
   }
 
@@ -309,48 +334,84 @@ export const getSatisfactionData = (
 }[] => {
   const groupedData: GroupedDataType = filteredEncounterData
     .filter((encounter) => {
-      // Convert string satisfaction to number if needed and check if both aren't zero
-      const patientSat =
-        typeof encounter.patient_satisfaction === "string"
-          ? parseFloat(encounter.patient_satisfaction)
-          : encounter.patient_satisfaction;
+      // Skip encounters without satisfaction data
+      if (
+        encounter.patient_satisfaction === undefined ||
+        encounter.provider_satisfaction === undefined ||
+        encounter.patient_satisfaction === null ||
+        encounter.provider_satisfaction === null
+      ) {
+        return false;
+      }
 
-      const providerSat =
-        typeof encounter.provider_satisfaction === "string"
-          ? parseFloat(encounter.provider_satisfaction)
-          : encounter.provider_satisfaction;
+      try {
+        // Convert string satisfaction to number if needed and check if both aren't zero
+        const patientSat =
+          typeof encounter.patient_satisfaction === "string"
+            ? parseFloat(encounter.patient_satisfaction)
+            : encounter.patient_satisfaction;
 
-      return !(patientSat === 0 && providerSat === 0);
+        const providerSat =
+          typeof encounter.provider_satisfaction === "string"
+            ? parseFloat(encounter.provider_satisfaction)
+            : encounter.provider_satisfaction;
+
+        // Only include if the values are valid numbers
+        if (isNaN(patientSat) || isNaN(providerSat)) {
+          return false;
+        }
+
+        return !(patientSat === 0 && providerSat === 0);
+      } catch (error) {
+        console.warn(
+          `Error processing satisfaction data for encounter ${encounter.id}:`,
+          error
+        );
+        return false;
+      }
     })
     .map((encounter) => {
-      // Parse satisfaction values to numbers if they're strings
-      const patientSat =
-        typeof encounter.patient_satisfaction === "string"
-          ? parseFloat(encounter.patient_satisfaction)
-          : encounter.patient_satisfaction;
+      try {
+        // Parse satisfaction values to numbers if they're strings
+        const patientSat =
+          typeof encounter.patient_satisfaction === "string"
+            ? parseFloat(encounter.patient_satisfaction)
+            : encounter.patient_satisfaction;
 
-      const providerSat =
-        typeof encounter.provider_satisfaction === "string"
-          ? parseFloat(encounter.provider_satisfaction)
-          : encounter.provider_satisfaction;
+        const providerSat =
+          typeof encounter.provider_satisfaction === "string"
+            ? parseFloat(encounter.provider_satisfaction)
+            : encounter.provider_satisfaction;
 
-      const patientMaxScore = encounter.id <= 35 ? 4 : 5;
-      const providerMaxScore = encounter.id <= 35 ? 4 : 5;
+        // Use a default max score of 5 if id is missing
+        const patientMaxScore = encounter.id && encounter.id <= 35 ? 4 : 5;
+        const providerMaxScore = encounter.id && encounter.id <= 35 ? 4 : 5;
 
-      // Prevent division by zero with fallback to 0
-      const normalizedPatientSatisfaction = Math.min(
-        ((patientSat || 0) / patientMaxScore) * 100,
-        100
-      );
-      const normalizedProviderSatisfaction = Math.min(
-        ((providerSat || 0) / providerMaxScore) * 100,
-        100
-      );
+        // Prevent division by zero with fallback to 0
+        const normalizedPatientSatisfaction = Math.min(
+          ((patientSat || 0) / patientMaxScore) * 100,
+          100
+        );
+        const normalizedProviderSatisfaction = Math.min(
+          ((providerSat || 0) / providerMaxScore) * 100,
+          100
+        );
 
-      return {
-        patientSatisfaction: normalizedPatientSatisfaction,
-        providerSatisfaction: normalizedProviderSatisfaction,
-      };
+        return {
+          patientSatisfaction: normalizedPatientSatisfaction,
+          providerSatisfaction: normalizedProviderSatisfaction,
+        };
+      } catch (error) {
+        console.warn(
+          `Error normalizing satisfaction data for encounter ${encounter.id}:`,
+          error
+        );
+        // Return default values if there's an error
+        return {
+          patientSatisfaction: 0,
+          providerSatisfaction: 0,
+        };
+      }
     })
     .reduce((acc: GroupedDataType, curr) => {
       const key = `${curr.patientSatisfaction}-${curr.providerSatisfaction}`;
@@ -401,7 +462,8 @@ export const compileData = (
     multiModalData.map((item) => [item.id, item])
   );
 
-  const combinedData = filteredEncounterData.map((encounter) => {
+  // Filter out encounters with missing related data
+  const validEncounters = filteredEncounterData.filter((encounter) => {
     // Handle string or number ids for lookup
     const patient = patientsMap.get(
       typeof encounter.patient_id === "string"
@@ -421,8 +483,35 @@ export const compileData = (
         : encounter.multi_modal_data_id
     );
 
+    return patient && provider && multiModalDataPath;
+  });
+
+  const combinedData = validEncounters.map((encounter) => {
+    // Handle string or number ids for lookup
+    const patient = patientsMap.get(
+      typeof encounter.patient_id === "string"
+        ? parseInt(encounter.patient_id, 10)
+        : encounter.patient_id
+    );
+
+    const provider = providersMap.get(
+      typeof encounter.provider_id === "string"
+        ? parseInt(encounter.provider_id, 10)
+        : encounter.provider_id
+    );
+
+    const multiModalDataPath = multiModalDataMap.get(
+      typeof encounter.multi_modal_data_id === "string"
+        ? parseInt(encounter.multi_modal_data_id, 10)
+        : encounter.multi_modal_data_id
+    );
+
+    // This check is now redundant because of our filtering above, but kept for safety
     if (!patient || !provider || !multiModalDataPath) {
-      throw new Error("Patient, provider, or multi-modal data not found");
+      console.warn(
+        `Skipping encounter ${encounter.id} due to missing related data`
+      );
+      return null;
     }
 
     const safeEncounter = {
@@ -480,7 +569,10 @@ export const compileData = (
     }
   });
 
-  return combinedData as CombinedDataType[];
+  // Filter out any null values that might have been returned
+  const filteredCombinedData = combinedData.filter((data) => data !== null);
+
+  return filteredCombinedData as CombinedDataType[];
 };
 
 export const downloadData = (

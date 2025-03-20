@@ -89,7 +89,7 @@ const CustomizedAxisTick: React.FC<any> = (props) => {
   const isMobile = screenWidth <= 768;
   const isTablet = screenWidth > 768 && screenWidth <= 1024;
 
-  const fontSize = isMobile ? "9px" : isTablet ? "10px" : "12px";
+  const fontSize = isMobile ? "8px" : isTablet ? "9px" : "10px";
   const lineHeight = parseInt(fontSize) * 1.2;
 
   // For short text (1-2 words), keep it on one line
