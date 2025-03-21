@@ -4,90 +4,65 @@ import React from "react";
 import {
   Box,
   Container,
-  Grid,
-  GridItem,
+  Flex,
   Text,
-  Link,
-  VStack,
-  Icon,
-  Group,
-  Stack,
+  HStack,
+  Separator,
 } from "@chakra-ui/react";
-import { LuPhone, LuMail } from "react-icons/lu";
+import Link from "next/link";
+import Image from "next/image";
 
-const Footer = () => (
-  <Box
-    as="footer"
-    bg="brand.penn-dark-blue"
-    color="white"
-    p={{ base: 4, md: 6, lg: 8 }}
-    mt="auto"
-  >
-    <Container>
-      <Grid
-        h="200px"
-        templateRows="repeat(2, 1fr)"
-        templateColumns="repeat(4, 1fr)"
-        gap="6"
-        mb={2}
-      >
-        <GridItem rowSpan={2} colSpan={1}>
-          <VStack display="grid" alignItems="left">
-            <Text textStyle="lg" fontWeight="black">
-              Contact Us
+interface FooterProps {
+  variant?: "full" | "compact";
+}
+
+const Footer: React.FC<FooterProps> = ({ variant = "full" }) => {
+  return (
+    <Box
+      as="footer"
+      bg="brand.penn-dark-blue"
+      color="white"
+      p={4}
+      mt="auto"
+      width="100%"
+    >
+      <Container maxW="container.xl">
+        {variant === "full" ? (
+          <Flex direction="column" mb={4}>
+            <Text fontSize="lg" fontWeight="bold">
+              Observer Project
             </Text>
-            <Text textStyle="md" fontWeight="medium">
-              The OBSERVER Project
-            </Text>
-            <Stack mt={1}>
-              <Text textStyle="sm" fontWeight="light" lineHeight="0.8">
-                B202 Richards Medical Research Laboratories
-              </Text>
-              <Text textStyle="sm" fontWeight="light" lineHeight="0.8">
-                3700 Hamilton Walk
-              </Text>
-              <Text textStyle="sm" fontWeight="light" lineHeight="0.8">
-                University of Pennsylvania
-              </Text>
-              <Text textStyle="sm" fontWeight="light" lineHeight="0.8">
-                Philadelphia, PA 19104-6116
-              </Text>
-            </Stack>
-            <Stack mt={1}>
-              <Group>
-                <Icon fontSize="lg">
-                  <LuPhone />
-                </Icon>
-                <Link
-                  href="tel:215-573-5707"
-                  textStyle="sm"
-                  fontWeight="light"
-                  color="yellow.400"
-                  lineHeight="1"
-                >
-                  215-573-5707
-                </Link>
-              </Group>
-              <Group>
-                <Icon fontSize="lg">
-                  <LuMail />
-                </Icon>
-                <Link
-                  href="mailto:observerproject@pennmedicine.upenn.edu"
-                  textStyle="sm"
-                  fontWeight="light"
-                  color="yellow.400"
-                  lineHeight="1"
-                >
-                  Email Us
-                </Link>
-              </Group>
-            </Stack>
-          </VStack>
-        </GridItem>
-      </Grid>
-    </Container>
-  </Box>
-);
+            <Text fontSize="sm">A digital window into medicine</Text>
+          </Flex>
+        ) : (
+          <HStack justify="center" gap={4}>
+            <Link href="/">
+              <Text color="gray.200">Home</Text>
+            </Link>
+            <Link href="/dashboard-public">
+              <Text color="gray.200">Dashboard</Text>
+            </Link>
+          </HStack>
+        )}
+
+        <Separator borderColor="gray.600" my={4} />
+
+        <Flex justify="space-between" align="center">
+          <Text fontSize="xs" color="gray.400">
+            © {new Date().getFullYear()} OBSERVER Project
+          </Text>
+          <Box>
+            <Image
+              src="/ObserverLogoDarkBackground.svg"
+              width={100}
+              height={25}
+              alt="Observer Project"
+            />
+          </Box>
+        </Flex>
+      </Container>
+    </Box>
+  );
+};
 
 export default Footer;

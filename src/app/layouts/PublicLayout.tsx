@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import TopNavigation from "@/components/navigation/TopNavigation";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export default function PublicLayout({
@@ -10,12 +10,14 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <TopNavigation />
-      <main className="min-h-[calc(100vh-300px)]">
+    <div className="flex flex-col min-h-screen">
+      <Header variant="full" showLinks={true} />
+
+      <div className="flex-1 p-4 md:p-6 pt-24 md:pt-28 min-h-[calc(100vh-400px)]">
         {children}
-      </main>
-      <Footer />
-    </>
+      </div>
+
+      <Footer variant="full" />
+    </div>
   );
 }

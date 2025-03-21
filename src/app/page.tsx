@@ -21,7 +21,7 @@ const Home: React.FC = () => {
 
   return (
     <Box py={8} className="min-h-[calc(100vh-120px)]">
-      <Container maxW="container.xl" mt={8}>
+      <Container maxW="container.xl">
         <Flex
           direction={{ base: "column", lg: "row" }}
           align="center"
@@ -34,7 +34,7 @@ const Home: React.FC = () => {
             p={8}
             rounded="lg"
             shadow="md"
-            gap={6}
+            gap={3}
             align="stretch"
           >
             <Text
@@ -100,7 +100,7 @@ const Home: React.FC = () => {
               zIndex="0"
             />
             <Image
-              src="/ObserverLogoDarkBackground.svg"
+              src="/ObserverLogoLightBackground.svg"
               alt="Observer Project"
               width={450}
               height={450}
