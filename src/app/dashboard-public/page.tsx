@@ -98,9 +98,7 @@ const DashboardPublic = async () => {
   return (
     <Box
       w="full"
-      px={{ base: 2, md: 4, lg: 6, xl: "5%", "2xl": "10%" }}
-      mt={4}
-      mb={8}
+      px={{ base: 2, md: 4, lg: 6, xl: "2%" }}
       className="dashboard-container"
     >
       <PlayGround

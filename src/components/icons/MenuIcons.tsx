@@ -1,12 +1,12 @@
 import { chakra } from "@chakra-ui/react";
 
-export const MenuOpenIcon = () => (
+export const MenuCloseIcon = () => (
   <chakra.svg
-    fill="blue.500"
+    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
-    width="8"
-    height="8"
+    width="10"
+    height="10"
   >
     <path
       d="M18 6L6 18M6 6l12 12"
@@ -18,13 +18,13 @@ export const MenuOpenIcon = () => (
   </chakra.svg>
 );
 
-export const MenuCloseIcon = () => (
+export const MenuOpenIcon = () => (
   <chakra.svg
-    fill="blue.500"
+    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
-    width="8"
-    height="8"
+    width="10"
+    height="10"
   >
     <path
       d="M3 6h18M3 12h18M3 18h18"

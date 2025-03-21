@@ -2,6 +2,7 @@
 
 import React from "react";
 import Sidebar from "@/components/navigation/Sidebar";
+import Footer from "@/components/Footer";
 
 export default function AuthenticatedLayout({
   children,
@@ -9,11 +10,16 @@ export default function AuthenticatedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <div className="flex flex-row min-h-screen">
       <Sidebar />
-      <main className="ml-[250px] p-6 transition-all duration-300 md:ml-[250px] sm:ml-[70px]">
-        {children}
-      </main>
-    </>
+
+      <div className="flex flex-col flex-1 ml-[70px] md:ml-[250px] transition-[margin-left] duration-300 ease">
+        <div className="flex-1 p-4 md:p-6 min-h-[calc(100vh-100px)]">
+          {children}
+        </div>
+
+        <Footer variant="compact" />
+      </div>
+    </div>
   );
 }

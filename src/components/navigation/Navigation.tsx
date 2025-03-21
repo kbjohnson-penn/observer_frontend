@@ -3,27 +3,24 @@
 import React from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import Sidebar from "./Sidebar";
-import TopNavigation from "./TopNavigation";
+import Header from "../../components/Header";
+import { Box } from "@chakra-ui/react";
 
-/**
- * Navigation component that renders either Sidebar or TopNavigation
- * based on authentication status
- */
 const Navigation: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
     return (
-      <div className="fixed w-[250px] h-full z-50">
+      <Box position="fixed" zIndex={50}>
         <Sidebar />
-      </div>
+      </Box>
     );
   }
 
   return (
-    <div className="fixed w-full z-50">
-      <TopNavigation />
-    </div>
+    <Box position="fixed" width="full" zIndex={50}>
+      <Header variant="full" showLinks={true} />
+    </Box>
   );
 };
 

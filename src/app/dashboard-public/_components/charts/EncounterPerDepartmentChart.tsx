@@ -155,7 +155,7 @@ const EncounterPerDepartmentChart: React.FC<
         />
         <YAxis
           allowDecimals={false}
-          style={{ fontSize: screenWidth <= 768 ? "11px" : "12px" }}
+          style={{ fontSize: screenWidth <= 768 ? "10px" : "11px" }}
         >
           <Label
             value="Encounters"

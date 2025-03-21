@@ -202,7 +202,7 @@ const EncountersByMultiModalDataChart: React.FC<
         <YAxis
           type="number"
           allowDecimals={false}
-          style={{ fontSize: screenWidth <= 768 ? "12px" : "14px" }}
+          style={{ fontSize: screenWidth <= 768 ? "10px" : "11px" }}
         >
           <Label
             value="Total Available Data"

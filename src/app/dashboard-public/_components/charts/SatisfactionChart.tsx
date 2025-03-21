@@ -62,7 +62,7 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
           type="number"
           dataKey="patientSatisfaction"
           name="Patient Satisfaction"
-          style={{ fontSize: screenWidth <= 768 ? "11px" : "12px" }}
+          style={{ fontSize: screenWidth <= 768 ? "9px" : "10px" }}
           domain={[0, 100]}
         >
           <Label
@@ -76,7 +76,7 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
           type="number"
           dataKey="providerSatisfaction"
           name="Provider Satisfaction"
-          style={{ fontSize: screenWidth <= 768 ? "11px" : "12px" }}
+          style={{ fontSize: screenWidth <= 768 ? "10px" : "11px" }}
           domain={[0, 100]}
         >
           <Label

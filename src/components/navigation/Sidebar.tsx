@@ -3,9 +3,18 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Box, VStack, Text, Separator } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  Text,
+  Separator,
+  Icon,
+  Flex,
+  HStack,
+} from "@chakra-ui/react";
 import { useAuth } from "../../contexts/AuthContext";
 import { usePathname } from "next/navigation";
+import { LuHouse, LuLayoutDashboard, LuUser, LuLogOut } from "react-icons/lu";
 
 const Sidebar: React.FC = () => {
   const { logout } = useAuth();
@@ -16,87 +25,104 @@ const Sidebar: React.FC = () => {
     logout();
   };
 
-  const isActive = (route: string) => pathname === route;
+  const isActive = (route: string) =>
+    pathname === route || pathname.startsWith(route + "/");
+
+  const navItems = [
+    {
+      name: "Dashboard",
+      href: "/dashboard",
+      icon: LuLayoutDashboard,
+      isActive: isActive("/dashboard"),
+    },
+    { name: "Home", href: "/", icon: LuHouse, isActive: isActive("/") },
+    {
+      name: "Profile",
+      href: "/profile",
+      icon: LuUser,
+      isActive: isActive("/profile"),
+    },
+  ];
 
   return (
     <Box
-      as="nav"
+      as="aside"
       bg="brand.penn-dark-blue"
       color="white"
-      py={4}
-      px={6}
+      py={6}
+      px={4}
       height="100vh"
       position="fixed"
-      width="250px"
-      display={{ base: "none", md: "block" }}
+      width={{ base: "70px", md: "250px" }}
+      zIndex={10}
     >
-      <VStack align="start" gap={4}>
-        <Image
-          src="/ObserverLogoDarkBackground.svg"
-          width={200}
-          height={50}
-          alt="Penn Medicine logo"
-        />
-
-        <Separator orientation="vertical" borderColor="gray.600" />
-
-        <VStack align="start" gap={3} w="full">
-          <Link href="/dashboard" passHref>
-            <Text fontWeight={isActive("/dashboard") ? "bold" : "medium"}>
-              Dashboard
-            </Text>
+      <Flex direction="column" height="100%" justify="space-between">
+        <VStack gap={6} align="flex-start">
+          <Link href="/">
+            <Box overflow="hidden" whiteSpace="nowrap">
+              <Image
+                src="/ObserverLogoDarkBackground.svg"
+                width={180}
+                height={45}
+                alt="Observer Project"
+                priority
+              />
+            </Box>
           </Link>
 
-          {/* {isActive("/dashboard") && (
-            <VStack align="start" pl={4} gap={2}>
-              <Link href="/dashboard/encounters" passHref>
-                <Text
-                  fontWeight={
-                    isActive("/dashboard/encounters") ? "bold" : "medium"
-                  }
-                >
-                  Encounters
-                </Text>
-              </Link>
-              <Link href="/dashboard/patients" passHref>
-                <Text
-                  fontWeight={
-                    isActive("/dashboard/patients") ? "bold" : "medium"
-                  }
-                >
-                  Patients
-                </Text>
-              </Link>
-              <Link href="/dashboard/providers" passHref>
-                <Text
-                  fontWeight={
-                    isActive("/dashboard/providers") ? "bold" : "medium"
-                  }
-                >
-                  Providers
-                </Text>
-              </Link>
-            </VStack>
-          )} */}
+          <Separator borderColor="gray.600" />
 
-          <Link href="/profile" passHref>
-            <Text fontWeight={isActive("/profile") ? "bold" : "medium"}>
-              Profile
-            </Text>
-          </Link>
+          <VStack align="flex-start" gap={4} width="100%">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                style={{ width: "100%", display: "block" }}
+              >
+                <HStack
+                  px={2}
+                  py={2}
+                  gap={3}
+                  width="100%"
+                  borderRadius="md"
+                  bg={item.isActive ? "blue.700" : "transparent"}
+                  _hover={{ bg: "blue.700" }}
+                >
+                  <Box display="flex" alignItems="center">
+                    <Icon as={item.icon} boxSize={5} />
+                  </Box>
+                  <Text
+                    fontWeight={item.isActive ? "bold" : "medium"}
+                    display={{ base: "none", md: "block" }}
+                  >
+                    {item.name}
+                  </Text>
+                </HStack>
+              </Link>
+            ))}
+          </VStack>
         </VStack>
 
-        <Separator orientation="vertical" borderColor="gray.600" />
-
-        <Text
-          onClick={handleLogout}
-          cursor="pointer"
-          fontWeight="medium"
-          mt="auto"
-        >
-          Logout
-        </Text>
-      </VStack>
+        <Box width="100%" mb={4}>
+          <Separator borderColor="gray.600" mb={4} />
+          <HStack
+            px={2}
+            py={2}
+            gap={3}
+            cursor="pointer"
+            onClick={handleLogout}
+            borderRadius="md"
+            _hover={{ bg: "blue.700" }}
+          >
+            <Box display="flex" alignItems="center">
+              <Icon as={LuLogOut} boxSize={5} />
+            </Box>
+            <Text fontWeight="medium" display={{ base: "none", md: "block" }}>
+              Logout
+            </Text>
+          </HStack>
+        </Box>
+      </Flex>
     </Box>
   );
 };
