@@ -35,8 +35,6 @@ export interface MultiModalDataPathsDataType {
   provider_survey: boolean;
   patient_annotation: boolean;
   provider_annotation: boolean;
-  // rias_transcript: boolean;
-  // rias_codes: boolean;
 }
 
 export interface EncounterDataType {

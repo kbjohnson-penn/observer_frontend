@@ -9,5 +9,4 @@ export interface PublicMultiModalDataType {
   provider_survey: boolean;
   patient_annotation: boolean;
   provider_annotation: boolean;
-  timestamp: string;
 }

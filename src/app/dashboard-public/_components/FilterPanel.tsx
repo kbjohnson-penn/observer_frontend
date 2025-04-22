@@ -85,7 +85,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
       {/* De-identified Data Filter */}
       <Box mb={4}>
         <Text fontSize="sm" fontWeight="medium" mb={1} color="gray.700">
-          Data Type
+          De-identified Data
         </Text>
         <Select
           options={DEIDENTIFIED_OPTIONS}

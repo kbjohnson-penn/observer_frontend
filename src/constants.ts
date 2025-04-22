@@ -32,8 +32,8 @@ export const DEPARTMENT_COLORS: { [key: string]: string } = {
 
 export const SOURCE_OPTIONS = [
   // { value: "RIAS", label: "RIAS" },
-  { value: "simcenter", label: "Simulation Center" },
-  { value: "clinic", label: "Clinic" },
+  { value: "Simcenter", label: "Simulation Center" },
+  { value: "Clinic", label: "Clinic" },
 ];
 
 export const DEIDENTIFIED_OPTIONS = [
@@ -105,18 +105,15 @@ export const CSV_COLUMN_ORDER = [
   "patient_id",
   "encounter_source",
   "department",
-  "multi_modal_data_id",
   "encounter_date_and_time",
   "patient_satisfaction",
   "provider_satisfaction",
   "is_deidentified",
   "is_restricted",
-  "patient_patient_id",
   "patient_year_of_birth",
   "patient_sex",
   "patient_race",
   "patient_ethnicity",
-  "provider_provider_id",
   "provider_year_of_birth",
   "provider_sex",
   "provider_race",
@@ -130,6 +127,4 @@ export const CSV_COLUMN_ORDER = [
   "provider_survey",
   "patient_annotation",
   "provider_annotation",
-  // "rias_transcript",
-  // "rias_codes",
 ];

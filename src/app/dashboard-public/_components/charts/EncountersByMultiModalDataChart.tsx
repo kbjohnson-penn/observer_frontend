@@ -213,15 +213,7 @@ const EncountersByMultiModalDataChart: React.FC<
           />
         </YAxis>
         <Tooltip content={<CustomTooltip />} />
-        <Bar
-          dataKey="count"
-          barSize={45}
-          label={{
-            position: "top",
-            style: { fontSize: "12px", fill: "#666" },
-            formatter: (value: number) => (value > 0 ? value.toString() : ""),
-          }}
-        >
+        <Bar dataKey="count" barSize={45}>
           {sortedData.map((entry: GroupedDataItem) => (
             <Cell
               key={`cell-${entry.name}`}

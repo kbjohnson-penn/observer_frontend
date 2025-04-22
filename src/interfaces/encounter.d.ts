@@ -1,6 +1,6 @@
-import { PublicPatientDataType } from '@/interfaces/patient';
-import { PublicProviderDataType } from '@/interfaces/provider';
-import { PublicMultiModalDataType } from '@/interfaces/mmd';
+import { PublicPatientDataType } from "@/interfaces/patient";
+import { PublicProviderDataType } from "@/interfaces/provider";
+import { PublicMultiModalDataType } from "@/interfaces/mmd";
 
 export interface EncounterDataType {
   id: number;
@@ -45,7 +45,6 @@ export interface PublicEncounterDataType {
   provider_satisfaction: number | string;
   is_deidentified: boolean | string;
   is_restricted: boolean | string;
-  type: string;
 }
 
 export interface PublicEncounterSourceDataType {
