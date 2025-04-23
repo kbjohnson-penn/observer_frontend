@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({
       isActive: isActive("/dashboard-public"),
     },
     // { name: "Documentation", href: "/documentation", isActive: isActive("/documentation") },
-    { name: "Login", href: "/login", isActive: isActive("/login") },
+    // { name: "Login", href: "/login", isActive: isActive("/login") },
   ];
 
   return (
