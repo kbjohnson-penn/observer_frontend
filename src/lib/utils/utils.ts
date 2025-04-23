@@ -262,7 +262,7 @@ export const getEncountersByGroup = (
     if (patient && patient[groupKey]) {
       const patientGroup = patient[groupKey];
       if (counts[patientGroup]) {
-        counts[patientGroup].patientCount.add(patient.patient_id);
+        counts[patientGroup].patientCount.add(patient.id);
       } else {
         console.warn(`Unknown ${groupKey} group for patient: ${patientGroup}`);
       }
@@ -272,7 +272,7 @@ export const getEncountersByGroup = (
     if (provider && provider[groupKey]) {
       const providerGroup = provider[groupKey];
       if (counts[providerGroup]) {
-        counts[providerGroup].providerCount.add(provider.provider_id);
+        counts[providerGroup].providerCount.add(provider.id);
       } else {
         console.warn(
           `Unknown ${groupKey} group for provider: ${providerGroup}`
