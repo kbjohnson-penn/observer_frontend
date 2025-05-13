@@ -6,7 +6,7 @@ Please note we have a Code of Conduct, please follow it in all your interactions
 
 ## Reporting Issues/Features
 
-This section guides you through submitting a issue for the project. Following these guidelines helps maintainers and the community understand your issue, reproduce the issue and find related issues.
+This section guides you through submitting an issue for the project. Following these guidelines helps maintainers and the community understand your issue, reproduce the issue and find related issues.
 
 ### Issue Description
 
@@ -18,6 +18,22 @@ This section guides you through submitting a issue for the project. Following th
 6. Additional Information:
 
 Before submitting an issue or feature request, please check the existing issues as your issue might have already been noted.
+
+## Development Setup
+
+1. Fork and clone the repository
+2. Install dependencies with `npm install`
+3. Copy `.env.local.example` to `.env.local` and configure environment variables
+4. Run the development server with `npm run dev`
+5. Make your changes in a separate feature branch
+
+### Code Quality Checks
+
+Before submitting your changes, please ensure:
+
+- Linting passes with `npm run lint`
+- Type checks pass with `npm run type-check`
+- All tests pass with `npm run test`
 
 ## Pull Requests
 
@@ -31,8 +47,9 @@ The process described here has several goals:
 Please follow these steps to make your contribution considered:
 
 1. Create a feature branch from `dev`, make changes and raise a PR against it
-2. Please make sure that the feature branch is even with the develop branch while raising a PR.
+2. Please make sure that the feature branch is even with the develop branch while raising a PR
 3. Please ensure that all the testcases are passing to make sure that your changes didn't impact any other existing features
+4. Include screenshots or animated GIFs in your PR if the changes affect the UI
 
 While the prerequisites above must be satisfied prior to having your pull request reviewed, the reviewer(s) may ask you to complete additional design work, tests, or other changes before your pull request can be ultimately accepted.
 
@@ -50,3 +67,30 @@ While the prerequisites above must be satisfied prior to having your pull reques
   - lint: when lint errors are fixed
   - dep: when any of the dependencies are upgraded
   - chore: for any normal task, which is done as a part of above tasks like updating build scripts, gulp tasks, etc.
+
+### JavaScript/TypeScript Styleguide
+
+- Use TypeScript for all new code
+- Follow the ESLint configuration in the project
+- Write self-documenting code with meaningful variable and function names
+- Components should follow the project's established patterns
+
+### CSS Styleguide
+
+- Use a combination of Chakra UI components and TailwindCSS utility classes
+- Prefer Chakra UI's style props for component-specific styling
+- Use TailwindCSS utility classes for general layout and styling needs
+- Avoid writing custom CSS unless absolutely necessary
+
+### Documentation
+
+- Keep documentation up to date by updating relevant README sections and code comments
+- Document new features, components, or significant changes
+- Use JSDoc comments for functions and components
+
+## Additional Resources
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Chakra UI Documentation](https://chakra-ui.com/docs/getting-started)
+- [TailwindCSS Documentation](https://tailwindcss.com/docs)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)

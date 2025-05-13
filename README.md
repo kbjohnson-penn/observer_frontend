@@ -1,86 +1,129 @@
 # Observer Frontend
 
-## Installation
+A modern, responsive dashboard application for healthcare data visualization and analysis.
 
-Clone the repository
+## 🚀 Features
+
+- **Interactive Dashboards**: Visualize healthcare metrics and patient data
+- **Multi-Modal Data Analysis**: Analyze clinical data across various modalities
+- **User Authentication**: Secure login and role-based access control
+- **Responsive Design**: Optimized for desktop and mobile devices
+- **Dark/Light Mode**: Support for different color schemes via Chakra UI
+- **Hybrid Styling**: Combines TailwindCSS utility classes with Chakra UI components
+
+## 📋 Prerequisites
+
+- [Node.js](https://nodejs.org/) (v16.x or higher)
+- [npm](https://www.npmjs.com/) (v8.x or higher)
+
+## 🛠️ Installation
+
+1. **Clone the repository**
 
 ```bash
 git clone https://github.com/kbjohnson-penn/observer_frontend.git
 cd observer_frontend
 ```
 
-### Configuration
-
-Before running the project, configure your environment variables:
-
-Copy `.env.local.example` to `.env` and fill in the necessary settings.
-
-## Development Environment
-
-1. Install [Node.js](https://nodejs.org/en/download/package-manager)
-
-### Running the Project
-
-1. Install NPM packages
+2. **Install dependencies**
 
 ```bash
 npm install
 ```
 
-2. Run development server.
+3. **Configure environment variables**
+
+Copy the example environment file and update it with your settings:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Edit `.env.local` with your specific configuration values.
+
+## 🖥️ Development
+
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-Open http://localhost:3000 with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
 
-## Production Environment
+### Development Tools
 
-### Self-Hosting
+- **Linting**:
 
-1. Install [Node.js](https://nodejs.org/en/download/package-manager)
+  ```bash
+  npm run lint
+  ```
 
-2. Install NPM packages
+- **Type checking**:
+  ```bash
+  npm run type-check
+  ```
 
-```bash
-npm install
-```
+## 🏗️ Building for Production
 
-3. Build application
+1. **Generate production build**
 
 ```bash
 npm run build
 ```
 
-4. Start the Node.js server
+2. **Start production server**
 
 ```bash
 npm run start
 ```
 
-The application is now accessible via port **3000**.
+The application will be accessible at [http://localhost:3000](http://localhost:3000).
 
-### Docker Image
+## 🐳 Docker Deployment
 
-1. Install [Docker](https://docs.docker.com/get-docker/) on your machine.
-
-2. Build the container
+1. **Build the Docker image**
 
 ```bash
 docker build -t observer_frontend .
 ```
 
-3. Run the container
+2. **Run the container**
 
 ```bash
 docker run -p 3000:3000 observer_frontend
 ```
 
-## Contributing
+For a production environment, consider using Docker Compose with appropriate environment variables.
 
-Please read [CONTRIBUTING](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+## 🧩 Project Structure
 
-## Changelog
+```
+src/
+├── app/               # Next.js application pages and layouts
+├── components/        # Reusable UI components
+├── contexts/          # React context providers
+├── interfaces/        # TypeScript interfaces and type definitions
+├── lib/               # Utility functions and API client
+├── constants.ts       # Application constants and configuration
+└── middleware.ts      # Request/response middleware for auth and routing
+```
 
-Check [CHANGELOG](CHANGELOG.md) to get the version details.
+## 🤝 Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## 📜 Changelog
+
+For version details and update history, see [CHANGELOG.md](CHANGELOG.md).
+
+## 📄 License
+
+This project is licensed under the terms specified in the LICENSE file.
+
+## 🙏 Acknowledgements
+
+- [Next.js](https://nextjs.org/) - React framework
+- [Chakra UI](https://chakra-ui.com/) - Component library for React
+- [TailwindCSS](https://tailwindcss.com/) - Utility-first CSS framework
+- [TypeScript](https://www.typescriptlang.org/) - JavaScript with syntax for types
