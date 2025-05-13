@@ -35,8 +35,6 @@ export interface MultiModalDataPathsDataType {
   provider_survey: boolean;
   patient_annotation: boolean;
   provider_annotation: boolean;
-  rias_transcript: boolean;
-  rias_codes: boolean;
 }
 
 export interface EncounterDataType {
@@ -76,7 +74,7 @@ export interface EncounterRIASDataType {
   is_restricted: boolean;
 }
 
-export type CombinedEncounterDataType =
+export type PublicEncounterDataType =
   | EncounterDataType
   | EncounterSimCenterDataType
   | EncounterRIASDataType;
@@ -117,10 +115,55 @@ export interface FlattenedCombinedDataType {
   provider_survey: boolean;
   patient_annotation: boolean;
   provider_annotation: boolean;
-  rias_transcript: boolean;
-  rias_codes: boolean;
+  // rias_transcript: boolean;
+  // rias_codes: boolean;
 }
 
 export type CombinedDataType =
   | NestedCombinedDataType
   | FlattenedCombinedDataType;
+
+// Dashboard chart interfaces
+export interface DropDownOption {
+  value: string;
+  label: string;
+}
+
+export interface DepartmentCount {
+  department: string;
+  count: number;
+}
+
+export interface AccessCount {
+  access: string;
+  count: number;
+}
+
+export interface DepartmentAccessCount {
+  department: string;
+  accessControlled: number;
+  notAccessControlled: number;
+}
+
+export interface MultiModalDataCount {
+  name: string;
+  count: number;
+}
+
+export interface TimeSeriesCount {
+  date: string;
+  count: number;
+  cumulativeCount: number;
+}
+
+export interface DemographicCount {
+  name: string;
+  patientCount: number;
+  providerCount: number;
+}
+
+export interface SatisfactionCount {
+  patientSatisfaction: number;
+  providerSatisfaction: number;
+  count: number;
+}

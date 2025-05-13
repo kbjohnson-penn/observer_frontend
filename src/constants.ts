@@ -2,10 +2,10 @@ export const RACIAL_CATEGORIES: { [key: string]: string } = {
   AI: "American Indian or Alaska Native",
   A: "Asian",
   NHPI: "Native Hawaiian or Other Pacific Islander",
-  B: "Black or African American",
   W: "White",
+  B: "Black or African American",
   M: "More than One Race",
-  UN: "Unknown or Not Reported",
+  UN: "Unknown",
 };
 
 export const ETHNIC_CATEGORIES: { [key: string]: string } = {
@@ -21,19 +21,19 @@ export const GENDER_CATEGORIES: { [key: string]: string } = {
 };
 
 export const DEPARTMENT_COLORS: { [key: string]: string } = {
-  "SimCenter": "#8ED081",
+  SimCenter: "#8ED081",
   Oncology: "#B4D2BA",
   "Primary Care": "#DCE2AA",
   Neurology: "#FFD700",
-  "Fmaily Medicine": "#B57F50",
+  "Family Medicine": "#B57F50",
   Cardiology: "#FFC0CB",
   Orthopedics: "#4B543B",
 };
 
 export const SOURCE_OPTIONS = [
-  { value: "RIAS", label: "RIAS" },
-  { value: "SimCenter", label: "Simulation Center" },
+  { value: "Simcenter", label: "Simulation Center" },
   { value: "Clinic", label: "Clinic" },
+  { value: "Pennpersonalizedcare", label: "Penn Personalized Care" }
 ];
 
 export const DEIDENTIFIED_OPTIONS = [
@@ -70,8 +70,6 @@ export const MULTI_MODAL_DATA_OPTIONS = [
   { value: "provider_survey", label: "Provider Survey" },
   { value: "patient_annotation", label: "Patient Annotation" },
   { value: "provider_annotation", label: "Provider Annotation" },
-  { value: "rias_transcript", label: "RIAS Transcript" },
-  { value: "rias_codes", label: "RIAS Codes" },
 ];
 
 export const MULTI_MODAL_DATA_PATHS_COLORS: { [key: string]: string } = {
@@ -84,8 +82,8 @@ export const MULTI_MODAL_DATA_PATHS_COLORS: { [key: string]: string } = {
   provider_survey: "#3E2723",
   patient_annotation: "#FFD600",
   provider_annotation: "#FF6D00",
-  rias_transcript: "#FF8042",
-  rias_codes: "#F1C40F",
+  // rias_transcript: "#FF8042",
+  // rias_codes: "#F1C40F",
 };
 
 export const NODE_COLORS: { [key: string]: string } = {
@@ -107,18 +105,15 @@ export const CSV_COLUMN_ORDER = [
   "patient_id",
   "encounter_source",
   "department",
-  "multi_modal_data_id",
   "encounter_date_and_time",
   "patient_satisfaction",
   "provider_satisfaction",
   "is_deidentified",
   "is_restricted",
-  "patient_patient_id",
   "patient_year_of_birth",
   "patient_sex",
   "patient_race",
   "patient_ethnicity",
-  "provider_provider_id",
   "provider_year_of_birth",
   "provider_sex",
   "provider_race",
@@ -132,6 +127,4 @@ export const CSV_COLUMN_ORDER = [
   "provider_survey",
   "patient_annotation",
   "provider_annotation",
-  "rias_transcript",
-  "rias_codes",
 ];
