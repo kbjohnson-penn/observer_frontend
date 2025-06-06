@@ -68,29 +68,24 @@ While the prerequisites above must be satisfied prior to having your pull reques
   - dep: when any of the dependencies are upgraded
   - chore: for any normal task, which is done as a part of above tasks like updating build scripts, gulp tasks, etc.
 
-### JavaScript/TypeScript Styleguide
+### Code Styleguide
 
-- Use TypeScript for all new code
-- Follow the ESLint configuration in the project
-- Write self-documenting code with meaningful variable and function names
-- Components should follow the project's established patterns
+- Write clear, self-documenting code with meaningful variable and function names
+- Follow the project's established coding patterns
+- Ensure code quality and consistency
 
-### CSS Styleguide
+### Styling Guidelines
 
-- Use a combination of Chakra UI components and TailwindCSS utility classes
-- Prefer Chakra UI's style props for component-specific styling
-- Use TailwindCSS utility classes for general layout and styling needs
-- Avoid writing custom CSS unless absolutely necessary
+- Follow the project's established styling patterns
+- Maintain consistency with existing components
+- Prioritize responsive design and accessibility
 
 ### Documentation
 
 - Keep documentation up to date by updating relevant README sections and code comments
 - Document new features, components, or significant changes
-- Use JSDoc comments for functions and components
+- Use clear comments to explain complex logic
 
 ## Additional Resources
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Chakra UI Documentation](https://chakra-ui.com/docs/getting-started)
-- [TailwindCSS Documentation](https://tailwindcss.com/docs)
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+Please refer to the relevant framework and library documentation for specific implementation details.

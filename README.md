@@ -8,8 +8,7 @@ A modern, responsive dashboard application for healthcare data visualization and
 - **Multi-Modal Data Analysis**: Analyze clinical data across various modalities
 - **User Authentication**: Secure login and role-based access control
 - **Responsive Design**: Optimized for desktop and mobile devices
-- **Dark/Light Mode**: Support for different color schemes via Chakra UI
-- **Hybrid Styling**: Combines TailwindCSS utility classes with Chakra UI components
+- **Dark/Light Mode**: Support for different color schemes
 
 ## 📋 Prerequisites
 
@@ -123,7 +122,4 @@ This project is licensed under the terms specified in the LICENSE file.
 
 ## 🙏 Acknowledgements
 
-- [Next.js](https://nextjs.org/) - React framework
-- [Chakra UI](https://chakra-ui.com/) - Component library for React
-- [TailwindCSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [TypeScript](https://www.typescriptlang.org/) - JavaScript with syntax for types
+This project is built using modern web technologies and frameworks to deliver a robust healthcare data visualization platform.
