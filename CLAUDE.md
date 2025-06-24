@@ -39,7 +39,7 @@ Note: No test scripts are currently configured in package.json despite being ref
 - `src/components/ui/` - Chakra UI component wrappers and custom components
 - `src/components/navigation/` - Navigation and sidebar components
 - `src/contexts/` - React contexts (currently only AuthContext)
-- `src/interfaces/` - TypeScript type definitions for data models
+- `src/interfaces/` - TypeScript type definitions for data models (all .d.ts files)
 - `src/lib/` - Utilities and API client configuration
 
 ### API Integration
@@ -59,7 +59,47 @@ NEXT_PUBLIC_BACKEND_API=http://127.0.0.1:8000/api/v1
 - Use TailwindCSS classes for layout and general styling
 - Avoid custom CSS unless necessary
 
+## Current Implementation Status
+
+### Dashboard Features
+- **Main Dashboard** (`/dashboard`) - Private encounters list with authentication
+  - Displays 200 encounters with pagination (20 per page)
+  - Rich encounter details with patient/provider demographics
+  - Status badges: De-ID (green), Restricted (red), Open Data (gray)
+  - File type summaries and counts
+  - Uses private API endpoints with JWT authentication
+
+- **Public Dashboard** (`/dashboard-public`) - Public data visualization
+  - Interactive charts and analytics
+  - Uses public API endpoints (no authentication required)
+
+### TypeScript Interface Architecture
+**IMPORTANT**: All interfaces moved to `.d.ts` files following TypeScript conventions.
+
+#### Interface Files Structure:
+- `encounter.d.ts` - **Private API interfaces** (primary dashboard usage)
+  - `Encounter` - Main interface with ID references (provider: number, patient: number)
+  - `EncounterWithDetails` - Full nested objects for detailed views
+  - `EncounterListResponse` - API pagination wrapper
+  - `EncounterDataType` - Legacy interface for utilities (case_id, encounterfile_ids)
+
+- `interfaces.d.ts` - **Public API interfaces** (dashboard-public usage)
+  - `EncounterDataType` - Public format (provider_id, patient_id as strings)
+  - Chart and analytics interfaces
+  - Legacy combined data types
+
+- `patient.d.ts` - Patient interfaces (`Patient`, `PatientDataType`, `PublicPatientDataType`)
+- `provider.d.ts` - Provider interfaces (`Provider`, `ProviderDataType`, `PublicProviderDataType`)
+- `department.d.ts` - Department interfaces (`Department`, `DepartmentDataType`)
+- `mmd.d.ts` - Multi-modal data interfaces
+
+#### API Endpoint Usage:
+- **Private endpoints** (`/private/*`) - Require JWT authentication, return ID references
+- **Public endpoints** (`/public/*`) - No authentication, return full data or strings
+
 ### Development Workflow
 - Work in feature branches, create PRs against `dev` branch
 - Follow conventional commit format: `feat:`, `fix:`, `docs:`, etc.
 - Authentication is currently disabled in middleware for development
+- **Always use `.d.ts` files for new interfaces** - follow TypeScript conventions
+- Interface naming: Use appropriate file based on API endpoint type (private vs public)

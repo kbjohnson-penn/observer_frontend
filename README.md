@@ -1,125 +1,106 @@
 # Observer Frontend
 
-A modern, responsive dashboard application for healthcare data visualization and analysis.
+Next.js 14 frontend application for healthcare data visualization and analysis.
 
-## 🚀 Features
+## Features
 
-- **Interactive Dashboards**: Visualize healthcare metrics and patient data
-- **Multi-Modal Data Analysis**: Analyze clinical data across various modalities
-- **User Authentication**: Secure login and role-based access control
+- **Interactive Dashboards**: Healthcare metrics and patient data visualization
+- **JWT Authentication**: Secure token-based authentication with auto-refresh
 - **Responsive Design**: Optimized for desktop and mobile devices
-- **Dark/Light Mode**: Support for different color schemes
+- **Hybrid Styling**: Chakra UI v3 components + TailwindCSS utilities
+- **TypeScript**: Full type safety and IntelliSense support
+- **App Router**: Next.js 14 App Router architecture
 
-## 📋 Prerequisites
+**Note**: This is a Git submodule. For Docker setup, see the main repository README.
 
-- [Node.js](https://nodejs.org/) (v16.x or higher)
-- [npm](https://www.npmjs.com/) (v8.x or higher)
+## Development Setup
 
-## 🛠️ Installation
+**Prerequisites**: This submodule is designed to run via Docker from the main repository.
 
-1. **Clone the repository**
+### Local Development (without Docker)
 
-```bash
-git clone https://github.com/kbjohnson-penn/observer_frontend.git
-cd observer_frontend
-```
-
-2. **Install dependencies**
+If you need to run locally:
 
 ```bash
+# Install dependencies
 npm install
-```
 
-3. **Configure environment variables**
+# Configure environment (see main repo /env/ files)
+# Copy .env.local.example to .env.local if needed
 
-Copy the example environment file and update it with your settings:
-
-```bash
-cp .env.local.example .env.local
-```
-
-Edit `.env.local` with your specific configuration values.
-
-## 🖥️ Development
-
-Start the development server:
-
-```bash
+# Start development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
-
-### Development Tools
-
-- **Linting**:
-
-  ```bash
-  npm run lint
-  ```
-
-- **Type checking**:
-  ```bash
-  npm run type-check
-  ```
-
-## 🏗️ Building for Production
-
-1. **Generate production build**
+### Available Scripts
 
 ```bash
-npm run build
+npm run dev         # Development server
+npm run build       # Production build
+npm run start       # Production server
+npm run lint        # ESLint checks
+npx tsc --noEmit    # TypeScript checks
 ```
 
-2. **Start production server**
+## Architecture
 
-```bash
-npm run start
-```
+### Framework Stack
 
-The application will be accessible at [http://localhost:3000](http://localhost:3000).
+- **Next.js 14** with App Router
+- **TypeScript** for type safety
+- **Chakra UI v3** component library
+- **TailwindCSS** utility classes (hybrid approach)
+- **Axios** for API communication with JWT token management
 
-## 🐳 Docker Deployment
+### Authentication System
 
-1. **Build the Docker image**
+- JWT-based authentication with access/refresh tokens
+- Automatic token refresh via axios interceptors
+- AuthContext provides authentication state management
+- Protected routes via middleware
 
-```bash
-docker build -t observer_frontend .
-```
-
-2. **Run the container**
-
-```bash
-docker run -p 3000:3000 observer_frontend
-```
-
-For a production environment, consider using Docker Compose with appropriate environment variables.
-
-## 🧩 Project Structure
+### Project Structure
 
 ```
 src/
-├── app/               # Next.js application pages and layouts
+├── app/               # Next.js App Router pages and layouts
+│   ├── dashboard/     # Protected dashboard pages
+│   ├── login/         # Authentication pages
+│   └── layout.tsx     # Root layout with providers
 ├── components/        # Reusable UI components
-├── contexts/          # React context providers
-├── interfaces/        # TypeScript interfaces and type definitions
-├── lib/               # Utility functions and API client
-├── constants.ts       # Application constants and configuration
-└── middleware.ts      # Request/response middleware for auth and routing
+│   ├── ui/            # Chakra UI component wrappers
+│   └── navigation/    # Navigation and layout components
+├── contexts/          # React context providers (AuthContext)
+├── interfaces/        # TypeScript type definitions
+├── lib/               # API client and utilities
+└── middleware.ts      # Authentication middleware
 ```
 
-## 🤝 Contributing
+### Environment Configuration
+
+```bash
+# Required environment variable
+NEXT_PUBLIC_BACKEND_API=http://backend:8000/api/v1
+```
+
+### Styling Approach
+
+- **Hybrid styling**: Chakra UI components with TailwindCSS utilities
+- Use Chakra UI's style props for component-specific styling
+- Use TailwindCSS classes for layout and general styling
+- Responsive design with mobile-first approach
+
+### API Integration
+
+- API client with automatic JWT token management
+- Axios interceptors for authentication and error handling
+- Type-safe API calls with TypeScript interfaces
+- Error handling and loading states
+
+## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-## 📜 Changelog
+## Changelog
 
 For version details and update history, see [CHANGELOG.md](CHANGELOG.md).
-
-## 📄 License
-
-This project is licensed under the terms specified in the LICENSE file.
-
-## 🙏 Acknowledgements
-
-This project is built using modern web technologies and frameworks to deliver a robust healthcare data visualization platform.

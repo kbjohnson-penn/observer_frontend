@@ -1,56 +1,81 @@
-import axios from "axios";
-import Cookies from "js-cookie";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
-const apiClient = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_BACKEND_API}`, // Replace with your backend API URL
-  timeout: 5000,
-});
+// Extend the AxiosRequestConfig to include _retry property
+interface RetryAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
-// Attach access token to all requests
-apiClient.interceptors.request.use(
-  (config) => {
-    const accessToken = Cookies.get("accessToken");
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// Create axios instance with base configuration
+const createApiClient = () => {
+  const instance = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-// Handle 401 errors by refreshing tokens
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        // Call refresh API
-        const refreshToken = Cookies.get("refreshToken");
-        if (!refreshToken) throw new Error("No refresh token");
-
-        const { data } = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_API}/auth/token/refresh`,
-          {
-            refresh: refreshToken,
-          }
-        );
-
-        // Update tokens
-        Cookies.set("accessToken", data.access, { secure: true });
-        originalRequest.headers.Authorization = `Bearer ${data.access}`;
-        return axios(originalRequest);
-      } catch (refreshError) {
-        // Logout if refresh fails
-        Cookies.remove("accessToken");
-        Cookies.remove("refreshToken");
-        window.location.href = "/login";
-        return Promise.reject(refreshError);
+  // Request interceptor to add auth token
+  instance.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("access_token");
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
-    }
-    return Promise.reject(error);
-  }
-);
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
 
-export default apiClient;
+  // Response interceptor to handle token refresh
+  instance.interceptors.response.use(
+    (response) => response,
+    async (error: AxiosError) => {
+      const originalRequest = error.config as RetryAxiosRequestConfig;
+
+      if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+        originalRequest._retry = true;
+
+        try {
+          const refreshToken = localStorage.getItem("refresh_token");
+          if (!refreshToken) {
+            throw new Error("No refresh token available");
+          }
+
+          const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/token/refresh/`, {
+            refresh: refreshToken,
+          });
+
+          const { access, refresh: newRefresh } = response.data;
+          localStorage.setItem("access_token", access);
+          
+          if (newRefresh) {
+            localStorage.setItem("refresh_token", newRefresh);
+          }
+
+          // Retry the original request with new token
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${access}`;
+          }
+          
+          return instance(originalRequest);
+        } catch (refreshError) {
+          // Refresh failed, clear tokens and redirect to login
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          
+          // Emit custom event for auth failure
+          window.dispatchEvent(new CustomEvent("auth:failed"));
+          
+          return Promise.reject(refreshError);
+        }
+      }
+
+      return Promise.reject(error);
+    }
+  );
+
+  return instance;
+};
+
+// Export the configured axios instance
+export const apiClient = createApiClient();

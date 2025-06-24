@@ -20,29 +20,20 @@ const Footer: React.FC<FooterProps> = ({ variant = "full" }) => {
   return (
     <Box
       as="footer"
-      bg="brand.penn-dark-blue"
+      bg="blue.800"
       color="white"
       p={4}
       mt="auto"
       width="100%"
     >
       <Container maxW="container.xl">
-        {variant === "full" ? (
+        {variant === "full" && (
           <Flex direction="column" mb={4}>
-            <Text fontSize="lg" fontWeight="bold">
+            <Text fontSize="lg" fontWeight="bold" color="white">
               Observer Project
             </Text>
-            <Text fontSize="sm">A digital window into medicine</Text>
+            <Text fontSize="sm" color="gray.300">A digital window into medicine</Text>
           </Flex>
-        ) : (
-          <HStack justify="center" gap={4}>
-            <Link href="/">
-              <Text color="gray.200">Home</Text>
-            </Link>
-            <Link href="/dashboard-public">
-              <Text color="gray.200">Dashboard</Text>
-            </Link>
-          </HStack>
         )}
 
         <Separator borderColor="gray.600" my={4} />

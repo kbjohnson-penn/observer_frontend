@@ -167,3 +167,21 @@ export interface SatisfactionCount {
   providerSatisfaction: number;
   count: number;
 }
+
+// Legacy types from encounter.ts for backward compatibility
+export interface CombinedDataTypeOld {
+  encounters: PublicEncounterDataType[];
+  encounterSources: any[];
+  departments: any[];
+  patients: any[];
+  providers: any[];
+  multiModalData: any[];
+}
+
+export interface FlattenedCombinedDataTypeOld {
+  [key: string]: any;
+}
+
+export interface NestedCombinedDataTypeOld {
+  [key: string]: any;
+}
