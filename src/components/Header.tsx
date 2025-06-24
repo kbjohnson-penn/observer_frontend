@@ -3,12 +3,12 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Box, Flex, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
+import { Box, Flex, HStack, IconButton, Text, VStack, Button } from "@chakra-ui/react";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import { MenuOpenIcon, MenuCloseIcon } from "./icons/MenuIcons";
 
 interface HeaderProps {
-  variant?: "full" | "compact";
   showLinks?: boolean;
   logo?: {
     width: number;
@@ -23,31 +23,47 @@ interface NavLink {
 }
 
 const Header: React.FC<HeaderProps> = ({
-  variant = "full",
   showLinks = true,
   logo = { width: 200, height: 50 },
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { isAuthenticated, logout } = useAuth();
   const isActive = (route: string) => pathname === route;
 
-  const navLinks: NavLink[] = [
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  // Different nav links based on authentication status
+  const navLinks: NavLink[] = isAuthenticated ? [
+    { name: "Dashboard", href: "/dashboard", isActive: isActive("/dashboard") },
+  ] : [
     { name: "Home", href: "/", isActive: isActive("/") },
     {
       name: "Dashboard",
       href: "/dashboard-public",
       isActive: isActive("/dashboard-public"),
     },
+    {
+      name: "Login",
+      href: "/login",
+      isActive: isActive("/login"),
+    },
   ];
 
   return (
     <Box
       as="header"
-      bg="brand.penn-dark-blue"
+      bg="blue.800"
       color="white"
       py={4}
       px={6}
-      width={variant === "full" ? "full" : "auto"}
+      width="100%"
       position="fixed"
       top={0}
       zIndex={40}
@@ -67,12 +83,13 @@ const Header: React.FC<HeaderProps> = ({
 
         {showLinks && (
           <>
-            <HStack gap={6} display={{ base: "none", md: "flex" }}>
+            <HStack gap={6} display={{ base: "none", md: "flex" }} alignItems="center">
               {navLinks.map((link) => (
                 <Box key={link.name}>
                   <Link href={link.href}>
                     <Text
                       fontWeight={link.isActive ? "bold" : "medium"}
+                      color="white"
                       _hover={{ color: "blue.200" }}
                       transition="color 0.2s ease"
                     >
@@ -81,6 +98,20 @@ const Header: React.FC<HeaderProps> = ({
                   </Link>
                 </Box>
               ))}
+              
+              {isAuthenticated && (
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  colorScheme="whiteAlpha"
+                  size="sm"
+                  color="white"
+                  borderColor="white"
+                  _hover={{ bg: "whiteAlpha.200" }}
+                >
+                  Logout
+                </Button>
+              )}
             </HStack>
 
             {/* Mobile Menu Toggle */}
@@ -117,6 +148,7 @@ const Header: React.FC<HeaderProps> = ({
               <Link href={link.href}>
                 <Text
                   fontWeight={link.isActive ? "bold" : "medium"}
+                  color="white"
                   py={2}
                   px={3}
                   borderRadius="md"
@@ -131,6 +163,23 @@ const Header: React.FC<HeaderProps> = ({
               </Link>
             </Box>
           ))}
+          
+          {isAuthenticated && (
+            <Box mt={4} pt={4} borderTop="1px" borderColor="blue.700">
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                colorScheme="whiteAlpha"
+                size="sm"
+                color="white"
+                borderColor="white"
+                _hover={{ bg: "whiteAlpha.200" }}
+                width="100%"
+              >
+                Logout
+              </Button>
+            </Box>
+          )}
         </VStack>
       )}
     </Box>
