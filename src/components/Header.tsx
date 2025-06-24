@@ -42,6 +42,7 @@ const Header: React.FC<HeaderProps> = ({
   // Different nav links based on authentication status
   const navLinks: NavLink[] = isAuthenticated ? [
     { name: "Dashboard", href: "/dashboard", isActive: isActive("/dashboard") },
+    { name: "Profile", href: "/profile", isActive: isActive("/profile") },
   ] : [
     { name: "Home", href: "/", isActive: isActive("/") },
     {
