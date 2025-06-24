@@ -36,12 +36,16 @@ const Footer: React.FC<FooterProps> = ({ variant = "full" }) => {
           </Flex>
         ) : (
           <HStack justify="center" gap={4}>
-            <Link href="/">
-              <Text color="gray.200">Home</Text>
-            </Link>
-            <Link href="/dashboard-public">
-              <Text color="gray.200">Dashboard</Text>
-            </Link>
+            <Box>
+              <Link href="/">
+                <Text color="gray.200">Home</Text>
+              </Link>
+            </Box>
+            <Box>
+              <Link href="/dashboard-public">
+                <Text color="gray.200">Dashboard</Text>
+              </Link>
+            </Box>
           </HStack>
         )}
 

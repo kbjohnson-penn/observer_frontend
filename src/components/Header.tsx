@@ -38,8 +38,6 @@ const Header: React.FC<HeaderProps> = ({
       href: "/dashboard-public",
       isActive: isActive("/dashboard-public"),
     },
-    // { name: "Documentation", href: "/documentation", isActive: isActive("/documentation") },
-    // { name: "Login", href: "/login", isActive: isActive("/login") },
   ];
 
   return (
@@ -55,29 +53,33 @@ const Header: React.FC<HeaderProps> = ({
       zIndex={40}
     >
       <Flex justify="space-between" align="center">
-        <Link href="/">
-          <Image
-            src="/ObserverLogoDarkBackground.svg"
-            width={logo.width}
-            height={logo.height}
-            alt="Observer Project"
-            priority
-          />
-        </Link>
+        <Box>
+          <Link href="/">
+            <Image
+              src="/ObserverLogoDarkBackground.svg"
+              width={logo.width}
+              height={logo.height}
+              alt="Observer Project"
+              priority
+            />
+          </Link>
+        </Box>
 
         {showLinks && (
           <>
             <HStack gap={6} display={{ base: "none", md: "flex" }}>
               {navLinks.map((link) => (
-                <Link key={link.name} href={link.href}>
-                  <Text
-                    fontWeight={link.isActive ? "bold" : "medium"}
-                    _hover={{ color: "blue.200" }}
-                    transition="color 0.2s ease"
-                  >
-                    {link.name}
-                  </Text>
-                </Link>
+                <Box key={link.name}>
+                  <Link href={link.href}>
+                    <Text
+                      fontWeight={link.isActive ? "bold" : "medium"}
+                      _hover={{ color: "blue.200" }}
+                      transition="color 0.2s ease"
+                    >
+                      {link.name}
+                    </Text>
+                  </Link>
+                </Box>
               ))}
             </HStack>
 
@@ -111,21 +113,23 @@ const Header: React.FC<HeaderProps> = ({
           borderColor="blue.700"
         >
           {navLinks.map((link) => (
-            <Link key={link.name} href={link.href}>
-              <Text
-                fontWeight={link.isActive ? "bold" : "medium"}
-                py={2}
-                px={3}
-                borderRadius="md"
-                _hover={{ bg: "blue.700" }}
-                bg={link.isActive ? "blue.700" : "transparent"}
-                transition="background 0.2s ease"
-                display="block"
-                width="100%"
-              >
-                {link.name}
-              </Text>
-            </Link>
+            <Box key={link.name}>
+              <Link href={link.href}>
+                <Text
+                  fontWeight={link.isActive ? "bold" : "medium"}
+                  py={2}
+                  px={3}
+                  borderRadius="md"
+                  _hover={{ bg: "blue.700" }}
+                  bg={link.isActive ? "blue.700" : "transparent"}
+                  transition="background 0.2s ease"
+                  display="block"
+                  width="100%"
+                >
+                  {link.name}
+                </Text>
+              </Link>
+            </Box>
           ))}
         </VStack>
       )}
