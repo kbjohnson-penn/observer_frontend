@@ -6,9 +6,8 @@ import { Box, Heading, Text } from "@chakra-ui/react";
 import { PublicDepartmentDataType } from "@/interfaces/department";
 import { PublicPatientDataType } from "@/interfaces/patient";
 import { PublicProviderDataType } from "@/interfaces/provider";
-import { PublicEncounterDataType } from "@/interfaces/encounter";
+import { PublicEncounterDataType, PublicEncounterSourceDataType } from "@/interfaces/encounter";
 import { PublicMultiModalDataType } from "@/interfaces/mmd";
-import { PublicEncounterSourceDataType } from "@/interfaces/encounter";
 
 import { getDepartmentColors } from "@/lib/utils/utils";
 

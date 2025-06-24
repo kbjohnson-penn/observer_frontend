@@ -14,3 +14,10 @@ export interface PublicPatientDataType {
   race: string;
   ethnicity: string;
 }
+
+// Patient interface from encounter.ts
+export interface Patient {
+  id: number;
+  name?: string;
+  patient_id: string;
+}
