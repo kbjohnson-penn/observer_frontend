@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (token) {
         try {
           // Verify token with backend
-          const response = await fetch("http://localhost:8000/api/v1/auth/token/verify/", {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/token/verify/`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -86,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [router]);
 
   const login = async (username: string, password: string) => {
-    const response = await fetch("http://localhost:8000/api/v1/auth/token/", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/token/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -118,7 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     
     if (refreshToken) {
       try {
-        await fetch("http://localhost:8000/api/v1/auth/logout/", {
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/logout/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -150,7 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/v1/auth/token/refresh/", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/token/refresh/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

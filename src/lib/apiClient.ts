@@ -8,7 +8,7 @@ interface RetryAxiosRequestConfig extends InternalAxiosRequestConfig {
 // Create axios instance with base configuration
 const createApiClient = () => {
   const instance = axios.create({
-    baseURL: "http://localhost:8000/api/v1",
+    baseURL: process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1",
     headers: {
       "Content-Type": "application/json",
     },
@@ -41,7 +41,7 @@ const createApiClient = () => {
             throw new Error("No refresh token available");
           }
 
-          const response = await axios.post("http://localhost:8000/api/v1/auth/token/refresh/", {
+          const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/token/refresh/`, {
             refresh: refreshToken,
           });
 
