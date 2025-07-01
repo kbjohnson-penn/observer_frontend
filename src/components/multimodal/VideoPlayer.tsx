@@ -11,19 +11,30 @@ import {
 import { FaPlay, FaPause, FaVolumeMute, FaVolumeUp, FaExpand, FaCompress } from 'react-icons/fa';
 import { Spinner } from '@chakra-ui/react';
 import COLORS from '@/constants/colors';
+import { VIDEO_CONFIG, getQualityRecommendation, getDownloadTimeEstimates } from '@/constants/video.constants';
+
+// Utility function to format file size
+const formatFileSize = (sizeInMB: number): string => {
+  if (sizeInMB >= 1024) {
+    return `${(sizeInMB / 1024).toFixed(1)}GB`;
+  }
+  return `${sizeInMB.toFixed(1)}MB`;
+};
 
 interface VideoPlayerProps {
   src: string;
   title: string;
   poster?: string;
   className?: string;
+  maxFileSize?: number; // in MB, default 500MB
 }
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({
   src,
   title,
   poster,
-  className
+  className,
+  maxFileSize = VIDEO_CONFIG.MAX_FILE_SIZE_WARNING
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -37,6 +48,49 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [playbackRate, setPlaybackRate] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [fileSize, setFileSize] = useState<number | null>(null);
+  const [isLargeFile, setIsLargeFile] = useState(false);
+  const [userConfirmedLoad, setUserConfirmedLoad] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+
+  // Check file size before loading
+  useEffect(() => {
+    const checkFileSize = async () => {
+      try {
+        const response = await fetch(src, { method: 'HEAD' });
+        const contentLength = response.headers.get('content-length');
+        
+        if (contentLength) {
+          const sizeInMB = parseInt(contentLength) / (1024 * 1024);
+          setFileSize(sizeInMB);
+          
+          if (sizeInMB > maxFileSize) {
+            setIsLargeFile(true);
+            setIsLoading(false);
+            return;
+          }
+          
+          // Block extremely large files
+          if (sizeInMB > VIDEO_CONFIG.MAX_FILE_SIZE_BLOCK) {
+            setLoadError(`File too large (${formatFileSize(sizeInMB)}). Maximum supported size is ${formatFileSize(VIDEO_CONFIG.MAX_FILE_SIZE_BLOCK)}.`);
+            setIsLoading(false);
+            return;
+          }
+        }
+        
+        // If file size is acceptable or unknown, proceed with loading
+        setUserConfirmedLoad(true);
+      } catch (error) {
+        // If HEAD request fails, proceed with loading (might be CORS issue)
+        setUserConfirmedLoad(true);
+      }
+    };
+
+    if (src && !userConfirmedLoad && !isLargeFile) {
+      checkFileSize();
+    }
+  }, [src, maxFileSize, userConfirmedLoad, isLargeFile]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -77,16 +131,28 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     };
   }, []);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     const video = videoRef.current;
     if (!video) return;
 
     if (isPlaying) {
       video.pause();
     } else {
-      video.play();
+      // Pause other videos to prevent multiple large files loading
+      const otherVideos = document.querySelectorAll('video');
+      otherVideos.forEach(otherVideo => {
+        if (otherVideo !== video && !otherVideo.paused) {
+          otherVideo.pause();
+        }
+      });
+      
+      try {
+        await video.play();
+      } catch (error) {
+        // Play failed - browser may require user interaction
+        setLoadError('Unable to play video. Please try again.');
+      }
     }
-    setIsPlaying(!isPlaying);
   };
 
   const handleSeek = (value: number) => {
@@ -186,16 +252,145 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
               />
             </Box>
           )}
-          <video
-            ref={videoRef}
-            src={src}
-            poster={poster}
-            width="100%"
-            height="100%"
-            style={{ display: 'block', maxHeight: '300px' }}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-          />
+
+          {/* Large File Warning */}
+          {isLargeFile && !userConfirmedLoad && (
+            <Box
+              position="absolute"
+              top="50%"
+              left="50%"
+              transform="translate(-50%, -50%)"
+              bg="rgba(0,0,0,0.9)"
+              color="white"
+              p={6}
+              borderRadius="lg"
+              textAlign="center"
+              maxW="90%"
+              zIndex={2}
+            >
+              <Heading size="md" mb={4} color="orange.300">
+                Large Video File Detected
+              </Heading>
+              <Text mb={4}>
+                This video file is {fileSize ? formatFileSize(fileSize) : 'large'}, which may take a while to load and could impact performance.
+              </Text>
+              <Box mb={4} p={3} bg="rgba(0,0,0,0.3)" borderRadius="md">
+                <Text fontSize="sm" color="orange.200" mb={2}>
+                  <strong>Quality:</strong> {getQualityRecommendation(fileSize || 0)}
+                </Text>
+                <Text fontSize="xs" color="gray.300" mb={1}>
+                  <strong>Download estimates:</strong>
+                </Text>
+                {(() => {
+                  const estimates = getDownloadTimeEstimates(fileSize || 0);
+                  return (
+                    <Text fontSize="xs" color="gray.400">
+                      Fast: {estimates.fast} | Medium: {estimates.medium} | Slow: {estimates.slow}
+                    </Text>
+                  );
+                })()}
+              </Box>
+              <Text mb={6} fontSize="sm" color="gray.300">
+                Large research videos may take significant time to load. Consider streaming or using a faster connection.
+              </Text>
+              <Flex gap={3} justify="center">
+                <IconButton
+                  aria-label="Load video anyway"
+                  onClick={() => setUserConfirmedLoad(true)}
+                  colorScheme="orange"
+                  size="lg"
+                >
+                  <FaPlay />
+                </IconButton>
+                <Text fontSize="sm" color="gray.400" alignSelf="center">
+                  Load Anyway
+                </Text>
+              </Flex>
+            </Box>
+          )}
+
+          {/* Loading Progress for Large Files */}
+          {userConfirmedLoad && isLoading && downloadProgress > 0 && (
+            <Box
+              position="absolute"
+              bottom="20px"
+              left="20px"
+              right="20px"
+              bg="rgba(0,0,0,0.8)"
+              color="white"
+              p={3}
+              borderRadius="md"
+              zIndex={2}
+            >
+              <Text fontSize="sm" mb={2}>
+                Loading video... {downloadProgress.toFixed(0)}%
+              </Text>
+              <Box bg="gray.600" borderRadius="full" h="4px">
+                <Box
+                  bg="blue.400"
+                  h="100%"
+                  borderRadius="full"
+                  width={`${downloadProgress}%`}
+                  transition="width 0.3s"
+                />
+              </Box>
+            </Box>
+          )}
+
+          {/* Error State */}
+          {loadError && (
+            <Box
+              position="absolute"
+              top="50%"
+              left="50%"
+              transform="translate(-50%, -50%)"
+              bg="rgba(0,0,0,0.9)"
+              color="white"
+              p={6}
+              borderRadius="lg"
+              textAlign="center"
+              maxW="90%"
+              zIndex={2}
+            >
+              <Heading size="md" mb={4} color="red.300">
+                Video Load Error
+              </Heading>
+              <Text mb={4}>{loadError}</Text>
+              <Text fontSize="sm" color="gray.400">
+                The video file may be too large or corrupted.
+              </Text>
+            </Box>
+          )}
+
+          {userConfirmedLoad && (
+            <video
+              ref={videoRef}
+              src={src}
+              poster={poster}
+              width="100%"
+              height="100%"
+              preload={VIDEO_CONFIG.PRELOAD_STRATEGY}
+              style={{ display: 'block', maxHeight: '300px' }}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onLoadStart={() => setIsLoading(true)}
+              onLoadedData={() => setIsLoading(false)}
+              onError={() => {
+                setLoadError('Failed to load video');
+                setIsLoading(false);
+              }}
+              onProgress={(e) => {
+                const video = e.currentTarget;
+                if (video.buffered.length > 0) {
+                  const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+                  const duration = video.duration;
+                  if (duration > 0) {
+                    setDownloadProgress((bufferedEnd / duration) * 100);
+                  }
+                }
+              }}
+            />
+          )}
           
           {/* Controls Overlay */}
           <Box
