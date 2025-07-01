@@ -4,7 +4,7 @@ export const TABLE_INFO: Record<OMOPTableName, TableInfo> = {
   PROVIDER: {
     name: 'PROVIDER',
     displayName: 'Providers',
-    description: 'Information about providers including demographics',
+    description: 'Provider demographic information',
     color: 'blue',
     category: 'person'
   },
@@ -18,7 +18,7 @@ export const TABLE_INFO: Record<OMOPTableName, TableInfo> = {
   VISIT_OCCURRENCE: {
     name: 'VISIT_OCCURRENCE',
     displayName: 'Clinical Visits',
-    description: 'Healthcare encounters and visits',
+    description: 'Clinical encounters and visits',
     color: 'green',
     category: 'clinical',
     foreignKeys: [

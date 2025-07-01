@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Box, Text, Flex, Spinner, Tabs } from '@chakra-ui/react';
 import { FaUsers, FaStethoscope, FaChartBar, FaCog, FaPlay } from 'react-icons/fa';
 import { OMOPTableName } from '@/interfaces/observer-omop';
@@ -20,6 +20,7 @@ interface DataTable {
   displayName: string;
   description: string;
   data: any[];
+  filteredData?: any[];
 }
 
 const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className }) => {
@@ -27,6 +28,7 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
   const [activeTable, setActiveTable] = useState<OMOPTableName>('PERSON');
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const urlsToCleanup = useRef<string[]>([]);
 
   useEffect(() => {
     // Load all OMOP tables with sample data asynchronously
@@ -47,7 +49,7 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
 
         setTables(allTables);
       } catch (error) {
-        console.error('Failed to load sample data:', error);
+        // Failed to load sample data - tables will be empty
       } finally {
         setLoading(false);
       }
@@ -56,8 +58,36 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
     loadData();
   }, []);
 
+  // Cleanup URLs on component unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      urlsToCleanup.current.forEach(url => {
+        try {
+          window.URL.revokeObjectURL(url);
+        } catch (error) {
+          // Failed to revoke URL - continue cleanup
+        }
+      });
+      urlsToCleanup.current = [];
+    };
+  }, []);
+
   const currentTable = tables.find(table => table.name === activeTable);
   const selectedTableInfo = TABLE_INFO[activeTable];
+
+  // Memoize filtered data to prevent expensive recalculations on every render
+  const filteredTables = useMemo(() => {
+    if (!searchTerm) return tables;
+    
+    return tables.map(table => ({
+      ...table,
+      filteredData: table.data.filter(row =>
+        Object.values(row).some(value => 
+          value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      )
+    }));
+  }, [tables, searchTerm]);
   
   // Helper functions
   const getTableIcon = (tableName: OMOPTableName) => {
@@ -85,22 +115,43 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
     }
   };
 
+  const sanitizeCSVValue = (value: any): string => {
+    const str = String(value || '');
+    
+    // Escape potential formula injection (Excel formula attacks)
+    if (str.startsWith('=') || str.startsWith('+') || str.startsWith('-') || str.startsWith('@')) {
+      return `"'${str.replace(/"/g, '""')}"`;
+    }
+    
+    // Standard CSV escaping for quotes
+    return `"${str.replace(/"/g, '""')}"`;
+  };
+
   const downloadCSV = (tableName: string, data: any[]) => {
     if (data.length === 0) return;
     
     const headers = Object.keys(data[0]);
     const csvContent = [
       headers.join(','),
-      ...data.map(row => headers.map(header => `"${row[header] || ''}"`).join(','))
+      ...data.map(row => headers.map(header => sanitizeCSVValue(row[header])).join(','))
     ].join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
+    
+    // Track URL for cleanup
+    urlsToCleanup.current.push(url);
+    
     const a = document.createElement('a');
     a.href = url;
     a.download = `${tableName}.csv`;
     a.click();
-    window.URL.revokeObjectURL(url);
+    
+    // Clean up immediately after download
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+      urlsToCleanup.current = urlsToCleanup.current.filter(u => u !== url);
+    }, 100);
   };
 
   const downloadAllTables = async () => {
@@ -134,7 +185,7 @@ Note: This data is from the Observer platform.
         const headers = Object.keys(table.data[0]);
         const csvContent = [
           headers.join(','),
-          ...table.data.map(row => headers.map(header => `"${row[header] || ''}"`).join(','))
+          ...table.data.map(row => headers.map(header => sanitizeCSVValue(row[header])).join(','))
         ].join('\n');
         
         zip.file(`${table.name}.csv`, csvContent);
@@ -145,6 +196,10 @@ Note: This data is from the Observer platform.
     try {
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const url = window.URL.createObjectURL(zipBlob);
+      
+      // Track URL for cleanup
+      urlsToCleanup.current.push(url);
+      
       const a = document.createElement('a');
       a.href = url;
       
@@ -153,9 +208,14 @@ Note: This data is from the Observer platform.
       a.download = `observer_data_tables_${currentDate}.zip`;
       
       a.click();
-      window.URL.revokeObjectURL(url);
+      
+      // Clean up immediately after download
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        urlsToCleanup.current = urlsToCleanup.current.filter(u => u !== url);
+      }, 100);
     } catch (error) {
-      console.error('Error creating zip file:', error);
+      // Error creating zip file - could show user notification
     }
   };
 
@@ -259,11 +319,14 @@ Note: This data is from the Observer platform.
           </Box>
           
           {tables.map((table) => {
-            const filteredData = table.data.filter(row =>
-              searchTerm === '' || Object.values(row).some(value => 
-                value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-              )
-            );
+            // Use memoized filtered data if search term exists, otherwise use original data
+            const tableWithFilteredData = searchTerm 
+              ? filteredTables.find(ft => ft.name === table.name)
+              : null;
+            
+            const filteredData = tableWithFilteredData 
+              ? (tableWithFilteredData.filteredData || table.data)
+              : table.data;
             
             return (
               <Tabs.Content key={table.name} value={table.name} pt={4}>

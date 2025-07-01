@@ -7,6 +7,7 @@ import {
 } from '@/components/dataset';
 import HealthcareDataBrowser from '@/components/multimodal/HealthcareDataBrowser';
 import TranscriptViewer from '@/components/multimodal/TranscriptViewer';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { useDatasetExplorer } from '@/hooks/useDatasetExplorer';
 
 const DatasetExplorePage = () => {
@@ -44,17 +45,23 @@ const DatasetExplorePage = () => {
 
       <VStack gap={8} align="stretch">
         {/* Healthcare Data Browser - Main Section */}
-        <HealthcareDataBrowser />
+        <ErrorBoundary>
+          <HealthcareDataBrowser />
+        </ErrorBoundary>
 
         {/* Media Viewers Section */}
-        <MediaViewersSection
-          videoSources={videoSources}
-          transcriptSource={transcriptSource}
-        />
+        <ErrorBoundary>
+          <MediaViewersSection
+            videoSources={videoSources}
+            transcriptSource={transcriptSource}
+          />
+        </ErrorBoundary>
 
         {/* Transcript Viewer Section */}
         {transcriptSource && (
-          <TranscriptViewer transcriptSrc={transcriptSource} />
+          <ErrorBoundary>
+            <TranscriptViewer transcriptSrc={transcriptSource} />
+          </ErrorBoundary>
         )}
       </VStack>
     </Box>

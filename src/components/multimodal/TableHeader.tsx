@@ -6,7 +6,6 @@ import { MenuRoot, MenuTrigger, MenuContent, MenuItem } from '@/components/ui/me
 import { FaDownload, FaDatabase } from 'react-icons/fa';
 import { getTableDisplayName } from '@/constants/table-info.constants';
 import { OMOPTableName } from '@/interfaces/observer-omop';
-import COLORS from '@/constants/colors';
 
 interface TableHeaderProps {
   tablesCount: number;
@@ -24,13 +23,13 @@ const TableHeader: React.FC<TableHeaderProps> = ({
   onDownloadAll
 }) => {
   return (
-    <Box p={6} pb={4} borderBottom="1px" borderColor={COLORS.table.borderColor} bg={COLORS.ui.activeBg}>
+    <Box p={6} pb={4} borderBottom="1px" borderColor="gray.200" bg="blue.50">
       <Flex justify="space-between" align="center" mb={4}>
         <Box>
-          <Heading size="lg" color={COLORS.primary[900]} mb={2}>
+          <Heading size="lg" color="blue.900" mb={2} fontWeight="bold">
             Data Browser
           </Heading>
-          <Text color={COLORS.ui.inactiveText} fontSize="md">
+          <Text color="gray.700" fontSize="md">
             Browse and explore tables
           </Text>
         </Box>
@@ -42,7 +41,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
               size="md"
               colorScheme="blue"
               variant="outline"
-              _hover={{ bg: COLORS.ui.hoverBg, borderColor: COLORS.primary[400] }}
+              _hover={{ bg: "gray.50", borderColor: "blue.400" }}
             >
               <FaDownload style={{ marginRight: '8px', color: '#2563eb' }} />
               Download CSV
@@ -68,11 +67,11 @@ const TableHeader: React.FC<TableHeaderProps> = ({
       {/* Stats Overview */}
       <Flex gap={6} align="center" flexWrap="wrap">
         <Flex align="center" gap={2}>
-          <Text fontSize="sm" color={COLORS.ui.inactiveText}>Total Tables:</Text>
-          <Text fontSize="sm" fontWeight="bold" color={COLORS.primary[600]}>{tablesCount}</Text>
+          <Text fontSize="sm" color="gray.700">Total Tables:</Text>
+          <Text fontSize="sm" fontWeight="bold" color="blue.600">{tablesCount}</Text>
         </Flex>
         <Flex align="center" gap={2}>
-          <Text fontSize="sm" color={COLORS.ui.inactiveText}>Active Table:</Text>
+          <Text fontSize="sm" color="gray.700">Active Table:</Text>
           <Text fontSize="sm" fontWeight="bold" color="green.600">{getTableDisplayName(activeTable)}</Text>
         </Flex>
       </Flex>

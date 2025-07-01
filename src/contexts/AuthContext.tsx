@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             }
           }
         } catch (error) {
-          console.error("Auth check failed:", error);
+          // Auth check failed - silently clean up tokens
           localStorage.removeItem("access_token");
           localStorage.removeItem("refresh_token");
         }
@@ -127,7 +127,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           body: JSON.stringify({ refresh: refreshToken }),
         });
       } catch (error) {
-        console.error("Logout error:", error);
+        // Logout error - continue with local cleanup
       }
     }
 
@@ -175,7 +175,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         return true;
       }
     } catch (error) {
-      console.error("Token refresh failed:", error);
+      // Token refresh failed - will return false
     }
 
     return false;

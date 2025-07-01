@@ -68,7 +68,7 @@ export const useDatasetExplorer = () => {
         setVideoSources(newVideoSources);
         setTranscriptSource(newTranscriptSource);
       } catch (error) {
-        console.error('Failed to load dataset statistics:', error);
+        // Failed to load dataset statistics - stats will remain at initial values
       } finally {
         setStatsLoading(false);
       }

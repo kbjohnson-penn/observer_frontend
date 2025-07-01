@@ -132,7 +132,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         setIsFullscreen(false);
       }
     } catch (error) {
-      console.error('Fullscreen error:', error);
+      // Fullscreen error - browser may not support or user denied
     }
   };
 

@@ -4,7 +4,6 @@ import React from 'react';
 import { Box, Text, Heading } from '@chakra-ui/react';
 import VideoGrid from '@/components/multimodal/VideoGrid';
 import type { VideoSources } from '@/interfaces/observer-omop';
-import COLORS from '@/constants/colors';
 
 interface MediaViewersSectionProps {
   videoSources: VideoSources;
@@ -20,12 +19,12 @@ const MediaViewersSection: React.FC<MediaViewersSectionProps> = ({
   return (
     <Box bg="white" borderRadius="lg" boxShadow="md" overflow="hidden">
       {/* Header Section */}
-      <Box p={6} pb={4} borderBottom="1px" borderColor={COLORS.table.borderColor} bg={COLORS.ui.activeBg}>
+      <Box p={6} pb={4} borderBottom="1px" borderColor="gray.200" bg="blue.50">
         <Box>
-          <Heading size="lg" color={COLORS.primary[900]} mb={2}>
+          <Heading size="lg" color="blue.900" mb={2} fontWeight="bold">
             Multimodal Media Viewers
           </Heading>
-          <Text color={COLORS.ui.inactiveText} fontSize="md">
+          <Text color="gray.700" fontSize="md">
             Video recordings and transcripts automatically loaded from clinical encounters
           </Text>
         </Box>
@@ -40,11 +39,11 @@ const MediaViewersSection: React.FC<MediaViewersSectionProps> = ({
         />
 
         {!hasAnyMedia && (
-          <Box textAlign="center" py={8} bg={COLORS.primary[50]} borderRadius="lg" border="1px" borderColor={COLORS.primary[200]}>
-            <Text color={COLORS.primary[600]} fontSize="md" fontWeight="medium">
+          <Box textAlign="center" py={8} bg="blue.50" borderRadius="lg" border="1px" borderColor="blue.200">
+            <Text color="blue.600" fontSize="md" fontWeight="medium">
               No media files available
             </Text>
-            <Text color={COLORS.primary[500]} fontSize="sm" mt={1}>
+            <Text color="blue.500" fontSize="sm" mt={1}>
               Media files are automatically loaded from the OBSERVATION table
             </Text>
           </Box>

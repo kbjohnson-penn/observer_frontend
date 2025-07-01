@@ -35,17 +35,13 @@ const Header: React.FC<HeaderProps> = ({
     try {
       await logout();
     } catch (error) {
-      console.error("Logout error:", error);
+      // Logout error - continue with redirect
     }
   };
 
   // Different nav links based on authentication status
-  const navLinks: NavLink[] = isAuthenticated ? [
-    { name: "Dashboard", href: "/dashboard", isActive: isActive("/dashboard") },
-    { name: "Dataset", href: "/dataset", isActive: isActive("/dataset") },
-    // { name: "About", href: "/about", isActive: isActive("/about") },
-    { name: "Profile", href: "/profile", isActive: isActive("/profile") },
-  ] : [
+  // TEMPORARILY SIMPLIFIED - Using same links for all users
+  const navLinks: NavLink[] = [
     { name: "Home", href: "/", isActive: isActive("/") },
     { name: "Dataset", href: "/dataset", isActive: isActive("/dataset") },
     // { name: "About", href: "/about", isActive: isActive("/about") },
@@ -54,11 +50,12 @@ const Header: React.FC<HeaderProps> = ({
       href: "/dashboard-public",
       isActive: isActive("/dashboard-public"),
     },
-    {
-      name: "Login",
-      href: "/login",
-      isActive: isActive("/login"),
-    },
+    // Login temporarily hidden
+    // {
+    //   name: "Login",
+    //   href: "/login",
+    //   isActive: isActive("/login"),
+    // },
   ];
 
   return (
@@ -104,7 +101,8 @@ const Header: React.FC<HeaderProps> = ({
                 </Box>
               ))}
               
-              {isAuthenticated && (
+              {/* Logout button hidden while login is disabled */}
+              {/* {isAuthenticated && (
                 <Button
                   onClick={handleLogout}
                   variant="outline"
@@ -116,7 +114,7 @@ const Header: React.FC<HeaderProps> = ({
                 >
                   Logout
                 </Button>
-              )}
+              )} */}
             </HStack>
 
             {/* Mobile Menu Toggle */}
@@ -169,7 +167,8 @@ const Header: React.FC<HeaderProps> = ({
             </Box>
           ))}
           
-          {isAuthenticated && (
+          {/* Logout button hidden while login is disabled */}
+          {/* {isAuthenticated && (
             <Box mt={4} pt={4} borderTop="1px" borderColor="blue.700">
               <Button
                 onClick={handleLogout}
@@ -184,7 +183,7 @@ const Header: React.FC<HeaderProps> = ({
                 Logout
               </Button>
             </Box>
-          )}
+          )} */}
         </VStack>
       )}
     </Box>

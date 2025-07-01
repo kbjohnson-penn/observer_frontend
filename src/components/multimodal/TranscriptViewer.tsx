@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { FaSearch, FaDownload } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
-import COLORS from '@/constants/colors';
+import { COLORS } from '@/constants/colors';
 
 interface TranscriptEntry {
   timestamp?: string;
@@ -116,7 +116,7 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
 
         setTranscript(entries);
       } catch (err) {
-        console.error('Error loading transcript:', err);
+        // Error loading transcript - will show error state to user
         setError('Failed to load transcript. Please check the file format.');
       } finally {
         setLoading(false);
@@ -135,10 +135,16 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
     entry.proficiency?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const escapeRegExp = (string: string): string => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  };
+
   const highlightText = (text: string) => {
     if (!searchTerm) return text;
     
-    const regex = new RegExp(`(${searchTerm})`, 'gi');
+    // Escape special regex characters to prevent injection
+    const escapedSearchTerm = escapeRegExp(searchTerm);
+    const regex = new RegExp(`(${escapedSearchTerm})`, 'gi');
     const parts = text.split(regex);
     
     return parts.map((part, index) => 
@@ -202,13 +208,13 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
   return (
     <Box bg="white" borderRadius="lg" boxShadow="md" overflow="hidden">
       {/* Header Section */}
-      <Box p={6} pb={4} borderBottom="1px" borderColor={COLORS.table.borderColor} bg={COLORS.ui.activeBg}>
+      <Box p={6} pb={4} borderBottom="1px" borderColor="gray.200" bg="blue.50">
         <Flex justify="space-between" align="center" mb={4}>
           <Box>
-            <Heading size="lg" color={COLORS.primary[900]} mb={2}>
+            <Heading size="lg" color="blue.900" mb={2} fontWeight="bold">
               Conversation Transcript
             </Heading>
-            <Text color={COLORS.ui.inactiveText} fontSize="md">
+            <Text color="gray.700" fontSize="md">
               Interactive transcript with search and highlighting
             </Text>
           </Box>
@@ -218,7 +224,7 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
             variant="outline"
             onClick={exportTranscript}
             disabled={transcript.length === 0}
-            _hover={{ bg: COLORS.ui.hoverBg, borderColor: COLORS.primary[400] }}
+            _hover={{ bg: "gray.50", borderColor: "blue.400" }}
           >
             <FaDownload style={{ marginRight: '8px', color: '#2563eb' }} />
             Export

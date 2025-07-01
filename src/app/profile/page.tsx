@@ -58,7 +58,7 @@ export default function ProfilePage() {
         const response = await apiClient.get("/profile/");
         setProfile(response.data);
       } catch (err) {
-        console.error("Profile fetch error:", err);
+        // Profile fetch error - show user-friendly message
         setError("Failed to load profile data");
       } finally {
         setLoading(false);
@@ -73,7 +73,7 @@ export default function ProfilePage() {
     try {
       await logout();
     } catch (error) {
-      console.error("Logout error:", error);
+      // Logout error - continue with redirect
     }
   };
 
