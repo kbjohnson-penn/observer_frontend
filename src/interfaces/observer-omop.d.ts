@@ -175,6 +175,28 @@ export interface Concept {
   domain_id: string;
   concept_class_id: string;
   vocabulary_id: string;
+  standard_concept: string;
+  concept_code: string;
+}
+
+// Dataset component types
+export interface DatasetStats {
+  totalTables: number;
+  totalRecords: number;
+  totalVisits: number;
+  totalVideos: number;
+}
+
+export interface VideoSources {
+  patient: string;
+  provider: string;
+  room: string;
+}
+
+export interface CollapsibleStates {
+  showOverview: boolean;
+  showDataBrowser: boolean;
+  showMediaViewers: boolean;
 }
 
 // Type for table names

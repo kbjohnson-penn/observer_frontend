@@ -5,7 +5,7 @@ import type {
 import { FileType } from '@/interfaces/dataset.d';
 
 export const DATABASE_STRUCTURE: DatabaseStructure = {
-  overview: "The Observer Repository contains multimodal clinical encounter data following an OMOP-inspired structure with 12 interconnected tables and four complementary data modalities.",
+  overview: "The Observer Repository contains multimodal clinical encounter data following an OMOP-inspired structure with 13 interconnected tables and four complementary data modalities.",
   categories: [
     {
       name: "Video & Multimedia Data",
@@ -40,6 +40,7 @@ export const DATABASE_STRUCTURE: DatabaseStructure = {
         { name: "MEASUREMENT", description: "Vital signs and lab results", icon: "file" },
         { name: "AUDIT_LOGS", description: "System interaction tracking", icon: "database" },
         { name: "NOTE", description: "Clinical documentation", icon: "file" },
+        { name: "CONCEPTS", description: "Standardized Vocabularies", icon: "file" },
       ]
     },
     {
