@@ -105,7 +105,7 @@ export default function DashboardPage() {
           totalFiles: filesRes.data?.results?.length || filesRes.data?.length || 0,
         });
       } catch (err) {
-        console.error("Dashboard fetch error:", err);
+        // Dashboard fetch error - show user-friendly message
         setError("Failed to load dashboard data");
       } finally {
         setLoading(false);
@@ -116,12 +116,9 @@ export default function DashboardPage() {
   }, []);
 
 
-  const handleEncounterClick = (encounterId: number) => {
-    // For now, just log the encounter ID
-    // In a real app, this would navigate to encounter detail page
-    console.log(`Clicked encounter ID: ${encounterId}`);
+  const handleEncounterClick = (_encounterId: number) => {
     // TODO: Navigate to encounter detail page
-    // router.push(`/encounters/${encounterId}`);
+    // router.push(`/encounters/${_encounterId}`);
   };
 
   // Calculate pagination

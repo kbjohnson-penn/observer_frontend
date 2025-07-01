@@ -188,7 +188,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
       try {
         downloadData(exportData, exportFormat);
       } catch (error) {
-        console.error("Error exporting data:", error);
+        // Error exporting data - could show user notification
       }
     }
   }, [exportData, exportFormat]);
@@ -264,7 +264,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                   normalizedEncounterDate <= normalizedEndDate;
               }
             } catch (error) {
-              console.error("Error parsing date:", error);
+              // Error parsing date - skip this entry
               dateFilterPassed = false;
             }
           }
@@ -277,7 +277,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
 
         setFilteredEncounterData(updatedEncounterData);
       } catch (error) {
-        console.error("Error filtering data:", error);
+        // Error filtering data - return original data
         // Reset to all encounters if there's an error
         setFilteredEncounterData(encounters);
       } finally {

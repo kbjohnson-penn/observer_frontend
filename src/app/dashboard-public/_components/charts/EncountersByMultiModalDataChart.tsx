@@ -64,7 +64,7 @@ const groupData = (data: RawDataItem[]): GroupedDataItem[] => {
     const groupName =
       DATA_TYPE_GROUPING[item.name as keyof typeof DATA_TYPE_GROUPING];
     if (!groupName) {
-      console.warn(`No group defined for data type: ${item.name}`);
+      // No group defined for data type - skip grouping
       return;
     }
 

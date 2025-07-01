@@ -4,6 +4,9 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
+  // TEMPORARILY DISABLED - Login functionality hidden
+  // Uncomment this block when re-enabling login
+  /*
   // Protected routes that require authentication
   const protectedRoutes = ["/dashboard", "/profile"];
   
@@ -33,6 +36,12 @@ export function middleware(request: NextRequest) {
     if (token) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
+  }
+  */
+  
+  // For now, just redirect login page to home
+  if (pathname === "/login") {
+    return NextResponse.redirect(new URL("/", request.url));
   }
   
   return NextResponse.next();

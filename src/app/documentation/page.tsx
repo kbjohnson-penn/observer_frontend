@@ -60,7 +60,8 @@ const Documentation: React.FC = () => {
                 <li>
                   Enter your username and password in the respective fields.
                 </li>
-                <li>Click the login button to access the dashboard.</li>
+                {/* <li>Click the login button to access the dashboard.</li> */}
+                <li>Navigate to the dashboard to access admin features.</li>
               </ul>
             </Step>
 
