@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getSampleData } from '@/data/omop/sample-data-lazy';
-import type { DatasetStats, VideoSources, CollapsibleStates } from '@/interfaces/observer-omop';
+import { apiClient } from '@/lib/apiClient';
+import type { DatasetStats, VideoSources, CollapsibleStates, SampleDataAPIResponse, OMOPTableName } from '@/interfaces/observer-omop';
 
 export const useDatasetExplorer = () => {
   const [stats, setStats] = useState<DatasetStats>({
@@ -12,6 +12,7 @@ export const useDatasetExplorer = () => {
     totalVideos: 0
   });
   const [statsLoading, setStatsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   const [videoSources, setVideoSources] = useState<VideoSources>({
     patient: '',
@@ -31,7 +32,31 @@ export const useDatasetExplorer = () => {
     const loadStats = async () => {
       try {
         setStatsLoading(true);
-        const sampleData = await getSampleData();
+        setError(null);
+        
+        // Call the API directly
+        const response = await apiClient.get<SampleDataAPIResponse>('/public/sample-data/', {
+          timeout: 10000, // 10 seconds timeout
+        });
+        
+        const apiData = response.data;
+        
+        // Map API response to OMOP table structure
+        const sampleData: Record<OMOPTableName, any[]> = {
+          PERSON: apiData.persons || [],
+          PROVIDER: apiData.providers || [],
+          VISIT_OCCURRENCE: apiData.visits || [],
+          NOTE: apiData.notes || [],
+          CONDITION_OCCURRENCE: apiData.conditions || [],
+          DRUG_EXPOSURE: apiData.drugs || [],
+          PROCEDURE_OCCURRENCE: apiData.procedures || [],
+          MEASUREMENT: apiData.measurements || [],
+          OBSERVATION: apiData.observations || [],
+          PATIENT_SURVEY: apiData.patient_surveys || [],
+          PROVIDER_SURVEY: apiData.provider_surveys || [],
+          AUDIT_LOGS: apiData.audit_logs || [],
+          CONCEPT: apiData.concepts || [],
+        };
         
         // Calculate stats
         setStats({
@@ -67,8 +92,10 @@ export const useDatasetExplorer = () => {
 
         setVideoSources(newVideoSources);
         setTranscriptSource(newTranscriptSource);
-      } catch (error) {
-        // Failed to load dataset statistics - stats will remain at initial values
+      } catch (err: any) {
+        // Handle API errors
+        const errorMessage = err.response?.data?.error || err.message || 'Failed to load data from API';
+        setError(errorMessage);
       } finally {
         setStatsLoading(false);
       }
@@ -91,6 +118,7 @@ export const useDatasetExplorer = () => {
     videoSources,
     transcriptSource,
     collapsibleStates,
+    error,
     toggleCollapsible
   };
 };
