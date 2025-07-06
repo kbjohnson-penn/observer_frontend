@@ -244,3 +244,25 @@ export type OMOPTableData =
   | ProviderSurvey
   | AuditLogs
   | Concept;
+
+// API Response interface
+export interface SampleDataAPIResponse {
+  persons: any[];
+  providers: any[];
+  visits: any[];
+  notes: any[];
+  conditions: any[];
+  drugs: any[];
+  procedures: any[];
+  measurements: any[];
+  observations: any[];
+  patient_surveys: any[];
+  provider_surveys: any[];
+  audit_logs: any[];
+  concepts: any[];
+  _metadata: {
+    description: string;
+    source: string;
+    count: Record<string, number>;
+  };
+}

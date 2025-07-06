@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Box, Text, Flex, Spinner, Tabs } from '@chakra-ui/react';
-import { FaUsers, FaStethoscope, FaChartBar, FaCog, FaPlay } from 'react-icons/fa';
-import { OMOPTableName } from '@/interfaces/observer-omop';
+import { FaUsers, FaStethoscope, FaChartBar, FaCog, FaPlay, FaExclamationTriangle } from 'react-icons/fa';
+import { OMOPTableName, SampleDataAPIResponse } from '@/interfaces/observer-omop';
 import { TABLE_INFO } from '@/constants/table-info.constants';
-import { getSampleData } from '@/data/omop/sample-data-lazy';
+import { apiClient } from '@/lib/apiClient';
 import TableHeader from './TableHeader';
 import DataTable from './DataTable';
 import COLORS from '@/constants/colors';
@@ -28,35 +28,64 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
   const [activeTable, setActiveTable] = useState<OMOPTableName>('PERSON');
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const urlsToCleanup = useRef<string[]>([]);
 
   useEffect(() => {
-    // Load all OMOP tables with sample data asynchronously
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const loadedSampleData = await getSampleData();
-        
-        const allTables: DataTable[] = Object.keys(TABLE_INFO).map((tableName) => {
-          const info = TABLE_INFO[tableName as OMOPTableName];
-          return {
-            name: tableName as OMOPTableName,
-            displayName: info.displayName,
-            description: info.description,
-            data: loadedSampleData[tableName as OMOPTableName] || []
-          };
-        });
-
-        setTables(allTables);
-      } catch (error) {
-        // Failed to load sample data - tables will be empty
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadData();
   }, []);
+
+  // Load all OMOP tables with sample data from API
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Call the API directly
+      const response = await apiClient.get<SampleDataAPIResponse>('/public/sample-data/', {
+        timeout: 10000, // 10 seconds timeout
+      });
+      
+      const apiData = response.data;
+      
+      // Map API response to OMOP table structure
+      const loadedSampleData: Record<OMOPTableName, any[]> = {
+        PERSON: apiData.persons || [],
+        PROVIDER: apiData.providers || [],
+        VISIT_OCCURRENCE: apiData.visits || [],
+        NOTE: apiData.notes || [],
+        CONDITION_OCCURRENCE: apiData.conditions || [],
+        DRUG_EXPOSURE: apiData.drugs || [],
+        PROCEDURE_OCCURRENCE: apiData.procedures || [],
+        MEASUREMENT: apiData.measurements || [],
+        OBSERVATION: apiData.observations || [],
+        PATIENT_SURVEY: apiData.patient_surveys || [],
+        PROVIDER_SURVEY: apiData.provider_surveys || [],
+        AUDIT_LOGS: apiData.audit_logs || [],
+        CONCEPT: apiData.concepts || [],
+      };
+      
+      const allTables: DataTable[] = Object.keys(TABLE_INFO).map((tableName) => {
+        const info = TABLE_INFO[tableName as OMOPTableName];
+        return {
+          name: tableName as OMOPTableName,
+          displayName: info.displayName,
+          description: info.description,
+          data: loadedSampleData[tableName as OMOPTableName] || []
+        };
+      });
+
+      setTables(allTables);
+    } catch (err: any) {
+      // Handle API errors
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to load data from API';
+      setError(errorMessage);
+      setTables([]); // Clear tables on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   // Cleanup URLs on component unmount to prevent memory leaks
   useEffect(() => {
@@ -229,7 +258,26 @@ Note: This data is from the Observer platform.
       <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
         <Flex direction="column" align="center" justify="center" py={8}>
           <Spinner size="lg" mb={4} />
-          <Text>Loading healthcare data...</Text>
+          <Text>Loading Sample data...</Text>
+        </Flex>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+        <Box bg="red.50" border="1px" borderColor="red.200" borderRadius="md" p={4} mb={4}>
+          <Flex align="center" gap={2} mb={2}>
+            <FaExclamationTriangle color="red" />
+            <Text fontWeight="bold" color="red.700">API Error</Text>
+          </Flex>
+          <Text fontSize="sm" color="red.600">{error}</Text>
+        </Box>
+        <Flex justify="center">
+          <Text fontSize="sm" color="gray.500">
+            Please check your network connection and try refreshing the page.
+          </Text>
         </Flex>
       </Box>
     );
