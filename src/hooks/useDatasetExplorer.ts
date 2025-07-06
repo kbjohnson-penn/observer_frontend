@@ -73,19 +73,22 @@ export const useDatasetExplorer = () => {
         const newVideoSources: VideoSources = { patient: '', provider: '', room: '' };
         let newTranscriptSource = '';
 
+        // Base API URL for video streaming
+        const baseApiUrl = process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1";
+
         observations.forEach(obs => {
           switch (obs.file_type) {
             case 'patient_view':
-              newVideoSources.patient = obs.file_path;
+              newVideoSources.patient = `${baseApiUrl}/public/video/${obs.file_path}/`;
               break;
             case 'provider_view':
-              newVideoSources.provider = obs.file_path;
+              newVideoSources.provider = `${baseApiUrl}/public/video/${obs.file_path}/`;
               break;
             case 'room_view':
-              newVideoSources.room = obs.file_path;
+              newVideoSources.room = `${baseApiUrl}/public/video/${obs.file_path}/`;
               break;
             case 'transcript':
-              newTranscriptSource = obs.file_path;
+              newTranscriptSource = `${baseApiUrl}/public/video/${obs.file_path}/`;
               break;
           }
         });

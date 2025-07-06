@@ -3,20 +3,17 @@
 import React from 'react';
 import { Grid, Box, Text, Center } from '@chakra-ui/react';
 import VideoPlayer from './VideoPlayer';
-import { VIDEO_CONFIG } from '@/constants/video.constants';
 
 interface VideoGridProps {
   patientVideoSrc?: string;
   providerVideoSrc?: string;
   roomVideoSrc?: string;
-  maxFileSize?: number; // Optional override for file size limit
 }
 
 const VideoGrid: React.FC<VideoGridProps> = ({
   patientVideoSrc,
   providerVideoSrc,
-  roomVideoSrc,
-  maxFileSize = VIDEO_CONFIG.MAX_FILE_SIZE_WARNING
+  roomVideoSrc
 }) => {
   // Check which videos are available
   const hasPatientVideo = !!patientVideoSrc;
@@ -42,14 +39,12 @@ const VideoGrid: React.FC<VideoGridProps> = ({
             <VideoPlayer
               src={patientVideoSrc}
               title="Patient Perspective"
-              maxFileSize={maxFileSize}
             />
           )}
           {hasProviderVideo && (
             <VideoPlayer
               src={providerVideoSrc}
               title="Provider Perspective"
-              maxFileSize={maxFileSize}
             />
           )}
         </Grid>
@@ -59,7 +54,6 @@ const VideoGrid: React.FC<VideoGridProps> = ({
         <VideoPlayer
           src={roomVideoSrc}
           title="Room Overview"
-          maxFileSize={maxFileSize}
         />
       )}
     </Box>
