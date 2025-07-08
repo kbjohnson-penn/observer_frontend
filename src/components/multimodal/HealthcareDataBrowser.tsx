@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Box, Text, Flex, Spinner, Tabs } from '@chakra-ui/react';
-import { FaUsers, FaStethoscope, FaChartBar, FaCog, FaPlay, FaExclamationTriangle } from 'react-icons/fa';
+import { Box, Text, Flex, Spinner, Tabs, IconButton } from '@chakra-ui/react';
+import { FaUsers, FaStethoscope, FaChartBar, FaCog, FaPlay, FaExclamationTriangle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { OMOPTableName, SampleDataAPIResponse } from '@/interfaces/observer-omop';
 import { TABLE_INFO } from '@/constants/table-info.constants';
 import { apiClient } from '@/lib/apiClient';
@@ -30,6 +30,7 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState<string | null>(null);
   const urlsToCleanup = useRef<string[]>([]);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadData();
@@ -252,6 +253,18 @@ Note: This data is from the Observer platform.
     return value?.toString() || '-';
   };
 
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
+
 
   if (loading) {
     return (
@@ -302,34 +315,98 @@ Note: This data is from the Observer platform.
             setSearchTerm(''); // Clear search when switching tables
           }}
         >
-          <Box 
-            overflowX="auto" 
-            mb={6}
-            pb={2}
-            css={{
-              '&::-webkit-scrollbar': {
-                height: '6px'
-              },
-              '&::-webkit-scrollbar-track': {
-                background: '#f1f5f9',
-                borderRadius: '3px',
-                marginTop: '4px'
-              },
-              '&::-webkit-scrollbar-thumb': {
-                background: '#cbd5e0',
-                borderRadius: '3px',
-                '&:hover': {
-                  background: '#a0aec0'
-                }
-              }
-            }}
-          >
-            <Tabs.List 
-              minW="max-content" 
-              bg={COLORS.table.headerBg} 
-              borderRadius="lg" 
-              p={1}
+          <Box position="relative" mb={6}>
+            {/* Scroll Left Button */}
+            <IconButton
+              position="absolute"
+              left="-3"
+              top="50%"
+              transform="translateY(-50%)"
+              zIndex={3}
+              size="sm"
+              variant="outline"
+              bg="white"
+              borderColor="gray.200"
+              boxShadow="lg"
+              borderRadius="full"
+              onClick={scrollLeft}
+              aria-label="Scroll left"
+              _hover={{ bg: "gray.50", borderColor: "blue.300" }}
             >
+              <FaChevronLeft />
+            </IconButton>
+            
+            {/* Scroll Right Button */}
+            <IconButton
+              position="absolute"
+              right="-3"
+              top="50%"
+              transform="translateY(-50%)"
+              zIndex={3}
+              size="sm"
+              variant="outline"
+              bg="white"
+              borderColor="gray.200"
+              boxShadow="lg"
+              borderRadius="full"
+              onClick={scrollRight}
+              aria-label="Scroll right"
+              _hover={{ bg: "gray.50", borderColor: "blue.300" }}
+            >
+              <FaChevronRight />
+            </IconButton>
+            
+            <Box 
+              ref={scrollContainerRef}
+              position="relative"
+              overflowX="auto" 
+              pb={2}
+              css={{
+                '&::-webkit-scrollbar': {
+                  height: '10px'
+                },
+                '&::-webkit-scrollbar-track': {
+                  background: '#f1f5f9',
+                  borderRadius: '5px'
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: '#2563eb',
+                  borderRadius: '5px',
+                  '&:hover': {
+                    background: '#1d4ed8'
+                  }
+                }
+              }}
+            >
+              {/* Scroll indicators */}
+              <Box
+                position="absolute"
+                left="0"
+                top="0"
+                bottom="0"
+                width="20px"
+                background="linear-gradient(to right, rgba(255,255,255,0.9), transparent)"
+                pointerEvents="none"
+                zIndex={2}
+              />
+              <Box
+                position="absolute"
+                right="0"
+                top="0"
+                bottom="0"
+                width="20px"
+                background="linear-gradient(to left, rgba(255,255,255,0.9), transparent)"
+                pointerEvents="none"
+                zIndex={2}
+              />
+              
+              <Tabs.List 
+                minW="max-content" 
+                bg={COLORS.table.headerBg} 
+                borderRadius="lg" 
+                p={1}
+                position="relative"
+              >
               {tables.map((table) => {
                 const isActive = activeTable === table.name;
                 return (
@@ -364,6 +441,7 @@ Note: This data is from the Observer platform.
                 );
               })}
             </Tabs.List>
+            </Box>
           </Box>
           
           {tables.map((table) => {

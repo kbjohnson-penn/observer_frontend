@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box, Text, Heading, Flex, Input, Badge } from '@chakra-ui/react';
+import { Box, Text, Heading, Flex, Input } from '@chakra-ui/react';
 import { FaSearch } from 'react-icons/fa';
 import { OMOPTableName } from '@/interfaces/observer-omop';
 import { MEDICAL_TERMS } from '@/constants/table-info.constants';
@@ -147,6 +147,7 @@ const DataTable: React.FC<DataTableProps> = ({
       {renderTableDescription()}
       
       <Box 
+        position="relative"
         overflowX="auto"
         border="1px"
         borderColor={COLORS.table.borderColor}
@@ -156,22 +157,46 @@ const DataTable: React.FC<DataTableProps> = ({
         overflowY="auto"
         css={{
           '&::-webkit-scrollbar': {
-            width: '8px',
-            height: '8px'
+            width: '12px',
+            height: '12px'
           },
           '&::-webkit-scrollbar-track': {
             background: '#f1f5f9',
-            borderRadius: '4px'
+            borderRadius: '6px'
           },
           '&::-webkit-scrollbar-thumb': {
-            background: '#cbd5e0',
-            borderRadius: '4px',
+            background: '#2563eb',
+            borderRadius: '6px',
             '&:hover': {
-              background: '#a0aec0'
+              background: '#1d4ed8'
             }
+          },
+          '&::-webkit-scrollbar-corner': {
+            background: '#f1f5f9'
           }
         }}
       >
+        {/* Subtle fade indicators */}
+        <Box
+          position="absolute"
+          top="0"
+          left="0"
+          right="0"
+          height="8px"
+          background="linear-gradient(to bottom, rgba(255,255,255,0.9), transparent)"
+          pointerEvents="none"
+          zIndex={1}
+        />
+        <Box
+          position="absolute"
+          bottom="0"
+          left="0"
+          right="0"
+          height="8px"
+          background="linear-gradient(to top, rgba(255,255,255,0.9), transparent)"
+          pointerEvents="none"
+          zIndex={1}
+        />
         <Box as="table" width="100%" fontSize="sm">
           {renderTableHeader(table.data)}
           <Box as="tbody">
@@ -184,7 +209,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 borderBottom="1px"
                 borderColor={COLORS.table.borderColor}
               >
-                {Object.entries(row).map(([key, value]: [string, any], cellIndex) => (
+                {Object.entries(row).map(([, value]: [string, any], cellIndex) => (
                   <Box
                     as="td"
                     key={cellIndex}
