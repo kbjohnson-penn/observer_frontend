@@ -79,9 +79,9 @@ export const STATISTICS: Statistic[] = [
     color: "blue.600"
   },
   {
-    value: "91%",
-    label: "Automated De-identification",
-    description: "HIPAA-compliant privacy protection",
+    value: "8 Clinics",
+    label: "Different Specialties",
+    description: "Internal Medicine, Neurology, Family Medicine, and more",
     color: "green.600"
   },
   {
@@ -111,8 +111,9 @@ export const BUTTON_STYLES: ButtonStyles = {
 
 // Page Content
 export const PAGE_CONTENT: PageContent = {
-  title: "The Observer Repository: Transforming Healthcare Through Video-Based Clinical Research",
-  subtitle: "Advancing ambulatory care innovation through real-world clinical insights",
+  title: "The Observer Repository",
+  subtitle: "Transforming Healthcare Through Video-Based Clinical Research.",
+  // subtitle_2: "Advancing ambulatory care innovation through real-world clinical insights",
   description: `A first-of-its-kind open research platform that captures real outpatient visits through 
     high-resolution video, structured metadata, and collaborative annotations. Observer enables 
     detailed analysis of clinical routines, team interactions, and workflow dynamics to support 
