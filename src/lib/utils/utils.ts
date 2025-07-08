@@ -155,7 +155,7 @@ export const getEncountersByMultiModalData = (
     // Convert multi_modal_data_id to string to ensure consistent lookup
     // Skip encounters that don't have a valid multi_modal_data_id
     if (!encounter.multi_modal_data_id) {
-      console.warn(`Encounter ${encounter.id} has no multi_modal_data_id`);
+      // Encounter has no multi_modal_data_id - skip
       return;
     }
 
@@ -169,9 +169,7 @@ export const getEncountersByMultiModalData = (
         }
       });
     } else {
-      console.warn(
-        `No multimodal data found for encounter ${encounter.id} with multi_modal_data_id ${encounter.multi_modal_data_id}`
-      );
+      // No multimodal data found for encounter - skip
     }
   });
 
@@ -244,9 +242,7 @@ export const getEncountersByGroup = (
   for (const encounter of filteredEncounterData) {
     // Skip if patient_id or provider_id is missing
     if (!encounter.patient_id || !encounter.provider_id) {
-      console.warn(
-        `Encounter ${encounter.id} has missing patient_id or provider_id`
-      );
+      // Encounter has missing patient_id or provider_id - skip
       continue;
     }
 
@@ -264,7 +260,7 @@ export const getEncountersByGroup = (
       if (counts[patientGroup]) {
         counts[patientGroup].patientCount.add(patient.id);
       } else {
-        console.warn(`Unknown ${groupKey} group for patient: ${patientGroup}`);
+        // Unknown group for patient - skip
       }
     }
 
@@ -274,9 +270,7 @@ export const getEncountersByGroup = (
       if (counts[providerGroup]) {
         counts[providerGroup].providerCount.add(provider.id);
       } else {
-        console.warn(
-          `Unknown ${groupKey} group for provider: ${providerGroup}`
-        );
+        // Unknown group for provider - skip
       }
     }
   }
@@ -363,10 +357,7 @@ export const getSatisfactionData = (
 
         return !(patientSat === 0 && providerSat === 0);
       } catch (error) {
-        console.warn(
-          `Error processing satisfaction data for encounter ${encounter.id}:`,
-          error
-        );
+        // Error processing satisfaction data - skip encounter
         return false;
       }
     })
@@ -402,10 +393,7 @@ export const getSatisfactionData = (
           providerSatisfaction: normalizedProviderSatisfaction,
         };
       } catch (error) {
-        console.warn(
-          `Error normalizing satisfaction data for encounter ${encounter.id}:`,
-          error
-        );
+        // Error normalizing satisfaction data - skip encounter
         // Return default values if there's an error
         return {
           patientSatisfaction: 0,
@@ -508,9 +496,7 @@ export const compileData = (
 
     // This check is now redundant because of our filtering above, but kept for safety
     if (!patient || !provider || !multiModalDataPath) {
-      console.warn(
-        `Skipping encounter ${encounter.id} due to missing related data`
-      );
+      // Skipping encounter due to missing related data
       return null;
     }
 

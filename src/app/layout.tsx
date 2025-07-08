@@ -4,8 +4,8 @@ import "./globals.css";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import { Provider } from "@/components/ui/provider";
-import { AuthProvider } from "../contexts/AuthContext";
-import AppLayout from "./AppLayout"; // New client-side layout component
+import { AuthProvider } from "@/contexts/AuthContext";
+import AppLayout from "./AppLayout";
 
 config.autoAddCss = false;
 

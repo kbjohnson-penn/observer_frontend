@@ -1,155 +1,280 @@
-// "use client";
-
-// import React, { useState, useEffect } from "react";
-// import { Box, Button, Stack, Fieldset } from "@chakra-ui/react";
-// import ProfileField from "./_components/ProfileField";
-// import apiClient from "../../lib/apiClient";
-// import { ProfileData } from "../../interfaces/profile";
-// import { useAuth } from "../../contexts/AuthContext";
-
-// const ProfilePage: React.FC = () => {
-//   const { logout } = useAuth();
-//   const [profileData, setProfileData] = useState<ProfileData>({
-//     first_name: "",
-//     last_name: "",
-//     username: "",
-//     email: "",
-//     date_of_birth: "",
-//     phone_number: null,
-//     address: "",
-//     city: null,
-//     state: null,
-//     country: null,
-//     zip_code: null,
-//     bio: "",
-//     organization: { id: 0, name: "" },
-//     tier: { tier_name: "" },
-//     date_joined: "",
-//     last_login: null,
-//   });
-
-//   useEffect(() => {
-//     const fetchProfile = async () => {
-//       try {
-//         const { data } = await apiClient.get<ProfileData>("/profile");
-//         setProfileData(data);
-//       } catch (error) {
-//         console.error("Failed to fetch profile:", error);
-//       }
-//     };
-
-//     fetchProfile();
-//   }, []);
-
-//   return (
-//     <Box
-//       minH="100vh"
-//       bg="gray.50"
-//       display="flex"
-//       justifyContent="center"
-//       alignItems="center"
-//       px={4}
-//       py={8}
-//     >
-//       <Fieldset.Root
-//         size="lg"
-//         maxW="md"
-//         bg="white"
-//         p={6}
-//         rounded="md"
-//         shadow="lg"
-//       >
-//         <Stack mb={4}>
-//           <Fieldset.Legend fontSize="2xl" fontWeight="bold" color="gray.800">
-//             Profile Details
-//           </Fieldset.Legend>
-//         </Stack>
-
-//         <Fieldset.Content gap={4}>
-//           <ProfileField label="First Name" value={profileData.first_name} />
-//           <ProfileField label="Last Name" value={profileData.last_name} />
-//           <ProfileField label="Username" value={profileData.username} />
-//           <ProfileField label="Email Address" value={profileData.email} />
-//           <ProfileField
-//             label="Organization"
-//             value={profileData.organization.name}
-//           />
-//           <ProfileField label="Tier" value={profileData.tier.tier_name} />
-//           <ProfileField
-//             label="Date Joined"
-//             value={new Date(profileData.date_joined).toLocaleDateString()}
-//           />
-//           <ProfileField
-//             label="Last Login"
-//             value={
-//               profileData.last_login
-//                 ? new Date(profileData.last_login).toLocaleDateString()
-//                 : "Never"
-//             }
-//           />
-//         </Fieldset.Content>
-
-//         <Button
-//           type="button"
-//           color="red"
-//           mt={6}
-//           onClick={logout}
-//           w="25%"
-//           size="lg"
-//           rounded="md"
-//           shadow="sm"
-//           alignSelf="flex-end"
-//         >
-//           Logout
-//         </Button>
-//       </Fieldset.Root>
-//     </Box>
-//   );
-// };
-
-// export default ProfilePage;
-
 "use client";
 
-import React, { useState } from "react";
-import { Input, Stack, Text, Box, Card } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Container,
+  Heading,
+  Grid,
+  Card,
+  Text,
+  Button,
+  VStack,
+  Alert,
+  Separator,
+} from "@chakra-ui/react";
+import { useAuth } from "@/contexts/AuthContext";
+import { apiClient } from "@/lib/apiClient";
 
-const ProfilePage = () => {
+interface UserProfile {
+  first_name: string;
+  last_name: string;
+  username: string;
+  email: string;
+  date_of_birth: string;
+  phone_number: string | null;
+  address: string;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  zip_code: string | null;
+  bio: string | null;
+  organization: {
+    id: number;
+    name: string;
+  } | null;
+  tier: {
+    id: number;
+    tier_name: string;
+    level: number;
+  } | null;
+  date_joined: string;
+  last_login: string | null;
+}
+
+export default function ProfilePage() {
+  const { logout } = useAuth();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        // Fetch user profile data
+        const response = await apiClient.get("/profile/");
+        setProfile(response.data);
+      } catch (err) {
+        // Profile fetch error - show user-friendly message
+        setError("Failed to load profile data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      // Logout error - continue with redirect
+    }
+  };
+
+  if (loading) {
+    return (
+      <Container maxW="container.lg" py={8}>
+        <Text color="gray.600">Loading profile...</Text>
+      </Container>
+    );
+  }
+
   return (
-    <Box
-      minH="100vh"
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      bg="gray.100"
-      px={4}
-    >
-      <Card.Root
-        maxW="sm"
-        w="full"
-        rounded="md"
-        shadow="lg"
-        bg="white"
-        border="1px"
-      >
-        <Box
-          bg="yellow.100"
-          p={3}
-          mb={4}
-          borderRadius="md"
-          border="1px"
-          borderColor="yellow.300"
-        >
-          <Text fontWeight="bold" color="yellow.800" textAlign="center">
-            🚧 Page Under Construction 🚧
-          </Text>
-          <Text fontSize="sm" color="yellow.800" textAlign="center">
-            This feature is currently being developed and is not yet available.
-          </Text>
+    <Container maxW="container.lg" py={8}>
+      <VStack gap={6} align="stretch">
+        {/* Header */}
+        <Box>
+          <Heading size="lg" color="gray.900">Profile</Heading>
+          <Text color="gray.600">View your account information</Text>
         </Box>
-      </Card.Root>
-    </Box>
-  );
-};
 
-export default ProfilePage;
+
+        {/* Error Alert */}
+        {error && (
+          <Alert.Root status="error">
+            <Alert.Title>{error}</Alert.Title>
+          </Alert.Root>
+        )}
+
+        {/* Profile Information */}
+        {profile && (
+          <Grid templateColumns={{ base: "1fr", lg: "2fr 1fr" }} gap={6}>
+            {/* Main Profile Card */}
+            <Card.Root bg="white" shadow="md" border="1px" borderColor="gray.200">
+              <Card.Header>
+                <Heading size="md" color="gray.900">Personal Information</Heading>
+              </Card.Header>
+              <Card.Body>
+                <VStack gap={4} align="stretch">
+                  <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4}>
+                    <Box>
+                      <Text mb={2} color="gray.700" fontWeight="medium">First Name</Text>
+                      <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                        {profile.first_name || "Not provided"}
+                      </Text>
+                    </Box>
+
+                    <Box>
+                      <Text mb={2} color="gray.700" fontWeight="medium">Last Name</Text>
+                      <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                        {profile.last_name || "Not provided"}
+                      </Text>
+                    </Box>
+                  </Grid>
+
+                  <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4}>
+                    <Box>
+                      <Text mb={2} color="gray.700" fontWeight="medium">Username</Text>
+                      <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                        {profile.username}
+                      </Text>
+                    </Box>
+
+                    <Box>
+                      <Text mb={2} color="gray.700" fontWeight="medium">Email</Text>
+                      <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                        {profile.email}
+                      </Text>
+                    </Box>
+                  </Grid>
+
+                  <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4}>
+                    <Box>
+                      <Text mb={2} color="gray.700" fontWeight="medium">Date of Birth</Text>
+                      <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                        {profile.date_of_birth ? new Date(profile.date_of_birth).toLocaleDateString() : "Not provided"}
+                      </Text>
+                    </Box>
+
+                    <Box>
+                      <Text mb={2} color="gray.700" fontWeight="medium">Phone Number</Text>
+                      <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                        {profile.phone_number || "Not provided"}
+                      </Text>
+                    </Box>
+                  </Grid>
+
+                  <Box>
+                    <Text mb={2} color="gray.700" fontWeight="medium">Address</Text>
+                    <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                      {profile.address || "Not provided"}
+                    </Text>
+                  </Box>
+
+                  <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={4}>
+                    <Box>
+                      <Text mb={2} color="gray.700" fontWeight="medium">City</Text>
+                      <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                        {profile.city || "Not provided"}
+                      </Text>
+                    </Box>
+
+                    <Box>
+                      <Text mb={2} color="gray.700" fontWeight="medium">State</Text>
+                      <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                        {profile.state || "Not provided"}
+                      </Text>
+                    </Box>
+
+                    <Box>
+                      <Text mb={2} color="gray.700" fontWeight="medium">Zip Code</Text>
+                      <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                        {profile.zip_code || "Not provided"}
+                      </Text>
+                    </Box>
+                  </Grid>
+
+                  <Box>
+                    <Text mb={2} color="gray.700" fontWeight="medium">Country</Text>
+                    <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                      {profile.country || "Not provided"}
+                    </Text>
+                  </Box>
+
+                  <Box>
+                    <Text mb={2} color="gray.700" fontWeight="medium">Bio</Text>
+                    <Text color="gray.900" bg="gray.50" p={3} borderRadius="md" minHeight="100px">
+                      {profile.bio || "Not provided"}
+                    </Text>
+                  </Box>
+                </VStack>
+              </Card.Body>
+            </Card.Root>
+
+            {/* Account Details */}
+            <Card.Root bg="white" shadow="md" border="1px" borderColor="gray.200">
+              <Card.Header>
+                <Heading size="md" color="gray.900">Account Details</Heading>
+              </Card.Header>
+              <Card.Body>
+                <VStack gap={4} align="stretch">
+                  <Box>
+                    <Text color="gray.700" fontWeight="medium" mb={2}>Organization</Text>
+                    <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                      {profile.organization?.name || "Not assigned"}
+                    </Text>
+                  </Box>
+
+                  <Separator />
+
+                  <Box>
+                    <Text color="gray.700" fontWeight="medium" mb={2}>Access Tier</Text>
+                    <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                      {profile.tier ? `${profile.tier.tier_name} (Level ${profile.tier.level})` : "Not assigned"}
+                    </Text>
+                  </Box>
+
+                  <Separator />
+
+                  <Box>
+                    <Text color="gray.700" fontWeight="medium" mb={2}>Member Since</Text>
+                    <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                      {new Date(profile.date_joined).toLocaleDateString()}
+                    </Text>
+                  </Box>
+
+                  <Separator />
+
+                  <Box>
+                    <Text color="gray.700" fontWeight="medium" mb={2}>Last Login</Text>
+                    <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
+                      {profile.last_login 
+                        ? new Date(profile.last_login).toLocaleString()
+                        : "Never"
+                      }
+                    </Text>
+                  </Box>
+
+                  <Separator />
+
+                  <Box>
+                    <Text color="gray.600" fontSize="sm" mb={4}>
+                      Profile information is read-only. Contact an administrator to make changes.
+                    </Text>
+                    
+                    <Button
+                      bg="red.600"
+                      color="white"
+                      size="lg"
+                      width="100%"
+                      onClick={handleLogout}
+                      _hover={{ bg: "red.700" }}
+                    >
+                      Sign Out
+                    </Button>
+                  </Box>
+                </VStack>
+              </Card.Body>
+            </Card.Root>
+          </Grid>
+        )}
+      </VStack>
+    </Container>
+  );
+}

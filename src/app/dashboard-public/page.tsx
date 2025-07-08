@@ -6,9 +6,8 @@ import { Box, Heading, Text } from "@chakra-ui/react";
 import { PublicDepartmentDataType } from "@/interfaces/department";
 import { PublicPatientDataType } from "@/interfaces/patient";
 import { PublicProviderDataType } from "@/interfaces/provider";
-import { PublicEncounterDataType } from "@/interfaces/encounter";
+import { PublicEncounterDataType, PublicEncounterSourceDataType } from "@/interfaces/encounter";
 import { PublicMultiModalDataType } from "@/interfaces/mmd";
-import { PublicEncounterSourceDataType } from "@/interfaces/encounter";
 
 import { getDepartmentColors } from "@/lib/utils/utils";
 
@@ -19,7 +18,7 @@ const fetchPatientsData = async (): Promise<PublicPatientDataType[]> => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching patients:", error);
+    // Error fetching patients - return empty array
     return [];
   }
 };
@@ -31,7 +30,7 @@ const fetchProvidersData = async (): Promise<PublicProviderDataType[]> => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching providers:", error);
+    // Error fetching providers - return empty array
     return [];
   }
 };
@@ -43,7 +42,7 @@ const fetchDepartmentData = async (): Promise<PublicDepartmentDataType[]> => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching departments:", error);
+    // Error fetching departments - return empty array
     return [];
   }
 };
@@ -55,7 +54,7 @@ const fetchEncounterData = async (): Promise<PublicEncounterDataType[]> => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching encounters:", error);
+    // Error fetching encounters - return empty array
     return [];
   }
 };
@@ -67,7 +66,7 @@ const fetchMultiModalData = async (): Promise<PublicMultiModalDataType[]> => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching multimodal data:", error);
+    // Error fetching multimodal data - return empty array
     return [];
   }
 };
@@ -81,7 +80,7 @@ const fetchEncounterSourceData = async (): Promise<
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching encounter sources:", error);
+    // Error fetching encounter sources - return empty array
     return [];
   }
 };

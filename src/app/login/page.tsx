@@ -1,180 +1,128 @@
-// "use client";
-
-// import React, { useState } from "react";
-// import { Input, Stack, Text, Box, Card } from "@chakra-ui/react";
-// import { Field } from "@/components/ui/field";
-// import { Button } from "@/components/ui/button";
-// import { PasswordInput } from "@/components/ui/password-input";
-// import { useAuth } from "../../contexts/AuthContext";
-// import { useRouter } from "next/navigation";
-
-// const LoginPage = () => {
-//   const { login } = useAuth();
-//   const router = useRouter(); // Use Next.js router for navigation
-//   const [username, setUsername] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [error, setError] = useState<string | null>(null);
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-//     try {
-//       setError(null);
-//       await login(username, password);
-//       window.location.href = "/dashboard"; // Redirect after login
-//     } catch {
-//       setError("Invalid username or password.");
-//     }
-//   };
-
-//   const handleCancel = () => {
-//     setUsername("");
-//     setPassword("");
-//     setError(null);
-//     router.push("/"); // Redirect to the homepage or any desired page
-//   };
-
-//   return (
-//     <Box
-//       minH="100vh"
-//       display="flex"
-//       justifyContent="center"
-//       alignItems="center"
-//       bg="gray.100"
-//       px={4}
-//     >
-//       <Card.Root
-//         maxW="sm"
-//         w="full"
-//         rounded="md"
-//         shadow="lg"
-//         bg="white"
-//         border="1px"
-//       >
-//         <Card.Header
-//           bg="brand.penn-dark-blue"
-//           color="white"
-//           roundedTop="md"
-//           p={4}
-//           mb={4}
-//         >
-//           <Text fontSize="2xl" fontWeight="bold" textAlign="center">
-//             Login
-//           </Text>
-//           <Text fontSize="sm" textAlign="center" mt={1}>
-//             Enter your details to log in
-//           </Text>
-//         </Card.Header>
-
-//         <Card.Body>
-//           <Stack gap={4}>
-//             {error && (
-//               <Text color="red.500" fontSize="sm" textAlign="center">
-//                 {error}
-//               </Text>
-//             )}
-
-//             <Field label="Username" color="gray.600">
-//               <Input
-//                 placeholder="Enter your username"
-//                 value={username}
-//                 onChange={(e) => setUsername(e.target.value)}
-//                 bg="gray.50"
-//                 borderColor="gray.300"
-//                 _focus={{
-//                   borderColor: "blue.500",
-//                   bg: "white",
-//                 }}
-//                 p={4}
-//               />
-//             </Field>
-
-//             <Field label="Password" color="gray.600">
-//               <PasswordInput
-//                 placeholder="Enter your password"
-//                 value={password}
-//                 onChange={(e) => setPassword(e.target.value)}
-//                 bg="gray.50"
-//                 borderColor="gray.300"
-//                 _focus={{
-//                   borderColor: "blue.500",
-//                   bg: "white",
-//                 }}
-//                 p={4}
-//               />
-//             </Field>
-//           </Stack>
-//         </Card.Body>
-
-//         <Card.Footer justifyContent="flex-end" display="flex" gap={2}>
-//           <Button
-//             size="lg"
-//             variant="outline"
-//             colorScheme="gray"
-//             p={2}
-//             onClick={handleCancel}
-//             color="gray.600"
-//           >
-//             Cancel
-//           </Button>
-//           <Button
-//             size="lg"
-//             variant="solid"
-//             colorPalette="blue"
-//             p={2}
-//             onClick={handleSubmit}
-//             color="gray.600"
-//           >
-//             Sign in
-//           </Button>
-//         </Card.Footer>
-//       </Card.Root>
-//     </Box>
-//   );
-// };
-
-// export default LoginPage;
-
 "use client";
 
-import React, { useState } from "react";
-import { Input, Stack, Text, Box, Card } from "@chakra-ui/react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  Input,
+  Text,
+  VStack,
+  Alert,
+} from "@chakra-ui/react";
+import Image from "next/image";
+import { useAuth } from "@/contexts/AuthContext";
 
-const LoginPage = () => {
+export default function LoginPage() {
+  const router = useRouter();
+  const { login, isAuthenticated } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
+    try {
+      await login(username, password);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <Box
-      minH="100vh"
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      bg="gray.100"
-      px={4}
-    >
-      <Card.Root
-        maxW="sm"
-        w="full"
-        rounded="md"
-        shadow="lg"
-        bg="white"
-        border="1px"
-      >
-        <Box
-          bg="yellow.100"
-          p={3}
-          mb={4}
-          borderRadius="md"
-          border="1px"
-          borderColor="yellow.300"
-        >
-          <Text fontWeight="bold" color="yellow.800" textAlign="center">
-            🚧 Page Under Construction 🚧
-          </Text>
-          <Text fontSize="sm" color="yellow.800" textAlign="center">
-            This feature is currently being developed and is not yet available.
-          </Text>
-        </Box>
-      </Card.Root>
+    <Box bg="gray.50" py={16}>
+      <Container maxW="md">
+        <Card.Root bg="white" shadow="lg" borderRadius="lg" border="1px" borderColor="gray.200" color="gray.900">
+        <Card.Header>
+          <VStack gap={4}>
+            <Image
+              src="/ObserverLogoLightBackground.svg"
+              width={200}
+              height={50}
+              alt="Observer Project"
+              priority
+            />
+            <Text fontSize="2xl" fontWeight="bold" color="gray.900">
+              Sign In
+            </Text>
+          </VStack>
+        </Card.Header>
+        <Card.Body>
+          <form onSubmit={handleSubmit}>
+            <VStack gap={4}>
+              {error && (
+                <Alert.Root status="error" borderRadius="md">
+                  <Alert.Title>{error}</Alert.Title>
+                </Alert.Root>
+              )}
+              
+              <Box width="100%">
+                <Text mb={2} color="gray.700">Username</Text>
+                <Input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
+                  bg="gray.50"
+                  border="1px"
+                  borderColor="gray.200"
+                  color="gray.900"
+                  _placeholder={{ color: "gray.500" }}
+                  _focus={{ borderColor: "blue.400", bg: "white" }}
+                  padding={2}
+                  required
+                />
+              </Box>
+              
+              <Box width="100%">
+                <Text mb={2} color="gray.700">Password</Text>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  bg="gray.50"
+                  border="1px"
+                  borderColor="gray.200"
+                  color="gray.900"
+                  _placeholder={{ color: "gray.500" }}
+                  _focus={{ borderColor: "blue.400", bg: "white" }}
+                  padding={2}
+                  required
+                />
+              </Box>
+              
+              <Button
+                type="submit"
+                bg="blue.600"
+                color="white"
+                size="lg"
+                width="100%"
+                disabled={isLoading}
+                _hover={{ bg: "blue.700" }}
+              >
+                {isLoading ? "Signing in..." : "Sign In"}
+              </Button>
+            </VStack>
+          </form>
+        </Card.Body>
+        </Card.Root>
+      </Container>
     </Box>
   );
-};
-
-export default LoginPage;
+}

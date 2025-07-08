@@ -14,3 +14,10 @@ export interface PublicProviderDataType {
   race: string;
   ethnicity: string;
 }
+
+// Provider interface from encounter.ts
+export interface Provider {
+  id: number;
+  name: string;
+  specialty?: string;
+}
