@@ -16,7 +16,7 @@ const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({ children }) =
       <Box flex="1" pt="80px"> {/* Add padding-top to account for fixed header */}
         {children}
       </Box>
-      <Footer variant="compact" />
+      <Footer />
     </Box>
   );
 };

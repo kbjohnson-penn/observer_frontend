@@ -49,7 +49,7 @@ const ResearchApplicationsSection: React.FC = () => (
             p={6} 
             borderRadius="lg" 
             boxShadow="sm" 
-            _hover={{ boxShadow: "md", transform: "translateY(-2px)" }} 
+            // _hover={{ boxShadow: "md", transform: "translateY(-2px)" }} 
             transition="all 0.3s" 
             border="1px" 
             borderColor="gray.200"

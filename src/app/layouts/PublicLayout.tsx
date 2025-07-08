@@ -18,7 +18,7 @@ export default function PublicLayout({
         {children}
       </div>
 
-      <Footer variant="full" />
+      <Footer />
       <FloatingContactButton />
     </div>
   );

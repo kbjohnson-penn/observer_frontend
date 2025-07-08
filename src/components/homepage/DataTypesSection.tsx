@@ -49,7 +49,7 @@ const DataTypesSection: React.FC = () => (
             bg="gray.50" 
             p={6} 
             borderRadius="lg" 
-            _hover={{ bg: "gray.100" }} 
+            // _hover={{ bg: "gray.100" }} 
             transition="all 0.3s"
           >
             <HStack gap={4} align="start">

@@ -11,7 +11,12 @@ import { STATISTICS } from '@/constants/homepage.constants';
 const StatisticsSection: React.FC = () => (
   <Box mb={16} py={12} bg="blue.50" borderRadius="xl">
     <Container maxW="container.xl">
-      <Heading size="xl" textAlign="center" mb={8} color="blue.700">
+      <Heading size="2xl" 
+        textAlign="center" 
+        mb={6} 
+        color="blue.700" 
+        fontWeight="bold"
+      >
         Research Impact
       </Heading>
       
