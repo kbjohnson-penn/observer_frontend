@@ -50,7 +50,6 @@ const DatabaseStructure = () => {
             boxShadow="sm" 
             border="1px" 
             borderColor="gray.200"
-            _hover={{ boxShadow: "md", transform: "translateY(-2px)" }} 
             transition="all 0.3s"
           >
             {/* Header - no icon */}

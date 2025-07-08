@@ -80,7 +80,7 @@ export const STATISTICS: Statistic[] = [
   },
   {
     value: "8 Clinics",
-    label: "Different Specialties",
+    label: "Various Specialties", 
     description: "Internal Medicine, Neurology, Family Medicine, and more",
     color: "green.600"
   },
