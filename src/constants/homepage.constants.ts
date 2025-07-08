@@ -113,7 +113,6 @@ export const BUTTON_STYLES: ButtonStyles = {
 export const PAGE_CONTENT: PageContent = {
   title: "The Observer Repository",
   subtitle: "Transforming Healthcare Through Video-Based Clinical Research.",
-  // subtitle_2: "Advancing ambulatory care innovation through real-world clinical insights",
   description: `A first-of-its-kind open research platform that captures real outpatient visits through 
     high-resolution video, structured metadata, and collaborative annotations. Observer enables 
     detailed analysis of clinical routines, team interactions, and workflow dynamics to support 

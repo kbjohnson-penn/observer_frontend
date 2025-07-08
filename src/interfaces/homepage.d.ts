@@ -22,7 +22,6 @@ export interface Statistic {
 export interface PageContent {
   title: string;
   subtitle: string;
-  // subtitle_2: string;
   description: string;
   ctaButtons: Array<{
     href: string;

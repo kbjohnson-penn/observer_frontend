@@ -57,7 +57,7 @@ const DatasetHeader = () => {
             size="lg" 
             colorScheme="blue"
             bg="blue.500"
-            _hover={{ bg: "blue.600", transform: 'translateY(-2px)', boxShadow: 'lg' }}
+            _hover={{ bg: "blue.600"}}
             transition="all 0.2s"
             color="white"
             minW="200px"

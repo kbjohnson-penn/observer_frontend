@@ -30,15 +30,7 @@ const HeroSection: React.FC = () => (
     >
       {PAGE_CONTENT.subtitle}
     </Text>
-    {/* <Text 
-      fontSize={{ base: "md", md: "lg" }} 
-      color="blue.500" 
-      fontWeight="normal" 
-      mb={4}
-    >
-      {PAGE_CONTENT.subtitle_2}
-    </Text> */}
-    
+
     <Text 
       fontSize="lg" 
       color="gray.600" 
