@@ -264,17 +264,17 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
           overflowY="auto"
           css={{
             '&::-webkit-scrollbar': {
-              width: '8px'
+              width: '12px'
             },
             '&::-webkit-scrollbar-track': {
               background: '#f1f5f9',
-              borderRadius: '4px'
+              borderRadius: '6px'
             },
             '&::-webkit-scrollbar-thumb': {
-              background: '#cbd5e0',
-              borderRadius: '4px',
+              background: '#2563eb',
+              borderRadius: '6px',
               '&:hover': {
-                background: '#a0aec0'
+                background: '#1d4ed8'
               }
             }
           }}
