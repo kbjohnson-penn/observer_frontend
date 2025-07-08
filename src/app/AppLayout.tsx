@@ -2,6 +2,7 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
+import { Box, ProgressCircle } from "@chakra-ui/react";
 import { useAuth } from "@/contexts/AuthContext";
 import PublicLayout from "./layouts/PublicLayout";
 import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
@@ -20,9 +21,14 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (isLoading) {
     return (
       <PublicLayout>
-        <div style={{ padding: "2rem", textAlign: "center" }}>
-          Loading...
-        </div>
+        <Box display="flex" justifyContent="center" alignItems="center" minH="50vh">
+          <ProgressCircle.Root value={null} size="lg" colorPalette="blue">
+            <ProgressCircle.Circle>
+              <ProgressCircle.Track stroke="gray.200" />
+              <ProgressCircle.Range />
+            </ProgressCircle.Circle>
+          </ProgressCircle.Root>
+        </Box>
       </PublicLayout>
     );
   }

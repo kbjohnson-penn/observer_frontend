@@ -3,6 +3,7 @@
 import React from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import FloatingContactButton from "@/components/FloatingContactButton";
 
 export default function PublicLayout({
   children,
@@ -18,6 +19,7 @@ export default function PublicLayout({
       </div>
 
       <Footer variant="full" />
+      <FloatingContactButton />
     </div>
   );
 }
