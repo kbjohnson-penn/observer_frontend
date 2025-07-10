@@ -13,6 +13,7 @@ import JSZip from 'jszip';
 
 interface HealthcareDataBrowserProps {
   className?: string;
+  sampleData?: SampleDataAPIResponse | null;
 }
 
 interface DataTable {
@@ -23,7 +24,7 @@ interface DataTable {
   filteredData?: any[];
 }
 
-const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className }) => {
+const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className, sampleData }) => {
   const [tables, setTables] = useState<DataTable[]>([]);
   const [activeTable, setActiveTable] = useState<OMOPTableName>('PERSON');
   const [loading, setLoading] = useState(true);
@@ -34,20 +35,24 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [sampleData]);
 
-  // Load all OMOP tables with sample data from API
+  // Load all OMOP tables with sample data from props
   const loadData = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Call the API directly
-      const response = await apiClient.get<SampleDataAPIResponse>('/public/sample-data/', {
-        timeout: 10000, // 10 seconds timeout
-      });
+      // Use sampleData from props if available, otherwise fetch it
+      let apiData = sampleData;
       
-      const apiData = response.data;
+      if (!apiData) {
+        // Only fetch if no sampleData prop provided (for backward compatibility)
+        const response = await apiClient.get<SampleDataAPIResponse>('/public/sample-data/', {
+          timeout: 10000,
+        });
+        apiData = response.data;
+      }
       
       // Map API response to OMOP table structure
       const loadedSampleData: Record<OMOPTableName, any[]> = {

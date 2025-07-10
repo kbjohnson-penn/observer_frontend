@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { Box, Heading, Text, VStack } from '@chakra-ui/react';
 import {
@@ -8,13 +6,70 @@ import {
 import HealthcareDataBrowser from '@/components/multimodal/HealthcareDataBrowser';
 import TranscriptViewer from '@/components/multimodal/TranscriptViewer';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { useDatasetExplorer } from '@/hooks/useDatasetExplorer';
+import axios from 'axios';
 
-const DatasetExplorePage = () => {
-  const {
-    videoSources,
-    transcriptSource
-  } = useDatasetExplorer();
+// Server-side data fetching function
+const fetchSampleData = async () => {
+  try {
+    const response = await axios.get(
+      `${process.env.INTERNAL_BACKEND_API}/public/sample-data/`,
+      {
+        timeout: 10000,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching sample data:', error);
+    return null;
+  }
+};
+
+const DatasetExplorePage = async () => {
+  // Fetch data on the server
+  const sampleData = await fetchSampleData();
+  
+  // Process video sources based on the public directory structure
+  const processMediaSources = () => {
+    const videoSources = { patient: '', provider: '', room: '' };
+    let transcriptSource = '';
+    
+    if (sampleData?.observations) {
+      // Process observations to extract video paths
+      sampleData.observations.forEach((obs: any) => {
+        // Extract encounter info - this should come from the observation data
+        // For now, using the example encounter
+        const encounterType = 'clinic';
+        const encounterId = '103';
+        
+        switch (obs.file_type) {
+          case 'patient_view':
+            videoSources.patient = `/encounters/${encounterType}/${encounterId}/patient_view.MP4`;
+            break;
+          case 'provider_view':
+            videoSources.provider = `/encounters/${encounterType}/${encounterId}/provider_view.MP4`;
+            break;
+          case 'room_view':
+            videoSources.room = `/encounters/${encounterType}/${encounterId}/room_view.MP4`;
+            break;
+          case 'transcript':
+            transcriptSource = `/encounters/${encounterType}/${encounterId}/transcript.xlsx`;
+            break;
+        }
+      });
+    }
+    
+    // Fallback to example videos if no observations or videos found
+    if (!videoSources.patient && !videoSources.provider && !videoSources.room) {
+      videoSources.patient = '/encounters/clinic/103/patient_view.MP4';
+      videoSources.provider = '/encounters/clinic/103/provider_view.MP4';
+      videoSources.room = '/encounters/clinic/103/room_view.MP4';
+      transcriptSource = '/encounters/clinic/103/transcript.xlsx';
+    }
+    
+    return { videoSources, transcriptSource };
+  };
+
+  const { videoSources, transcriptSource } = processMediaSources();
 
   return (
     <Box maxW="6xl" mx="auto" py={8} px={{ base: 4, md: 6 }}>
@@ -46,14 +101,13 @@ const DatasetExplorePage = () => {
       <VStack gap={8} align="stretch">
         {/* Healthcare Data Browser - Main Section */}
         <ErrorBoundary>
-          <HealthcareDataBrowser />
+          <HealthcareDataBrowser sampleData={sampleData} />
         </ErrorBoundary>
 
         {/* Media Viewers Section */}
         <ErrorBoundary>
           <MediaViewersSection
             videoSources={videoSources}
-            transcriptSource={transcriptSource}
           />
         </ErrorBoundary>
 
