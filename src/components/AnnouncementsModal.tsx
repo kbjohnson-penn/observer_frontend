@@ -16,11 +16,24 @@ import { FaExternalLinkAlt } from "react-icons/fa";
 
 interface AnnouncementsModalProps {
   trigger: React.ReactNode;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-const AnnouncementsModal: React.FC<AnnouncementsModalProps> = ({ trigger }) => {
+const AnnouncementsModal: React.FC<AnnouncementsModalProps> = ({ 
+  trigger, 
+  isOpen, 
+  onClose 
+}) => {
   return (
-    <Dialog.Root>
+    <Dialog.Root 
+      open={isOpen} 
+      onOpenChange={(details) => {
+        if (!details.open && onClose) {
+          onClose();
+        }
+      }}
+    >
       <Dialog.Trigger asChild>
         {trigger}
       </Dialog.Trigger>
@@ -28,7 +41,6 @@ const AnnouncementsModal: React.FC<AnnouncementsModalProps> = ({ trigger }) => {
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content bg="white" color="black">
-            
             <Dialog.Body py={6}>
               <VStack gap={5} align="stretch">
                 <Box textAlign="center">
@@ -92,7 +104,6 @@ const AnnouncementsModal: React.FC<AnnouncementsModalProps> = ({ trigger }) => {
                 </Box>
               </VStack>
             </Dialog.Body>
-            
             <Dialog.Footer justifyContent="center" pt={4}>
               <Dialog.ActionTrigger asChild>
                 <Button 
