@@ -11,7 +11,7 @@ const FloatingContactButton: React.FC = () => {
       position="fixed"
       bottom="6"
       right="6"
-      zIndex="50"
+      zIndex="40"
     >
       <ContactModal
         trigger={
