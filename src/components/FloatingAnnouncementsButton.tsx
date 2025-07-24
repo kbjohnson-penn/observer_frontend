@@ -2,21 +2,21 @@
 
 import React from "react";
 import { Box, IconButton } from "@chakra-ui/react";
-import { FaEnvelope } from "react-icons/fa";
-import ContactModal from "./ContactModal";
+import { LuBell } from "react-icons/lu";
+import AnnouncementsModal from "./AnnouncementsModal";
 
-const FloatingContactButton: React.FC = () => {
+const FloatingAnnouncementsButton: React.FC = () => {
   return (
     <Box
       position="fixed"
-      bottom="6"
+      bottom="20"
       right="6"
-      zIndex="40"
+      zIndex="60"
     >
-      <ContactModal
+      <AnnouncementsModal
         trigger={
           <IconButton
-            aria-label="Contact Us"
+            aria-label="View Announcements"
             size="lg"
             borderRadius="full"
             boxShadow="lg"
@@ -29,7 +29,7 @@ const FloatingContactButton: React.FC = () => {
             color="white"
             _active={{ bg: "blue.700" }}
           >
-            <FaEnvelope />
+            <LuBell />
           </IconButton>
         }
       />
@@ -37,4 +37,4 @@ const FloatingContactButton: React.FC = () => {
   );
 };
 
-export default FloatingContactButton;
+export default FloatingAnnouncementsButton;
