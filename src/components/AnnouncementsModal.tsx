@@ -57,7 +57,7 @@ const AnnouncementsModal: React.FC<AnnouncementsModalProps> = ({
                     Ready to apply?
                   </Text>
                   <Link
-                    href="https://www.med.upenn.edu/kbjohnsonlab/observer-pilot-awards"
+                    href="https://www.med.upenn.edu/kbjohnsonlab/observer-pilot-awards.html"
                     color="blue.600"
                     fontWeight="semibold"
                     fontSize="lg"
