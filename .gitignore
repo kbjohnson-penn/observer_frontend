@@ -19,6 +19,7 @@
 # misc
 .DS_Store
 *.pem
+.claude
 
 # debug
 npm-debug.log*
@@ -37,3 +38,7 @@ next-env.d.ts
 
 #data
 public/data/
+data/
+
+# Public Media
+public/encounters/*

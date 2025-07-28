@@ -7,14 +7,12 @@ import type { VideoSources } from '@/interfaces/observer-omop';
 
 interface MediaViewersSectionProps {
   videoSources: VideoSources;
-  transcriptSource: string;
 }
 
 const MediaViewersSection: React.FC<MediaViewersSectionProps> = ({
   videoSources,
-  transcriptSource
 }) => {
-  const hasAnyMedia = videoSources.patient || videoSources.provider || videoSources.room || transcriptSource;
+  const hasAnyMedia = videoSources.patient || videoSources.provider || videoSources.room;
 
   return (
     <Box bg="white" borderRadius="lg" boxShadow="md" overflow="hidden">
@@ -24,9 +22,6 @@ const MediaViewersSection: React.FC<MediaViewersSectionProps> = ({
           <Heading size="lg" color="blue.900" mb={2} fontWeight="bold">
             Multimodal Media Viewers
           </Heading>
-          <Text color="gray.700" fontSize="md">
-            Video recordings and transcripts automatically loaded from clinical encounters
-          </Text>
         </Box>
       </Box>
       
@@ -42,9 +37,6 @@ const MediaViewersSection: React.FC<MediaViewersSectionProps> = ({
           <Box textAlign="center" py={8} bg="blue.50" borderRadius="lg" border="1px" borderColor="blue.200">
             <Text color="blue.600" fontSize="md" fontWeight="medium">
               No media files available
-            </Text>
-            <Text color="blue.500" fontSize="sm" mt={1}>
-              Media files are automatically loaded from the OBSERVATION table
             </Text>
           </Box>
         )}
