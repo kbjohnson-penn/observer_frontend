@@ -11,14 +11,16 @@ import {
   Text,
   VStack,
   Alert,
+  Link as ChakraLink,
 } from "@chakra-ui/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, isAuthenticated } = useAuth();
-  const [username, setUsername] = useState("");
+  const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +38,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await login(username, password);
+      await login(usernameOrEmail, password);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
@@ -72,12 +74,12 @@ export default function LoginPage() {
               )}
               
               <Box width="100%">
-                <Text mb={2} color="gray.700">Username</Text>
+                <Text mb={2} color="gray.700">Username or Email</Text>
                 <Input
                   type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your username"
+                  value={usernameOrEmail}
+                  onChange={(e) => setUsernameOrEmail(e.target.value)}
+                  placeholder="Enter your username or email"
                   bg="gray.50"
                   border="1px"
                   borderColor="gray.200"
@@ -118,6 +120,17 @@ export default function LoginPage() {
               >
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
+
+              <Box textAlign="center" pt={4}>
+                <Text color="gray.600" fontSize="sm">
+                  Don&apos;t have an account?{" "}
+                  <Link href="/register">
+                    <ChakraLink color="blue.600" fontWeight="medium" _hover={{ color: "blue.700" }}>
+                      Register here
+                    </ChakraLink>
+                  </Link>
+                </Text>
+              </Box>
             </VStack>
           </form>
         </Card.Body>
