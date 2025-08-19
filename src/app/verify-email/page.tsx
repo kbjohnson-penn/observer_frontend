@@ -1,5 +1,5 @@
 import React from "react";
-import VerifyEmailForm from "./VerifyEmailForm";
+import VerifyEmailForm from "@/components/verify-email/VerifyEmailForm";
 
 interface PageProps {
   searchParams: { token?: string };

@@ -96,7 +96,7 @@ const DisplayField: React.FC<DisplayFieldProps> = ({ label, value }) => (
 );
 
 export default function UsernameSettings() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, refreshToken } = useAuth();
   const [currentUsername, setCurrentUsername] = useState("");
   const [newUsername, setNewUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -141,6 +141,8 @@ export default function UsernameSettings() {
       if (response.ok) {
         setCurrentUsername(newUsername);
         setMessage({ type: "success", text: "Username updated successfully!" });
+        // Refresh AuthContext user data to keep it in sync
+        await refreshToken();
       } else {
         const errorData = await response.json();
         setMessage({ 

@@ -13,6 +13,7 @@ import {
   Grid,
   HStack,
   Link as ChakraLink,
+  Field,
 } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -44,6 +45,45 @@ export default function RegisterForm() {
   const [successMessage, setSuccessMessage] = useState("");
   const [generalError, setGeneralError] = useState("");
 
+  // Allowed email domains for registration
+  const allowedDomains = [
+    'edu',           // Educational institutions
+    'ac.uk',         // UK academic institutions
+    'gov',           // Government institutions
+    'nih.gov',       // National Institutes of Health
+    'upenn.edu',     // University of Pennsylvania
+    'gmail.com',     // For testing purposes
+    'outlook.com',   // For testing purposes
+    'yahoo.com',     // For testing purposes
+  ];
+
+  const validateEmail = (email: string): { isValid: boolean; error?: string } => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!emailRegex.test(email)) {
+      return { isValid: false, error: 'Please enter a valid email address' };
+    }
+
+    const domain = email.split('@')[1]?.toLowerCase();
+    if (!domain) {
+      return { isValid: false, error: 'Invalid email format' };
+    }
+
+    // Check if domain or any parent domain is in the whitelist
+    const isDomainAllowed = allowedDomains.some(allowedDomain => 
+      domain === allowedDomain || domain.endsWith('.' + allowedDomain)
+    );
+
+    if (!isDomainAllowed) {
+      return { 
+        isValid: false, 
+        error: 'Please use an institutional email address (.edu, .gov, .ac.uk, etc.)' 
+      };
+    }
+
+    return { isValid: true };
+  };
+
   const handleInputChange = (field: keyof RegistrationForm, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear field-specific error when user starts typing
@@ -58,6 +98,14 @@ export default function RegisterForm() {
     setGeneralError("");
     setSuccessMessage("");
     setIsLoading(true);
+
+    // Validate email before sending to backend
+    const emailValidation = validateEmail(formData.email.trim());
+    if (!emailValidation.isValid) {
+      setErrors({ email: [emailValidation.error!] });
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/register/`, {
@@ -95,8 +143,8 @@ export default function RegisterForm() {
   };
 
   return (
-    <Box bg="gray.50" py={16} minHeight="100vh">
-      <Container maxW="md">
+    <Box bg="gray.50" py={10}>
+      <Container maxW="xl">
         <Card.Root bg="white" shadow="lg" borderRadius="lg" border="1px" borderColor="gray.200" color="gray.900">
           <Card.Header>
             <VStack gap={4}>
@@ -120,14 +168,28 @@ export default function RegisterForm() {
           
           <Card.Body>
             {successMessage && (
-              <Alert.Root status="success" borderRadius="md" mb={6}>
-                <Alert.Title>{successMessage}</Alert.Title>
-                <Box mt={2}>
-                  <Text fontSize="sm" color="green.700">
-                    You can close this page and check your email for the verification link.
-                  </Text>
+              <VStack gap={4} mb={6}>
+                <Alert.Root status="success" borderRadius="md">
+                  <Alert.Title>{successMessage}</Alert.Title>
+                </Alert.Root>
+                
+                <Box border="1px" borderRadius="md" p={4}>
+                  <VStack align="start" gap={3}>
+                    <Text fontSize="sm" fontWeight="semibold">
+                      Next steps:
+                    </Text>
+                    <VStack align="start" gap={1} fontSize="sm">
+                      <Text>• Check your email inbox for a verification link</Text>
+                      <Text>• Check your spam/junk folder if you don&apos;t see it</Text>
+                      <Text>• Make sure you entered your email correctly</Text>
+                      <Text>• The verification link expires in 24 hours</Text>
+                    </VStack>
+                    <Text fontSize="xs" mt={2}>
+                      If you don&apos;t receive the email after a few minutes, please try registering again or contact support.
+                    </Text>
+                  </VStack>
                 </Box>
-              </Alert.Root>
+              </VStack>
             )}
 
             {!successMessage && (
@@ -140,104 +202,109 @@ export default function RegisterForm() {
                   )}
                   
                   <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4} width="100%">
-                    <Box>
-                      <Text mb={2} color="gray.700" fontSize="sm" fontWeight="medium">
-                        First Name *
-                      </Text>
+                    <Field.Root required invalid={!!errors.first_name}>
+                      <Field.Label>
+                        First Name <Field.RequiredIndicator />
+                      </Field.Label>
                       <Input
                         type="text"
                         value={formData.first_name}
                         onChange={(e) => handleInputChange("first_name", e.target.value)}
                         placeholder="Enter your first name"
-                        bg="gray.50"
-                        border="1px"
-                        borderColor={errors.first_name ? "red.300" : "gray.200"}
-                        color="gray.900"
-                        _placeholder={{ color: "gray.500" }}
-                        _focus={{ borderColor: errors.first_name ? "red.400" : "blue.400", bg: "white" }}
-                        required
+                        size="sm"
+                        variant="outline"
+                        border="1px solid"
+                        bg={"white"}
+                        borderColor="gray.300"
+                        color={"gray.900"}
+                        p={2}
+                        _focus={{ borderColor: "blue.500" }}
+                        _hover={{ borderColor: "gray.400" }}
+                        _placeholder={{ color: "gray.400" }}
                       />
-                      {errors.first_name && (
-                        <Text color="red.500" fontSize="xs" mt={1}>
-                          {errors.first_name[0]}
-                        </Text>
-                      )}
-                    </Box>
+                      <Field.ErrorText>
+                        {errors.first_name?.[0]}
+                      </Field.ErrorText>
+                    </Field.Root>
 
-                    <Box>
-                      <Text mb={2} color="gray.700" fontSize="sm" fontWeight="medium">
-                        Last Name *
-                      </Text>
+                    <Field.Root required invalid={!!errors.last_name}>
+                      <Field.Label>
+                        Last Name <Field.RequiredIndicator />
+                      </Field.Label>
                       <Input
                         type="text"
                         value={formData.last_name}
                         onChange={(e) => handleInputChange("last_name", e.target.value)}
                         placeholder="Enter your last name"
-                        bg="gray.50"
-                        border="1px"
-                        borderColor={errors.last_name ? "red.300" : "gray.200"}
-                        color="gray.900"
-                        _placeholder={{ color: "gray.500" }}
-                        _focus={{ borderColor: errors.last_name ? "red.400" : "blue.400", bg: "white" }}
-                        required
+                        size="sm"
+                        variant="outline"
+                        border="1px solid"
+                        bg={"white"}
+                        borderColor="gray.300"
+                        color={"gray.900"}
+                        p={2}
+                        _focus={{ borderColor: "blue.500" }}
+                        _hover={{ borderColor: "gray.400" }}
+                        _placeholder={{ color: "gray.400" }}
                       />
-                      {errors.last_name && (
-                        <Text color="red.500" fontSize="xs" mt={1}>
-                          {errors.last_name[0]}
-                        </Text>
-                      )}
-                    </Box>
+                      <Field.ErrorText>
+                        {errors.last_name?.[0]}
+                      </Field.ErrorText>
+                    </Field.Root>
                   </Grid>
                   
-                  <Box width="100%">
-                    <Text mb={2} color="gray.700" fontSize="sm" fontWeight="medium">
-                      Email Address *
-                    </Text>
+                  <Field.Root required invalid={!!errors.email} width="100%">
+                    <Field.Label>
+                      Email Address <Field.RequiredIndicator />
+                    </Field.Label>
                     <Input
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleInputChange("email", e.target.value)}
                       placeholder="Enter your email address"
-                      bg="gray.50"
-                      border="1px"
-                      borderColor={errors.email ? "red.300" : "gray.200"}
-                      color="gray.900"
-                      _placeholder={{ color: "gray.500" }}
-                      _focus={{ borderColor: errors.email ? "red.400" : "blue.400", bg: "white" }}
-                      required
+                      size="sm"
+                      variant="outline"
+                      border="1px solid"
+                      bg={"white"}
+                      borderColor="gray.300"
+                      color={"gray.900"}
+                      p={2}
+                      _focus={{ borderColor: "blue.500" }}
+                      _hover={{ borderColor: "gray.400" }}
+                      _placeholder={{ color: "gray.400" }}
                     />
-                    {errors.email && (
-                      <Text color="red.500" fontSize="xs" mt={1}>
-                        {errors.email[0]}
-                      </Text>
-                    )}
-                  </Box>
+                    <Field.ErrorText>
+                      {errors.email?.[0]}
+                    </Field.ErrorText>
+                  </Field.Root>
 
-                  <Box width="100%">
-                    <Text mb={2} color="gray.700" fontSize="sm" fontWeight="medium">
-                      Organization
-                    </Text>
+                  <Field.Root required invalid={!!errors.organization_name} width="100%">
+                    <Field.Label>
+                      Organization <Field.RequiredIndicator />
+                    </Field.Label>
                     <Input
                       type="text"
                       value={formData.organization_name}
                       onChange={(e) => handleInputChange("organization_name", e.target.value)}
-                      placeholder="Enter your organization (optional)"
-                      bg="gray.50"
-                      border="1px"
-                      borderColor={errors.organization_name ? "red.300" : "gray.200"}
-                      color="gray.900"
-                      _placeholder={{ color: "gray.500" }}
-                      _focus={{ borderColor: errors.organization_name ? "red.400" : "blue.400", bg: "white" }}
+                      placeholder="Enter your organization"
+                      size="sm"
+                      variant="outline"
+                      border="1px solid"
+                      bg={"white"}
+                      borderColor="gray.300"
+                      color={"gray.900"}
+                      p={2}
+                      _focus={{ borderColor: "blue.500" }}
+                      _hover={{ borderColor: "gray.400" }}
+                      _placeholder={{ color: "gray.400" }}
                     />
-                    {errors.organization_name && (
-                      <Text color="red.500" fontSize="xs" mt={1}>
-                        {errors.organization_name[0]}
-                      </Text>
-                    )}
-                    <Text color="gray.500" fontSize="xs" mt={1}>
+                    <Field.ErrorText>
+                      {errors.organization_name?.[0]}
+                    </Field.ErrorText>
+                    <Field.HelperText>
                       Your institutional affiliation (university, hospital, research center, etc.)
-                    </Text>
-                  </Box>
+                    </Field.HelperText>
+                  </Field.Root>
                   
                   <Button
                     type="submit"

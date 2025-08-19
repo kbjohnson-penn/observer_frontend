@@ -7,14 +7,15 @@ import {
   Button,
   Card,
   Container,
-  Input,
   Text,
   VStack,
   Alert,
   Spinner,
   HStack,
   Link as ChakraLink,
+  Field,
 } from "@chakra-ui/react";
+import { PasswordInput } from "@/components/ui/password-input";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -62,6 +63,23 @@ export default function VerifyEmailForm({ token }: VerifyEmailFormProps) {
     setSuccessMessage("");
     setIsLoading(true);
 
+    // Validate passwords before sending to backend
+    const validationErrors: VerificationErrors = {};
+
+    if (formData.password.length < 8) {
+      validationErrors.password = ['Password must be at least 12 characters long'];
+    }
+
+    if (formData.password !== formData.password_confirm) {
+      validationErrors.password_confirm = ['Passwords do not match'];
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/verify-email/`, {
         method: "POST",
@@ -102,8 +120,8 @@ export default function VerifyEmailForm({ token }: VerifyEmailFormProps) {
   };
 
   return (
-    <Box bg="gray.50" py={16} minHeight="100vh">
-      <Container maxW="md">
+    <Box bg="gray.50" py={10}>
+      <Container maxW="xl">
         <Card.Root bg="white" shadow="lg" borderRadius="lg" border="1px" borderColor="gray.200" color="gray.900">
           <Card.Header>
             <VStack gap={4}>
@@ -127,81 +145,82 @@ export default function VerifyEmailForm({ token }: VerifyEmailFormProps) {
           
           <Card.Body>
             {successMessage && (
-              <Alert.Root status="success" borderRadius="md" mb={6}>
-                <Alert.Title>{successMessage}</Alert.Title>
-                <Box mt={2}>
-                  <Text fontSize="sm" color="green.700">
-                    Redirecting you to the login page...
-                  </Text>
-                  <HStack mt={2}>
-                    <Spinner size="sm" color="green.500" />
-                    <Link href="/login">
-                      <ChakraLink color="green.600" fontSize="sm" fontWeight="medium">
-                        Or click here to login now
-                      </ChakraLink>
-                    </Link>
-                  </HStack>
+              <VStack gap={4} mb={6}>
+                <Alert.Root status="success" borderRadius="md">
+                  <Alert.Title>{successMessage}</Alert.Title>
+                </Alert.Root>
+                
+                <Box border="1px" borderRadius="md" p={4}>
+                  <VStack align="start" gap={3}>
+                    <Text fontSize="sm" fontWeight="semibold">
+                      Redirecting to login page...
+                    </Text>
+                    <HStack>
+                      <Spinner size="sm" />
+                      <Link href="/login">
+                        <ChakraLink fontSize="sm" fontWeight="medium">
+                          Or click here to login now
+                        </ChakraLink>
+                      </Link>
+                    </HStack>
+                  </VStack>
                 </Box>
-              </Alert.Root>
+              </VStack>
             )}
 
             {!successMessage && !generalError && (
               <form onSubmit={handleSubmit}>
                 <VStack gap={4}>
-                  <Box width="100%">
-                    <Text mb={2} color="gray.700" fontSize="sm" fontWeight="medium">
-                      Password *
-                    </Text>
-                    <Input
-                      type="password"
+                  <Field.Root required invalid={!!errors.password} width="100%">
+                    <Field.Label>
+                      Password <Field.RequiredIndicator />
+                    </Field.Label>
+                    <PasswordInput
                       value={formData.password}
                       onChange={(e) => handleInputChange("password", e.target.value)}
                       placeholder="Enter your password"
-                      bg="gray.50"
-                      border="1px"
-                      borderColor={errors.password ? "red.300" : "gray.200"}
+                      size="sm"
+                      variant="outline"
+                      border="1px solid"
+                      bg="white"
+                      borderColor="gray.300"
                       color="gray.900"
-                      _placeholder={{ color: "gray.500" }}
-                      _focus={{ borderColor: errors.password ? "red.400" : "blue.400", bg: "white" }}
-                      required
+                      p={2}
+                      _focus={{ borderColor: "blue.500" }}
+                      _hover={{ borderColor: "gray.400" }}
+                      _placeholder={{ color: "gray.400" }}
                     />
-                    {errors.password && (
-                      <VStack align="start" mt={1} gap={1}>
-                        {errors.password.map((error, index) => (
-                          <Text key={index} color="red.500" fontSize="xs">
-                            {error}
-                          </Text>
-                        ))}
-                      </VStack>
-                    )}
-                    <Text color="gray.500" fontSize="xs" mt={1}>
+                    <Field.ErrorText>
+                      {errors.password?.[0]}
+                    </Field.ErrorText>
+                    <Field.HelperText>
                       Password must be at least 12 characters long
-                    </Text>
-                  </Box>
+                    </Field.HelperText>
+                  </Field.Root>
 
-                  <Box width="100%">
-                    <Text mb={2} color="gray.700" fontSize="sm" fontWeight="medium">
-                      Confirm Password *
-                    </Text>
-                    <Input
-                      type="password"
+                  <Field.Root required invalid={!!errors.password_confirm} width="100%">
+                    <Field.Label>
+                      Confirm Password <Field.RequiredIndicator />
+                    </Field.Label>
+                    <PasswordInput
                       value={formData.password_confirm}
                       onChange={(e) => handleInputChange("password_confirm", e.target.value)}
                       placeholder="Confirm your password"
-                      bg="gray.50"
-                      border="1px"
-                      borderColor={errors.password_confirm ? "red.300" : "gray.200"}
+                      size="sm"
+                      variant="outline"
+                      border="1px solid"
+                      bg="white"
+                      borderColor="gray.300"
                       color="gray.900"
-                      _placeholder={{ color: "gray.500" }}
-                      _focus={{ borderColor: errors.password_confirm ? "red.400" : "blue.400", bg: "white" }}
-                      required
+                      p={2}
+                      _focus={{ borderColor: "blue.500" }}
+                      _hover={{ borderColor: "gray.400" }}
+                      _placeholder={{ color: "gray.400" }}
                     />
-                    {errors.password_confirm && (
-                      <Text color="red.500" fontSize="xs" mt={1}>
-                        {errors.password_confirm[0]}
-                      </Text>
-                    )}
-                  </Box>
+                    <Field.ErrorText>
+                      {errors.password_confirm?.[0]}
+                    </Field.ErrorText>
+                  </Field.Root>
                   
                   <Button
                     type="submit"
@@ -220,21 +239,24 @@ export default function VerifyEmailForm({ token }: VerifyEmailFormProps) {
             )}
 
             {generalError && (
-              <Alert.Root status="error" borderRadius="md">
-                <Alert.Title>{generalError}</Alert.Title>
-                <Box mt={2}>
-                  <Text fontSize="sm" color="red.700">
-                    Please check your email for a valid verification link, or contact support if you continue to have issues.
-                  </Text>
-                  <Box mt={3}>
+              <VStack gap={4} mb={6}>
+                <Alert.Root status="error" borderRadius="md">
+                  <Alert.Title>{generalError}</Alert.Title>
+                </Alert.Root>
+                
+                <Box border="1px" borderRadius="md" p={4}>
+                  <VStack align="start" gap={3}>
+                    <Text fontSize="sm">
+                      Please check your email for a valid verification link, or contact support if you continue to have issues.
+                    </Text>
                     <Link href="/register">
-                      <ChakraLink color="red.600" fontSize="sm" fontWeight="medium">
+                      <ChakraLink fontSize="sm" fontWeight="medium">
                         Need to register again?
                       </ChakraLink>
                     </Link>
-                  </Box>
+                  </VStack>
                 </Box>
-              </Alert.Root>
+              </VStack>
             )}
           </Card.Body>
         </Card.Root>
