@@ -13,6 +13,7 @@ import {
   Alert,
   Link as ChakraLink,
 } from "@chakra-ui/react";
+import { PasswordInput } from "@/components/ui/password-input";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
@@ -93,8 +94,7 @@ export default function LoginPage() {
               
               <Box width="100%">
                 <Text mb={2} color="gray.700">Password</Text>
-                <Input
-                  type="password"
+                <PasswordInput
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"

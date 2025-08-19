@@ -53,7 +53,6 @@ const UserAvatar: React.FC<{
   user: { username?: string } | null;
 }> = ({ isAuthenticated, user }) => (
   <Box
-    as="button"
     display="flex"
     alignItems="center"
     justifyContent="center"
@@ -62,11 +61,9 @@ const UserAvatar: React.FC<{
     borderRadius="full"
     bg={isAuthenticated ? "white" : "gray.100"}
     color={isAuthenticated ? "gray.700" : "gray.600"}
-    cursor="pointer"
     _hover={{ bg: isAuthenticated ? "gray.50" : "gray.200" }}
     transition="background 0.2s ease"
     border="2px solid transparent"
-    _focus={{ borderColor: "blue.300" }}
   >
     {isAuthenticated ? (
       <Text fontSize="sm" fontWeight="bold">
@@ -146,7 +143,7 @@ const Header: React.FC<HeaderProps> = ({
                       {isAuthenticated ? (
                         <>
                           <Menu.Item asChild value="settings">
-                            <Link href="/profile">
+                            <Link href="/settings">
                               <Text color="gray.700">Settings</Text>
                             </Link>
                           </Menu.Item>
