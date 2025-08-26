@@ -222,8 +222,8 @@ const Header: React.FC<HeaderProps> = ({
             <Box mt={4} pt={4} borderTop="1px" borderColor="blue.700">
               <VStack gap={3}>
                 <NavigationLink 
-                  href="/profile"
-                  isActive={isActive("/profile")}
+                  href="/settings"
+                  isActive={isActive("/settings")}
                   isMobile
                 >
                   Settings
