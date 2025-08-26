@@ -38,35 +38,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // Check for existing auth on mount
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem("access_token");
-      if (token) {
-        try {
-          // Verify token with backend
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/token/verify/`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ token }),
-          });
-
-          if (response.ok) {
-            // Token is valid, decode it to get user info
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            setUser({ username: payload.username || "user", id: payload.user_id });
-          } else {
-            // Token is invalid, try refresh
-            const refreshSuccess = await refreshToken();
-            if (!refreshSuccess) {
-              localStorage.removeItem("access_token");
-              localStorage.removeItem("refresh_token");
-            }
-          }
-        } catch (error) {
-          // Auth check failed - silently clean up tokens
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
+      try {
+        // Try to refresh token (which will verify if we have valid cookies)
+        const refreshSuccess = await refreshToken();
+        if (!refreshSuccess) {
+          // No valid tokens found
+          setUser(null);
         }
+      } catch (error) {
+        // Auth check failed
+        setUser(null);
       }
       setIsLoading(false);
     };
@@ -92,6 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username, password }),
+      credentials: 'include', // Include cookies in request
     });
 
     if (!response.ok) {
@@ -99,83 +81,67 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     const data = await response.json();
-    localStorage.setItem("access_token", data.access);
-    localStorage.setItem("refresh_token", data.refresh);
     
-    // Also set cookies for middleware
-    document.cookie = `access_token=${data.access}; path=/; SameSite=Lax`;
-    document.cookie = `refresh_token=${data.refresh}; path=/; SameSite=Lax`;
-
-    // Decode JWT to get user info
-    const payload = JSON.parse(atob(data.access.split('.')[1]));
-    setUser({ username: payload.username || username, id: payload.user_id });
+    // User info is now returned directly from backend
+    if (data.user) {
+      setUser({
+        username: data.user.username,
+        email: data.user.email,
+        id: data.user.id
+      });
+    }
     
     router.push("/dashboard");
   };
 
   const logout = async () => {
-    const refreshToken = localStorage.getItem("refresh_token");
-    
-    if (refreshToken) {
-      try {
-        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/logout/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
-          },
-          body: JSON.stringify({ refresh: refreshToken }),
-        });
-      } catch (error) {
-        // Logout error - continue with local cleanup
-      }
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/logout/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: 'include', // Include cookies in request
+      });
+    } catch (error) {
+      // Logout error - continue with cleanup
     }
 
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    
-    // Clear cookies
-    document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    document.cookie = "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    
+    // httpOnly cookies are cleared by backend, no need to clear localStorage
     setUser(null);
     router.push("/login");
   };
 
   const refreshToken = async (): Promise<boolean> => {
-    const refresh = localStorage.getItem("refresh_token");
-    
-    if (!refresh) {
-      return false;
-    }
-
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/token/refresh/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ refresh }),
+        credentials: 'include', // Include cookies in request
       });
 
       if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("access_token", data.access);
-        document.cookie = `access_token=${data.access}; path=/; SameSite=Lax`;
+        // Backend handles setting new httpOnly cookies
+        // We need to get user info from a protected endpoint
+        const userResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/profile/`, {
+          method: "GET",
+          credentials: 'include',
+        });
         
-        if (data.refresh) {
-          localStorage.setItem("refresh_token", data.refresh);
-          document.cookie = `refresh_token=${data.refresh}; path=/; SameSite=Lax`;
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setUser({
+            username: userData.user?.username || userData.username || "user",
+            email: userData.user?.email || userData.email,
+            id: userData.user?.id || userData.id
+          });
+          return true;
         }
-        
-        // Decode JWT to get user info
-        const payload = JSON.parse(atob(data.access.split('.')[1]));
-        setUser({ username: payload.username || "user", id: payload.user_id });
-        
-        return true;
       }
     } catch (error) {
-      // Token refresh failed - will return false
+      // Token refresh failed
     }
 
     return false;

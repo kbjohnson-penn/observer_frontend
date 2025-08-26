@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Box, Text, Flex, Spinner, Tabs, IconButton } from '@chakra-ui/react';
 import { FaUsers, FaStethoscope, FaChartBar, FaCog, FaPlay, FaExclamationTriangle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { OMOPTableName, SampleDataAPIResponse } from '@/interfaces/observer-omop';
@@ -33,12 +33,8 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
   const urlsToCleanup = useRef<string[]>([]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    loadData();
-  }, [sampleData]);
-
   // Load all OMOP tables with sample data from props
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -90,8 +86,11 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
     } finally {
       setLoading(false);
     }
-  };
+  }, [sampleData]);
 
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Cleanup URLs on component unmount to prevent memory leaks
   useEffect(() => {

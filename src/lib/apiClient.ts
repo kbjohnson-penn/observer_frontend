@@ -5,6 +5,20 @@ interface RetryAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
 
+// CSRF Token utility function
+const getCsrfToken = (): string | null => {
+  if (typeof document === 'undefined') return null; // SSR safety
+  
+  const cookies = document.cookie.split(';');
+  for (let cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'csrftoken') {
+      return decodeURIComponent(value);
+    }
+  }
+  return null;
+};
+
 // Create axios instance with base configuration
 const createApiClient = () => {
   const instance = axios.create({
@@ -12,15 +26,22 @@ const createApiClient = () => {
     headers: {
       "Content-Type": "application/json",
     },
+    withCredentials: true, // Include cookies in all requests
   });
 
-  // Request interceptor to add auth token
+  // Request interceptor - add CSRF token for state-changing operations
   instance.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem("access_token");
-      if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
+      // httpOnly cookies are automatically included
+      
+      // Add CSRF token for state-changing operations
+      if (config.method && ['post', 'put', 'patch', 'delete'].includes(config.method.toLowerCase())) {
+        const csrfToken = getCsrfToken();
+        if (csrfToken) {
+          config.headers['X-CSRFToken'] = csrfToken;
+        }
       }
+      
       return config;
     },
     (error) => Promise.reject(error)
@@ -36,36 +57,20 @@ const createApiClient = () => {
         originalRequest._retry = true;
 
         try {
-          const refreshToken = localStorage.getItem("refresh_token");
-          if (!refreshToken) {
-            throw new Error("No refresh token available");
-          }
+          // Try to refresh token using httpOnly cookies
+          const response = await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/token/refresh/`,
+            {},
+            { withCredentials: true }
+          );
 
-          const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/token/refresh/`, {
-            refresh: refreshToken,
-          });
-
-          const { access, refresh: newRefresh } = response.data;
-          localStorage.setItem("access_token", access);
-          
-          if (newRefresh) {
-            localStorage.setItem("refresh_token", newRefresh);
+          if (response.status === 200) {
+            // Token refreshed successfully, retry original request
+            return instance(originalRequest);
           }
-
-          // Retry the original request with new token
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${access}`;
-          }
-          
-          return instance(originalRequest);
         } catch (refreshError) {
-          // Refresh failed, clear tokens and redirect to login
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          
-          // Emit custom event for auth failure
+          // Refresh failed, emit auth failure event
           window.dispatchEvent(new CustomEvent("auth:failed"));
-          
           return Promise.reject(refreshError);
         }
       }
@@ -79,3 +84,23 @@ const createApiClient = () => {
 
 // Export the configured axios instance
 export const apiClient = createApiClient();
+
+// CSRF Token utility functions
+export { getCsrfToken };
+
+export const fetchCsrfToken = async (): Promise<string | null> => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/csrf-token/`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return data.csrfToken;
+    }
+  } catch (error) {
+    console.warn('Failed to fetch CSRF token:', error);
+  }
+  return null;
+};
