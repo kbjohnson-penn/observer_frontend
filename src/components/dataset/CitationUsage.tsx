@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { FaQuoteLeft } from 'react-icons/fa';
 import { USAGE_ETHICS } from '@/constants/usage-ethics.constants';
-import type { CitationUsageProps } from '@/interfaces/dataset.d';
+import type { CitationUsageProps } from '@/interfaces/dataset';
 
 const CitationUsage = ({ onOpenModal }: CitationUsageProps) => {
   return (

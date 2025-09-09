@@ -1,8 +1,8 @@
 import type {
   DatabaseStructure,
   AccessRequirements
-} from '@/interfaces/dataset.d';
-import { FileType } from '@/interfaces/dataset.d';
+} from '@/interfaces/dataset';
+import { FileType } from '@/interfaces/dataset';
 
 export const DATABASE_STRUCTURE: DatabaseStructure = {
   overview: "The Observer Repository contains multimodal clinical encounter data following an OMOP-inspired structure with 13 interconnected tables and four complementary data modalities.",
