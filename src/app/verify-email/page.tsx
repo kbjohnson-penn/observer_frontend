@@ -2,10 +2,11 @@ import React from "react";
 import VerifyEmailForm from "@/components/verify-email/VerifyEmailForm";
 
 interface PageProps {
-  searchParams: { token?: string };
+  searchParams: Promise<{ token?: string }>;
 }
 
-export default function VerifyEmailPage({ searchParams }: PageProps) {
+export default async function VerifyEmailPage(props: PageProps) {
+  const searchParams = await props.searchParams;
   const token = searchParams.token;
 
   return <VerifyEmailForm token={token || null} />;

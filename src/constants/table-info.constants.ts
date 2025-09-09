@@ -1,4 +1,4 @@
-import type { OMOPTableName, TableInfo } from '@/interfaces/observer-omop.d';
+import type { OMOPTableName, TableInfo } from '@/interfaces/observer-omop';
 
 export const TABLE_INFO: Record<OMOPTableName, TableInfo> = {
   PROVIDER: {

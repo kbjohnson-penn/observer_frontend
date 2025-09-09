@@ -1,4 +1,4 @@
-import type { UsageEthics } from '@/interfaces/dataset.d';
+import type { UsageEthics } from '@/interfaces/dataset';
 
 export const USAGE_ETHICS: UsageEthics = {
   citation: {

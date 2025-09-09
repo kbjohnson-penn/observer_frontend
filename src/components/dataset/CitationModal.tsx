@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { FaCopy, FaQuoteLeft, FaCheck } from 'react-icons/fa';
 import { USAGE_ETHICS } from '@/constants/usage-ethics.constants';
-import type { CitationModalProps } from '@/interfaces/dataset.d';
+import type { CitationModalProps } from '@/interfaces/dataset';
 
 const CitationModal = ({ isOpen, onClose }: CitationModalProps) => {
   const [copiedFormat, setCopiedFormat] = useState<string | null>(null);
