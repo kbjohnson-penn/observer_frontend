@@ -4,7 +4,7 @@ import React from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FloatingContactButton from "@/components/FloatingContactButton";
-import FloatingAnnouncementsButton from "@/components/FloatingAnnouncementsButton";
+// import FloatingAnnouncementsButton from "@/components/FloatingAnnouncementsButton";
 
 export default function PublicLayout({
   children,
@@ -21,7 +21,7 @@ export default function PublicLayout({
 
       <Footer />
       <FloatingContactButton />
-      <FloatingAnnouncementsButton />
+      {/* <FloatingAnnouncementsButton /> */}
     </div>
   );
 }

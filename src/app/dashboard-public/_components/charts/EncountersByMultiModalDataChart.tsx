@@ -15,7 +15,7 @@ const DATA_TYPE_GROUPING = {
   provider_view: "egocentric_view",
   patient_view: "egocentric_view",
   room_view: "room_view",
-  audio: "audio",
+  audio: "audio_only",
   transcript: "transcript",
   patient_survey: "survey",
   provider_survey: "survey",
@@ -27,7 +27,7 @@ const DATA_TYPE_GROUPING = {
 const GROUP_COLORS = {
   egocentric_view: "#4285F4", // Blue
   room_view: "#34A853", // Green
-  audio: "#FBBC05", // Yellow
+  audio_only: "#FBBC05", // Yellow
   transcript: "#EA4335", // Red
   survey: "#8F44AD", // Purple
   annotations: "#16A085", // Teal
