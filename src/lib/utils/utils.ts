@@ -173,6 +173,18 @@ export const getEncountersByMultiModalData = (
     }
   });
 
+  // TODO: Remove this hardcoded logic once Simcenter transcript data is properly stored in multimodal data
+  // Check if Simcenter encounters are included in the filtered data
+  const hasSimcenterEncounters = filteredEncounterData.some(
+    encounter => encounter.encounter_source === 'Simcenter'
+  );
+
+  // Add 122 to transcript count if Simcenter is included in the filtered data
+  // This is a temporary fix since all Simcenter videos have transcripts but aren't marked in multimodal data
+  if (hasSimcenterEncounters) {
+    data.transcript += 122;
+  }
+
   // Return all data types, including those with zero counts
   return Object.keys(data).map((key) => ({
     name: key,
