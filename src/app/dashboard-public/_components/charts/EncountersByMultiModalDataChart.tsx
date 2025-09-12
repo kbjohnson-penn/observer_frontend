@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   Label,
 } from "recharts";
+import { Box, Text } from "@chakra-ui/react";
 
 // Define the mapping for grouping data types
 const DATA_TYPE_GROUPING = {
@@ -182,47 +183,58 @@ const EncountersByMultiModalDataChart: React.FC<
   const sortedData = [...groupedData].sort((a, b) => b.count - a.count);
 
   return (
-    <ResponsiveContainer width="100%" height={350}>
-      <BarChart
-        width={500}
-        height={350}
-        barGap={5}
-        barCategoryGap={20}
-        data={sortedData}
-        // margin={{ top: 20, right: 20, left: 20, bottom: 50 }}
-      >
-        <XAxis
-          dataKey="name"
-          type="category"
-          height={60}
-          interval={0}
-          tick={CustomTick}
-          tickMargin={10}
-        />
-        <YAxis
-          type="number"
-          allowDecimals={false}
-          style={{ fontSize: screenWidth <= 768 ? "10px" : "11px" }}
+    <Box width="100%">
+      <ResponsiveContainer width="100%" height={350}>
+        <BarChart
+          width={500}
+          height={350}
+          barGap={5}
+          barCategoryGap={20}
+          data={sortedData}
+          // margin={{ top: 20, right: 20, left: 20, bottom: 50 }}
         >
-          <Label
-            value="Total Available Data"
-            // position="insideLeft"
-            angle={-90}
-            style={{ fontSize: "12px" }}
-            offset={-5}
+          <XAxis
+            dataKey="name"
+            type="category"
+            height={60}
+            interval={0}
+            tick={CustomTick}
+            tickMargin={10}
           />
-        </YAxis>
-        <Tooltip content={<CustomTooltip />} />
-        <Bar dataKey="count" barSize={45}>
-          {sortedData.map((entry: GroupedDataItem) => (
-            <Cell
-              key={`cell-${entry.name}`}
-              fill={GROUP_COLORS[entry.name as keyof typeof GROUP_COLORS]}
+          <YAxis
+            type="number"
+            allowDecimals={false}
+            style={{ fontSize: screenWidth <= 768 ? "10px" : "11px" }}
+          >
+            <Label
+              value="Total Available Data"
+              // position="insideLeft"
+              angle={-90}
+              style={{ fontSize: "12px" }}
+              offset={-5}
             />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+          </YAxis>
+          <Tooltip content={<CustomTooltip />} />
+          <Bar dataKey="count" barSize={45}>
+            {sortedData.map((entry: GroupedDataItem) => (
+              <Cell
+                key={`cell-${entry.name}`}
+                fill={GROUP_COLORS[entry.name as keyof typeof GROUP_COLORS]}
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>      
+
+      <Box textAlign="center" mt={2} px={4}>
+        <Text fontSize="xs" color="gray.600" fontStyle="italic">
+          Egocentric View (provider + patient perspectives),
+        </Text>
+        <Text fontSize="xs" color="gray.600" fontStyle="italic">
+          Survey (patient + provider), Annotations (patient + provider)
+        </Text>
+      </Box>
+    </Box>
   );
 };
 
