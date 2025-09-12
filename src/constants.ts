@@ -33,7 +33,7 @@ export const DEPARTMENT_COLORS: { [key: string]: string } = {
 export const SOURCE_OPTIONS = [
   { value: "Simcenter", label: "Simulation Center" },
   { value: "Clinic", label: "Clinic" },
-  { value: "Pennpersonalizedcare", label: "Penn Personalized Care" }
+  // { value: "Pennpersonalizedcare", label: "Penn Personalized Care" }
 ];
 
 export const DEIDENTIFIED_OPTIONS = [
