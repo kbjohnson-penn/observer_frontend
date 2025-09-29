@@ -140,11 +140,15 @@ export default function LoginForm() {
                 <Box textAlign="center" pt={4}>
                   <Text color="gray.600" fontSize="sm">
                     Don&apos;t have an account?{" "}
-                    <Link href="/register">
-                      <ChakraLink color="blue.600" fontWeight="medium" _hover={{ color: "blue.700" }}>
-                        Register here
-                      </ChakraLink>
-                    </Link>
+                    <ChakraLink
+                      as={Link}
+                      href="/register"
+                      color="blue.600"
+                      fontWeight="medium"
+                      _hover={{ color: "blue.700" }}
+                    >
+                      Register here
+                    </ChakraLink>
                   </Text>
                 </Box>
               </VStack>

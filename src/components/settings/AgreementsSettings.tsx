@@ -41,7 +41,7 @@ export default function AgreementsSettings() {
       setIsLoading(true);
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/agreements/user-agreements/grouped/`,
+          `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/agreements/user-agreements/grouped/`,
           {
             method: "GET",
             credentials: 'include',

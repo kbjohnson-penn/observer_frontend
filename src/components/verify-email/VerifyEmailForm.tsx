@@ -81,7 +81,7 @@ export default function VerifyEmailForm({ token }: VerifyEmailFormProps) {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/verify-email/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/verify-email/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -157,11 +157,14 @@ export default function VerifyEmailForm({ token }: VerifyEmailFormProps) {
                     </Text>
                     <HStack>
                       <Spinner size="sm" />
-                      <Link href="/login">
-                        <ChakraLink fontSize="sm" fontWeight="medium">
-                          Or click here to login now
-                        </ChakraLink>
-                      </Link>
+                      <ChakraLink
+                        as={Link}
+                        href="/login"
+                        fontSize="sm"
+                        fontWeight="medium"
+                      >
+                        Or click here to login now
+                      </ChakraLink>
                     </HStack>
                   </VStack>
                 </Box>
@@ -249,11 +252,14 @@ export default function VerifyEmailForm({ token }: VerifyEmailFormProps) {
                     <Text fontSize="sm">
                       Please check your email for a valid verification link, or contact support if you continue to have issues.
                     </Text>
-                    <Link href="/register">
-                      <ChakraLink fontSize="sm" fontWeight="medium">
-                        Need to register again?
-                      </ChakraLink>
-                    </Link>
+                    <ChakraLink
+                      as={Link}
+                      href="/register"
+                      fontSize="sm"
+                      fontWeight="medium"
+                    >
+                      Need to register again?
+                    </ChakraLink>
                   </VStack>
                 </Box>
               </VStack>

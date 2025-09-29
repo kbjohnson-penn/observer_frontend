@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [router]);
 
   const login = async (username: string, password: string) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/token/`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/token/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     const data = await response.json();
-    
+
     // User info is now returned directly from backend
     if (data.user) {
       setUser({
@@ -90,13 +90,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         id: data.user.id
       });
     }
-    
+
     router.push("/dashboard");
   };
 
   const logout = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/logout/`, {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/logout/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -114,7 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const refreshToken = async (): Promise<boolean> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/token/refresh/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/token/refresh/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -125,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (response.ok) {
         // Backend handles setting new httpOnly cookies
         // We need to get user info from a protected endpoint
-        const userResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/profile/`, {
+        const userResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/profile/`, {
           method: "GET",
           credentials: 'include',
         });

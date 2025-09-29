@@ -96,7 +96,7 @@ export default function PasswordSettings() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/change-password/`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/change-password/`,
         {
           method: "POST",
           headers: {
