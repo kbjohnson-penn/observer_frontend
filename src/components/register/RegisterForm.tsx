@@ -108,7 +108,7 @@ export default function RegisterForm() {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/register/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/register/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -322,11 +322,15 @@ export default function RegisterForm() {
                   <Box textAlign="center" pt={4}>
                     <Text color="gray.600" fontSize="sm">
                       Already have an account?{" "}
-                      <Link href="/login">
-                        <ChakraLink color="blue.600" fontWeight="medium" _hover={{ color: "blue.700" }}>
-                          Sign in here
-                        </ChakraLink>
-                      </Link>
+                      <ChakraLink
+                        as={Link}
+                        href="/login"
+                        color="blue.600"
+                        fontWeight="medium"
+                        _hover={{ color: "blue.700" }}
+                      >
+                        Sign in here
+                      </ChakraLink>
                     </Text>
                   </Box>
                 </VStack>

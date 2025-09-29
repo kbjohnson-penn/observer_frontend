@@ -100,7 +100,7 @@ export default function ProfileSettings() {
     const loadProfile = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/profile/`,
+          `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/profile/`,
           {
             method: "GET",
             credentials: 'include',
@@ -180,7 +180,7 @@ export default function ProfileSettings() {
       console.log("Sending profile update request:", requestData);
       
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/profile/`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/profile/`,
         {
           method: "PATCH",
           headers: {

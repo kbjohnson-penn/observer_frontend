@@ -59,7 +59,7 @@ const createApiClient = () => {
         try {
           // Try to refresh token using httpOnly cookies
           const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/token/refresh/`,
+            `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/token/refresh/`,
             {},
             { withCredentials: true }
           );
