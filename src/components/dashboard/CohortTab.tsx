@@ -108,11 +108,11 @@ export default function CohortTab() {
               <Card.Header>
                 <HStack justify="space-between" align="start">
                   <VStack align="start" gap={1} flex={1}>
-                    <Text fontWeight="semibold" fontSize="md" noOfLines={2}>
+                    <Text fontWeight="semibold" fontSize="md" lineClamp={2}>
                       {cohort.name}
                     </Text>
                     {cohort.description && (
-                      <Text fontSize="xs" color="gray.600" noOfLines={2}>
+                      <Text fontSize="xs" color="gray.600" lineClamp={2}>
                         {cohort.description}
                       </Text>
                     )}
@@ -165,10 +165,10 @@ export default function CohortTab() {
                     <Button
                       size="sm"
                       variant="outline"
-                      leftIcon={<FaEye />}
                       onClick={() => handleViewCohort(cohort)}
                       flex={1}
                     >
+                      <FaEye />
                       View
                     </Button>
                     <IconButton

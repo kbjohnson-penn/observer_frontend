@@ -1,208 +1,278 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
-  Grid,
   Card,
   Text,
   Button,
   VStack,
   HStack,
-  Stat,
   Alert,
   Table,
   Badge,
   Flex,
   Input,
   Select,
+  Skeleton,
+  Stack,
+  Collapsible,
+  Separator,
   createListCollection,
 } from "@chakra-ui/react";
-import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
-import { apiClient } from "@/lib/apiClient";
-
-interface ResearchStats {
-  totalPersons: number;
-  totalVisits: number;
-  totalProviders: number;
-  totalObservations: number;
-}
-
-interface ResearchVisit {
-  id: number;
-  visit_start_date: string;
-  visit_start_time: string;
-  visit_source_value: string;
-  visit_source_id: number;
-  tier_id: number;
-  person_id: number;
-  provider_id: number;
-}
-
-type SortField = 'id' | 'visit_start_date' | 'visit_source_value' | 'tier_id';
-type SortDirection = 'asc' | 'desc';
-
-interface Filters {
-  personId: string;
-  providerId: string;
-  visitSource: string;
-  tier: string;
-  dateFrom: string;
-  dateTo: string;
-}
-
-const tierCollection = createListCollection({
-  items: [
-    { label: "Tier 1", value: "1" },
-    { label: "Tier 2", value: "2" },
-    { label: "Tier 3", value: "3" },
-  ],
-});
+import { FaSort, FaSortUp, FaSortDown, FaChevronDown } from "react-icons/fa";
+import { useFilterOptions } from "@/hooks/useFilterOptions";
+import { useVisitSearch } from "@/hooks/useVisitSearch";
+import { VisitSearchFilters, VisitSearchSort } from "@/interfaces/research";
+import { expandDemographic } from "@/lib/utils/utils";
 
 export default function ResearchTab() {
-  const [stats, setStats] = useState<ResearchStats | null>(null);
-  const [visits, setVisits] = useState<ResearchVisit[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [visitsPerPage] = useState(20);
-  const [sortField, setSortField] = useState<SortField>('id');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
-  const [filters, setFilters] = useState<Filters>({
-    personId: '',
-    providerId: '',
-    visitSource: '',
-    tier: '',
+  const { filterOptions, loading: filterOptionsLoading, error: filterOptionsError } = useFilterOptions();
+
+  // Create collections from filter options
+  const visitSourceCollection = createListCollection({
+    items: filterOptions?.visit_options.visit_sources.map(vs => ({
+      label: vs,
+      value: vs
+    })) || [],
+  });
+
+  const tierCollection = createListCollection({
+    items: filterOptions?.visit_options.tiers.map(t => ({
+      label: `Tier ${t}`,
+      value: String(t)
+    })) || [],
+  });
+
+  const genderCollection = createListCollection({
+    items: filterOptions?.demographics.genders.map(g => ({
+      label: expandDemographic(g, 'gender'),
+      value: g
+    })) || [],
+  });
+
+  const raceCollection = createListCollection({
+    items: filterOptions?.demographics.races.map(r => ({
+      label: expandDemographic(r, 'race'),
+      value: r
+    })) || [],
+  });
+
+  const ethnicityCollection = createListCollection({
+    items: filterOptions?.demographics.ethnicities.map(e => ({
+      label: expandDemographic(e, 'ethnicity'),
+      value: e
+    })) || [],
+  });
+
+  const {
+    results: visits,
+    loading: visitsLoading,
+    error: visitsError,
+    pagination,
+    filterSummary,
+    sort,
+    setFilters: updateFilters,
+    setSort,
+    setPage,
+  } = useVisitSearch();
+
+  // Local filter state for form inputs
+  const [localFilters, setLocalFilters] = useState({
+    visitSource: [] as string[],
+    tier: [] as string[],
     dateFrom: '',
     dateTo: '',
+    // Person demographics
+    personGender: [] as string[],
+    personRace: [] as string[],
+    personEthnicity: [] as string[],
+    personAgeFrom: '',
+    personAgeTo: '',
+    // Provider demographics
+    providerGender: [] as string[],
+    providerRace: [] as string[],
+    providerEthnicity: [] as string[],
+    providerAgeFrom: '',
+    providerAgeTo: '',
   });
 
-  useEffect(() => {
-    const fetchResearchData = async () => {
-      try {
-        setLoading(true);
-        setError("");
+  const handleSort = (field: VisitSearchSort['field']) => {
+    const newDirection: 'asc' | 'desc' = sort.field === field && sort.direction === 'asc' ? 'desc' : 'asc';
+    const newSort: VisitSearchSort = { field, direction: newDirection };
+    setSort(newSort);
+  };
 
-        // Fetch data from research endpoints
-        const [personsRes, visitsRes, providersRes] = await Promise.all([
-          apiClient.get("/research/private/persons/"),
-          apiClient.get("/research/private/visits/"),
-          apiClient.get("/research/private/providers/"),
-        ]);
+  const handleFilterChange = (key: keyof typeof localFilters, value: string | string[]) => {
+    const newLocalFilters = { ...localFilters, [key]: value };
+    setLocalFilters(newLocalFilters);
 
-        const personsData = personsRes.data?.results || personsRes.data || [];
-        const visitsData = visitsRes.data?.results || visitsRes.data || [];
-        const providersData = providersRes.data?.results || providersRes.data || [];
+    // Build server-side filter object
+    const serverFilters: VisitSearchFilters = {};
 
-        setVisits(visitsData);
-        setStats({
-          totalPersons: personsData.length,
-          totalVisits: visitsData.length,
-          totalProviders: providersData.length,
-          totalObservations: 0, // TODO: Add observations endpoint
-        });
-      } catch (err) {
-        setError("Failed to load research data");
-        console.error("Research data fetch error:", err);
-      } finally {
-        setLoading(false);
+    // Visit filters
+    if (newLocalFilters.tier.length > 0 || newLocalFilters.visitSource.length > 0 || newLocalFilters.dateFrom || newLocalFilters.dateTo) {
+      serverFilters.visit = {};
+
+      if (newLocalFilters.tier.length > 0) {
+        serverFilters.visit.tier_id = newLocalFilters.tier.map(t => parseInt(t));
       }
-    };
 
-    fetchResearchData();
-  }, []);
+      if (newLocalFilters.visitSource.length > 0) {
+        serverFilters.visit.visit_source_value = newLocalFilters.visitSource.join(',');
+      }
 
-  // Sorting function
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-    setCurrentPage(1); // Reset to first page when sorting
-  };
+      if (newLocalFilters.dateFrom) {
+        serverFilters.visit.date_from = newLocalFilters.dateFrom;
+      }
 
-  // Apply filters
-  const filteredVisits = visits.filter((visit) => {
-    if (filters.personId && !visit.person_id.toString().includes(filters.personId)) return false;
-    if (filters.providerId && !visit.provider_id.toString().includes(filters.providerId)) return false;
-    if (filters.visitSource && !visit.visit_source_value.toLowerCase().includes(filters.visitSource.toLowerCase())) return false;
-    if (filters.tier && visit.tier_id.toString() !== filters.tier) return false;
-    if (filters.dateFrom && visit.visit_start_date < filters.dateFrom) return false;
-    if (filters.dateTo && visit.visit_start_date > filters.dateTo) return false;
-    return true;
-  });
-
-  // Sort filtered visits
-  const sortedVisits = [...filteredVisits].sort((a, b) => {
-    let aValue: any;
-    let bValue: any;
-
-    switch (sortField) {
-      case 'id':
-        aValue = a.id;
-        bValue = b.id;
-        break;
-      case 'visit_start_date':
-        aValue = new Date(`${a.visit_start_date}T${a.visit_start_time}`);
-        bValue = new Date(`${b.visit_start_date}T${b.visit_start_time}`);
-        break;
-      case 'visit_source_value':
-        aValue = a.visit_source_value.toLowerCase();
-        bValue = b.visit_source_value.toLowerCase();
-        break;
-      case 'tier_id':
-        aValue = a.tier_id;
-        bValue = b.tier_id;
-        break;
-      default:
-        return 0;
+      if (newLocalFilters.dateTo) {
+        serverFilters.visit.date_to = newLocalFilters.dateTo;
+      }
     }
 
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
+    // Person demographics filters
+    if (
+      newLocalFilters.personGender.length > 0 ||
+      newLocalFilters.personRace.length > 0 ||
+      newLocalFilters.personEthnicity.length > 0 ||
+      newLocalFilters.personAgeFrom ||
+      newLocalFilters.personAgeTo
+    ) {
+      serverFilters.person_demographics = {};
 
-  // Calculate pagination
-  const totalPages = Math.ceil(sortedVisits.length / visitsPerPage);
-  const startIndex = (currentPage - 1) * visitsPerPage;
-  const endIndex = startIndex + visitsPerPage;
-  const currentVisits = sortedVisits.slice(startIndex, endIndex);
+      if (newLocalFilters.personGender.length > 0) {
+        serverFilters.person_demographics.gender = newLocalFilters.personGender;
+      }
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+      if (newLocalFilters.personRace.length > 0) {
+        serverFilters.person_demographics.race = newLocalFilters.personRace;
+      }
 
-  const handleFilterChange = (key: keyof Filters, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-    setCurrentPage(1); // Reset to first page when filtering
+      if (newLocalFilters.personEthnicity.length > 0) {
+        serverFilters.person_demographics.ethnicity = newLocalFilters.personEthnicity;
+      }
+
+      if (newLocalFilters.personAgeFrom || newLocalFilters.personAgeTo) {
+        const currentYear = new Date().getFullYear();
+        if (newLocalFilters.personAgeFrom) {
+          serverFilters.person_demographics.year_of_birth_to = currentYear - parseInt(newLocalFilters.personAgeFrom);
+        }
+        if (newLocalFilters.personAgeTo) {
+          serverFilters.person_demographics.year_of_birth_from = currentYear - parseInt(newLocalFilters.personAgeTo);
+        }
+      }
+    }
+
+    // Provider demographics filters
+    if (
+      newLocalFilters.providerGender.length > 0 ||
+      newLocalFilters.providerRace.length > 0 ||
+      newLocalFilters.providerEthnicity.length > 0 ||
+      newLocalFilters.providerAgeFrom ||
+      newLocalFilters.providerAgeTo
+    ) {
+      serverFilters.provider_demographics = {};
+
+      if (newLocalFilters.providerGender.length > 0) {
+        serverFilters.provider_demographics.gender = newLocalFilters.providerGender;
+      }
+
+      if (newLocalFilters.providerRace.length > 0) {
+        serverFilters.provider_demographics.race = newLocalFilters.providerRace;
+      }
+
+      if (newLocalFilters.providerEthnicity.length > 0) {
+        serverFilters.provider_demographics.ethnicity = newLocalFilters.providerEthnicity;
+      }
+
+      if (newLocalFilters.providerAgeFrom || newLocalFilters.providerAgeTo) {
+        const currentYear = new Date().getFullYear();
+        if (newLocalFilters.providerAgeFrom) {
+          serverFilters.provider_demographics.year_of_birth_to = currentYear - parseInt(newLocalFilters.providerAgeFrom);
+        }
+        if (newLocalFilters.providerAgeTo) {
+          serverFilters.provider_demographics.year_of_birth_from = currentYear - parseInt(newLocalFilters.providerAgeTo);
+        }
+      }
+    }
+
+    updateFilters(serverFilters);
   };
 
   const clearFilters = () => {
-    setFilters({
-      personId: '',
-      providerId: '',
-      visitSource: '',
-      tier: '',
+    setLocalFilters({
+      visitSource: [],
+      tier: [],
       dateFrom: '',
       dateTo: '',
+      personGender: [],
+      personRace: [],
+      personEthnicity: [],
+      personAgeFrom: '',
+      personAgeTo: '',
+      providerGender: [],
+      providerRace: [],
+      providerEthnicity: [],
+      providerAgeFrom: '',
+      providerAgeTo: '',
     });
-    setCurrentPage(1);
+    updateFilters({});
   };
 
   // Sort icon component
-  const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return <FaSort color="gray" />;
-    return sortDirection === 'asc' ? <FaSortUp color="blue" /> : <FaSortDown color="blue" />;
+  const SortIcon = ({ field }: { field: VisitSearchSort['field'] }) => {
+    if (sort.field !== field) return <FaSort color="gray" />;
+    return sort.direction === 'asc' ? <FaSortUp color="blue" /> : <FaSortDown color="blue" />;
   };
 
-  if (loading) {
+  const error = filterOptionsError || visitsError;
+
+  if (filterOptionsLoading && !filterOptions) {
     return (
-      <Box py={8}>
-        <Text>Loading research data...</Text>
-      </Box>
+      <VStack gap={6} align="stretch">
+        <Flex gap={6}>
+          <Box
+            w="300px"
+            bg="white"
+            border="1px"
+            borderColor="gray.200"
+            borderRadius="md"
+            p={4}
+            display={{ base: "none", lg: "block" }}
+          >
+            <Stack gap={4}>
+              <Skeleton height="20px" width="100px" />
+              <Skeleton height="40px" />
+              <Skeleton height="40px" />
+              <Skeleton height="80px" />
+              <Skeleton height="120px" />
+              <Skeleton height="120px" />
+            </Stack>
+          </Box>
+          <Box flex={1}>
+            <Card.Root bg="white" shadow="md" border="1px" borderColor="gray.200">
+              <Card.Header>
+                <Skeleton height="24px" width="200px" />
+              </Card.Header>
+              <Card.Body>
+                <Stack gap={2}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <HStack key={i} gap={4}>
+                      <Skeleton height="40px" width="80px" />
+                      <Skeleton height="40px" width="120px" />
+                      <Skeleton height="40px" width="100px" />
+                      <Skeleton height="40px" width="80px" />
+                      <Skeleton height="40px" flex="1" />
+                      <Skeleton height="40px" flex="1" />
+                    </HStack>
+                  ))}
+                </Stack>
+              </Card.Body>
+            </Card.Root>
+          </Box>
+        </Flex>
+      </VStack>
     );
   }
 
@@ -215,112 +285,94 @@ export default function ResearchTab() {
         </Alert.Root>
       )}
 
-      {/* Stats Cards */}
-      {stats && (
-        <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={6}>
-          <Card.Root bg="white" shadow="md" border="1px" borderColor="gray.200">
-            <Card.Body>
-              <Stat.Root>
-                <Stat.Label color="gray.600">Total Persons</Stat.Label>
-                <Stat.ValueText fontSize="3xl" fontWeight="bold" color="blue.500">
-                  {stats.totalPersons}
-                </Stat.ValueText>
-              </Stat.Root>
-            </Card.Body>
-          </Card.Root>
-
-          <Card.Root bg="white" shadow="md" border="1px" borderColor="gray.200">
-            <Card.Body>
-              <Stat.Root>
-                <Stat.Label color="gray.600">Total Visits</Stat.Label>
-                <Stat.ValueText fontSize="3xl" fontWeight="bold" color="green.500">
-                  {stats.totalVisits}
-                </Stat.ValueText>
-              </Stat.Root>
-            </Card.Body>
-          </Card.Root>
-
-          <Card.Root bg="white" shadow="md" border="1px" borderColor="gray.200">
-            <Card.Body>
-              <Stat.Root>
-                <Stat.Label color="gray.600">Total Providers</Stat.Label>
-                <Stat.ValueText fontSize="3xl" fontWeight="bold" color="purple.500">
-                  {stats.totalProviders}
-                </Stat.ValueText>
-              </Stat.Root>
-            </Card.Body>
-          </Card.Root>
-
-          <Card.Root bg="white" shadow="md" border="1px" borderColor="gray.200">
-            <Card.Body>
-              <Stat.Root>
-                <Stat.Label color="gray.600">Total Observations</Stat.Label>
-                <Stat.ValueText fontSize="3xl" fontWeight="bold" color="orange.500">
-                  {stats.totalObservations}
-                </Stat.ValueText>
-              </Stat.Root>
-            </Card.Body>
-          </Card.Root>
-        </Grid>
-      )}
-
       {/* Main Content Area */}
       <Flex gap={6}>
         {/* Filter Sidebar */}
         <Box
-          w="300px"
+          w="320px"
           bg="white"
-          border="1px"
-          borderColor="gray.200"
-          borderRadius="md"
-          p={4}
+          borderRadius="lg"
+          boxShadow="sm"
+          h="fit-content"
+          position="sticky"
+          top={4}
           display={{ base: "none", lg: "block" }}
         >
-          <HStack justify="space-between" mb={4}>
-            <Text fontWeight="semibold">Filters</Text>
-            <Button size="xs" variant="ghost" onClick={clearFilters}>
-              Clear All
-            </Button>
-          </HStack>
+          <Box
+            borderBottom="1px"
+            borderColor="gray.200"
+            px={5}
+            py={4}
+            bg="gray.50"
+            borderTopRadius="lg"
+          >
+            <HStack justify="space-between">
+              <Text fontWeight="bold" fontSize="md" color="gray.700">Filters</Text>
+              <Button
+                size="xs"
+                variant="ghost"
+                colorScheme="blue"
+                onClick={clearFilters}
+                fontWeight="medium"
+              >
+                Clear All
+              </Button>
+            </HStack>
+          </Box>
+          <Box p={5}>
 
           <VStack gap={4} align="stretch">
+            {/* Visit Details Section */}
             <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={2}>Person & Provider</Text>
-              <VStack gap={3} align="stretch">
-                <Input
-                  placeholder="Person ID"
-                  size="sm"
-                  value={filters.personId}
-                  onChange={(e) => handleFilterChange('personId', e.target.value)}
-                />
-                <Input
-                  placeholder="Provider ID"
-                  size="sm"
-                  value={filters.providerId}
-                  onChange={(e) => handleFilterChange('providerId', e.target.value)}
-                />
-              </VStack>
-            </Box>
-
-            <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={2}>Visit Details</Text>
-              <VStack gap={3} align="stretch">
-                <Input
-                  placeholder="Visit Source"
-                  size="sm"
-                  value={filters.visitSource}
-                  onChange={(e) => handleFilterChange('visitSource', e.target.value)}
-                />
+              <Text fontSize="sm" fontWeight="semibold" color="gray.700" mb={3}>Visit Details</Text>
+              <VStack gap={2.5} align="stretch">
                 <Select.Root
-                  collection={tierCollection}
+                  collection={visitSourceCollection}
                   size="sm"
-                  value={filters.tier ? [filters.tier] : []}
-                  onValueChange={(details) => handleFilterChange('tier', details.value[0] || '')}
+                  multiple
+                  value={localFilters.visitSource}
+                  onValueChange={(details) => handleFilterChange('visitSource', details.value)}
                 >
                   <Select.HiddenSelect />
                   <Select.Control>
                     <Select.Trigger>
-                      <Select.ValueText placeholder="Select Tier" />
+                      <Select.ValueText placeholder="Visit Source">
+                        {localFilters.visitSource.length > 0
+                          ? `Visit Source: ${localFilters.visitSource.join(', ')}`
+                          : null}
+                      </Select.ValueText>
+                    </Select.Trigger>
+                    <Select.IndicatorGroup>
+                      <Select.Indicator />
+                    </Select.IndicatorGroup>
+                  </Select.Control>
+                  <Select.Positioner>
+                    <Select.Content>
+                      {visitSourceCollection.items.map((source) => (
+                        <Select.Item item={source} key={source.value}>
+                          {source.label}
+                          <Select.ItemIndicator />
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Positioner>
+                </Select.Root>
+
+                <Select.Root
+                  collection={tierCollection}
+                  size="sm"
+                  multiple
+                  value={localFilters.tier}
+                  onValueChange={(details) => handleFilterChange('tier', details.value)}
+                >
+                  <Select.HiddenSelect />
+                  <Select.Control>
+                    <Select.Trigger>
+                      <Select.ValueText placeholder="Tier">
+                        {localFilters.tier.length > 0
+                          ? `Tier: ${localFilters.tier.map(t => `Tier ${t}`).join(', ')}`
+                          : null}
+                      </Select.ValueText>
                     </Select.Trigger>
                     <Select.IndicatorGroup>
                       <Select.Indicator />
@@ -337,43 +389,301 @@ export default function ResearchTab() {
                     </Select.Content>
                   </Select.Positioner>
                 </Select.Root>
+
+                <HStack gap={2}>
+                  <Input
+                    type="date"
+                    placeholder="From"
+                    size="sm"
+                    value={localFilters.dateFrom}
+                    onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                  />
+                  <Input
+                    type="date"
+                    placeholder="To"
+                    size="sm"
+                    value={localFilters.dateTo}
+                    onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                  />
+                </HStack>
               </VStack>
             </Box>
 
-            <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={2}>Date Range</Text>
-              <VStack gap={3} align="stretch">
-                <Input
-                  type="date"
-                  placeholder="From Date"
-                  size="sm"
-                  value={filters.dateFrom}
-                  onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                />
-                <Input
-                  type="date"
-                  placeholder="To Date"
-                  size="sm"
-                  value={filters.dateTo}
-                  onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                />
-              </VStack>
-            </Box>
+            {/* Person Demographics */}
+            <Collapsible.Root defaultOpen>
+              <Collapsible.Trigger py={0} width="full">
+                <HStack justify="space-between" width="full">
+                  <Text fontSize="sm" fontWeight="semibold" color="gray.700">Person Demographics</Text>
+                  <Box color="gray.500" fontSize="xs">
+                    <FaChevronDown />
+                  </Box>
+                </HStack>
+              </Collapsible.Trigger>
+              <Collapsible.Content>
+                <VStack gap={2.5} align="stretch" mt={3}>
+                  <Select.Root
+                    collection={genderCollection}
+                    size="sm"
+                    multiple
+                    value={localFilters.personGender}
+                    onValueChange={(details) => handleFilterChange('personGender', details.value)}
+                  >
+                    <Select.HiddenSelect />
+                    <Select.Control>
+                      <Select.Trigger>
+                        <Select.ValueText placeholder="Gender">
+                          {localFilters.personGender.length > 0
+                            ? `Gender: ${localFilters.personGender.map(g => expandDemographic(g, 'gender')).join(', ')}`
+                            : null}
+                        </Select.ValueText>
+                      </Select.Trigger>
+                      <Select.IndicatorGroup>
+                        <Select.Indicator />
+                      </Select.IndicatorGroup>
+                    </Select.Control>
+                    <Select.Positioner>
+                      <Select.Content>
+                        {genderCollection.items.map((gender) => (
+                          <Select.Item item={gender} key={gender.value}>
+                            {gender.label}
+                            <Select.ItemIndicator />
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Select.Root>
 
-            <Box pt={2} borderTop="1px" borderColor="gray.100">
-              <Text fontSize="xs" color="gray.600" mb={3}>
-                Showing {filteredVisits.length} of {visits.length} visits
+                  <Select.Root
+                    collection={raceCollection}
+                    size="sm"
+                    multiple
+                    value={localFilters.personRace}
+                    onValueChange={(details) => handleFilterChange('personRace', details.value)}
+                  >
+                    <Select.HiddenSelect />
+                    <Select.Control>
+                      <Select.Trigger>
+                        <Select.ValueText placeholder="Race">
+                          {localFilters.personRace.length > 0
+                            ? `Race: ${localFilters.personRace.map(r => expandDemographic(r, 'race')).join(', ')}`
+                            : null}
+                        </Select.ValueText>
+                      </Select.Trigger>
+                      <Select.IndicatorGroup>
+                        <Select.Indicator />
+                      </Select.IndicatorGroup>
+                    </Select.Control>
+                    <Select.Positioner>
+                      <Select.Content>
+                        {raceCollection.items.map((race) => (
+                          <Select.Item item={race} key={race.value}>
+                            {race.label}
+                            <Select.ItemIndicator />
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Select.Root>
+
+                  <Select.Root
+                    collection={ethnicityCollection}
+                    size="sm"
+                    multiple
+                    value={localFilters.personEthnicity}
+                    onValueChange={(details) => handleFilterChange('personEthnicity', details.value)}
+                  >
+                    <Select.HiddenSelect />
+                    <Select.Control>
+                      <Select.Trigger>
+                        <Select.ValueText placeholder="Ethnicity">
+                          {localFilters.personEthnicity.length > 0
+                            ? `Ethnicity: ${localFilters.personEthnicity.map(e => expandDemographic(e, 'ethnicity')).join(', ')}`
+                            : null}
+                        </Select.ValueText>
+                      </Select.Trigger>
+                      <Select.IndicatorGroup>
+                        <Select.Indicator />
+                      </Select.IndicatorGroup>
+                    </Select.Control>
+                    <Select.Positioner>
+                      <Select.Content>
+                        {ethnicityCollection.items.map((ethnicity) => (
+                          <Select.Item item={ethnicity} key={ethnicity.value}>
+                            {ethnicity.label}
+                            <Select.ItemIndicator />
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Select.Root>
+
+                  <HStack gap={2}>
+                    <Input
+                      type="number"
+                      placeholder="Min Age"
+                      size="sm"
+                      value={localFilters.personAgeFrom}
+                      onChange={(e) => handleFilterChange('personAgeFrom', e.target.value)}
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Max Age"
+                      size="sm"
+                      value={localFilters.personAgeTo}
+                      onChange={(e) => handleFilterChange('personAgeTo', e.target.value)}
+                    />
+                  </HStack>
+                </VStack>
+              </Collapsible.Content>
+            </Collapsible.Root>
+
+            {/* Provider Demographics */}
+            <Collapsible.Root defaultOpen>
+              <Collapsible.Trigger py={0} width="full">
+                <HStack justify="space-between" width="full">
+                  <Text fontSize="sm" fontWeight="semibold" color="gray.700">Provider Demographics</Text>
+                  <Box color="gray.500" fontSize="xs">
+                    <FaChevronDown />
+                  </Box>
+                </HStack>
+              </Collapsible.Trigger>
+              <Collapsible.Content>
+                <VStack gap={2.5} align="stretch" mt={3}>
+                  <Select.Root
+                    collection={genderCollection}
+                    size="sm"
+                    multiple
+                    value={localFilters.providerGender}
+                    onValueChange={(details) => handleFilterChange('providerGender', details.value)}
+                  >
+                    <Select.HiddenSelect />
+                    <Select.Control>
+                      <Select.Trigger>
+                        <Select.ValueText placeholder="Gender">
+                          {localFilters.providerGender.length > 0
+                            ? `Gender: ${localFilters.providerGender.map(g => expandDemographic(g, 'gender')).join(', ')}`
+                            : null}
+                        </Select.ValueText>
+                      </Select.Trigger>
+                      <Select.IndicatorGroup>
+                        <Select.Indicator />
+                      </Select.IndicatorGroup>
+                    </Select.Control>
+                    <Select.Positioner>
+                      <Select.Content>
+                        {genderCollection.items.map((gender) => (
+                          <Select.Item item={gender} key={`provider-gender-${gender.value}`}>
+                            {gender.label}
+                            <Select.ItemIndicator />
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Select.Root>
+
+                  <Select.Root
+                    collection={raceCollection}
+                    size="sm"
+                    multiple
+                    value={localFilters.providerRace}
+                    onValueChange={(details) => handleFilterChange('providerRace', details.value)}
+                  >
+                    <Select.HiddenSelect />
+                    <Select.Control>
+                      <Select.Trigger>
+                        <Select.ValueText placeholder="Race">
+                          {localFilters.providerRace.length > 0
+                            ? `Race: ${localFilters.providerRace.map(r => expandDemographic(r, 'race')).join(', ')}`
+                            : null}
+                        </Select.ValueText>
+                      </Select.Trigger>
+                      <Select.IndicatorGroup>
+                        <Select.Indicator />
+                      </Select.IndicatorGroup>
+                    </Select.Control>
+                    <Select.Positioner>
+                      <Select.Content>
+                        {raceCollection.items.map((race) => (
+                          <Select.Item item={race} key={`provider-race-${race.value}`}>
+                            {race.label}
+                            <Select.ItemIndicator />
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Select.Root>
+
+                  <Select.Root
+                    collection={ethnicityCollection}
+                    size="sm"
+                    multiple
+                    value={localFilters.providerEthnicity}
+                    onValueChange={(details) => handleFilterChange('providerEthnicity', details.value)}
+                  >
+                    <Select.HiddenSelect />
+                    <Select.Control>
+                      <Select.Trigger>
+                        <Select.ValueText placeholder="Ethnicity">
+                          {localFilters.providerEthnicity.length > 0
+                            ? `Ethnicity: ${localFilters.providerEthnicity.map(e => expandDemographic(e, 'ethnicity')).join(', ')}`
+                            : null}
+                        </Select.ValueText>
+                      </Select.Trigger>
+                      <Select.IndicatorGroup>
+                        <Select.Indicator />
+                      </Select.IndicatorGroup>
+                    </Select.Control>
+                    <Select.Positioner>
+                      <Select.Content>
+                        {ethnicityCollection.items.map((ethnicity) => (
+                          <Select.Item item={ethnicity} key={`provider-ethnicity-${ethnicity.value}`}>
+                            {ethnicity.label}
+                            <Select.ItemIndicator />
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Select.Root>
+
+                  <HStack gap={2}>
+                    <Input
+                      type="number"
+                      placeholder="Min Age"
+                      size="sm"
+                      value={localFilters.providerAgeFrom}
+                      onChange={(e) => handleFilterChange('providerAgeFrom', e.target.value)}
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Max Age"
+                      size="sm"
+                      value={localFilters.providerAgeTo}
+                      onChange={(e) => handleFilterChange('providerAgeTo', e.target.value)}
+                    />
+                  </HStack>
+                </VStack>
+              </Collapsible.Content>
+            </Collapsible.Root>
+
+            {/* Summary and Actions */}
+            <Box pt={3} borderTop="1px" borderColor="gray.100">
+              <Text fontSize="xs" color="gray.600" mb={3} fontWeight="medium">
+                {filterSummary
+                  ? `${filterSummary.filteredVisits} of ${filterSummary.totalVisits} visits`
+                  : 'Loading...'
+                }
               </Text>
               <Button
                 size="sm"
                 colorScheme="blue"
                 width="full"
-                disabled={filteredVisits.length === 0}
+                disabled={!filterSummary || filterSummary.filteredVisits === 0}
               >
                 Save as Cohort
               </Button>
             </Box>
           </VStack>
+          </Box>
         </Box>
 
         {/* Data Table */}
@@ -383,17 +693,37 @@ export default function ResearchTab() {
               <HStack justify="space-between">
                 <Text fontWeight="semibold">Research Visits</Text>
                 <Text color="gray.600" fontSize="sm">
-                  Showing {startIndex + 1}-{Math.min(endIndex, filteredVisits.length)} of {filteredVisits.length} visits
-                  {filteredVisits.length !== visits.length && (
-                    <Text as="span" color="blue.600" fontSize="xs" ml={1}>
-                      (filtered from {visits.length})
-                    </Text>
+                  {filterSummary && pagination.totalCount > 0 && (
+                    <>
+                      Showing {((pagination.currentPage - 1) * 20) + 1}-
+                      {Math.min(pagination.currentPage * 20, pagination.totalCount)} of {pagination.totalCount} visits
+                      {filterSummary.activeFilters > 0 && (
+                        <Text as="span" color="blue.600" fontSize="xs" ml={1}>
+                          ({filterSummary.activeFilters} {filterSummary.activeFilters === 1 ? 'filter' : 'filters'} active)
+                        </Text>
+                      )}
+                    </>
                   )}
                 </Text>
               </HStack>
             </Card.Header>
             <Card.Body>
-              {filteredVisits.length > 0 ? (
+              {visitsLoading ? (
+                <Box overflowX="auto">
+                  <Stack gap={2}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <HStack key={i} gap={4}>
+                        <Skeleton height="40px" width="80px" />
+                        <Skeleton height="40px" width="120px" />
+                        <Skeleton height="40px" width="100px" />
+                        <Skeleton height="40px" width="80px" />
+                        <Skeleton height="40px" flex="1" />
+                        <Skeleton height="40px" flex="1" />
+                      </HStack>
+                    ))}
+                  </Stack>
+                </Box>
+              ) : visits.length > 0 ? (
                 <Box overflowX="auto">
                   <Table.Root size="sm" variant="outline">
                     <Table.Header bg="gray.50">
@@ -405,13 +735,12 @@ export default function ResearchTab() {
                             _hover={{ bg: "gray.100" }}
                             p={2}
                             borderRadius="md"
+                            whiteSpace="nowrap"
                           >
                             <Text>Visit ID</Text>
                             <SortIcon field="id" />
                           </HStack>
                         </Table.ColumnHeader>
-                        <Table.ColumnHeader>Person ID</Table.ColumnHeader>
-                        <Table.ColumnHeader>Provider ID</Table.ColumnHeader>
                         <Table.ColumnHeader>
                           <HStack
                             cursor="pointer"
@@ -419,6 +748,7 @@ export default function ResearchTab() {
                             _hover={{ bg: "gray.100" }}
                             p={2}
                             borderRadius="md"
+                            whiteSpace="nowrap"
                           >
                             <Text>Visit Date</Text>
                             <SortIcon field="visit_start_date" />
@@ -431,6 +761,7 @@ export default function ResearchTab() {
                             _hover={{ bg: "gray.100" }}
                             p={2}
                             borderRadius="md"
+                            whiteSpace="nowrap"
                           >
                             <Text>Source</Text>
                             <SortIcon field="visit_source_value" />
@@ -443,44 +774,81 @@ export default function ResearchTab() {
                             _hover={{ bg: "gray.100" }}
                             p={2}
                             borderRadius="md"
+                            whiteSpace="nowrap"
                           >
                             <Text>Tier</Text>
                             <SortIcon field="tier_id" />
                           </HStack>
                         </Table.ColumnHeader>
+                        <Table.ColumnHeader>Person Demographics</Table.ColumnHeader>
+                        <Table.ColumnHeader>Provider Demographics</Table.ColumnHeader>
                       </Table.Row>
                     </Table.Header>
                     <Table.Body>
-                      {currentVisits.map((visit) => (
-                        <Table.Row key={visit.id}>
+                      {visits.map((visit) => (
+                        <Table.Row key={visit.visit_id}>
                           <Table.Cell>
                             <Text fontWeight="medium" color="blue.600">
-                              {visit.id}
+                              {visit.visit_id}
                             </Text>
                           </Table.Cell>
                           <Table.Cell>
-                            <Text>{visit.person_id}</Text>
-                          </Table.Cell>
-                          <Table.Cell>
-                            <Text>{visit.provider_id}</Text>
-                          </Table.Cell>
-                          <Table.Cell>
                             <Text fontSize="sm">
-                              {new Date(`${visit.visit_start_date}T${visit.visit_start_time}`).toLocaleDateString()}
+                              {new Date(visit.visit_date).toLocaleDateString()}
                             </Text>
                           </Table.Cell>
                           <Table.Cell>
                             <Badge size="sm" variant="subtle">
-                              {visit.visit_source_value}
+                              {visit.visit_source}
                             </Badge>
                           </Table.Cell>
                           <Table.Cell>
                             <Badge
                               size="sm"
-                              colorScheme={visit.tier_id === 1 ? "green" : visit.tier_id === 2 ? "yellow" : "red"}
+                              colorScheme={visit.tier === 1 ? "green" : visit.tier === 2 ? "yellow" : "red"}
                             >
-                              Tier {visit.tier_id}
+                              Tier {visit.tier}
                             </Badge>
+                          </Table.Cell>
+                          <Table.Cell>
+                            <VStack gap={1} align="start">
+                              <HStack gap={1} flexWrap="wrap">
+                                {visit.patient_age !== null && (
+                                  <Badge size="sm" colorScheme="blue">Age {visit.patient_age}</Badge>
+                                )}
+                                {visit.patient_gender && (
+                                  <Badge size="sm" variant="subtle">{expandDemographic(visit.patient_gender, 'gender')}</Badge>
+                                )}
+                              </HStack>
+                              <HStack gap={1} flexWrap="wrap">
+                                {visit.patient_race && (
+                                  <Badge size="sm" variant="subtle">{expandDemographic(visit.patient_race, 'race')}</Badge>
+                                )}
+                                {visit.patient_ethnicity && (
+                                  <Badge size="sm" variant="subtle">{expandDemographic(visit.patient_ethnicity, 'ethnicity')}</Badge>
+                                )}
+                              </HStack>
+                            </VStack>
+                          </Table.Cell>
+                          <Table.Cell>
+                            <VStack gap={1} align="start">
+                              <HStack gap={1} flexWrap="wrap">
+                                {visit.provider_age !== null && (
+                                  <Badge size="sm" colorScheme="purple">Age {visit.provider_age}</Badge>
+                                )}
+                                {visit.provider_gender && (
+                                  <Badge size="sm" variant="subtle">{expandDemographic(visit.provider_gender, 'gender')}</Badge>
+                                )}
+                              </HStack>
+                              <HStack gap={1} flexWrap="wrap">
+                                {visit.provider_race && (
+                                  <Badge size="sm" variant="subtle">{expandDemographic(visit.provider_race, 'race')}</Badge>
+                                )}
+                                {visit.provider_ethnicity && (
+                                  <Badge size="sm" variant="subtle">{expandDemographic(visit.provider_ethnicity, 'ethnicity')}</Badge>
+                                )}
+                              </HStack>
+                            </VStack>
                           </Table.Cell>
                         </Table.Row>
                       ))}
@@ -488,23 +856,26 @@ export default function ResearchTab() {
                   </Table.Root>
 
                   {/* Pagination */}
-                  {totalPages > 1 && (
+                  {pagination.totalCount > 20 && (
                     <HStack justify="space-between" mt={4} align="center">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
+                        onClick={() => setPage(pagination.currentPage - 1)}
+                        disabled={!pagination.hasPrevious || visitsLoading}
                       >
                         Previous
                       </Button>
 
                       <HStack gap={2}>
-                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                        {Array.from(
+                          { length: Math.ceil(pagination.totalCount / 20) },
+                          (_, i) => i + 1
+                        )
                           .filter(page =>
                             page === 1 ||
-                            page === totalPages ||
-                            Math.abs(page - currentPage) <= 2
+                            page === Math.ceil(pagination.totalCount / 20) ||
+                            Math.abs(page - pagination.currentPage) <= 2
                           )
                           .map((page, index, array) => (
                             <React.Fragment key={page}>
@@ -513,10 +884,11 @@ export default function ResearchTab() {
                               )}
                               <Button
                                 size="sm"
-                                variant={currentPage === page ? "solid" : "outline"}
-                                bg={currentPage === page ? "blue.500" : "white"}
-                                color={currentPage === page ? "white" : "gray.700"}
-                                onClick={() => handlePageChange(page)}
+                                variant={pagination.currentPage === page ? "solid" : "outline"}
+                                bg={pagination.currentPage === page ? "blue.500" : "white"}
+                                color={pagination.currentPage === page ? "white" : "gray.700"}
+                                onClick={() => setPage(page)}
+                                disabled={visitsLoading}
                               >
                                 {page}
                               </Button>
@@ -528,8 +900,8 @@ export default function ResearchTab() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
+                        onClick={() => setPage(pagination.currentPage + 1)}
+                        disabled={!pagination.hasNext || visitsLoading}
                       >
                         Next
                       </Button>
@@ -539,20 +911,12 @@ export default function ResearchTab() {
               ) : (
                 <VStack gap={4} py={8}>
                   <Text color="gray.600" textAlign="center">
-                    {visits.length === 0
-                      ? "No research data found. Data will appear here when available."
-                      : "No visits match your current filters. Try adjusting your search criteria."
-                    }
+                    No visits match your current filters. Try adjusting your search criteria.
                   </Text>
-                  {visits.length > 0 && filteredVisits.length === 0 && (
+                  {filterSummary && filterSummary.activeFilters > 0 && (
                     <Button size="sm" variant="outline" onClick={clearFilters}>
                       Clear Filters
                     </Button>
-                  )}
-                  {error && (
-                    <Text color="red.500" fontSize="sm" textAlign="center">
-                      Error: {error}
-                    </Text>
                   )}
                 </VStack>
               )}
