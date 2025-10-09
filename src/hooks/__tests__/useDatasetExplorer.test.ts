@@ -40,6 +40,16 @@ describe('useDatasetExplorer', () => {
     provider_surveys: [],
     audit_logs: [],
     concepts: [],
+    _metadata: {
+      description: 'Sample OMOP dataset',
+      source: 'Test data',
+      count: {
+        persons: 2,
+        providers: 1,
+        visits: 2,
+        observations: 4,
+      },
+    },
   };
 
   beforeEach(() => {
