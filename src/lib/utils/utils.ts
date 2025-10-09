@@ -17,7 +17,7 @@ import {
 } from "../../constants";
 
 export const capitalizeWords = (input: string): string => {
-  return input.replace(/\b\w/g, (char) => char.toUpperCase());
+  return input.replace(/(^|[\s\-_])\w/g, (match) => match.toUpperCase());
 };
 
 export const checkBoolean = (input: boolean): string => {
