@@ -12,11 +12,12 @@ import { PublicMultiModalDataType } from "@/interfaces/mmd";
 import {
   ETHNIC_CATEGORIES,
   RACIAL_CATEGORIES,
+  GENDER_CATEGORIES,
   CSV_COLUMN_ORDER,
 } from "../../constants";
 
 export const capitalizeWords = (input: string): string => {
-  return input.replace(/\b\w/g, (char) => char.toUpperCase());
+  return input.replace(/(^|[\s\-_])\w/g, (match) => match.toUpperCase());
 };
 
 export const checkBoolean = (input: boolean): string => {
@@ -624,4 +625,32 @@ export const downloadData = (
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+};
+
+/**
+ * Demographics utilities
+ */
+type DemographicType = 'gender' | 'race' | 'ethnicity';
+
+/**
+ * Expands demographic codes to full text
+ * @param code - The demographic code (e.g., 'M', 'W', 'NH')
+ * @param type - The type of demographic data
+ * @returns Full text representation (e.g., 'Male', 'White', 'Not Hispanic or Latino')
+ */
+export const expandDemographic = (
+  code: string | null,
+  type: DemographicType
+): string => {
+  if (!code) return '';
+
+  const normalizedCode = code.toUpperCase();
+
+  const mappings: Record<DemographicType, Record<string, string>> = {
+    gender: GENDER_CATEGORIES,
+    race: RACIAL_CATEGORIES,
+    ethnicity: ETHNIC_CATEGORIES,
+  };
+
+  return mappings[type][normalizedCode] || code;
 };
