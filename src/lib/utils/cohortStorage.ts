@@ -4,8 +4,22 @@
  */
 
 import { Cohort, CohortCreateRequest } from '@/interfaces/cohort';
+import { logger } from '../logger';
 
 const STORAGE_KEY = 'observer-research-cohorts';
+
+/**
+ * Get storage information (size and count)
+ */
+const getStorageInfo = () => {
+  if (typeof window === 'undefined') return { size: '0', count: 0 };
+
+  const stored = localStorage.getItem(STORAGE_KEY);
+  const size = stored ? new Blob([stored]).size : 0;
+  const sizeKB = (size / 1024).toFixed(2);
+  const count = stored ? JSON.parse(stored).length : 0;
+  return { size: sizeKB, count };
+};
 
 /**
  * Get all cohorts for the current user
@@ -21,7 +35,7 @@ export async function getCohorts(): Promise<Cohort[]> {
     const cohorts = JSON.parse(stored) as Cohort[];
     return cohorts;
   } catch (error) {
-    console.error('Failed to load cohorts:', error);
+    logger.error('Failed to load cohorts:', error);
     return [];
   }
 }
@@ -35,7 +49,7 @@ export async function getCohort(id: string): Promise<Cohort | null> {
     const cohorts = await getCohorts();
     return cohorts.find(c => c.id === id) || null;
   } catch (error) {
-    console.error('Failed to load cohort:', error);
+    logger.error('Failed to load cohort:', error);
     return null;
   }
 }
@@ -64,9 +78,13 @@ export async function createCohort(data: CohortCreateRequest): Promise<Cohort> {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       } catch (storageError) {
-        // Handle quota exceeded error
+        // Handle quota exceeded error with detailed information
         if (storageError instanceof Error && storageError.name === 'QuotaExceededError') {
-          throw new Error('Storage quota exceeded. Please delete some cohorts or export them to free up space.');
+          const { size, count } = getStorageInfo();
+          throw new Error(
+            `Storage quota exceeded (${size}KB used, ${count} cohorts). ` +
+            `Please delete or export cohorts to free up space.`
+          );
         }
         throw storageError;
       }
@@ -74,7 +92,7 @@ export async function createCohort(data: CohortCreateRequest): Promise<Cohort> {
 
     return newCohort;
   } catch (error) {
-    console.error('Failed to create cohort:', error);
+    logger.error('Failed to create cohort:', error);
     if (error instanceof Error) {
       throw error; // Preserve original error message
     }
@@ -108,7 +126,11 @@ export async function updateCohort(id: string, updates: Partial<Cohort>): Promis
         localStorage.setItem(STORAGE_KEY, JSON.stringify(cohorts));
       } catch (storageError) {
         if (storageError instanceof Error && storageError.name === 'QuotaExceededError') {
-          throw new Error('Storage quota exceeded. Please delete some cohorts or export them to free up space.');
+          const { size, count } = getStorageInfo();
+          throw new Error(
+            `Storage quota exceeded (${size}KB used, ${count} cohorts). ` +
+            `Please delete or export cohorts to free up space.`
+          );
         }
         throw storageError;
       }
@@ -116,7 +138,7 @@ export async function updateCohort(id: string, updates: Partial<Cohort>): Promis
 
     return updatedCohort;
   } catch (error) {
-    console.error('Failed to update cohort:', error);
+    logger.error('Failed to update cohort:', error);
     if (error instanceof Error) {
       throw error;
     }
@@ -137,7 +159,7 @@ export async function deleteCohort(id: string): Promise<void> {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
     }
   } catch (error) {
-    console.error('Failed to delete cohort:', error);
+    logger.error('Failed to delete cohort:', error);
     throw new Error('Failed to delete cohort');
   }
 }
@@ -160,7 +182,7 @@ export async function duplicateCohort(id: string): Promise<Cohort> {
       visitCount: original.visitCount,
     });
   } catch (error) {
-    console.error('Failed to duplicate cohort:', error);
+    logger.error('Failed to duplicate cohort:', error);
     throw new Error('Failed to duplicate cohort');
   }
 }

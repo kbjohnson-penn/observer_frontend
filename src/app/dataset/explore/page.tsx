@@ -6,6 +6,7 @@ import {
 import HealthcareDataBrowser from '@/components/multimodal/HealthcareDataBrowser';
 import TranscriptViewer from '@/components/multimodal/TranscriptViewer';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import { logger } from '@/lib/logger';
 import axios from 'axios';
 
 // Server-side data fetching function
@@ -19,7 +20,7 @@ const fetchSampleData = async () => {
     );
     return response.data;
   } catch (error) {
-    console.error('Error fetching sample data:', error);
+    logger.error('Error fetching sample data:', error);
     return null;
   }
 };

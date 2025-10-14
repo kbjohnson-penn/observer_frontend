@@ -188,32 +188,36 @@ describe('AgreementsSettings', () => {
         status: 500,
       });
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      // Mock logger.error since we use logger instead of console
+      const mockLogger = require('@/lib/logger');
+      const loggerErrorSpy = jest.spyOn(mockLogger.logger, 'error').mockImplementation();
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load agreements');
+        expect(loggerErrorSpy).toHaveBeenCalledWith('Failed to load agreements');
       });
 
-      consoleErrorSpy.mockRestore();
+      loggerErrorSpy.mockRestore();
     });
 
     it('should handle network errors', async () => {
       (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      // Mock logger.error since we use logger instead of console
+      const mockLogger = require('@/lib/logger');
+      const loggerErrorSpy = jest.spyOn(mockLogger.logger, 'error').mockImplementation();
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect(loggerErrorSpy).toHaveBeenCalledWith(
           'Error loading agreements:',
           expect.any(Error)
         );
       });
 
-      consoleErrorSpy.mockRestore();
+      loggerErrorSpy.mockRestore();
     });
   });
 

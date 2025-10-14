@@ -12,6 +12,7 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { useAuth } from "@/contexts/AuthContext";
+import { logger } from "@/lib/logger";
 
 // Reusable form field component
 interface FormFieldProps {
@@ -94,6 +95,7 @@ export default function ProfileSettings() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [errors, setErrors] = useState<{ phone_number?: string }>({});
 
   // Load user profile data on mount
   useEffect(() => {
@@ -123,7 +125,7 @@ export default function ProfileSettings() {
           });
         }
       } catch (error) {
-        console.error("Failed to load profile:", error);
+        logger.error("Failed to load profile:", error);
       }
     };
 
@@ -142,12 +144,28 @@ export default function ProfileSettings() {
   }
 
   const handleInputChange = (field: keyof ProfileData, value: string) => {
-    // Special handling for phone number - limit to 10 digits
+    // Special handling for phone number - limit to 10 digits with validation
     if (field === 'phone_number') {
       // Remove all non-digit characters
       const digitsOnly = value.replace(/\D/g, '');
       // Limit to 10 digits
       const limitedDigits = digitsOnly.slice(0, 10);
+
+      // Validate US phone format (must start with 2-9, exactly 10 digits)
+      if (limitedDigits.length > 0 && limitedDigits.length !== 10) {
+        setErrors(prev => ({
+          ...prev,
+          phone_number: 'Phone number must be 10 digits'
+        }));
+      } else if (limitedDigits.length === 10 && !limitedDigits.match(/^[2-9]\d{9}$/)) {
+        setErrors(prev => ({
+          ...prev,
+          phone_number: 'Invalid US phone number format (must start with 2-9)'
+        }));
+      } else {
+        setErrors(prev => ({ ...prev, phone_number: undefined }));
+      }
+
       setProfileData(prev => ({
         ...prev,
         [field]: limitedDigits
@@ -177,7 +195,7 @@ export default function ProfileSettings() {
         bio: profileData.bio,
       };
       
-      console.log("Sending profile update request:", requestData);
+      logger.debug("Sending profile update request:", requestData);
       
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/profile/`,
@@ -209,13 +227,13 @@ export default function ProfileSettings() {
           bio: responseData.bio || "",
         });
       } else {
-        console.error(`Profile update failed with status: ${response.status}`);
-        
+        logger.error(`Profile update failed with status: ${response.status}`);
+
         let errorMessage = "Failed to update profile";
-        
+
         try {
           const errorData = await response.json();
-          console.error("Error response:", errorData);
+          logger.error("Error response:", errorData);
           
           // Handle different types of errors
           if (response.status === 401) {
@@ -248,7 +266,7 @@ export default function ProfileSettings() {
             errorMessage = errorData.message;
           }
         } catch (parseError) {
-          console.error("Could not parse error response:", parseError);
+          logger.error("Could not parse error response:", parseError);
           errorMessage = `Server error (${response.status}). Please try again.`;
         }
         
@@ -258,10 +276,10 @@ export default function ProfileSettings() {
         });
       }
     } catch (error) {
-      console.error("Profile update network error:", error);
-      setMessage({ 
-        type: "error", 
-        text: "Network error: Unable to connect to server. Please check your connection and try again." 
+      logger.error("Profile update network error:", error);
+      setMessage({
+        type: "error",
+        text: "Network error: Unable to connect to server. Please check your connection and try again."
       });
     }
 

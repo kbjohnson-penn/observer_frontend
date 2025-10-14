@@ -11,6 +11,7 @@ import { VisitSearchFilters } from '@/interfaces/research';
  * @param ageFrom - Minimum age
  * @param ageTo - Maximum age
  * @returns Object with year_of_birth_from and year_of_birth_to
+ * @throws Error if age values are invalid
  */
 function ageToYearOfBirth(
   ageFrom: string,
@@ -20,13 +21,30 @@ function ageToYearOfBirth(
   const result: { year_of_birth_from?: number; year_of_birth_to?: number } = {};
 
   if (ageFrom) {
+    const age = parseInt(ageFrom, 10);  // Always specify radix
+    if (isNaN(age) || age < 0 || age > 150) {
+      throw new Error('Invalid minimum age: must be between 0 and 150');
+    }
     // Min age means max year of birth (someone who is at least X years old)
-    result.year_of_birth_to = currentYear - parseInt(ageFrom);
+    result.year_of_birth_to = currentYear - age;
   }
 
   if (ageTo) {
+    const age = parseInt(ageTo, 10);  // Always specify radix
+    if (isNaN(age) || age < 0 || age > 150) {
+      throw new Error('Invalid maximum age: must be between 0 and 150');
+    }
     // Max age means min year of birth (someone who is at most X years old)
-    result.year_of_birth_from = currentYear - parseInt(ageTo);
+    result.year_of_birth_from = currentYear - age;
+  }
+
+  // Validate logical consistency
+  if (ageFrom && ageTo) {
+    const minAge = parseInt(ageFrom, 10);
+    const maxAge = parseInt(ageTo, 10);
+    if (minAge > maxAge) {
+      throw new Error('Minimum age cannot be greater than maximum age');
+    }
   }
 
   return result;

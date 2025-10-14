@@ -66,8 +66,8 @@ export default function VerifyEmailForm({ token }: VerifyEmailFormProps) {
     // Validate passwords before sending to backend
     const validationErrors: VerificationErrors = {};
 
-    if (formData.password.length < 8) {
-      validationErrors.password = ['Password must be at least 8 characters long'];
+    if (formData.password.length < 12) {
+      validationErrors.password = ['Password must be at least 12 characters long'];
     }
 
     if (formData.password !== formData.password_confirm) {

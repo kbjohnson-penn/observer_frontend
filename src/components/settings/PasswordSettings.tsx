@@ -88,8 +88,8 @@ export default function PasswordSettings() {
     }
 
     // Validate password strength
-    if (formData.new_password.length < 8) {
-      setMessage({ type: "error", text: "Password must be at least 8 characters long" });
+    if (formData.new_password.length < 12) {
+      setMessage({ type: "error", text: "Password must be at least 12 characters long" });
       setIsLoading(false);
       return;
     }

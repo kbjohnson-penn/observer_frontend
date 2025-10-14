@@ -150,13 +150,24 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
   };
 
   const sanitizeCSVValue = (value: any): string => {
-    const str = String(value || '');
-    
-    // Escape potential formula injection (Excel formula attacks)
-    if (str.startsWith('=') || str.startsWith('+') || str.startsWith('-') || str.startsWith('@')) {
+    const str = String(value || '').trim();
+
+    // Comprehensive list of dangerous characters for CSV formula injection
+    const dangerousChars = ['=', '+', '-', '@', '\t', '\r', '\n', '|', '%'];
+    const firstChar = str.charAt(0);
+
+    // Check if first character is dangerous
+    if (dangerousChars.includes(firstChar)) {
+      // Prefix with single quote AND wrap in quotes to prevent formula execution
       return `"'${str.replace(/"/g, '""')}"`;
     }
-    
+
+    // Check for leading whitespace before dangerous character
+    const trimmedStr = str.trim();
+    if (trimmedStr !== str && dangerousChars.includes(trimmedStr.charAt(0))) {
+      return `"'${str.replace(/"/g, '""')}"`;
+    }
+
     // Standard CSV escaping for quotes
     return `"${str.replace(/"/g, '""')}"`;
   };

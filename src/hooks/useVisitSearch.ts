@@ -6,6 +6,7 @@ import {
   VisitSearchResponse,
   VisitSearchResult,
 } from '@/interfaces/research';
+import { logger } from '@/lib/logger';
 
 interface FilterSummary {
   totalVisits: number;
@@ -82,7 +83,7 @@ export function useVisitSearch(): UseVisitSearchReturn {
         });
       } catch (err) {
         setError('Failed to search visits');
-        console.error('Visit search error:', err);
+        logger.error('Visit search error:', err);
         setResults([]);
       } finally {
         setLoading(false);

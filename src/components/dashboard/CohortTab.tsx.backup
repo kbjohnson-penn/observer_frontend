@@ -41,7 +41,7 @@ export default function CohortTab() {
           })));
         }
       } catch (error) {
-        console.error("Failed to load cohorts:", error);
+        logger.error("Failed to load cohorts:", error);
       }
     };
 
@@ -69,12 +69,12 @@ export default function CohortTab() {
 
   const handleViewCohort = (cohort: Cohort) => {
     // TODO: Navigate to cohort detail view or show modal
-    console.log("View cohort:", cohort);
+    logger.log("View cohort:", cohort);
   };
 
   const handleExportCohort = (cohort: Cohort) => {
     // TODO: Export cohort data
-    console.log("Export cohort:", cohort);
+    logger.log("Export cohort:", cohort);
   };
 
   if (loading) {

@@ -107,7 +107,7 @@ describe('PasswordSettings', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Password must be at least 8 characters long')).toBeInTheDocument();
+        expect(screen.getByText('Password must be at least 12 characters long')).toBeInTheDocument();
       });
     });
   });
@@ -244,14 +244,15 @@ describe('PasswordSettings', () => {
       const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password');
       const submitButton = screen.getByRole('button', { name: /update password/i });
 
-      await user.type(currentPasswordInput, 'oldpassword123');
-      await user.type(newPasswordInput, 'password123');
-      await user.type(confirmPasswordInput, 'password123');
+      await user.type(currentPasswordInput, 'oldpassword123456');
+      await user.type(newPasswordInput, 'password123456'); // Must be 12+ chars to pass client validation
+      await user.type(confirmPasswordInput, 'password123456');
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('This password is too common')).toBeInTheDocument();
-      });
+        // Look for the API error message from backend
+        expect(screen.getByText(/too common/i)).toBeInTheDocument();
+      }, { timeout: 3000 });
     });
 
     it('should handle generic API error', async () => {

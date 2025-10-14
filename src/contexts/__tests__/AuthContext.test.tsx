@@ -42,7 +42,7 @@ describe('AuthContext', () => {
     });
 
     it('should throw error when used outside AuthProvider', () => {
-      // Suppress console.error for this test
+      // Suppress logger.error for this test
       const consoleError = jest.spyOn(console, 'error').mockImplementation();
 
       expect(() => {
