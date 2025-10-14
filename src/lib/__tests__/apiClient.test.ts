@@ -98,7 +98,7 @@ describe('API Client', () => {
 
       expect(token).toBe('fetched-token');
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('/auth/csrf-token/'),
+        expect.stringContaining('/accounts/auth/csrf-token/'),
         expect.objectContaining({
           method: 'GET',
           credentials: 'include',

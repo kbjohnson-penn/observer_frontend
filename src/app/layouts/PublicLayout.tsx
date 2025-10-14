@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FloatingContactButton from "@/components/FloatingContactButton";
+import { fetchCsrfToken } from "@/lib/apiClient";
 // import FloatingAnnouncementsButton from "@/components/FloatingAnnouncementsButton";
 
 export default function PublicLayout({
@@ -11,6 +12,13 @@ export default function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Fetch CSRF token on mount for public operations (login, register, verify-email)
+  useEffect(() => {
+    fetchCsrfToken().catch(() => {
+      // Silently fail - CSRF token will be fetched again if needed
+    });
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header showLinks={true} />

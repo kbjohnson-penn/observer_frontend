@@ -109,7 +109,7 @@ export { getCsrfToken };
 
 export const fetchCsrfToken = async (): Promise<string | null> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/csrf-token/`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/csrf-token/`, {
       method: 'GET',
       credentials: 'include',
     });
