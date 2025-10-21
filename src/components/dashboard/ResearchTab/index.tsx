@@ -20,6 +20,7 @@ import { LocalFilters, INITIAL_LOCAL_FILTERS } from "@/interfaces/researchTab";
 import { buildServerFilters } from "@/lib/utils/filterTransformer";
 import { createCohort } from "@/lib/utils/cohortStorage";
 import { CohortCreateRequest } from "@/interfaces/cohort";
+import { logger } from "@/lib/logger";
 import FilterSidebar from "./FilterSidebar";
 import VisitsTable from "./VisitsTable";
 import PaginationControls from "./PaginationControls";
@@ -90,7 +91,7 @@ export default function ResearchTab() {
         setCohortSuccess(false);
       }, 3000);
     } catch (error) {
-      console.error('Failed to create cohort:', error);
+      logger.error('Failed to create cohort:', error);
       // Error is already handled and shown in CreateCohortDialog
       throw error; // Re-throw so dialog can display error
     }

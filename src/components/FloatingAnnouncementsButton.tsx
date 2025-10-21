@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Box, IconButton } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { LuBell } from "react-icons/lu";
+import { logger } from "@/lib/logger";
 import AnnouncementsModal from "./AnnouncementsModal";
 
 const FloatingAnnouncementsButton: React.FC = () => {
@@ -24,7 +25,7 @@ const FloatingAnnouncementsButton: React.FC = () => {
         }
       }
     } catch (error) {
-      console.warn("Could not access sessionStorage:", error);
+      logger.warn("Could not access sessionStorage:", error);
       setHasUnreadAnnouncements(true);
     }
   }, []);
@@ -34,7 +35,7 @@ const FloatingAnnouncementsButton: React.FC = () => {
       sessionStorage.setItem("hasSeenPilotAwards", "true");
       setHasUnreadAnnouncements(false);
     } catch (error) {
-      console.warn("Could not save to sessionStorage:", error);
+      logger.warn("Could not save to sessionStorage:", error);
     }
   };
 
@@ -43,7 +44,7 @@ const FloatingAnnouncementsButton: React.FC = () => {
     try {
       sessionStorage.setItem("hasClosedPilotAwardsModal", "true");
     } catch (error) {
-      console.warn("Could not save to sessionStorage:", error);
+      logger.warn("Could not save to sessionStorage:", error);
     }
   };
 

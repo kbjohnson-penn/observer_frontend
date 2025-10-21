@@ -1,4 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { logger } from "./logger";
+import { CONFIG } from "./config";
 
 // Extend the AxiosRequestConfig to include _retry property
 interface RetryAxiosRequestConfig extends InternalAxiosRequestConfig {
@@ -22,11 +24,12 @@ const getCsrfToken = (): string | null => {
 // Create axios instance with base configuration
 const createApiClient = () => {
   const instance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1",
+    baseURL: CONFIG.BACKEND_API,
     headers: {
       "Content-Type": "application/json",
     },
     withCredentials: true, // Include cookies in all requests
+    timeout: CONFIG.API_TIMEOUT, // Add timeout
   });
 
   // Request interceptor - add CSRF token for state-changing operations
@@ -47,22 +50,37 @@ const createApiClient = () => {
     (error) => Promise.reject(error)
   );
 
-  // Response interceptor to handle token refresh
+  // Response interceptor to handle token refresh and network errors
   instance.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
+      // Handle network errors (no response from server)
+      if (!error.response) {
+        logger.error('Network error:', error.message);
+        return Promise.reject(new Error('Network error. Please check your connection and try again.'));
+      }
+
       const originalRequest = error.config as RetryAxiosRequestConfig;
 
-      if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+      if (error.response.status === 401 && originalRequest && !originalRequest._retry) {
         originalRequest._retry = true;
 
         try {
+          // Add timeout to token refresh to prevent hanging
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
           // Try to refresh token using httpOnly cookies
           const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/token/refresh/`,
+            CONFIG.getApiUrl('/accounts/auth/token/refresh/'),
             {},
-            { withCredentials: true }
+            {
+              withCredentials: true,
+              signal: controller.signal
+            }
           );
+
+          clearTimeout(timeoutId);
 
           if (response.status === 200) {
             // Token refreshed successfully, retry original request
@@ -70,6 +88,9 @@ const createApiClient = () => {
           }
         } catch (refreshError) {
           // Refresh failed, emit auth failure event
+          if (axios.isCancel(refreshError)) {
+            logger.error('Token refresh timed out');
+          }
           window.dispatchEvent(new CustomEvent("auth:failed"));
           return Promise.reject(refreshError);
         }
@@ -90,7 +111,7 @@ export { getCsrfToken };
 
 export const fetchCsrfToken = async (): Promise<string | null> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/auth/csrf-token/`, {
+    const response = await fetch(CONFIG.getApiUrl('/accounts/auth/csrf-token/'), {
       method: 'GET',
       credentials: 'include',
     });
@@ -100,7 +121,7 @@ export const fetchCsrfToken = async (): Promise<string | null> => {
       return data.csrfToken;
     }
   } catch (error) {
-    console.warn('Failed to fetch CSRF token:', error);
+    logger.warn('Failed to fetch CSRF token:', error);
   }
   return null;
 };

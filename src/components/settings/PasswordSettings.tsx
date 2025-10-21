@@ -88,8 +88,20 @@ export default function PasswordSettings() {
     }
 
     // Validate password strength
-    if (formData.new_password.length < 8) {
-      setMessage({ type: "error", text: "Password must be at least 8 characters long" });
+    if (formData.new_password.length < 12) {
+      setMessage({ type: "error", text: "Password must be at least 12 characters long" });
+      setIsLoading(false);
+      return;
+    }
+
+    // Password strength validation
+    const hasUppercase = /[A-Z]/.test(formData.new_password);
+    const hasLowercase = /[a-z]/.test(formData.new_password);
+    const hasNumber = /\d/.test(formData.new_password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(formData.new_password);
+
+    if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+      setMessage({ type: "error", text: "Password must contain uppercase, lowercase, number, and special character" });
       setIsLoading(false);
       return;
     }

@@ -7,6 +7,7 @@ import { Box, Flex, HStack, IconButton, Text, VStack, Button, Menu, Portal } fro
 import { HiUser } from "react-icons/hi2";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { logger } from "@/lib/logger";
 import { MenuOpenIcon, MenuCloseIcon } from "./icons/MenuIcons";
 
 // Constants
@@ -90,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({
       await logout();
     } catch (error) {
       // Log error but continue with logout flow
-      console.error("Header: Logout failed:", error);
+      logger.error("Header: Logout failed:", error);
       // Could also add toast notification here
     }
   };

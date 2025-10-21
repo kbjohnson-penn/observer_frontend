@@ -45,6 +45,14 @@ export default function RegisterForm() {
   const [successMessage, setSuccessMessage] = useState("");
   const [generalError, setGeneralError] = useState("");
 
+  // Get test domains only in development mode
+  const getTestDomains = () => {
+    if (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ALLOW_TEST_EMAILS === 'true') {
+      return ['gmail.com', 'outlook.com', 'yahoo.com'];
+    }
+    return [];
+  };
+
   // Allowed email domains for registration
   const allowedDomains = [
     'edu',           // Educational institutions
@@ -52,9 +60,7 @@ export default function RegisterForm() {
     'gov',           // Government institutions
     'nih.gov',       // National Institutes of Health
     'upenn.edu',     // University of Pennsylvania
-    'gmail.com',     // For testing purposes
-    'outlook.com',   // For testing purposes
-    'yahoo.com',     // For testing purposes
+    ...getTestDomains()  // Test domains only in development
   ];
 
   const validateEmail = (email: string): { isValid: boolean; error?: string } => {

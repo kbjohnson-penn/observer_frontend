@@ -14,6 +14,7 @@ jest.mock('axios', () => ({
     delete: jest.fn(),
   })),
   post: jest.fn(),
+  isCancel: jest.fn(() => false), // Mock isCancel to return false by default
 }));
 
 describe('API Client', () => {
@@ -97,7 +98,7 @@ describe('API Client', () => {
 
       expect(token).toBe('fetched-token');
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('/auth/csrf-token/'),
+        expect.stringContaining('/accounts/auth/csrf-token/'),
         expect.objectContaining({
           method: 'GET',
           credentials: 'include',
@@ -108,17 +109,19 @@ describe('API Client', () => {
     it('should return null if fetch fails', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-      const consoleWarn = jest.spyOn(console, 'warn').mockImplementation();
+      // Mock logger.warn since we use logger instead of console
+      const mockLogger = require('../logger');
+      const loggerWarn = jest.spyOn(mockLogger.logger, 'warn').mockImplementation();
 
       const token = await fetchCsrfToken();
 
       expect(token).toBeNull();
-      expect(consoleWarn).toHaveBeenCalledWith(
+      expect(loggerWarn).toHaveBeenCalledWith(
         'Failed to fetch CSRF token:',
         expect.any(Error)
       );
 
-      consoleWarn.mockRestore();
+      loggerWarn.mockRestore();
     });
 
     it('should return null if response is not ok', async () => {
@@ -290,7 +293,10 @@ describe('API Client', () => {
       expect(mockAxiosPost).toHaveBeenCalledWith(
         expect.stringContaining('/accounts/auth/token/refresh/'),
         {},
-        { withCredentials: true }
+        expect.objectContaining({
+          withCredentials: true,
+          signal: expect.any(AbortSignal)
+        })
       );
 
       expect(originalRequest).toHaveProperty('_retry', true);
@@ -336,6 +342,9 @@ describe('API Client', () => {
         // Expected to throw
       }
 
+      // Wait for event to be dispatched
+      await new Promise(resolve => setTimeout(resolve, 0));
+
       expect(eventListener).toHaveBeenCalled();
 
       window.removeEventListener('auth:failed', eventListener);
@@ -358,7 +367,10 @@ describe('API Client', () => {
         config: {},
       };
 
-      await expect(responseInterceptorError(error)).rejects.toEqual(error);
+      // Our implementation now returns a new Error with a user-friendly message
+      await expect(responseInterceptorError(error)).rejects.toEqual(
+        new Error('Network error. Please check your connection and try again.')
+      );
 
       expect(mockAxiosPost).not.toHaveBeenCalled();
     });
@@ -392,7 +404,10 @@ describe('API Client', () => {
       expect(mockAxiosPost).toHaveBeenCalledWith(
         expect.stringContaining('/accounts/auth/token/refresh/'),
         {},
-        { withCredentials: true }
+        expect.objectContaining({
+          withCredentials: true,
+          signal: expect.any(AbortSignal)
+        })
       );
     });
 
@@ -441,6 +456,9 @@ describe('API Client', () => {
       } catch (e) {
         // Expected to throw
       }
+
+      // Wait for event to be dispatched
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       expect(eventListener).toHaveBeenCalled();
 

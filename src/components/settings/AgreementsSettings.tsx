@@ -9,6 +9,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { useAuth } from "@/contexts/AuthContext";
+import { logger } from "@/lib/logger";
 
 interface Agreement {
   id: number;
@@ -52,10 +53,10 @@ export default function AgreementsSettings() {
           const data = await response.json();
           setAgreements(data);
         } else {
-          console.error("Failed to load agreements");
+          logger.error("Failed to load agreements");
         }
       } catch (error) {
-        console.error("Error loading agreements:", error);
+        logger.error("Error loading agreements:", error);
       }
       setIsLoading(false);
     };

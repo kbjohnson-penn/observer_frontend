@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { FilterOptions } from '@/interfaces/research';
+import { logger } from '@/lib/logger';
 
 interface UseFilterOptionsReturn {
   filterOptions: FilterOptions | null;
@@ -28,7 +29,7 @@ export function useFilterOptions(): UseFilterOptionsReturn {
       setFilterOptions(response.data);
     } catch (err) {
       setError('Failed to load filter options');
-      console.error('Filter options fetch error:', err);
+      logger.error('Filter options fetch error:', err);
     } finally {
       setLoading(false);
     }

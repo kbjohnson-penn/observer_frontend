@@ -17,6 +17,7 @@ import {
   duplicateCohort,
   exportCohortToJSON,
 } from "@/lib/utils/cohortStorage";
+import { logger } from "@/lib/logger";
 import CohortCard from "./CohortCard";
 import EmptyState from "./EmptyState";
 import ConfirmDeleteDialog from "./ConfirmDeleteDialog";
@@ -41,7 +42,7 @@ export default function CohortTab() {
       setCohorts(data);
     } catch (err) {
       setError("Failed to load cohorts");
-      console.error("Load cohorts error:", err);
+      logger.error("Load cohorts error:", err);
     } finally {
       setLoading(false);
     }
@@ -64,7 +65,7 @@ export default function CohortTab() {
       setCohorts((prev) => prev.filter((c) => c.id !== cohortToDelete.id));
       setCohortToDelete(null);
     } catch (err) {
-      console.error("Delete cohort error:", err);
+      logger.error("Delete cohort error:", err);
       setError("Failed to delete cohort");
     } finally {
       setIsDeleting(false);
@@ -80,21 +81,21 @@ export default function CohortTab() {
       const duplicated = await duplicateCohort(cohort.id);
       setCohorts((prev) => [...prev, duplicated]);
     } catch (err) {
-      console.error("Duplicate cohort error:", err);
+      logger.error("Duplicate cohort error:", err);
       setError("Failed to duplicate cohort");
     }
   }, []);
 
   const handleViewCohort = useCallback((cohort: Cohort) => {
     // TODO: Navigate to cohort detail view or show modal with filter details
-    console.log("View cohort:", cohort);
+    logger.log("View cohort:", cohort);
   }, []);
 
   const handleExportCohort = useCallback((cohort: Cohort) => {
     try {
       exportCohortToJSON(cohort);
     } catch (err) {
-      console.error("Export cohort error:", err);
+      logger.error("Export cohort error:", err);
       setError("Failed to export cohort");
     }
   }, []);
