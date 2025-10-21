@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { logger } from "./logger";
+import { CONFIG } from "./config";
 
 // Extend the AxiosRequestConfig to include _retry property
 interface RetryAxiosRequestConfig extends InternalAxiosRequestConfig {
@@ -23,11 +24,12 @@ const getCsrfToken = (): string | null => {
 // Create axios instance with base configuration
 const createApiClient = () => {
   const instance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1",
+    baseURL: CONFIG.BACKEND_API,
     headers: {
       "Content-Type": "application/json",
     },
     withCredentials: true, // Include cookies in all requests
+    timeout: CONFIG.API_TIMEOUT, // Add timeout
   });
 
   // Request interceptor - add CSRF token for state-changing operations
@@ -70,7 +72,7 @@ const createApiClient = () => {
 
           // Try to refresh token using httpOnly cookies
           const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/token/refresh/`,
+            CONFIG.getApiUrl('/accounts/auth/token/refresh/'),
             {},
             {
               withCredentials: true,
@@ -109,7 +111,7 @@ export { getCsrfToken };
 
 export const fetchCsrfToken = async (): Promise<string | null> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/csrf-token/`, {
+    const response = await fetch(CONFIG.getApiUrl('/accounts/auth/csrf-token/'), {
       method: 'GET',
       credentials: 'include',
     });

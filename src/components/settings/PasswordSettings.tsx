@@ -94,6 +94,18 @@ export default function PasswordSettings() {
       return;
     }
 
+    // Password strength validation
+    const hasUppercase = /[A-Z]/.test(formData.new_password);
+    const hasLowercase = /[a-z]/.test(formData.new_password);
+    const hasNumber = /\d/.test(formData.new_password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(formData.new_password);
+
+    if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+      setMessage({ type: "error", text: "Password must contain uppercase, lowercase, number, and special character" });
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/change-password/`,

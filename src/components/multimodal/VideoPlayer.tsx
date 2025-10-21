@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Box, Heading } from '@chakra-ui/react';
 import videojs from 'video.js';
-import 'video.js/dist/video-js.css';
+import 'video.js/dist/video-js/video-js.css';
 import COLORS from '@/constants/colors';
 
 interface VideoPlayerProps {

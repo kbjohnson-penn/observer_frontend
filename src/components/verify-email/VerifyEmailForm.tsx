@@ -70,6 +70,16 @@ export default function VerifyEmailForm({ token }: VerifyEmailFormProps) {
       validationErrors.password = ['Password must be at least 12 characters long'];
     }
 
+    // Password strength validation
+    const hasUppercase = /[A-Z]/.test(formData.password);
+    const hasLowercase = /[a-z]/.test(formData.password);
+    const hasNumber = /\d/.test(formData.password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(formData.password);
+
+    if (formData.password.length >= 12 && (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial)) {
+      validationErrors.password = ['Password must contain uppercase, lowercase, number, and special character'];
+    }
+
     if (formData.password !== formData.password_confirm) {
       validationErrors.password_confirm = ['Passwords do not match'];
     }
@@ -197,7 +207,7 @@ export default function VerifyEmailForm({ token }: VerifyEmailFormProps) {
                       {errors.password?.[0]}
                     </Field.ErrorText>
                     <Field.HelperText>
-                      Password must be at least 12 characters long
+                      Password must be at least 12 characters and contain uppercase, lowercase, number, and special character
                     </Field.HelperText>
                   </Field.Root>
 
