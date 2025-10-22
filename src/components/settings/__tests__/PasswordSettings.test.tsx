@@ -68,13 +68,13 @@ describe('PasswordSettings', () => {
         'Confirm your new password'
       ) as HTMLInputElement;
 
-      await user.type(currentPasswordInput, 'oldpassword123');
-      await user.type(newPasswordInput, 'newpassword456');
-      await user.type(confirmPasswordInput, 'newpassword456');
+      await user.type(currentPasswordInput, 'OldPassword123!');
+      await user.type(newPasswordInput, 'NewPassword456!');
+      await user.type(confirmPasswordInput, 'NewPassword456!');
 
-      expect(currentPasswordInput.value).toBe('oldpassword123');
-      expect(newPasswordInput.value).toBe('newpassword456');
-      expect(confirmPasswordInput.value).toBe('newpassword456');
+      expect(currentPasswordInput.value).toBe('OldPassword123!');
+      expect(newPasswordInput.value).toBe('NewPassword456!');
+      expect(confirmPasswordInput.value).toBe('NewPassword456!');
     });
   });
 
@@ -88,9 +88,9 @@ describe('PasswordSettings', () => {
       const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password');
       const submitButton = screen.getByRole('button', { name: /update password/i });
 
-      await user.type(currentPasswordInput, 'oldpassword123');
-      await user.type(newPasswordInput, 'newpassword456');
-      await user.type(confirmPasswordInput, 'differentpassword');
+      await user.type(currentPasswordInput, 'OldPassword123!');
+      await user.type(newPasswordInput, 'NewPassword456!');
+      await user.type(confirmPasswordInput, 'DifferentPass123!');
       await user.click(submitButton);
 
       await waitFor(() => {
@@ -107,7 +107,7 @@ describe('PasswordSettings', () => {
       const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password');
       const submitButton = screen.getByRole('button', { name: /update password/i });
 
-      await user.type(currentPasswordInput, 'oldpassword123');
+      await user.type(currentPasswordInput, 'OldPassword123!');
       await user.type(newPasswordInput, 'short');
       await user.type(confirmPasswordInput, 'short');
       await user.click(submitButton);
@@ -135,9 +135,9 @@ describe('PasswordSettings', () => {
       const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password');
       const submitButton = screen.getByRole('button', { name: /update password/i });
 
-      await user.type(currentPasswordInput, 'oldpassword123');
-      await user.type(newPasswordInput, 'newpassword456');
-      await user.type(confirmPasswordInput, 'newpassword456');
+      await user.type(currentPasswordInput, 'OldPassword123!');
+      await user.type(newPasswordInput, 'NewPassword456!');
+      await user.type(confirmPasswordInput, 'NewPassword456!');
       await user.click(submitButton);
 
       await waitFor(() => {
@@ -150,9 +150,9 @@ describe('PasswordSettings', () => {
           method: 'POST',
           credentials: 'include',
           body: JSON.stringify({
-            old_password: 'oldpassword123',
-            new_password: 'newpassword456',
-            new_password_confirm: 'newpassword456',
+            old_password: 'OldPassword123!',
+            new_password: 'NewPassword456!',
+            new_password_confirm: 'NewPassword456!',
           }),
         })
       );
@@ -178,9 +178,9 @@ describe('PasswordSettings', () => {
       ) as HTMLInputElement;
       const submitButton = screen.getByRole('button', { name: /update password/i });
 
-      await user.type(currentPasswordInput, 'oldpassword123');
-      await user.type(newPasswordInput, 'newpassword456');
-      await user.type(confirmPasswordInput, 'newpassword456');
+      await user.type(currentPasswordInput, 'OldPassword123!');
+      await user.type(newPasswordInput, 'NewPassword456!');
+      await user.type(confirmPasswordInput, 'NewPassword456!');
       await user.click(submitButton);
 
       await waitFor(() => {
@@ -213,9 +213,9 @@ describe('PasswordSettings', () => {
       const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password');
       const submitButton = screen.getByRole('button', { name: /update password/i });
 
-      await user.type(currentPasswordInput, 'oldpassword123');
-      await user.type(newPasswordInput, 'newpassword456');
-      await user.type(confirmPasswordInput, 'newpassword456');
+      await user.type(currentPasswordInput, 'OldPassword123!');
+      await user.type(newPasswordInput, 'NewPassword456!');
+      await user.type(confirmPasswordInput, 'NewPassword456!');
       await user.click(submitButton);
 
       expect(screen.getByRole('button', { name: /updating/i })).toBeInTheDocument();
@@ -238,9 +238,9 @@ describe('PasswordSettings', () => {
       const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password');
       const submitButton = screen.getByRole('button', { name: /update password/i });
 
-      await user.type(currentPasswordInput, 'wrongpassword');
-      await user.type(newPasswordInput, 'newpassword456');
-      await user.type(confirmPasswordInput, 'newpassword456');
+      await user.type(currentPasswordInput, 'WrongPassword123!');
+      await user.type(newPasswordInput, 'NewPassword456!');
+      await user.type(confirmPasswordInput, 'NewPassword456!');
       await user.click(submitButton);
 
       await waitFor(() => {
@@ -265,9 +265,9 @@ describe('PasswordSettings', () => {
       const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password');
       const submitButton = screen.getByRole('button', { name: /update password/i });
 
-      await user.type(currentPasswordInput, 'oldpassword123456');
-      await user.type(newPasswordInput, 'password123456'); // Must be 12+ chars to pass client validation
-      await user.type(confirmPasswordInput, 'password123456');
+      await user.type(currentPasswordInput, 'OldPassword123!');
+      await user.type(newPasswordInput, 'Password123456!'); // Must be 12+ chars to pass client validation
+      await user.type(confirmPasswordInput, 'Password123456!');
       await user.click(submitButton);
 
       await waitFor(
@@ -296,9 +296,9 @@ describe('PasswordSettings', () => {
       const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password');
       const submitButton = screen.getByRole('button', { name: /update password/i });
 
-      await user.type(currentPasswordInput, 'oldpassword123');
-      await user.type(newPasswordInput, 'newpassword456');
-      await user.type(confirmPasswordInput, 'newpassword456');
+      await user.type(currentPasswordInput, 'OldPassword123!');
+      await user.type(newPasswordInput, 'NewPassword456!');
+      await user.type(confirmPasswordInput, 'NewPassword456!');
       await user.click(submitButton);
 
       await waitFor(() => {
@@ -317,9 +317,9 @@ describe('PasswordSettings', () => {
       const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password');
       const submitButton = screen.getByRole('button', { name: /update password/i });
 
-      await user.type(currentPasswordInput, 'oldpassword123');
-      await user.type(newPasswordInput, 'newpassword456');
-      await user.type(confirmPasswordInput, 'newpassword456');
+      await user.type(currentPasswordInput, 'OldPassword123!');
+      await user.type(newPasswordInput, 'NewPassword456!');
+      await user.type(confirmPasswordInput, 'NewPassword456!');
       await user.click(submitButton);
 
       await waitFor(() => {
