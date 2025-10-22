@@ -56,7 +56,7 @@ export default function CohortTab() {
   }, [cohorts]);
 
   const handleConfirmDelete = useCallback(async () => {
-    if (!cohortToDelete) return;
+    if (!cohortToDelete) {return;}
 
     try {
       setIsDeleting(true);

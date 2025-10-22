@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Box, Flex } from "@chakra-ui/react";
-import Select, { MultiValue, SingleValue } from "react-select";
+import { MultiValue, SingleValue } from "react-select";
 
 import FilterPanel from "./FilterPanel";
 import ChartsDashboard from "./ChartsDashboard";
@@ -12,7 +12,6 @@ import { PublicPatientDataType } from "@/interfaces/patient";
 import { PublicProviderDataType } from "@/interfaces/provider";
 import { PublicMultiModalDataType } from "@/interfaces/mmd";
 import {
-  PublicEncounterSourceDataType,
   PublicEncounterDataType,
   CombinedDataType,
 } from "@/interfaces/encounter";
@@ -20,11 +19,8 @@ import { DropDownOption } from "@/interfaces/interfaces";
 
 import {
   getSummaryStats,
-  getEncounterPerDepartment,
-  getEncountersByAccess,
   getAccessControlByDepartment,
   getEncountersByMultiModalData,
-  getEncountersOverTime,
   getEncountersByEthnicGroups,
   getEncountersByRacialGroups,
   getSatisfactionData,
@@ -39,7 +35,6 @@ interface PlayGroundProps {
   departments: PublicDepartmentDataType[];
   encounters: PublicEncounterDataType[];
   multiModalData: PublicMultiModalDataType[];
-  encounterSources: PublicEncounterSourceDataType[];
   departmentColors: { [key: string]: string };
 }
 
@@ -57,7 +52,6 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   departments,
   encounters,
   multiModalData,
-  encounterSources,
   departmentColors,
 }) => {
   // Set initial dates - start date to 30 days ago, end date to today
@@ -185,11 +179,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
 
   const handleExportClick = useCallback(() => {
     if (exportFormat) {
-      try {
-        downloadData(exportData, exportFormat);
-      } catch (error) {
-        // Error exporting data - could show user notification
-      }
+      downloadData(exportData, exportFormat);
     }
   }, [exportData, exportFormat]);
 
@@ -263,7 +253,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
                   normalizedEncounterDate >= normalizedStartDate &&
                   normalizedEncounterDate <= normalizedEndDate;
               }
-            } catch (error) {
+            } catch {
               // Error parsing date - skip this entry
               dateFilterPassed = false;
             }
@@ -276,7 +266,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
         });
 
         setFilteredEncounterData(updatedEncounterData);
-      } catch (error) {
+      } catch {
         // Error filtering data - return original data
         // Reset to all encounters if there's an error
         setFilteredEncounterData(encounters);
@@ -334,7 +324,6 @@ const PlayGround: React.FC<PlayGroundProps> = ({
         {/* Filters Sidebar */}
         <FilterPanel
           selectedSources={selectedSources}
-          isDeidentified={isDeidentified}
           isDatePickerEnabled={isDatePickerEnabled}
           startDate={startDate}
           endDate={endDate}

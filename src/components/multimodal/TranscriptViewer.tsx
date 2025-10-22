@@ -98,7 +98,7 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
         const entries: TranscriptEntry[] = [];
         for (let i = headerRowIndex + 1; i < data.length; i++) {
           const row = data[i];
-          if (!row || row.length === 0) continue;
+          if (!row || row.length === 0) {continue;}
 
           const entry: TranscriptEntry = {
             timestamp: colMap.timestamp >= 0 ? row[colMap.timestamp]?.toString() : undefined,
@@ -115,7 +115,7 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
         }
 
         setTranscript(entries);
-      } catch (err) {
+      } catch {
         // Error loading transcript - will show error state to user
         setError('Failed to load transcript. Please check the file format.');
       } finally {
@@ -140,7 +140,7 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
   };
 
   const highlightText = (text: string) => {
-    if (!searchTerm) return text;
+    if (!searchTerm) {return text;}
     
     // Escape special regex characters to prevent injection
     const escapedSearchTerm = escapeRegExp(searchTerm);

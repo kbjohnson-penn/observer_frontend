@@ -95,7 +95,6 @@ export default function ProfileSettings() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [errors, setErrors] = useState<{ phone_number?: string }>({});
 
   // Load user profile data on mount
   useEffect(() => {
@@ -247,14 +246,14 @@ export default function ProfileSettings() {
             } else {
               // Handle field-specific errors
               const fieldErrors = [];
-              if (errorData.date_of_birth) fieldErrors.push(`Date of birth: ${errorData.date_of_birth[0]}`);
-              if (errorData.phone_number) fieldErrors.push(`Phone: ${errorData.phone_number[0]}`);
-              if (errorData.address) fieldErrors.push(`Address: ${errorData.address[0]}`);
-              if (errorData.city) fieldErrors.push(`City: ${errorData.city[0]}`);
-              if (errorData.state) fieldErrors.push(`State: ${errorData.state[0]}`);
-              if (errorData.country) fieldErrors.push(`Country: ${errorData.country[0]}`);
-              if (errorData.zip_code) fieldErrors.push(`ZIP: ${errorData.zip_code[0]}`);
-              if (errorData.bio) fieldErrors.push(`Bio: ${errorData.bio[0]}`);
+              if (errorData.date_of_birth) {fieldErrors.push(`Date of birth: ${errorData.date_of_birth[0]}`);}
+              if (errorData.phone_number) {fieldErrors.push(`Phone: ${errorData.phone_number[0]}`);}
+              if (errorData.address) {fieldErrors.push(`Address: ${errorData.address[0]}`);}
+              if (errorData.city) {fieldErrors.push(`City: ${errorData.city[0]}`);}
+              if (errorData.state) {fieldErrors.push(`State: ${errorData.state[0]}`);}
+              if (errorData.country) {fieldErrors.push(`Country: ${errorData.country[0]}`);}
+              if (errorData.zip_code) {fieldErrors.push(`ZIP: ${errorData.zip_code[0]}`);}
+              if (errorData.bio) {fieldErrors.push(`Bio: ${errorData.bio[0]}`);}
               
               if (fieldErrors.length > 0) {
                 errorMessage = fieldErrors.join("; ");

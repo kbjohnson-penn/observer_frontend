@@ -150,10 +150,10 @@ export default function PasswordSettings() {
           text: errorMessage
         });
       }
-    } catch (error) {
-      setMessage({ 
-        type: "error", 
-        text: "An error occurred while updating your password" 
+    } catch {
+      setMessage({
+        type: "error",
+        text: "An error occurred while updating your password"
       });
     }
 

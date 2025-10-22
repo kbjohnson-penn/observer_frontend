@@ -47,7 +47,7 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
 
 const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
   // Get the original label text
-  let displayText = payload.value;
+  const displayText = payload.value;
 
   // Create optimized display text based on specific label values
   // This handles the exact updated labels you provided

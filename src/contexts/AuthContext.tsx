@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           // No valid tokens found
           setUser(null);
         }
-      } catch (error) {
+      } catch {
         // Auth check failed
         setUser(null);
       }
@@ -103,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         },
         credentials: 'include', // Include cookies in request
       });
-    } catch (error) {
+    } catch {
       // Logout error - continue with cleanup
     }
 
@@ -140,7 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           return true;
         }
       }
-    } catch (error) {
+    } catch {
       // Token refresh failed
     }
 

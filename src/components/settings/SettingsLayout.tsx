@@ -6,7 +6,6 @@ import {
   Container,
   Flex,
   Text,
-  Button,
   Card,
 } from "@chakra-ui/react";
 import SettingsSidebar from "./SettingsSidebar";

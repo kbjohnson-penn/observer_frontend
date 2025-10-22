@@ -20,7 +20,7 @@ interface SatisfactionChartProps {
   screenWidth?: number;
 }
 
-const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
+const CustomTooltip: React.FC<any> = ({ active, payload, colors }) => {
   if (active && payload && payload.length) {
     return (
       <div

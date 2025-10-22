@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React from "react";
 import { Box, Flex, Text, Button, Checkbox } from "@chakra-ui/react";
 import Select, { MultiValue, SingleValue } from "react-select";
 import DatePicker from "react-datepicker";
@@ -19,7 +19,6 @@ interface DropDownOption {
 
 interface FilterPanelProps {
   selectedSources: DropDownOption[];
-  isDeidentified: boolean | null;
   isDatePickerEnabled: boolean;
   startDate: Date;
   endDate: Date;
@@ -38,7 +37,6 @@ interface FilterPanelProps {
 
 const FilterPanel: React.FC<FilterPanelProps> = ({
   selectedSources,
-  isDeidentified,
   isDatePickerEnabled,
   startDate,
   endDate,

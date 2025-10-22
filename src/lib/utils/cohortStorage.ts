@@ -12,7 +12,7 @@ const STORAGE_KEY = 'observer-research-cohorts';
  * Get storage information (size and count)
  */
 const getStorageInfo = () => {
-  if (typeof window === 'undefined') return { size: '0', count: 0 };
+  if (typeof window === 'undefined') {return { size: '0', count: 0 };}
 
   const stored = localStorage.getItem(STORAGE_KEY);
   const size = stored ? new Blob([stored]).size : 0;
@@ -27,10 +27,10 @@ const getStorageInfo = () => {
  */
 export async function getCohorts(): Promise<Cohort[]> {
   try {
-    if (typeof window === 'undefined') return [];
+    if (typeof window === 'undefined') {return [];}
 
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return [];
+    if (!stored) {return [];}
 
     const cohorts = JSON.parse(stored) as Cohort[];
     return cohorts;

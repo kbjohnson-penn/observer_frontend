@@ -27,7 +27,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      const response = middleware(request);
+      middleware(request);
 
       expect(request.cookies.get).toHaveBeenCalledWith('access_token');
       expect(NextResponse.redirect).toHaveBeenCalledWith(
@@ -81,7 +81,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      const response = middleware(request);
+      middleware(request);
 
       expect(request.cookies.get).toHaveBeenCalledWith('access_token');
       expect(NextResponse.next).toHaveBeenCalled();

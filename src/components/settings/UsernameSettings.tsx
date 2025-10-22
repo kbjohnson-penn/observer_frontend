@@ -120,7 +120,7 @@ export default function UsernameSettings() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newUsername === currentUsername) return;
+    if (newUsername === currentUsername) {return;}
 
     setIsLoading(true);
     setMessage(null);
@@ -150,10 +150,10 @@ export default function UsernameSettings() {
           text: errorData.username?.[0] || errorData.detail || "Failed to update username" 
         });
       }
-    } catch (error) {
-      setMessage({ 
-        type: "error", 
-        text: "An error occurred while updating your username" 
+    } catch {
+      setMessage({
+        type: "error",
+        text: "An error occurred while updating your username"
       });
     }
 

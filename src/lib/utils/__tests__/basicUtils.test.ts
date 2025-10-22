@@ -86,7 +86,8 @@ describe('Basic Utility Functions', () => {
       const result = formatVisitDate('2024-05-05T12:00:00');
       // Check format is correct (padded)
       expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      const [year, month, day] = result.split('-');
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_year, month, day] = result.split('-');
       expect(month.length).toBe(2);
       expect(day.length).toBe(2);
     });

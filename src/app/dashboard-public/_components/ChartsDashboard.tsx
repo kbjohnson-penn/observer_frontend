@@ -10,7 +10,6 @@ import EncountersEthnicGroupsChart from "./charts/EncountersEthnicGroupsChart";
 import EncountersByRacialGroupChart from "./charts/EncountersByRacialGroupChart";
 import SatisfactionChart from "./charts/SatisfactionChart";
 
-import { PublicDepartmentDataType } from "@/interfaces/department";
 import {
   DepartmentAccessCount,
   MultiModalDataCount,

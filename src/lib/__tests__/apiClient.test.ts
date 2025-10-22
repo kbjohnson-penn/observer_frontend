@@ -286,7 +286,7 @@ describe('API Client', () => {
       // For now, let's just verify the refresh call was made
       try {
         await responseInterceptorError(error);
-      } catch (e) {
+      } catch {
         // May throw due to incomplete mock setup
       }
 
@@ -338,7 +338,7 @@ describe('API Client', () => {
 
       try {
         await responseInterceptorError(error);
-      } catch (e) {
+      } catch {
         // Expected to throw
       }
 
@@ -428,7 +428,7 @@ describe('API Client', () => {
 
       try {
         await responseInterceptorError(error);
-      } catch (e) {
+      } catch {
         // Expected to throw
       }
 
@@ -453,7 +453,7 @@ describe('API Client', () => {
 
       try {
         await responseInterceptorError(error);
-      } catch (e) {
+      } catch {
         // Expected to throw
       }
 

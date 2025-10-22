@@ -21,8 +21,9 @@ jest.mock('@/contexts/AuthContext', () => ({
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { priority, ...restProps } = props;
-    // eslint-disable-next-line jsx-a11y/alt-text
+    // eslint-disable-next-line jsx-a11y/alt-text, @next/next/no-img-element
     return <img {...restProps} />;
   },
 }));

@@ -357,7 +357,7 @@ export const getSatisfactionData = (
         }
 
         return !(patientSat === 0 && providerSat === 0);
-      } catch (error) {
+      } catch {
         // Error processing satisfaction data - skip encounter
         return false;
       }
@@ -393,7 +393,7 @@ export const getSatisfactionData = (
           patientSatisfaction: normalizedPatientSatisfaction,
           providerSatisfaction: normalizedProviderSatisfaction,
         };
-      } catch (error) {
+      } catch {
         // Error normalizing satisfaction data - skip encounter
         // Return default values if there's an error
         return {
@@ -642,7 +642,7 @@ export const expandDemographic = (
   code: string | null,
   type: DemographicType
 ): string => {
-  if (!code) return '';
+  if (!code) {return '';}
 
   const normalizedCode = code.toUpperCase();
 

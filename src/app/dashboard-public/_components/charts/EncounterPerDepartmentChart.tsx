@@ -21,8 +21,8 @@ interface EncounterPerDepartmentChartProps {
 }
 
 const getBarSize = (screenWidth: number) => {
-  if (screenWidth <= 768) return 20;
-  if (screenWidth > 768 && screenWidth <= 1024) return 40;
+  if (screenWidth <= 768) {return 20;}
+  if (screenWidth > 768 && screenWidth <= 1024) {return 40;}
   return 60;
 };
 

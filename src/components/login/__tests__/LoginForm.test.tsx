@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/navigation';
 import LoginForm from '../LoginForm';
@@ -20,8 +20,9 @@ jest.mock('@/contexts/AuthContext', () => ({
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { priority, ...restProps } = props;
-    // eslint-disable-next-line jsx-a11y/alt-text
+    // eslint-disable-next-line jsx-a11y/alt-text, @next/next/no-img-element
     return <img {...restProps} />;
   },
 }));

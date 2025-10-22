@@ -1,12 +1,12 @@
 import React from "react";
 import PlayGround from "./_components/PlayGround";
 import axios from "axios";
-import { Box, Heading, Text } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 
 import { PublicDepartmentDataType } from "@/interfaces/department";
 import { PublicPatientDataType } from "@/interfaces/patient";
 import { PublicProviderDataType } from "@/interfaces/provider";
-import { PublicEncounterDataType, PublicEncounterSourceDataType } from "@/interfaces/encounter";
+import { PublicEncounterDataType } from "@/interfaces/encounter";
 import { PublicMultiModalDataType } from "@/interfaces/mmd";
 
 import { getDepartmentColors } from "@/lib/utils/utils";
@@ -17,7 +17,7 @@ const fetchPatientsData = async (): Promise<PublicPatientDataType[]> => {
       `${process.env.INTERNAL_BACKEND_API}/public/patients/`
     );
     return response.data;
-  } catch (error) {
+  } catch {
     // Error fetching patients - return empty array
     return [];
   }
@@ -29,7 +29,7 @@ const fetchProvidersData = async (): Promise<PublicProviderDataType[]> => {
       `${process.env.INTERNAL_BACKEND_API}/public/providers/`
     );
     return response.data;
-  } catch (error) {
+  } catch {
     // Error fetching providers - return empty array
     return [];
   }
@@ -41,7 +41,7 @@ const fetchDepartmentData = async (): Promise<PublicDepartmentDataType[]> => {
       `${process.env.INTERNAL_BACKEND_API}/public/departments/`
     );
     return response.data;
-  } catch (error) {
+  } catch {
     // Error fetching departments - return empty array
     return [];
   }
@@ -53,7 +53,7 @@ const fetchEncounterData = async (): Promise<PublicEncounterDataType[]> => {
       `${process.env.INTERNAL_BACKEND_API}/public/encounters/`
     );
     return response.data;
-  } catch (error) {
+  } catch {
     // Error fetching encounters - return empty array
     return [];
   }
@@ -65,25 +65,12 @@ const fetchMultiModalData = async (): Promise<PublicMultiModalDataType[]> => {
       `${process.env.INTERNAL_BACKEND_API}/public/mmdata/`
     );
     return response.data;
-  } catch (error) {
+  } catch {
     // Error fetching multimodal data - return empty array
     return [];
   }
 };
 
-const fetchEncounterSourceData = async (): Promise<
-  PublicEncounterSourceDataType[]
-> => {
-  try {
-    const response = await axios.get(
-      `${process.env.INTERNAL_BACKEND_API}/public/encountersources/`
-    );
-    return response.data;
-  } catch (error) {
-    // Error fetching encounter sources - return empty array
-    return [];
-  }
-};
 
 const DashboardPublic = async () => {
   const patients = await fetchPatientsData();
@@ -91,7 +78,6 @@ const DashboardPublic = async () => {
   const departments = await fetchDepartmentData();
   const encounters = await fetchEncounterData();
   const multiModalData = await fetchMultiModalData();
-  const encounterSources = await fetchEncounterSourceData();
   const departmentColors = await getDepartmentColors(departments);
 
   return (
@@ -106,7 +92,6 @@ const DashboardPublic = async () => {
         departments={departments}
         encounters={encounters}
         multiModalData={multiModalData}
-        encounterSources={encounterSources}
         departmentColors={departmentColors}
       />
     </Box>

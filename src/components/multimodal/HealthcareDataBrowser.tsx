@@ -98,7 +98,7 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
       urlsToCleanup.current.forEach(url => {
         try {
           window.URL.revokeObjectURL(url);
-        } catch (error) {
+        } catch {
           // Failed to revoke URL - continue cleanup
         }
       });
@@ -111,7 +111,7 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
 
   // Memoize filtered data to prevent expensive recalculations on every render
   const filteredTables = useMemo(() => {
-    if (!searchTerm) return tables;
+    if (!searchTerm) {return tables;}
     
     return tables.map(table => ({
       ...table,
@@ -173,7 +173,7 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
   };
 
   const downloadCSV = (tableName: string, data: any[]) => {
-    if (data.length === 0) return;
+    if (data.length === 0) {return;}
     
     const headers = Object.keys(data[0]);
     const csvContent = [
@@ -259,7 +259,7 @@ Note: This data is from the Observer platform.
         window.URL.revokeObjectURL(url);
         urlsToCleanup.current = urlsToCleanup.current.filter(u => u !== url);
       }, 100);
-    } catch (error) {
+    } catch {
       // Error creating zip file - could show user notification
     }
   };

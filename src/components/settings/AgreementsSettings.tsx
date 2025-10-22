@@ -37,7 +37,7 @@ export default function AgreementsSettings() {
   // Load agreements data
   useEffect(() => {
     const loadAgreements = async () => {
-      if (!user) return;
+      if (!user) {return;}
       
       setIsLoading(true);
       try {

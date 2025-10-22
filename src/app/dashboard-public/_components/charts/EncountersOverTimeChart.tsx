@@ -7,7 +7,6 @@ import {
   YAxis,
   Tooltip,
   Label,
-  Legend,
 } from "recharts";
 
 import { format, toZonedTime } from "date-fns-tz";

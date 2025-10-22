@@ -9,10 +9,10 @@ interface RetryAxiosRequestConfig extends InternalAxiosRequestConfig {
 
 // CSRF Token utility function
 const getCsrfToken = (): string | null => {
-  if (typeof document === 'undefined') return null; // SSR safety
+  if (typeof document === 'undefined') {return null;} // SSR safety
   
   const cookies = document.cookie.split(';');
-  for (let cookie of cookies) {
+  for (const cookie of cookies) {
     const [name, value] = cookie.trim().split('=');
     if (name === 'csrftoken') {
       return decodeURIComponent(value);

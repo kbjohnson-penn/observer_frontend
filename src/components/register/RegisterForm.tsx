@@ -11,7 +11,6 @@ import {
   VStack,
   Alert,
   Grid,
-  HStack,
   Link as ChakraLink,
   Field,
 } from "@chakra-ui/react";
@@ -141,7 +140,7 @@ export default function RegisterForm() {
           setGeneralError(data.detail || "Registration failed. Please try again.");
         }
       }
-    } catch (err) {
+    } catch {
       setGeneralError("Network error. Please check your connection and try again.");
     } finally {
       setIsLoading(false);

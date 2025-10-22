@@ -122,7 +122,7 @@ export default function VerifyEmailForm({ token }: VerifyEmailFormProps) {
           setGeneralError(data.detail || "Email verification failed. Please try again.");
         }
       }
-    } catch (err) {
+    } catch {
       setGeneralError("Network error. Please check your connection and try again.");
     } finally {
       setIsLoading(false);

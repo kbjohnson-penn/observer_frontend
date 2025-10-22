@@ -36,7 +36,7 @@ export const StatValueText = React.forwardRef<
   return (
     <ChakraStat.ValueText {...rest} ref={ref}>
       {children ||
-        (value != null && <FormatNumber value={value} {...formatOptions} />)}
+        (value !== null && value !== undefined && <FormatNumber value={value} {...formatOptions} />)}
     </ChakraStat.ValueText>
   );
 });
