@@ -11,153 +11,153 @@
  *   logger.debug('Debug info', debugData);    // Only logs in development
  */
 
-type LogLevel = 'log' | 'info' | 'warn' | 'error' | 'debug';
-
 interface LoggerConfig {
   isDevelopment: boolean;
   isProduction: boolean;
   // Future: Add integration with error tracking service (Sentry, LogRocket, etc.)
 }
 
-class Logger {
-  private config: LoggerConfig;
+// Configuration
+const config: LoggerConfig = {
+  isDevelopment: process.env.NODE_ENV === 'development',
+  isProduction: process.env.NODE_ENV === 'production',
+};
 
-  constructor() {
-    this.config = {
-      isDevelopment: process.env.NODE_ENV === 'development',
-      isProduction: process.env.NODE_ENV === 'production',
-    };
+/**
+ * Sanitize sensitive data before logging
+ * Removes or masks PII and sensitive information
+ */
+const sanitize = (data: any): any => {
+  if (typeof data !== 'object' || data === null) {
+    return data;
   }
 
-  /**
-   * Log general information - only in development
-   */
-  log(...args: any[]): void {
-    if (this.config.isDevelopment) {
-      console.log(...args);
+  const sensitiveKeys = [
+    'password',
+    'token',
+    'access_token',
+    'refresh_token',
+    'ssn',
+    'social_security',
+    'credit_card',
+    'cvv',
+    'api_key',
+    'secret',
+  ];
+
+  const sanitized = { ...data };
+
+  for (const key in sanitized) {
+    const lowerKey = key.toLowerCase();
+    if (sensitiveKeys.some(sensitive => lowerKey.includes(sensitive))) {
+      sanitized[key] = '***REDACTED***';
+    } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
+      sanitized[key] = sanitize(sanitized[key]);
     }
   }
 
-  /**
-   * Log informational messages - only in development
-   */
-  info(...args: any[]): void {
-    if (this.config.isDevelopment) {
-      console.info(...args);
-    }
+  return sanitized;
+};
+
+/**
+ * Log general information - only in development
+ */
+const log = (...args: any[]): void => {
+  if (config.isDevelopment) {
+    console.log(...args);
   }
+};
 
-  /**
-   * Log warnings - in all environments
-   */
-  warn(...args: any[]): void {
-    if (this.config.isDevelopment) {
-      console.warn(...args);
-    } else {
-      // In production, could send to error tracking service
-      // Example: Sentry.captureMessage(args.join(' '), 'warning');
-    }
+/**
+ * Log informational messages - only in development
+ */
+const info = (...args: any[]): void => {
+  if (config.isDevelopment) {
+    console.info(...args);
   }
+};
 
-  /**
-   * Log errors - in all environments
-   */
-  error(...args: any[]): void {
-    if (this.config.isDevelopment) {
-      console.error(...args);
-    } else {
-      // In production, send to error tracking service
-      // Example: Sentry.captureException(args[0]);
-      // For now, just log to console in production for critical errors
-      console.error('Error occurred:', args[0]?.message || 'Unknown error');
-    }
+/**
+ * Log warnings - in all environments
+ */
+const warn = (...args: any[]): void => {
+  if (config.isDevelopment) {
+    console.warn(...args);
+  } else {
+    // In production, could send to error tracking service
+    // Example: Sentry.captureMessage(args.join(' '), 'warning');
   }
+};
 
-  /**
-   * Debug logging - only in development, never in production
-   */
-  debug(...args: any[]): void {
-    if (this.config.isDevelopment) {
-      console.debug(...args);
-    }
+/**
+ * Log errors - in all environments
+ */
+const error = (...args: any[]): void => {
+  if (config.isDevelopment) {
+    console.error(...args);
+  } else {
+    // In production, send to error tracking service
+    // Example: Sentry.captureException(args[0]);
+    // For now, just log to console in production for critical errors
+    console.error('Error occurred:', args[0]?.message || 'Unknown error');
   }
+};
 
-  /**
-   * Group logs - only in development
-   */
-  group(label: string): void {
-    if (this.config.isDevelopment) {
-      console.group(label);
-    }
+/**
+ * Debug logging - only in development, never in production
+ */
+const debug = (...args: any[]): void => {
+  if (config.isDevelopment) {
+    console.debug(...args);
   }
+};
 
-  /**
-   * End log group - only in development
-   */
-  groupEnd(): void {
-    if (this.config.isDevelopment) {
-      console.groupEnd();
-    }
+/**
+ * Group logs - only in development
+ */
+const group = (label: string): void => {
+  if (config.isDevelopment) {
+    console.group(label);
   }
+};
 
-  /**
-   * Log a table - only in development
-   */
-  table(data: any): void {
-    if (this.config.isDevelopment) {
-      console.table(data);
-    }
+/**
+ * End log group - only in development
+ */
+const groupEnd = (): void => {
+  if (config.isDevelopment) {
+    console.groupEnd();
   }
+};
 
-  /**
-   * Sanitize sensitive data before logging
-   * Removes or masks PII and sensitive information
-   */
-  private sanitize(data: any): any {
-    if (typeof data !== 'object' || data === null) {
-      return data;
-    }
-
-    const sensitiveKeys = [
-      'password',
-      'token',
-      'access_token',
-      'refresh_token',
-      'ssn',
-      'social_security',
-      'credit_card',
-      'cvv',
-      'api_key',
-      'secret',
-    ];
-
-    const sanitized = { ...data };
-
-    for (const key in sanitized) {
-      const lowerKey = key.toLowerCase();
-      if (sensitiveKeys.some(sensitive => lowerKey.includes(sensitive))) {
-        sanitized[key] = '***REDACTED***';
-      } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
-        sanitized[key] = this.sanitize(sanitized[key]);
-      }
-    }
-
-    return sanitized;
+/**
+ * Log a table - only in development
+ */
+const table = (data: any): void => {
+  if (config.isDevelopment) {
+    console.table(data);
   }
+};
 
-  /**
-   * Safe logging that sanitizes sensitive data - only in development
-   */
-  safe(...args: any[]): void {
-    if (this.config.isDevelopment) {
-      const sanitizedArgs = args.map(arg => this.sanitize(arg));
-      console.log(...sanitizedArgs);
-    }
+/**
+ * Safe logging that sanitizes sensitive data - only in development
+ */
+const safe = (...args: any[]): void => {
+  if (config.isDevelopment) {
+    const sanitizedArgs = args.map(arg => sanitize(arg));
+    console.log(...sanitizedArgs);
   }
-}
+};
 
-// Export singleton instance
-export const logger = new Logger();
-
-// Export for testing or advanced usage
-export { Logger };
+// Export logger object with functional methods
+export const logger = {
+  log,
+  info,
+  warn,
+  error,
+  debug,
+  group,
+  groupEnd,
+  table,
+  safe,
+} as const;

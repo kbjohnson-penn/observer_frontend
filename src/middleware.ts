@@ -27,7 +27,7 @@ export function middleware(request: NextRequest) {
     // Valid token exists - let the request proceed
     // Backend authentication will validate the httpOnly cookie
   }
-  
+
   // If on login page and has valid token, redirect to dashboard
   if (pathname === "/login") {
     const token = request.cookies.get("access_token")?.value;
@@ -35,7 +35,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
-  
+
   return NextResponse.next();
 }
 

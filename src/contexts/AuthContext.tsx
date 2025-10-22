@@ -129,7 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           method: "GET",
           credentials: 'include',
         });
-        
+
         if (userResponse.ok) {
           const userData = await userResponse.json();
           setUser({

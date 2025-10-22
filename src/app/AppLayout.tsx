@@ -13,7 +13,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // Routes that should use authenticated layout
   const authenticatedRoutes = ["/dashboard", "/profile"];
-  const shouldUseAuthLayout = authenticatedRoutes.some(route => 
+  const shouldUseAuthLayout = authenticatedRoutes.some(route =>
     pathname.startsWith(route)
   );
 
