@@ -7,8 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint-staged": "lint-staged",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "prepare": "husky",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
@@ -64,7 +66,9 @@
     "eslint": "^8",
     "eslint-config-next": "15.5.2",
     "eslint-config-prettier": "^9.1.2",
+    "husky": "^9.1.7",
     "jest": "^30.2.0",
+    "lint-staged": "^16.2.6",
     "jest-environment-jsdom": "^30.2.0",
     "postcss": "^8",
     "prettier": "^3.6.2",
@@ -74,5 +78,14 @@
   "overrides": {
     "@types/react": "19.1.12",
     "@types/react-dom": "19.1.9"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }
