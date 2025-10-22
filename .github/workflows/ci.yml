@@ -36,4 +36,7 @@ jobs:
         run: npm test --if-present
 
       - name: Build
+        env:
+          NEXT_PUBLIC_BACKEND_API: http://localhost:8000/api/v1
+          INTERNAL_BACKEND_API: http://localhost:8000/api/v1
         run: npm run build
