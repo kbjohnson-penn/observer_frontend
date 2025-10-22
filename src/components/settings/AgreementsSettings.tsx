@@ -1,15 +1,9 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  VStack,
-  Text,
-  Table,
-  Button,
-} from "@chakra-ui/react";
-import { useAuth } from "@/contexts/AuthContext";
-import { logger } from "@/lib/logger";
+import React, { useState, useEffect } from 'react';
+import { Box, VStack, Text, Table, Button } from '@chakra-ui/react';
+import { useAuth } from '@/contexts/AuthContext';
+import { logger } from '@/lib/logger';
 
 interface Agreement {
   id: number;
@@ -37,14 +31,16 @@ export default function AgreementsSettings() {
   // Load agreements data
   useEffect(() => {
     const loadAgreements = async () => {
-      if (!user) {return;}
-      
+      if (!user) {
+        return;
+      }
+
       setIsLoading(true);
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/agreements/user-agreements/grouped/`,
+          `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/agreements/user-agreements/grouped/`,
           {
-            method: "GET",
+            method: 'GET',
             credentials: 'include',
           }
         );
@@ -53,10 +49,10 @@ export default function AgreementsSettings() {
           const data = await response.json();
           setAgreements(data);
         } else {
-          logger.error("Failed to load agreements");
+          logger.error('Failed to load agreements');
         }
       } catch (error) {
-        logger.error("Error loading agreements:", error);
+        logger.error('Error loading agreements:', error);
       }
       setIsLoading(false);
     };
@@ -65,7 +61,7 @@ export default function AgreementsSettings() {
   }, [user]);
 
   const handleViewAgreement = (url: string) => {
-    if (url && url !== "#") {
+    if (url && url !== '#') {
       window.open(url, '_blank');
     }
   };
@@ -80,12 +76,21 @@ export default function AgreementsSettings() {
   }
 
   return (
-    <Box>{/* SettingsLayout provides the header */}
+    <Box>
+      {/* SettingsLayout provides the header */}
 
       <VStack gap={6} align="stretch">
         {/* Data Use Agreements Section */}
         <Box>
-          <Text fontSize="lg" fontWeight="semibold" color="gray.900" mb={4} pb={2} borderBottom="2px" borderColor="gray.100">
+          <Text
+            fontSize="lg"
+            fontWeight="semibold"
+            color="gray.900"
+            mb={4}
+            pb={2}
+            borderBottom="2px"
+            borderColor="gray.100"
+          >
             Data Use Agreements
           </Text>
           <Text color="gray.600" mb={4}>
@@ -96,36 +101,16 @@ export default function AgreementsSettings() {
             <Table.Root variant="outline" size="md">
               <Table.Header>
                 <Table.Row bg="gray.50">
-                  <Table.ColumnHeader 
-                    fontWeight="semibold" 
-                    color="gray.900" 
-                    p={4}
-                    fontSize="sm"
-                  >
+                  <Table.ColumnHeader fontWeight="semibold" color="gray.900" p={4} fontSize="sm">
                     Date of Agreement
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader 
-                    fontWeight="semibold" 
-                    color="gray.900" 
-                    p={4}
-                    fontSize="sm"
-                  >
+                  <Table.ColumnHeader fontWeight="semibold" color="gray.900" p={4} fontSize="sm">
                     Agreement
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader 
-                    fontWeight="semibold" 
-                    color="gray.900" 
-                    p={4}
-                    fontSize="sm"
-                  >
+                  <Table.ColumnHeader fontWeight="semibold" color="gray.900" p={4} fontSize="sm">
                     Project
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader 
-                    fontWeight="semibold" 
-                    color="gray.900" 
-                    p={4}
-                    fontSize="sm"
-                  >
+                  <Table.ColumnHeader fontWeight="semibold" color="gray.900" p={4} fontSize="sm">
                     View Agreement
                   </Table.ColumnHeader>
                 </Table.Row>
@@ -133,31 +118,17 @@ export default function AgreementsSettings() {
               <Table.Body>
                 {agreements.data_use_agreements.length > 0 ? (
                   agreements.data_use_agreements.map((agreement, index) => (
-                    <Table.Row key={agreement.id} bg={index % 2 === 0 ? "white" : "gray.50"}>
-                      <Table.Cell 
-                        p={4}
-                        color="gray.900"
-                        fontSize="sm"
-                      >
+                    <Table.Row key={agreement.id} bg={index % 2 === 0 ? 'white' : 'gray.50'}>
+                      <Table.Cell p={4} color="gray.900" fontSize="sm">
                         {agreement.date}
                       </Table.Cell>
-                      <Table.Cell 
-                        p={4}
-                        color="gray.900"
-                        fontSize="sm"
-                      >
+                      <Table.Cell p={4} color="gray.900" fontSize="sm">
                         {agreement.agreement || `${agreement.name} v${agreement.version}`}
                       </Table.Cell>
-                      <Table.Cell 
-                        p={4}
-                        color="gray.900"
-                        fontSize="sm"
-                      >
-                        {agreement.project || "N/A"}
+                      <Table.Cell p={4} color="gray.900" fontSize="sm">
+                        {agreement.project || 'N/A'}
                       </Table.Cell>
-                      <Table.Cell 
-                        p={4}
-                      >
+                      <Table.Cell p={4}>
                         {agreement.viewUrl ? (
                           <Button
                             variant="ghost"
@@ -167,13 +138,15 @@ export default function AgreementsSettings() {
                             h="auto"
                             fontWeight="medium"
                             borderRadius="md"
-                            _hover={{ color: "blue.700", bg: "blue.50" }}
+                            _hover={{ color: 'blue.700', bg: 'blue.50' }}
                             onClick={() => handleViewAgreement(agreement.viewUrl!)}
                           >
                             View Document
                           </Button>
                         ) : (
-                          <Text color="gray.400" fontSize="sm">Not Available</Text>
+                          <Text color="gray.400" fontSize="sm">
+                            Not Available
+                          </Text>
                         )}
                       </Table.Cell>
                     </Table.Row>
@@ -185,8 +158,12 @@ export default function AgreementsSettings() {
                         <Text fontSize="sm">Loading agreements...</Text>
                       ) : (
                         <Box>
-                          <Text fontSize="sm" mb={2}>No data use agreements signed</Text>
-                          <Text fontSize="xs" color="gray.400">Contact your administrator to sign required agreements</Text>
+                          <Text fontSize="sm" mb={2}>
+                            No data use agreements signed
+                          </Text>
+                          <Text fontSize="xs" color="gray.400">
+                            Contact your administrator to sign required agreements
+                          </Text>
                         </Box>
                       )}
                     </Table.Cell>
@@ -199,7 +176,15 @@ export default function AgreementsSettings() {
 
         {/* Code of Conduct Section */}
         <Box>
-          <Text fontSize="lg" fontWeight="semibold" color="gray.900" mb={4} pb={2} borderBottom="2px" borderColor="gray.100">
+          <Text
+            fontSize="lg"
+            fontWeight="semibold"
+            color="gray.900"
+            mb={4}
+            pb={2}
+            borderBottom="2px"
+            borderColor="gray.100"
+          >
             Code of Conduct
           </Text>
           <Text color="gray.600" mb={4}>
@@ -210,28 +195,13 @@ export default function AgreementsSettings() {
             <Table.Root variant="outline" size="md">
               <Table.Header>
                 <Table.Row bg="gray.50">
-                  <Table.ColumnHeader 
-                    fontWeight="semibold" 
-                    color="gray.900" 
-                    p={4}
-                    fontSize="sm"
-                  >
+                  <Table.ColumnHeader fontWeight="semibold" color="gray.900" p={4} fontSize="sm">
                     Date of Agreement
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader 
-                    fontWeight="semibold" 
-                    color="gray.900" 
-                    p={4}
-                    fontSize="sm"
-                  >
+                  <Table.ColumnHeader fontWeight="semibold" color="gray.900" p={4} fontSize="sm">
                     Name
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader 
-                    fontWeight="semibold" 
-                    color="gray.900" 
-                    p={4}
-                    fontSize="sm"
-                  >
+                  <Table.ColumnHeader fontWeight="semibold" color="gray.900" p={4} fontSize="sm">
                     Version
                   </Table.ColumnHeader>
                 </Table.Row>
@@ -239,26 +209,14 @@ export default function AgreementsSettings() {
               <Table.Body>
                 {agreements.code_of_conduct.length > 0 ? (
                   agreements.code_of_conduct.map((conduct, index) => (
-                    <Table.Row key={conduct.id} bg={index % 2 === 0 ? "white" : "gray.50"}>
-                      <Table.Cell 
-                        p={4}
-                        color="gray.900"
-                        fontSize="sm"
-                      >
+                    <Table.Row key={conduct.id} bg={index % 2 === 0 ? 'white' : 'gray.50'}>
+                      <Table.Cell p={4} color="gray.900" fontSize="sm">
                         {conduct.date}
                       </Table.Cell>
-                      <Table.Cell 
-                        p={4}
-                        color="gray.900"
-                        fontSize="sm"
-                      >
+                      <Table.Cell p={4} color="gray.900" fontSize="sm">
                         {conduct.name}
                       </Table.Cell>
-                      <Table.Cell 
-                        p={4}
-                        color="gray.900"
-                        fontSize="sm"
-                      >
+                      <Table.Cell p={4} color="gray.900" fontSize="sm">
                         {conduct.version}
                       </Table.Cell>
                     </Table.Row>
@@ -270,8 +228,12 @@ export default function AgreementsSettings() {
                         <Text fontSize="sm">Loading agreements...</Text>
                       ) : (
                         <Box>
-                          <Text fontSize="sm" mb={2}>No code of conduct agreements signed</Text>
-                          <Text fontSize="xs" color="gray.400">Contact your administrator to sign required agreements</Text>
+                          <Text fontSize="sm" mb={2}>
+                            No code of conduct agreements signed
+                          </Text>
+                          <Text fontSize="xs" color="gray.400">
+                            Contact your administrator to sign required agreements
+                          </Text>
                         </Box>
                       )}
                     </Table.Cell>

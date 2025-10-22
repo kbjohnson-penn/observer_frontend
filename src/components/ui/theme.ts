@@ -1,11 +1,11 @@
-import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react";
+import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
 
 const customConfig = defineConfig({
   theme: {
     tokens: {
       colors: {
         brand: {
-          "penn-dark-blue": { value: "#01256E" },
+          'penn-dark-blue': { value: '#01256E' },
         },
       },
     },

@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React from "react";
-import { HStack, Button, Text } from "@chakra-ui/react";
+import React from 'react';
+import { HStack, Button, Text } from '@chakra-ui/react';
 
 interface PaginationControlsProps {
   currentPage: number;
@@ -31,10 +31,7 @@ export default function PaginationControls({
 
   // Generate page numbers to display (first, last, current +/- 2)
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1).filter(
-    (page) =>
-      page === 1 ||
-      page === totalPages ||
-      Math.abs(page - currentPage) <= 2
+    (page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2
   );
 
   return (
@@ -54,23 +51,17 @@ export default function PaginationControls({
         {pageNumbers.map((page, index, array) => (
           <React.Fragment key={page}>
             {/* Show ellipsis if there's a gap */}
-            {index > 0 && array[index - 1] !== page - 1 && (
-              <Text color="gray.400">...</Text>
-            )}
+            {index > 0 && array[index - 1] !== page - 1 && <Text color="gray.400">...</Text>}
 
             {/* Page Button */}
             <Button
               size="sm"
-              variant={currentPage === page ? "solid" : "outline"}
-              bg={currentPage === page ? "blue.500" : "white"}
-              color={currentPage === page ? "white" : "gray.700"}
+              variant={currentPage === page ? 'solid' : 'outline'}
+              bg={currentPage === page ? 'blue.500' : 'white'}
+              color={currentPage === page ? 'white' : 'gray.700'}
               onClick={() => onPageChange(page)}
               disabled={loading}
-              _hover={
-                currentPage === page
-                  ? { bg: "blue.600" }
-                  : { bg: "gray.50" }
-              }
+              _hover={currentPage === page ? { bg: 'blue.600' } : { bg: 'gray.50' }}
             >
               {page}
             </Button>

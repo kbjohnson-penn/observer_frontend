@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useMemo } from "react";
+import React, { useMemo } from 'react';
 import {
   Box,
   VStack,
@@ -11,11 +11,11 @@ import {
   Select,
   Collapsible,
   createListCollection,
-} from "@chakra-ui/react";
-import { FaChevronDown } from "react-icons/fa";
-import { LocalFilters, DemographicFilterValues } from "@/interfaces/researchTab";
-import { FilterOptions } from "@/interfaces/research";
-import DemographicFilters from "./DemographicFilters";
+} from '@chakra-ui/react';
+import { FaChevronDown } from 'react-icons/fa';
+import { LocalFilters, DemographicFilterValues } from '@/interfaces/researchTab';
+import { FilterOptions } from '@/interfaces/research';
+import DemographicFilters from './DemographicFilters';
 
 interface FilterSidebarProps {
   localFilters: LocalFilters;
@@ -88,7 +88,7 @@ export default function FilterSidebar({
       h="fit-content"
       position="sticky"
       top={4}
-      display={{ base: "none", lg: "block" }}
+      display={{ base: 'none', lg: 'block' }}
     >
       {/* Header */}
       <Box

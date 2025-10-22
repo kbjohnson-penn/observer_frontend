@@ -12,7 +12,9 @@ const STORAGE_KEY = 'observer-research-cohorts';
  * Get storage information (size and count)
  */
 const getStorageInfo = () => {
-  if (typeof window === 'undefined') {return { size: '0', count: 0 };}
+  if (typeof window === 'undefined') {
+    return { size: '0', count: 0 };
+  }
 
   const stored = localStorage.getItem(STORAGE_KEY);
   const size = stored ? new Blob([stored]).size : 0;
@@ -27,10 +29,14 @@ const getStorageInfo = () => {
  */
 export async function getCohorts(): Promise<Cohort[]> {
   try {
-    if (typeof window === 'undefined') {return [];}
+    if (typeof window === 'undefined') {
+      return [];
+    }
 
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) {return [];}
+    if (!stored) {
+      return [];
+    }
 
     const cohorts = JSON.parse(stored) as Cohort[];
     return cohorts;
@@ -47,7 +53,7 @@ export async function getCohorts(): Promise<Cohort[]> {
 export async function getCohort(id: string): Promise<Cohort | null> {
   try {
     const cohorts = await getCohorts();
-    return cohorts.find(c => c.id === id) || null;
+    return cohorts.find((c) => c.id === id) || null;
   } catch (error) {
     logger.error('Failed to load cohort:', error);
     return null;
@@ -83,7 +89,7 @@ export async function createCohort(data: CohortCreateRequest): Promise<Cohort> {
           const { size, count } = getStorageInfo();
           throw new Error(
             `Storage quota exceeded (${size}KB used, ${count} cohorts). ` +
-            `Please delete or export cohorts to free up space.`
+              `Please delete or export cohorts to free up space.`
           );
         }
         throw storageError;
@@ -107,7 +113,7 @@ export async function createCohort(data: CohortCreateRequest): Promise<Cohort> {
 export async function updateCohort(id: string, updates: Partial<Cohort>): Promise<Cohort> {
   try {
     const cohorts = await getCohorts();
-    const index = cohorts.findIndex(c => c.id === id);
+    const index = cohorts.findIndex((c) => c.id === id);
 
     if (index === -1) {
       throw new Error('Cohort not found');
@@ -129,7 +135,7 @@ export async function updateCohort(id: string, updates: Partial<Cohort>): Promis
           const { size, count } = getStorageInfo();
           throw new Error(
             `Storage quota exceeded (${size}KB used, ${count} cohorts). ` +
-            `Please delete or export cohorts to free up space.`
+              `Please delete or export cohorts to free up space.`
           );
         }
         throw storageError;
@@ -153,7 +159,7 @@ export async function updateCohort(id: string, updates: Partial<Cohort>): Promis
 export async function deleteCohort(id: string): Promise<void> {
   try {
     const cohorts = await getCohorts();
-    const filtered = cohorts.filter(c => c.id !== id);
+    const filtered = cohorts.filter((c) => c.id !== id);
 
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));

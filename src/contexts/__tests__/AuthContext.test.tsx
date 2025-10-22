@@ -111,9 +111,9 @@ describe('AuthContext', () => {
         status: 401,
       });
 
-      await expect(
-        result.current.login('wronguser', 'wrongpassword')
-      ).rejects.toThrow('Invalid username or password');
+      await expect(result.current.login('wronguser', 'wrongpassword')).rejects.toThrow(
+        'Invalid username or password'
+      );
 
       expect(result.current.user).toBeNull();
       expect(result.current.isAuthenticated).toBe(false);
@@ -452,9 +452,7 @@ describe('AuthContext', () => {
 
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-      await expect(
-        result.current.login('testuser', 'password123')
-      ).rejects.toThrow();
+      await expect(result.current.login('testuser', 'password123')).rejects.toThrow();
 
       expect(result.current.user).toBeNull();
       expect(result.current.isAuthenticated).toBe(false);
@@ -590,10 +588,7 @@ describe('AuthContext', () => {
 
       unmount();
 
-      expect(removeEventListenerSpy).toHaveBeenCalledWith(
-        'auth:failed',
-        expect.any(Function)
-      );
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('auth:failed', expect.any(Function));
 
       removeEventListenerSpy.mockRestore();
     });

@@ -53,37 +53,84 @@ export function getCohortFilterSummary(filters: VisitSearchFilters): CohortFilte
 
   // Count visit filters
   if (filters.visit) {
-    if (filters.visit.tier_id && filters.visit.tier_id.length > 0) {visitFilters++;}
-    if (filters.visit.visit_source_value) {visitFilters++;}
-    if (filters.visit.date_from) {visitFilters++;}
-    if (filters.visit.date_to) {visitFilters++;}
+    if (filters.visit.tier_id && filters.visit.tier_id.length > 0) {
+      visitFilters++;
+    }
+    if (filters.visit.visit_source_value) {
+      visitFilters++;
+    }
+    if (filters.visit.date_from) {
+      visitFilters++;
+    }
+    if (filters.visit.date_to) {
+      visitFilters++;
+    }
   }
 
   // Count person demographic filters
   if (filters.person_demographics) {
-    if (filters.person_demographics.gender && filters.person_demographics.gender.length > 0) {personDemographicFilters++;}
-    if (filters.person_demographics.race && filters.person_demographics.race.length > 0) {personDemographicFilters++;}
-    if (filters.person_demographics.ethnicity && filters.person_demographics.ethnicity.length > 0) {personDemographicFilters++;}
-    if (filters.person_demographics.year_of_birth_from || filters.person_demographics.year_of_birth_to) {personDemographicFilters++;}
+    if (filters.person_demographics.gender && filters.person_demographics.gender.length > 0) {
+      personDemographicFilters++;
+    }
+    if (filters.person_demographics.race && filters.person_demographics.race.length > 0) {
+      personDemographicFilters++;
+    }
+    if (filters.person_demographics.ethnicity && filters.person_demographics.ethnicity.length > 0) {
+      personDemographicFilters++;
+    }
+    if (
+      filters.person_demographics.year_of_birth_from ||
+      filters.person_demographics.year_of_birth_to
+    ) {
+      personDemographicFilters++;
+    }
   }
 
   // Count provider demographic filters
   if (filters.provider_demographics) {
-    if (filters.provider_demographics.gender && filters.provider_demographics.gender.length > 0) {providerDemographicFilters++;}
-    if (filters.provider_demographics.race && filters.provider_demographics.race.length > 0) {providerDemographicFilters++;}
-    if (filters.provider_demographics.ethnicity && filters.provider_demographics.ethnicity.length > 0) {providerDemographicFilters++;}
-    if (filters.provider_demographics.year_of_birth_from || filters.provider_demographics.year_of_birth_to) {providerDemographicFilters++;}
+    if (filters.provider_demographics.gender && filters.provider_demographics.gender.length > 0) {
+      providerDemographicFilters++;
+    }
+    if (filters.provider_demographics.race && filters.provider_demographics.race.length > 0) {
+      providerDemographicFilters++;
+    }
+    if (
+      filters.provider_demographics.ethnicity &&
+      filters.provider_demographics.ethnicity.length > 0
+    ) {
+      providerDemographicFilters++;
+    }
+    if (
+      filters.provider_demographics.year_of_birth_from ||
+      filters.provider_demographics.year_of_birth_to
+    ) {
+      providerDemographicFilters++;
+    }
   }
 
   // Count clinical filters (future expansion)
   if (filters.clinical) {
-    if (filters.clinical.conditions) {clinicalFilters++;}
-    if (filters.clinical.labs) {clinicalFilters++;}
-    if (filters.clinical.drugs) {clinicalFilters++;}
-    if (filters.clinical.procedures) {clinicalFilters++;}
-    if (filters.clinical.notes) {clinicalFilters++;}
-    if (filters.clinical.observations) {clinicalFilters++;}
-    if (filters.clinical.measurements) {clinicalFilters++;}
+    if (filters.clinical.conditions) {
+      clinicalFilters++;
+    }
+    if (filters.clinical.labs) {
+      clinicalFilters++;
+    }
+    if (filters.clinical.drugs) {
+      clinicalFilters++;
+    }
+    if (filters.clinical.procedures) {
+      clinicalFilters++;
+    }
+    if (filters.clinical.notes) {
+      clinicalFilters++;
+    }
+    if (filters.clinical.observations) {
+      clinicalFilters++;
+    }
+    if (filters.clinical.measurements) {
+      clinicalFilters++;
+    }
   }
 
   return {
@@ -91,6 +138,7 @@ export function getCohortFilterSummary(filters: VisitSearchFilters): CohortFilte
     personDemographicFilters,
     providerDemographicFilters,
     clinicalFilters,
-    totalActiveFilters: visitFilters + personDemographicFilters + providerDemographicFilters + clinicalFilters,
+    totalActiveFilters:
+      visitFilters + personDemographicFilters + providerDemographicFilters + clinicalFilters,
   };
 }

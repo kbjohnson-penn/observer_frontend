@@ -20,7 +20,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
   activeTable,
   currentTableDisplayName,
   onDownloadCurrent,
-  onDownloadAll
+  onDownloadAll,
 }) => {
   return (
     <Box p={6} pb={4} borderBottom="1px" borderColor="gray.200" bg="blue.50">
@@ -33,7 +33,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
             Browse and explore tables
           </Text>
         </Box>
-        
+
         {/* Download Options */}
         <MenuRoot>
           <MenuTrigger asChild>
@@ -41,7 +41,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
               size="md"
               colorScheme="blue"
               variant="outline"
-              _hover={{ bg: "gray.50", borderColor: "blue.400" }}
+              _hover={{ bg: 'gray.50', borderColor: 'blue.400' }}
             >
               <FaDownload style={{ marginRight: '8px', color: '#2563eb' }} />
               Download CSV
@@ -63,16 +63,24 @@ const TableHeader: React.FC<TableHeaderProps> = ({
           </MenuContent>
         </MenuRoot>
       </Flex>
-      
+
       {/* Stats Overview */}
       <Flex gap={6} align="center" flexWrap="wrap">
         <Flex align="center" gap={2}>
-          <Text fontSize="sm" color="gray.700">Total Tables:</Text>
-          <Text fontSize="sm" fontWeight="bold" color="blue.600">{tablesCount}</Text>
+          <Text fontSize="sm" color="gray.700">
+            Total Tables:
+          </Text>
+          <Text fontSize="sm" fontWeight="bold" color="blue.600">
+            {tablesCount}
+          </Text>
         </Flex>
         <Flex align="center" gap={2}>
-          <Text fontSize="sm" color="gray.700">Active Table:</Text>
-          <Text fontSize="sm" fontWeight="bold" color="green.600">{getTableDisplayName(activeTable)}</Text>
+          <Text fontSize="sm" color="gray.700">
+            Active Table:
+          </Text>
+          <Text fontSize="sm" fontWeight="bold" color="green.600">
+            {getTableDisplayName(activeTable)}
+          </Text>
         </Flex>
       </Flex>
     </Box>

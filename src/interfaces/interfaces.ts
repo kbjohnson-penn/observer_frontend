@@ -119,9 +119,7 @@ export interface FlattenedCombinedDataType {
   // rias_codes: boolean;
 }
 
-export type CombinedDataType =
-  | NestedCombinedDataType
-  | FlattenedCombinedDataType;
+export type CombinedDataType = NestedCombinedDataType | FlattenedCombinedDataType;
 
 // Dashboard chart interfaces
 export interface DropDownOption {

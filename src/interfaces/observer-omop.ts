@@ -200,7 +200,7 @@ export interface CollapsibleStates {
 }
 
 // Type for table names
-export type OMOPTableName = 
+export type OMOPTableName =
   | 'PROVIDER'
   | 'PERSON'
   | 'VISIT_OCCURRENCE'
@@ -230,7 +230,7 @@ export interface TableInfo {
 }
 
 // Union type for all table data
-export type OMOPTableData = 
+export type OMOPTableData =
   | Provider
   | Person
   | VisitOccurrence

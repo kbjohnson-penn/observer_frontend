@@ -9,9 +9,7 @@ interface MediaViewersSectionProps {
   videoSources: VideoSources;
 }
 
-const MediaViewersSection: React.FC<MediaViewersSectionProps> = ({
-  videoSources,
-}) => {
+const MediaViewersSection: React.FC<MediaViewersSectionProps> = ({ videoSources }) => {
   const hasAnyMedia = videoSources.patient || videoSources.provider || videoSources.room;
 
   return (
@@ -24,7 +22,7 @@ const MediaViewersSection: React.FC<MediaViewersSectionProps> = ({
           </Heading>
         </Box>
       </Box>
-      
+
       {/* Content Section */}
       <Box p={6} pt={4}>
         <VideoGrid
@@ -34,7 +32,14 @@ const MediaViewersSection: React.FC<MediaViewersSectionProps> = ({
         />
 
         {!hasAnyMedia && (
-          <Box textAlign="center" py={8} bg="blue.50" borderRadius="lg" border="1px" borderColor="blue.200">
+          <Box
+            textAlign="center"
+            py={8}
+            bg="blue.50"
+            borderRadius="lg"
+            border="1px"
+            borderColor="blue.200"
+          >
             <Text color="blue.600" fontSize="md" fontWeight="medium">
               No media files available
             </Text>

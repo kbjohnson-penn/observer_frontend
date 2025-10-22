@@ -7,7 +7,7 @@ import { Provider } from '@/components/ui/provider';
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -58,9 +58,15 @@ describe('PasswordSettings', () => {
       render(<PasswordSettings />, { wrapper: TestWrapper });
 
       const user = userEvent.setup();
-      const currentPasswordInput = screen.getByPlaceholderText('Enter your current password') as HTMLInputElement;
-      const newPasswordInput = screen.getByPlaceholderText('Enter your new password') as HTMLInputElement;
-      const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password') as HTMLInputElement;
+      const currentPasswordInput = screen.getByPlaceholderText(
+        'Enter your current password'
+      ) as HTMLInputElement;
+      const newPasswordInput = screen.getByPlaceholderText(
+        'Enter your new password'
+      ) as HTMLInputElement;
+      const confirmPasswordInput = screen.getByPlaceholderText(
+        'Confirm your new password'
+      ) as HTMLInputElement;
 
       await user.type(currentPasswordInput, 'oldpassword123');
       await user.type(newPasswordInput, 'newpassword456');
@@ -107,7 +113,9 @@ describe('PasswordSettings', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Password must be at least 12 characters long')).toBeInTheDocument();
+        expect(
+          screen.getByText('Password must be at least 12 characters long')
+        ).toBeInTheDocument();
       });
     });
   });
@@ -159,9 +167,15 @@ describe('PasswordSettings', () => {
       render(<PasswordSettings />, { wrapper: TestWrapper });
 
       const user = userEvent.setup();
-      const currentPasswordInput = screen.getByPlaceholderText('Enter your current password') as HTMLInputElement;
-      const newPasswordInput = screen.getByPlaceholderText('Enter your new password') as HTMLInputElement;
-      const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password') as HTMLInputElement;
+      const currentPasswordInput = screen.getByPlaceholderText(
+        'Enter your current password'
+      ) as HTMLInputElement;
+      const newPasswordInput = screen.getByPlaceholderText(
+        'Enter your new password'
+      ) as HTMLInputElement;
+      const confirmPasswordInput = screen.getByPlaceholderText(
+        'Confirm your new password'
+      ) as HTMLInputElement;
       const submitButton = screen.getByRole('button', { name: /update password/i });
 
       await user.type(currentPasswordInput, 'oldpassword123');
@@ -177,11 +191,18 @@ describe('PasswordSettings', () => {
     });
 
     it('should show loading state during submission', async () => {
-      (global.fetch as jest.Mock).mockImplementation(() =>
-        new Promise(resolve => setTimeout(() => resolve({
-          ok: true,
-          json: async () => ({}),
-        }), 100))
+      (global.fetch as jest.Mock).mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(
+              () =>
+                resolve({
+                  ok: true,
+                  json: async () => ({}),
+                }),
+              100
+            )
+          )
       );
 
       render(<PasswordSettings />, { wrapper: TestWrapper });
@@ -249,10 +270,13 @@ describe('PasswordSettings', () => {
       await user.type(confirmPasswordInput, 'password123456');
       await user.click(submitButton);
 
-      await waitFor(() => {
-        // Look for the API error message from backend
-        expect(screen.getByText(/too common/i)).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          // Look for the API error message from backend
+          expect(screen.getByText(/too common/i)).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
     });
 
     it('should handle generic API error', async () => {
@@ -299,7 +323,9 @@ describe('PasswordSettings', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('An error occurred while updating your password')).toBeInTheDocument();
+        expect(
+          screen.getByText('An error occurred while updating your password')
+        ).toBeInTheDocument();
       });
     });
   });

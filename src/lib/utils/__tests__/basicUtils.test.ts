@@ -1,12 +1,7 @@
 // Mock d3 to avoid ES module import issues in Jest
 jest.mock('d3', () => ({}));
 
-import {
-  capitalizeWords,
-  checkBoolean,
-  formatDepartmentName,
-  formatVisitDate,
-} from '../utils';
+import { capitalizeWords, checkBoolean, formatDepartmentName, formatVisitDate } from '../utils';
 
 describe('Basic Utility Functions', () => {
   describe('capitalizeWords', () => {

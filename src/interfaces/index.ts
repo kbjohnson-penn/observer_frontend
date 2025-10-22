@@ -8,13 +8,13 @@ export * from './mmd';
 export * from './research';
 
 // Explicit re-exports to avoid naming conflicts
-export type { 
-  ProviderDataType, 
-  PublicProviderDataType, 
-  Provider as ProviderInterface 
+export type {
+  ProviderDataType,
+  PublicProviderDataType,
+  Provider as ProviderInterface,
 } from './provider';
 
-export type { 
+export type {
   Provider as OMOPProvider,
   Person,
   VisitOccurrence,
@@ -28,5 +28,5 @@ export type {
   ProviderSurvey,
   AuditLogs,
   Concept,
-  OMOPTableName
+  OMOPTableName,
 } from './observer-omop';

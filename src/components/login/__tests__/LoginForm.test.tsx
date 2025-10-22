@@ -30,7 +30,7 @@ jest.mock('next/image', () => ({
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -84,7 +84,10 @@ describe('LoginForm', () => {
     render(<LoginForm />, { wrapper: TestWrapper });
 
     expect(screen.getByText("Don't have an account?")).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /register here/i })).toHaveAttribute('href', '/register');
+    expect(screen.getByRole('link', { name: /register here/i })).toHaveAttribute(
+      'href',
+      '/register'
+    );
   });
 
   it('should update input values on change', async () => {
@@ -140,7 +143,7 @@ describe('LoginForm', () => {
   });
 
   it('should show loading state during login', async () => {
-    mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+    mockLogin.mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
     const user = userEvent.setup();
 
     render(<LoginForm />, { wrapper: TestWrapper });
@@ -162,7 +165,7 @@ describe('LoginForm', () => {
   });
 
   it('should disable submit button while loading', async () => {
-    mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+    mockLogin.mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
     const user = userEvent.setup();
 
     render(<LoginForm />, { wrapper: TestWrapper });
@@ -246,7 +249,9 @@ describe('LoginForm', () => {
   it('should have HTML5 required validation on fields', () => {
     render(<LoginForm />, { wrapper: TestWrapper });
 
-    const usernameInput = screen.getByPlaceholderText('Enter your username or email') as HTMLInputElement;
+    const usernameInput = screen.getByPlaceholderText(
+      'Enter your username or email'
+    ) as HTMLInputElement;
     const passwordInput = screen.getByPlaceholderText('Enter your password') as HTMLInputElement;
 
     expect(usernameInput.required).toBe(true);

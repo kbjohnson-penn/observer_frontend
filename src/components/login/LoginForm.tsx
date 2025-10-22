@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Box,
   Button,
@@ -13,36 +13,36 @@ import {
   Alert,
   Link as ChakraLink,
   Field,
-} from "@chakra-ui/react";
-import { PasswordInput } from "@/components/ui/password-input";
-import Image from "next/image";
-import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
+} from '@chakra-ui/react';
+import { PasswordInput } from '@/components/ui/password-input';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginForm() {
   const router = useRouter();
   const { login, isAuthenticated } = useAuth();
-  const [usernameOrEmail, setUsernameOrEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [usernameOrEmail, setUsernameOrEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/dashboard");
+      router.push('/dashboard');
     }
   }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setIsLoading(true);
 
     try {
       await login(usernameOrEmail, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +51,14 @@ export default function LoginForm() {
   return (
     <Box bg="gray.50" py={10}>
       <Container maxW="xl">
-        <Card.Root bg="white" shadow="lg" borderRadius="lg" border="1px" borderColor="gray.200" color="gray.900">
+        <Card.Root
+          bg="white"
+          shadow="lg"
+          borderRadius="lg"
+          border="1px"
+          borderColor="gray.200"
+          color="gray.900"
+        >
           <Card.Header>
             <VStack gap={4}>
               <Image
@@ -79,7 +86,7 @@ export default function LoginForm() {
                     <Alert.Title>{error}</Alert.Title>
                   </Alert.Root>
                 )}
-                
+
                 <Field.Root required width="100%">
                   <Field.Label>
                     Username or Email <Field.RequiredIndicator />
@@ -96,12 +103,12 @@ export default function LoginForm() {
                     borderColor="gray.300"
                     color="gray.900"
                     p={2}
-                    _focus={{ borderColor: "blue.500" }}
-                    _hover={{ borderColor: "gray.400" }}
-                    _placeholder={{ color: "gray.400" }}
+                    _focus={{ borderColor: 'blue.500' }}
+                    _hover={{ borderColor: 'gray.400' }}
+                    _placeholder={{ color: 'gray.400' }}
                   />
                 </Field.Root>
-                
+
                 <Field.Root required width="100%">
                   <Field.Label>
                     Password <Field.RequiredIndicator />
@@ -117,13 +124,12 @@ export default function LoginForm() {
                     borderColor="gray.300"
                     color="gray.900"
                     p={2}
-                    _focus={{ borderColor: "blue.500" }}
-                    _hover={{ borderColor: "gray.400" }}
-                    _placeholder={{ color: "gray.400" }}
+                    _focus={{ borderColor: 'blue.500' }}
+                    _hover={{ borderColor: 'gray.400' }}
+                    _placeholder={{ color: 'gray.400' }}
                   />
                 </Field.Root>
-              
-                
+
                 <Button
                   type="submit"
                   bg="blue.600"
@@ -131,21 +137,21 @@ export default function LoginForm() {
                   size="lg"
                   width="100%"
                   disabled={isLoading}
-                  _hover={{ bg: "blue.700" }}
-                  _disabled={{ bg: "gray.400", cursor: "not-allowed" }}
+                  _hover={{ bg: 'blue.700' }}
+                  _disabled={{ bg: 'gray.400', cursor: 'not-allowed' }}
                 >
-                  {isLoading ? "Signing in..." : "Sign In"}
+                  {isLoading ? 'Signing in...' : 'Sign In'}
                 </Button>
 
                 <Box textAlign="center" pt={4}>
                   <Text color="gray.600" fontSize="sm">
-                    Don&apos;t have an account?{" "}
+                    Don&apos;t have an account?{' '}
                     <ChakraLink
                       as={Link}
                       href="/register"
                       color="blue.600"
                       fontWeight="medium"
-                      _hover={{ color: "blue.700" }}
+                      _hover={{ color: 'blue.700' }}
                     >
                       Register here
                     </ChakraLink>

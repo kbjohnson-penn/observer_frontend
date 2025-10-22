@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { 
-  Box, 
-  Heading, 
-  Text, 
+import {
+  Box,
+  Heading,
+  Text,
   VStack,
   HStack,
   IconButton,
   Dialog,
   Portal,
-  CloseButton
+  CloseButton,
 } from '@chakra-ui/react';
 import { FaCopy, FaQuoteLeft, FaCheck } from 'react-icons/fa';
 import { USAGE_ETHICS } from '@/constants/usage-ethics.constants';
@@ -29,7 +29,7 @@ const CitationModal = ({ isOpen, onClose }: CitationModalProps) => {
     mla: USAGE_ETHICS.citation.mla,
     chicago: USAGE_ETHICS.citation.chicago,
     harvard: USAGE_ETHICS.citation.harvard,
-    vancouver: USAGE_ETHICS.citation.vancouver
+    vancouver: USAGE_ETHICS.citation.vancouver,
   };
 
   return (
@@ -44,7 +44,9 @@ const CitationModal = ({ isOpen, onClose }: CitationModalProps) => {
                   <Box color="blue.500">
                     <FaQuoteLeft />
                   </Box>
-                  <Text fontWeight="bold" color="blue.500">Citation Formats</Text>
+                  <Text fontWeight="bold" color="blue.500">
+                    Citation Formats
+                  </Text>
                 </HStack>
               </Dialog.Title>
             </Dialog.Header>
@@ -66,11 +68,11 @@ const CitationModal = ({ isOpen, onClose }: CitationModalProps) => {
                         top={2}
                         right={2}
                         onClick={() => copyToClipboard(citation, format.toUpperCase())}
-                        bg={copiedFormat === format.toUpperCase() ? "green.100" : "transparent"}
-                        color={copiedFormat === format.toUpperCase() ? "green.600" : "blue.500"}
-                        _hover={{ 
-                          bg: copiedFormat === format.toUpperCase() ? "green.200" : "blue.100",
-                          color: copiedFormat === format.toUpperCase() ? "green.700" : "blue.600"
+                        bg={copiedFormat === format.toUpperCase() ? 'green.100' : 'transparent'}
+                        color={copiedFormat === format.toUpperCase() ? 'green.600' : 'blue.500'}
+                        _hover={{
+                          bg: copiedFormat === format.toUpperCase() ? 'green.200' : 'blue.100',
+                          color: copiedFormat === format.toUpperCase() ? 'green.700' : 'blue.600',
                         }}
                         variant="ghost"
                       >

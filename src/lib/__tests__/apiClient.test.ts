@@ -116,10 +116,7 @@ describe('API Client', () => {
       const token = await fetchCsrfToken();
 
       expect(token).toBeNull();
-      expect(loggerWarn).toHaveBeenCalledWith(
-        'Failed to fetch CSRF token:',
-        expect.any(Error)
-      );
+      expect(loggerWarn).toHaveBeenCalledWith('Failed to fetch CSRF token:', expect.any(Error));
 
       loggerWarn.mockRestore();
     });
@@ -295,7 +292,7 @@ describe('API Client', () => {
         {},
         expect.objectContaining({
           withCredentials: true,
-          signal: expect.any(AbortSignal)
+          signal: expect.any(AbortSignal),
         })
       );
 
@@ -343,7 +340,7 @@ describe('API Client', () => {
       }
 
       // Wait for event to be dispatched
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(eventListener).toHaveBeenCalled();
 
@@ -406,7 +403,7 @@ describe('API Client', () => {
         {},
         expect.objectContaining({
           withCredentials: true,
-          signal: expect.any(AbortSignal)
+          signal: expect.any(AbortSignal),
         })
       );
     });
@@ -458,7 +455,7 @@ describe('API Client', () => {
       }
 
       // Wait for event to be dispatched
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(eventListener).toHaveBeenCalled();
 

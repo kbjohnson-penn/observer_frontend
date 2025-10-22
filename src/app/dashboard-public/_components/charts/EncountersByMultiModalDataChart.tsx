@@ -1,36 +1,27 @@
-import React, { useMemo } from "react";
-import {
-  BarChart,
-  Bar,
-  Cell,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Label,
-} from "recharts";
+import React, { useMemo } from 'react';
+import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Label } from 'recharts';
 
 // Define the mapping for grouping data types
 const DATA_TYPE_GROUPING = {
-  provider_view: "egocentric_view",
-  patient_view: "egocentric_view",
-  room_view: "room_view",
-  audio: "audio",
-  transcript: "transcript",
-  patient_survey: "survey",
-  provider_survey: "survey",
-  patient_annotation: "annotations",
-  provider_annotation: "annotations",
+  provider_view: 'egocentric_view',
+  patient_view: 'egocentric_view',
+  room_view: 'room_view',
+  audio: 'audio',
+  transcript: 'transcript',
+  patient_survey: 'survey',
+  provider_survey: 'survey',
+  patient_annotation: 'annotations',
+  provider_annotation: 'annotations',
 };
 
 // Define colors for the grouped categories
 const GROUP_COLORS = {
-  egocentric_view: "#4285F4", // Blue
-  room_view: "#34A853", // Green
-  audio: "#FBBC05", // Yellow
-  transcript: "#EA4335", // Red
-  survey: "#8F44AD", // Purple
-  annotations: "#16A085", // Teal
+  egocentric_view: '#4285F4', // Blue
+  room_view: '#34A853', // Green
+  audio: '#FBBC05', // Yellow
+  transcript: '#EA4335', // Red
+  survey: '#8F44AD', // Purple
+  annotations: '#16A085', // Teal
 };
 
 interface GroupedDataItem {
@@ -61,8 +52,7 @@ const groupData = (data: RawDataItem[]): GroupedDataItem[] => {
 
   // Process the data we have
   data.forEach((item) => {
-    const groupName =
-      DATA_TYPE_GROUPING[item.name as keyof typeof DATA_TYPE_GROUPING];
+    const groupName = DATA_TYPE_GROUPING[item.name as keyof typeof DATA_TYPE_GROUPING];
     if (!groupName) {
       // No group defined for data type - skip grouping
       return;
@@ -81,15 +71,15 @@ const CustomizedAxisTick: React.FC<any> = (props) => {
 
   // Split and capitalize words
   const words = payload.value
-    .split("_")
+    .split('_')
     .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1));
 
-  const displayText = words.join(" ");
+  const displayText = words.join(' ');
 
   const isMobile = screenWidth <= 768;
   const isTablet = screenWidth > 768 && screenWidth <= 1024;
 
-  const fontSize = isMobile ? "8px" : isTablet ? "9px" : "10px";
+  const fontSize = isMobile ? '8px' : isTablet ? '9px' : '10px';
   const lineHeight = parseInt(fontSize) * 1.2;
 
   // For short text (1-2 words), keep it on one line
@@ -97,15 +87,15 @@ const CustomizedAxisTick: React.FC<any> = (props) => {
   const shouldSplit = displayText.length > 14;
 
   let firstLine = displayText;
-  let secondLine = "";
+  let secondLine = '';
 
   if (shouldSplit) {
     // Find a space near the middle to split on
     const middle = Math.floor(displayText.length / 2);
-    let splitIndex = displayText.lastIndexOf(" ", middle);
+    let splitIndex = displayText.lastIndexOf(' ', middle);
 
     if (splitIndex === -1) {
-      splitIndex = displayText.indexOf(" ", middle);
+      splitIndex = displayText.indexOf(' ', middle);
     }
 
     if (splitIndex !== -1) {
@@ -133,25 +123,23 @@ const CustomizedAxisTick: React.FC<any> = (props) => {
 const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     const words = label
-      .split("_")
+      .split('_')
       .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+      .join(' ');
 
     return (
       <div
         className="custom-tooltip"
         style={{
-          backgroundColor: "#fff",
-          padding: "10px",
-          border: `1px solid ${
-            GROUP_COLORS[label as keyof typeof GROUP_COLORS] || "#ccc"
-          }`,
+          backgroundColor: '#fff',
+          padding: '10px',
+          border: `1px solid ${GROUP_COLORS[label as keyof typeof GROUP_COLORS] || '#ccc'}`,
         }}
       >
         <p
           className="text-base font-medium"
           style={{
-            color: GROUP_COLORS[label as keyof typeof GROUP_COLORS] || "#ccc",
+            color: GROUP_COLORS[label as keyof typeof GROUP_COLORS] || '#ccc',
           }}
         >{`${words}`}</p>
         <p className="text-sm">{`Total: ${payload[0].value}`}</p>
@@ -162,9 +150,10 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
   return null;
 };
 
-const EncountersByMultiModalDataChart: React.FC<
-  EncountersByMultiModalDataChartProps
-> = ({ data = [], screenWidth = 1024 }) => {
+const EncountersByMultiModalDataChart: React.FC<EncountersByMultiModalDataChartProps> = ({
+  data = [],
+  screenWidth = 1024,
+}) => {
   // Group the data
   const groupedData = useMemo(() => groupData(data), [data]);
 
@@ -174,7 +163,7 @@ const EncountersByMultiModalDataChart: React.FC<
     const TickComponent = (props: any) => (
       <CustomizedAxisTick {...props} screenWidth={screenWidth} />
     );
-    TickComponent.displayName = "CustomTick";
+    TickComponent.displayName = 'CustomTick';
     return TickComponent;
   }, [screenWidth]);
 
@@ -202,13 +191,13 @@ const EncountersByMultiModalDataChart: React.FC<
         <YAxis
           type="number"
           allowDecimals={false}
-          style={{ fontSize: screenWidth <= 768 ? "10px" : "11px" }}
+          style={{ fontSize: screenWidth <= 768 ? '10px' : '11px' }}
         >
           <Label
             value="Total Available Data"
             // position="insideLeft"
             angle={-90}
-            style={{ fontSize: "12px" }}
+            style={{ fontSize: '12px' }}
             offset={-5}
           />
         </YAxis>

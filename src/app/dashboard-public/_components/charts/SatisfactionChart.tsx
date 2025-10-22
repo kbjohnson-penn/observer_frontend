@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   ScatterChart,
   XAxis,
@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   Legend,
   CartesianGrid,
-} from "recharts";
+} from 'recharts';
 
 interface SatisfactionChartProps {
   data: {
@@ -26,14 +26,14 @@ const CustomTooltip: React.FC<any> = ({ active, payload, colors }) => {
       <div
         className="custom-tooltip"
         style={{
-          backgroundColor: "#fff",
-          border: "1px solid #ccc",
-          padding: "10px",
+          backgroundColor: '#fff',
+          border: '1px solid #ccc',
+          padding: '10px',
         }}
       >
         <p
           className="text-base font-medium"
-          style={{ color: "#CF1259" }}
+          style={{ color: '#CF1259' }}
         >{`Encounters: ${payload[0].payload.count}`}</p>
         <p
           className="text-sm"
@@ -50,10 +50,7 @@ const CustomTooltip: React.FC<any> = ({ active, payload, colors }) => {
   return null;
 };
 
-const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
-  data,
-  screenWidth = 1024,
-}) => {
+const SatisfactionChart: React.FC<SatisfactionChartProps> = ({ data, screenWidth = 1024 }) => {
   return (
     <ResponsiveContainer width="100%" height={350}>
       <ScatterChart width={400} height={400}>
@@ -62,31 +59,31 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
           type="number"
           dataKey="patientSatisfaction"
           name="Patient Satisfaction"
-          style={{ fontSize: screenWidth <= 768 ? "9px" : "10px" }}
+          style={{ fontSize: screenWidth <= 768 ? '9px' : '10px' }}
           domain={[0, 100]}
         >
           <Label
             value="Patient Satisfaction (%)"
             offset={-5}
             position="insideBottom"
-            style={{ fontSize: "12px" }}
+            style={{ fontSize: '12px' }}
           />
         </XAxis>
         <YAxis
           type="number"
           dataKey="providerSatisfaction"
           name="Provider Satisfaction"
-          style={{ fontSize: screenWidth <= 768 ? "10px" : "11px" }}
+          style={{ fontSize: screenWidth <= 768 ? '10px' : '11px' }}
           domain={[0, 100]}
         >
           <Label
             value="Provider Satisfaction (%)"
             angle={-90}
-            style={{ fontSize: "12px" }}
+            style={{ fontSize: '12px' }}
             offset={-5}
           />
         </YAxis>
-        <Tooltip content={<CustomTooltip colors={["#8884d8", "#82ca9d"]} />} />
+        <Tooltip content={<CustomTooltip colors={['#8884d8', '#82ca9d']} />} />
         <Scatter
           name="Satisfaction Scores"
           data={data}
@@ -98,7 +95,7 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({
           verticalAlign="bottom"
           align="right"
           iconSize={12}
-          wrapperStyle={{ fontSize: "12px" }}
+          wrapperStyle={{ fontSize: '12px' }}
         />
       </ScatterChart>
     </ResponsiveContainer>

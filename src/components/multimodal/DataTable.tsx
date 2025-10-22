@@ -33,12 +33,12 @@ const DataTable: React.FC<DataTableProps> = ({
   searchTerm,
   onSearchChange,
   getTableIcon,
-  renderFieldValue
+  renderFieldValue,
 }) => {
   const renderTableHeader = (tableData: any[]) => (
     <Box as="thead" position="sticky" top={0} bg={COLORS.table.headerBg} zIndex={1}>
       <Box as="tr">
-        {Object.keys(tableData[0] || {}).map(key => (
+        {Object.keys(tableData[0] || {}).map((key) => (
           <Box
             as="th"
             key={key}
@@ -63,7 +63,7 @@ const DataTable: React.FC<DataTableProps> = ({
                   py: 2,
                   borderRadius: 'md',
                   fontSize: 'sm',
-                  maxW: '300px'
+                  maxW: '300px',
                 }}
               >
                 <Text
@@ -78,9 +78,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 </Text>
               </Tooltip>
             ) : (
-              <Text as="span">
-                {key.replace(/_/g, ' ')}
-              </Text>
+              <Text as="span">{key.replace(/_/g, ' ')}</Text>
             )}
           </Box>
         ))}
@@ -89,7 +87,14 @@ const DataTable: React.FC<DataTableProps> = ({
   );
 
   const renderTableDescription = () => (
-    <Box mb={6} p={4} bg={COLORS.primary[50]} borderRadius="lg" border="1px" borderColor={COLORS.primary[200]}>
+    <Box
+      mb={6}
+      p={4}
+      bg={COLORS.primary[50]}
+      borderRadius="lg"
+      border="1px"
+      borderColor={COLORS.primary[200]}
+    >
       <Flex align="center" gap={3} mb={4}>
         <Box color={COLORS.primary[600]} fontSize="lg">
           {getTableIcon(table.name)}
@@ -98,12 +103,14 @@ const DataTable: React.FC<DataTableProps> = ({
           <Heading size="md" color={COLORS.primary[800]} mb={1}>
             {selectedTableInfo.displayName}
           </Heading>
-          <Text fontSize="sm" color={COLORS.primary[700]}>{table.description}</Text>
+          <Text fontSize="sm" color={COLORS.primary[700]}>
+            {table.description}
+          </Text>
         </Box>
       </Flex>
-      
+
       <Flex align="center" justify="space-between" wrap="wrap" gap={4}>
-        <Box position="relative" w={{ base: "100%", md: "350px" }}>
+        <Box position="relative" w={{ base: '100%', md: '350px' }}>
           <Box position="absolute" left="3" top="50%" transform="translateY(-50%)" zIndex={1}>
             <FaSearch color={COLORS.primary[500]} size="14px" />
           </Box>
@@ -114,16 +121,30 @@ const DataTable: React.FC<DataTableProps> = ({
             size="sm"
             bg="white"
             borderColor={COLORS.primary[300]}
-            _focus={{ borderColor: COLORS.primary[500], boxShadow: `0 0 0 1px ${COLORS.primary[500]}` }}
+            _focus={{
+              borderColor: COLORS.primary[500],
+              boxShadow: `0 0 0 1px ${COLORS.primary[500]}`,
+            }}
             _placeholder={{ color: COLORS.primary[400] }}
             borderRadius="md"
             paddingLeft="10"
           />
         </Box>
-        
+
         <Text fontSize="sm" color={COLORS.primary[700]}>
-          <Text as="span" fontWeight="bold">{filteredData.length}</Text> of <Text as="span" fontWeight="bold">{table.data.length}</Text> records
-          {searchTerm && <Text as="span" ml={2} fontStyle="italic">matching &ldquo;{searchTerm}&rdquo;</Text>}
+          <Text as="span" fontWeight="bold">
+            {filteredData.length}
+          </Text>{' '}
+          of{' '}
+          <Text as="span" fontWeight="bold">
+            {table.data.length}
+          </Text>{' '}
+          records
+          {searchTerm && (
+            <Text as="span" ml={2} fontStyle="italic">
+              matching &ldquo;{searchTerm}&rdquo;
+            </Text>
+          )}
         </Text>
       </Flex>
     </Box>
@@ -145,8 +166,8 @@ const DataTable: React.FC<DataTableProps> = ({
   return (
     <>
       {renderTableDescription()}
-      
-      <Box 
+
+      <Box
         position="relative"
         overflowX="auto"
         border="1px"
@@ -158,22 +179,22 @@ const DataTable: React.FC<DataTableProps> = ({
         css={{
           '&::-webkit-scrollbar': {
             width: '12px',
-            height: '12px'
+            height: '12px',
           },
           '&::-webkit-scrollbar-track': {
             background: '#f1f5f9',
-            borderRadius: '6px'
+            borderRadius: '6px',
           },
           '&::-webkit-scrollbar-thumb': {
             background: '#2563eb',
             borderRadius: '6px',
             '&:hover': {
-              background: '#1d4ed8'
-            }
+              background: '#1d4ed8',
+            },
           },
           '&::-webkit-scrollbar-corner': {
-            background: '#f1f5f9'
-          }
+            background: '#f1f5f9',
+          },
         }}
       >
         {/* Subtle fade indicators */}
@@ -201,10 +222,10 @@ const DataTable: React.FC<DataTableProps> = ({
           {renderTableHeader(table.data)}
           <Box as="tbody">
             {filteredData.map((row, index) => (
-              <Box 
-                as="tr" 
-                key={index} 
-                _hover={{ bg: COLORS.table.rowHoverBg }} 
+              <Box
+                as="tr"
+                key={index}
+                _hover={{ bg: COLORS.table.rowHoverBg }}
                 transition="background-color 0.2s"
                 borderBottom="1px"
                 borderColor={COLORS.table.borderColor}
@@ -229,7 +250,7 @@ const DataTable: React.FC<DataTableProps> = ({
           </Box>
         </Box>
       </Box>
-      
+
       {filteredData.length === 0 && searchTerm && (
         <Box textAlign="center" py={8} bg="gray.50" borderRadius="lg" mt={4}>
           <Text color="gray.500" fontSize="md" fontWeight="medium">

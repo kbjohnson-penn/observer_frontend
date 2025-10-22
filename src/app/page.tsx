@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Box, Container } from "@chakra-ui/react";
+import React from 'react';
+import { Box, Container } from '@chakra-ui/react';
 
 // Import modular components
-import HeroSection from "@/components/homepage/HeroSection";
-import StatisticsSection from "@/components/homepage/StatisticsSection";
-import ResearchApplicationsSection from "@/components/homepage/ResearchApplicationsSection";
-import DataTypesSection from "@/components/homepage/DataTypesSection";
+import HeroSection from '@/components/homepage/HeroSection';
+import StatisticsSection from '@/components/homepage/StatisticsSection';
+import ResearchApplicationsSection from '@/components/homepage/ResearchApplicationsSection';
+import DataTypesSection from '@/components/homepage/DataTypesSection';
 
 const Home: React.FC = () => {
   return (

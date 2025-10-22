@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback } from 'react';
 import {
   Box,
   VStack,
@@ -12,23 +12,27 @@ import {
   Flex,
   Stack,
   Skeleton,
-} from "@chakra-ui/react";
-import { useFilterOptions } from "@/hooks/useFilterOptions";
-import { useVisitSearch } from "@/hooks/useVisitSearch";
-import { VisitSearchSort } from "@/interfaces/research";
-import { LocalFilters, INITIAL_LOCAL_FILTERS } from "@/interfaces/researchTab";
-import { buildServerFilters } from "@/lib/utils/filterTransformer";
-import { createCohort } from "@/lib/utils/cohortStorage";
-import { CohortCreateRequest } from "@/interfaces/cohort";
-import { logger } from "@/lib/logger";
-import FilterSidebar from "./FilterSidebar";
-import VisitsTable from "./VisitsTable";
-import PaginationControls from "./PaginationControls";
-import LoadingSkeleton from "./LoadingSkeleton";
-import CreateCohortDialog from "../CohortTab/CreateCohortDialog";
+} from '@chakra-ui/react';
+import { useFilterOptions } from '@/hooks/useFilterOptions';
+import { useVisitSearch } from '@/hooks/useVisitSearch';
+import { VisitSearchSort } from '@/interfaces/research';
+import { LocalFilters, INITIAL_LOCAL_FILTERS } from '@/interfaces/researchTab';
+import { buildServerFilters } from '@/lib/utils/filterTransformer';
+import { createCohort } from '@/lib/utils/cohortStorage';
+import { CohortCreateRequest } from '@/interfaces/cohort';
+import { logger } from '@/lib/logger';
+import FilterSidebar from './FilterSidebar';
+import VisitsTable from './VisitsTable';
+import PaginationControls from './PaginationControls';
+import LoadingSkeleton from './LoadingSkeleton';
+import CreateCohortDialog from '../CohortTab/CreateCohortDialog';
 
 export default function ResearchTab() {
-  const { filterOptions, loading: filterOptionsLoading, error: filterOptionsError } = useFilterOptions();
+  const {
+    filterOptions,
+    loading: filterOptionsLoading,
+    error: filterOptionsError,
+  } = useFilterOptions();
 
   const {
     results: visits,
@@ -50,24 +54,31 @@ export default function ResearchTab() {
   const [cohortSuccess, setCohortSuccess] = useState(false);
 
   // Handle filter changes
-  const handleFilterChange = useCallback((key: keyof LocalFilters, value: string | string[]) => {
-    setLocalFilters((prev) => {
-      const newLocalFilters = { ...prev, [key]: value };
+  const handleFilterChange = useCallback(
+    (key: keyof LocalFilters, value: string | string[]) => {
+      setLocalFilters((prev) => {
+        const newLocalFilters = { ...prev, [key]: value };
 
-      // Build and apply server-side filters
-      const serverFilters = buildServerFilters(newLocalFilters);
-      updateFilters(serverFilters);
+        // Build and apply server-side filters
+        const serverFilters = buildServerFilters(newLocalFilters);
+        updateFilters(serverFilters);
 
-      return newLocalFilters;
-    });
-  }, [updateFilters]);
+        return newLocalFilters;
+      });
+    },
+    [updateFilters]
+  );
 
   // Handle sort changes
-  const handleSort = useCallback((field: VisitSearchSort['field']) => {
-    const newDirection: 'asc' | 'desc' = sort.field === field && sort.direction === 'asc' ? 'desc' : 'asc';
-    const newSort: VisitSearchSort = { field, direction: newDirection };
-    setSort(newSort);
-  }, [sort, setSort]);
+  const handleSort = useCallback(
+    (field: VisitSearchSort['field']) => {
+      const newDirection: 'asc' | 'desc' =
+        sort.field === field && sort.direction === 'asc' ? 'desc' : 'asc';
+      const newSort: VisitSearchSort = { field, direction: newDirection };
+      setSort(newSort);
+    },
+    [sort, setSort]
+  );
 
   // Clear all filters
   const clearFilters = useCallback(() => {
@@ -142,11 +153,13 @@ export default function ResearchTab() {
                   <Text color="gray.600" fontSize="sm">
                     {filterSummary && pagination.totalCount > 0 && (
                       <>
-                        Showing {((pagination.currentPage - 1) * 20) + 1}-
-                        {Math.min(pagination.currentPage * 20, pagination.totalCount)} of {pagination.totalCount} visits
+                        Showing {(pagination.currentPage - 1) * 20 + 1}-
+                        {Math.min(pagination.currentPage * 20, pagination.totalCount)} of{' '}
+                        {pagination.totalCount} visits
                         {filterSummary.activeFilters > 0 && (
                           <Text as="span" color="blue.600" fontSize="xs" ml={1}>
-                            ({filterSummary.activeFilters} {filterSummary.activeFilters === 1 ? 'filter' : 'filters'} active)
+                            ({filterSummary.activeFilters}{' '}
+                            {filterSummary.activeFilters === 1 ? 'filter' : 'filters'} active)
                           </Text>
                         )}
                       </>
@@ -172,11 +185,7 @@ export default function ResearchTab() {
                   </Box>
                 ) : visits.length > 0 ? (
                   <>
-                    <VisitsTable
-                      visits={visits}
-                      sort={sort}
-                      onSort={handleSort}
-                    />
+                    <VisitsTable visits={visits} sort={sort} onSort={handleSort} />
                     <PaginationControls
                       currentPage={pagination.currentPage}
                       totalCount={pagination.totalCount}

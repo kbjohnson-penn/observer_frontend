@@ -1,18 +1,8 @@
-"use client";
+'use client';
 
-import React from "react";
-import {
-  Box,
-  Button,
-  Heading,
-  Text,
-  VStack,
-  Icon,
-  Link,
-  Dialog,
-  Portal,
-} from "@chakra-ui/react";
-import { FaExternalLinkAlt } from "react-icons/fa";
+import React from 'react';
+import { Box, Button, Heading, Text, VStack, Icon, Link, Dialog, Portal } from '@chakra-ui/react';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 
 interface ContactModalProps {
   trigger: React.ReactNode;
@@ -21,14 +11,11 @@ interface ContactModalProps {
 const ContactModal: React.FC<ContactModalProps> = ({ trigger }) => {
   return (
     <Dialog.Root>
-      <Dialog.Trigger asChild>
-        {trigger}
-      </Dialog.Trigger>
+      <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content bg="white" color="black">
-            
             <Dialog.Body py={6}>
               <VStack gap={5} align="stretch">
                 <Box textAlign="center">
@@ -40,7 +27,14 @@ const ContactModal: React.FC<ContactModalProps> = ({ trigger }) => {
                   </Text>
                 </Box>
 
-                <Box bg="blue.50" p={5} borderRadius="lg" textAlign="center" border="1px solid" borderColor="blue.100">
+                <Box
+                  bg="blue.50"
+                  p={5}
+                  borderRadius="lg"
+                  textAlign="center"
+                  border="1px solid"
+                  borderColor="blue.100"
+                >
                   <Text fontSize="sm" color="gray.700" mb={3} fontWeight="medium">
                     Email us at:
                   </Text>
@@ -49,7 +43,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ trigger }) => {
                     color="blue.600"
                     fontWeight="semibold"
                     fontSize="lg"
-                    _hover={{ color: "blue.800", textDecoration: "underline" }}
+                    _hover={{ color: 'blue.800', textDecoration: 'underline' }}
                     display="inline-flex"
                     alignItems="center"
                     gap={2}
@@ -83,23 +77,23 @@ const ContactModal: React.FC<ContactModalProps> = ({ trigger }) => {
                   </VStack>
                 </Box>
 
-                <Box bg="green.50" p={4} borderRadius="md" border="1px solid" borderColor="green.200">
+                <Box
+                  bg="green.50"
+                  p={4}
+                  borderRadius="md"
+                  border="1px solid"
+                  borderColor="green.200"
+                >
                   <Text fontSize="sm" color="green.800" textAlign="center" fontWeight="medium">
                     Response Time: We typically respond within 1-2 business days
                   </Text>
                 </Box>
               </VStack>
             </Dialog.Body>
-            
+
             <Dialog.Footer justifyContent="center" pt={4}>
               <Dialog.ActionTrigger asChild>
-                <Button 
-                  size="lg" 
-                  px={8}
-                  bg="blue.600"
-                  color="white"
-                  _hover={{ bg: "blue.700" }}
-                >
+                <Button size="lg" px={8} bg="blue.600" color="white" _hover={{ bg: 'blue.700' }}>
                   Close
                 </Button>
               </Dialog.ActionTrigger>

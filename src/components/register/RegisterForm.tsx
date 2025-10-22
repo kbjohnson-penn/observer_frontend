@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -13,9 +13,9 @@ import {
   Grid,
   Link as ChakraLink,
   Field,
-} from "@chakra-ui/react";
-import Image from "next/image";
-import Link from "next/link";
+} from '@chakra-ui/react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 interface RegistrationForm {
   email: string;
@@ -34,19 +34,22 @@ interface RegistrationErrors {
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState<RegistrationForm>({
-    email: "",
-    first_name: "",
-    last_name: "",
-    organization_name: "",
+    email: '',
+    first_name: '',
+    last_name: '',
+    organization_name: '',
   });
   const [errors, setErrors] = useState<RegistrationErrors>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [generalError, setGeneralError] = useState("");
+  const [successMessage, setSuccessMessage] = useState('');
+  const [generalError, setGeneralError] = useState('');
 
   // Get test domains only in development mode
   const getTestDomains = () => {
-    if (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ALLOW_TEST_EMAILS === 'true') {
+    if (
+      process.env.NODE_ENV === 'development' ||
+      process.env.NEXT_PUBLIC_ALLOW_TEST_EMAILS === 'true'
+    ) {
       return ['gmail.com', 'outlook.com', 'yahoo.com'];
     }
     return [];
@@ -54,17 +57,17 @@ export default function RegisterForm() {
 
   // Allowed email domains for registration
   const allowedDomains = [
-    'edu',           // Educational institutions
-    'ac.uk',         // UK academic institutions
-    'gov',           // Government institutions
-    'nih.gov',       // National Institutes of Health
-    'upenn.edu',     // University of Pennsylvania
-    ...getTestDomains()  // Test domains only in development
+    'edu', // Educational institutions
+    'ac.uk', // UK academic institutions
+    'gov', // Government institutions
+    'nih.gov', // National Institutes of Health
+    'upenn.edu', // University of Pennsylvania
+    ...getTestDomains(), // Test domains only in development
   ];
 
   const validateEmail = (email: string): { isValid: boolean; error?: string } => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     if (!emailRegex.test(email)) {
       return { isValid: false, error: 'Please enter a valid email address' };
     }
@@ -75,14 +78,14 @@ export default function RegisterForm() {
     }
 
     // Check if domain or any parent domain is in the whitelist
-    const isDomainAllowed = allowedDomains.some(allowedDomain => 
-      domain === allowedDomain || domain.endsWith('.' + allowedDomain)
+    const isDomainAllowed = allowedDomains.some(
+      (allowedDomain) => domain === allowedDomain || domain.endsWith('.' + allowedDomain)
     );
 
     if (!isDomainAllowed) {
-      return { 
-        isValid: false, 
-        error: 'Please use an institutional email address (.edu, .gov, .ac.uk, etc.)' 
+      return {
+        isValid: false,
+        error: 'Please use an institutional email address (.edu, .gov, .ac.uk, etc.)',
       };
     }
 
@@ -90,18 +93,18 @@ export default function RegisterForm() {
   };
 
   const handleInputChange = (field: keyof RegistrationForm, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear field-specific error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-    setGeneralError("");
-    setSuccessMessage("");
+    setGeneralError('');
+    setSuccessMessage('');
     setIsLoading(true);
 
     // Validate email before sending to backend
@@ -113,35 +116,40 @@ export default function RegisterForm() {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/register/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: 'include',
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/auth/register/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(formData),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        setSuccessMessage(data.detail || "Registration successful! Please check your email to verify your account.");
+        setSuccessMessage(
+          data.detail || 'Registration successful! Please check your email to verify your account.'
+        );
         // Clear form
         setFormData({
-          email: "",
-          first_name: "",
-          last_name: "",
-          organization_name: "",
+          email: '',
+          first_name: '',
+          last_name: '',
+          organization_name: '',
         });
       } else {
         if (data.errors) {
           setErrors(data.errors);
         } else {
-          setGeneralError(data.detail || "Registration failed. Please try again.");
+          setGeneralError(data.detail || 'Registration failed. Please try again.');
         }
       }
     } catch {
-      setGeneralError("Network error. Please check your connection and try again.");
+      setGeneralError('Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -150,7 +158,14 @@ export default function RegisterForm() {
   return (
     <Box bg="gray.50" py={10}>
       <Container maxW="xl">
-        <Card.Root bg="white" shadow="lg" borderRadius="lg" border="1px" borderColor="gray.200" color="gray.900">
+        <Card.Root
+          bg="white"
+          shadow="lg"
+          borderRadius="lg"
+          border="1px"
+          borderColor="gray.200"
+          color="gray.900"
+        >
           <Card.Header>
             <VStack gap={4}>
               <Image
@@ -170,14 +185,14 @@ export default function RegisterForm() {
               </VStack>
             </VStack>
           </Card.Header>
-          
+
           <Card.Body>
             {successMessage && (
               <VStack gap={4} mb={6}>
                 <Alert.Root status="success" borderRadius="md">
                   <Alert.Title>{successMessage}</Alert.Title>
                 </Alert.Root>
-                
+
                 <Box border="1px" borderRadius="md" p={4}>
                   <VStack align="start" gap={3}>
                     <Text fontSize="sm" fontWeight="semibold">
@@ -190,7 +205,8 @@ export default function RegisterForm() {
                       <Text>• The verification link expires in 24 hours</Text>
                     </VStack>
                     <Text fontSize="xs" mt={2}>
-                      If you don&apos;t receive the email after a few minutes, please try registering again or contact support.
+                      If you don&apos;t receive the email after a few minutes, please try
+                      registering again or contact support.
                     </Text>
                   </VStack>
                 </Box>
@@ -205,8 +221,12 @@ export default function RegisterForm() {
                       <Alert.Title>{generalError}</Alert.Title>
                     </Alert.Root>
                   )}
-                  
-                  <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4} width="100%">
+
+                  <Grid
+                    templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+                    gap={4}
+                    width="100%"
+                  >
                     <Field.Root required invalid={!!errors.first_name}>
                       <Field.Label>
                         First Name <Field.RequiredIndicator />
@@ -214,22 +234,20 @@ export default function RegisterForm() {
                       <Input
                         type="text"
                         value={formData.first_name}
-                        onChange={(e) => handleInputChange("first_name", e.target.value)}
+                        onChange={(e) => handleInputChange('first_name', e.target.value)}
                         placeholder="Enter your first name"
                         size="sm"
                         variant="outline"
                         border="1px solid"
-                        bg={"white"}
+                        bg={'white'}
                         borderColor="gray.300"
-                        color={"gray.900"}
+                        color={'gray.900'}
                         p={2}
-                        _focus={{ borderColor: "blue.500" }}
-                        _hover={{ borderColor: "gray.400" }}
-                        _placeholder={{ color: "gray.400" }}
+                        _focus={{ borderColor: 'blue.500' }}
+                        _hover={{ borderColor: 'gray.400' }}
+                        _placeholder={{ color: 'gray.400' }}
                       />
-                      <Field.ErrorText>
-                        {errors.first_name?.[0]}
-                      </Field.ErrorText>
+                      <Field.ErrorText>{errors.first_name?.[0]}</Field.ErrorText>
                     </Field.Root>
 
                     <Field.Root required invalid={!!errors.last_name}>
@@ -239,25 +257,23 @@ export default function RegisterForm() {
                       <Input
                         type="text"
                         value={formData.last_name}
-                        onChange={(e) => handleInputChange("last_name", e.target.value)}
+                        onChange={(e) => handleInputChange('last_name', e.target.value)}
                         placeholder="Enter your last name"
                         size="sm"
                         variant="outline"
                         border="1px solid"
-                        bg={"white"}
+                        bg={'white'}
                         borderColor="gray.300"
-                        color={"gray.900"}
+                        color={'gray.900'}
                         p={2}
-                        _focus={{ borderColor: "blue.500" }}
-                        _hover={{ borderColor: "gray.400" }}
-                        _placeholder={{ color: "gray.400" }}
+                        _focus={{ borderColor: 'blue.500' }}
+                        _hover={{ borderColor: 'gray.400' }}
+                        _placeholder={{ color: 'gray.400' }}
                       />
-                      <Field.ErrorText>
-                        {errors.last_name?.[0]}
-                      </Field.ErrorText>
+                      <Field.ErrorText>{errors.last_name?.[0]}</Field.ErrorText>
                     </Field.Root>
                   </Grid>
-                  
+
                   <Field.Root required invalid={!!errors.email} width="100%">
                     <Field.Label>
                       Email Address <Field.RequiredIndicator />
@@ -265,22 +281,20 @@ export default function RegisterForm() {
                     <Input
                       type="email"
                       value={formData.email}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
                       placeholder="Enter your email address"
                       size="sm"
                       variant="outline"
                       border="1px solid"
-                      bg={"white"}
+                      bg={'white'}
                       borderColor="gray.300"
-                      color={"gray.900"}
+                      color={'gray.900'}
                       p={2}
-                      _focus={{ borderColor: "blue.500" }}
-                      _hover={{ borderColor: "gray.400" }}
-                      _placeholder={{ color: "gray.400" }}
+                      _focus={{ borderColor: 'blue.500' }}
+                      _hover={{ borderColor: 'gray.400' }}
+                      _placeholder={{ color: 'gray.400' }}
                     />
-                    <Field.ErrorText>
-                      {errors.email?.[0]}
-                    </Field.ErrorText>
+                    <Field.ErrorText>{errors.email?.[0]}</Field.ErrorText>
                   </Field.Root>
 
                   <Field.Root required invalid={!!errors.organization_name} width="100%">
@@ -290,27 +304,25 @@ export default function RegisterForm() {
                     <Input
                       type="text"
                       value={formData.organization_name}
-                      onChange={(e) => handleInputChange("organization_name", e.target.value)}
+                      onChange={(e) => handleInputChange('organization_name', e.target.value)}
                       placeholder="Enter your organization"
                       size="sm"
                       variant="outline"
                       border="1px solid"
-                      bg={"white"}
+                      bg={'white'}
                       borderColor="gray.300"
-                      color={"gray.900"}
+                      color={'gray.900'}
                       p={2}
-                      _focus={{ borderColor: "blue.500" }}
-                      _hover={{ borderColor: "gray.400" }}
-                      _placeholder={{ color: "gray.400" }}
+                      _focus={{ borderColor: 'blue.500' }}
+                      _hover={{ borderColor: 'gray.400' }}
+                      _placeholder={{ color: 'gray.400' }}
                     />
-                    <Field.ErrorText>
-                      {errors.organization_name?.[0]}
-                    </Field.ErrorText>
+                    <Field.ErrorText>{errors.organization_name?.[0]}</Field.ErrorText>
                     <Field.HelperText>
                       Your institutional affiliation (university, hospital, research center, etc.)
                     </Field.HelperText>
                   </Field.Root>
-                  
+
                   <Button
                     type="submit"
                     bg="blue.600"
@@ -318,21 +330,21 @@ export default function RegisterForm() {
                     size="lg"
                     width="100%"
                     disabled={isLoading}
-                    _hover={{ bg: "blue.700" }}
-                    _disabled={{ bg: "gray.400", cursor: "not-allowed" }}
+                    _hover={{ bg: 'blue.700' }}
+                    _disabled={{ bg: 'gray.400', cursor: 'not-allowed' }}
                   >
-                    {isLoading ? "Creating Account..." : "Create Account"}
+                    {isLoading ? 'Creating Account...' : 'Create Account'}
                   </Button>
 
                   <Box textAlign="center" pt={4}>
                     <Text color="gray.600" fontSize="sm">
-                      Already have an account?{" "}
+                      Already have an account?{' '}
                       <ChakraLink
                         as={Link}
                         href="/login"
                         color="blue.600"
                         fontWeight="medium"
-                        _hover={{ color: "blue.700" }}
+                        _hover={{ color: 'blue.700' }}
                       >
                         Sign in here
                       </ChakraLink>
@@ -347,7 +359,8 @@ export default function RegisterForm() {
         {!successMessage && (
           <Box mt={6} textAlign="center">
             <Text color="gray.500" fontSize="xs">
-              By creating an account, you agree to Observer&apos;s terms of service and privacy policy.
+              By creating an account, you agree to Observer&apos;s terms of service and privacy
+              policy.
             </Text>
           </Box>
         )}

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,10 +12,10 @@ import {
   Textarea,
   VStack,
   Text,
-} from "@chakra-ui/react";
-import { Field } from "@/components/ui/field";
-import { CohortCreateRequest } from "@/interfaces/cohort";
-import { VisitSearchFilters } from "@/interfaces/research";
+} from '@chakra-ui/react';
+import { Field } from '@/components/ui/field';
+import { CohortCreateRequest } from '@/interfaces/cohort';
+import { VisitSearchFilters } from '@/interfaces/research';
 
 interface CreateCohortDialogProps {
   isOpen: boolean;
@@ -32,15 +32,15 @@ export default function CreateCohortDialog({
   filters,
   visitCount,
 }: CreateCohortDialogProps) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSave = async () => {
     // Validation
     if (!name.trim()) {
-      setError("Cohort name is required");
+      setError('Cohort name is required');
       return;
     }
 
@@ -56,11 +56,11 @@ export default function CreateCohortDialog({
       });
 
       // Reset form
-      setName("");
-      setDescription("");
+      setName('');
+      setDescription('');
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create cohort");
+      setError(err instanceof Error ? err.message : 'Failed to create cohort');
     } finally {
       setLoading(false);
     }
@@ -68,8 +68,8 @@ export default function CreateCohortDialog({
 
   const handleClose = () => {
     if (!loading) {
-      setName("");
-      setDescription("");
+      setName('');
+      setDescription('');
       setError(null);
       onClose();
     }
@@ -88,7 +88,8 @@ export default function CreateCohortDialog({
             <VStack gap={4} align="stretch">
               {/* Visit Count Info */}
               <Text fontSize="sm" color="gray.600">
-                This cohort will include <strong>{visitCount.toLocaleString()}</strong> visits based on your current filters.
+                This cohort will include <strong>{visitCount.toLocaleString()}</strong> visits based
+                on your current filters.
               </Text>
 
               {/* Name Field */}

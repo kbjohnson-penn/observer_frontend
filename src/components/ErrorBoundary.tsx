@@ -29,7 +29,7 @@ const DefaultErrorFallback: React.FC<FallbackProps> = ({ error, resetErrorBounda
         <Box color="red.500" fontSize="3xl">
           <FaExclamationTriangle />
         </Box>
-        
+
         <Box>
           <Heading size="md" color="red.600" mb={2}>
             Something went wrong
@@ -37,7 +37,7 @@ const DefaultErrorFallback: React.FC<FallbackProps> = ({ error, resetErrorBounda
           <Text color="gray.600" fontSize="sm" mb={4}>
             An unexpected error occurred while loading this component.
           </Text>
-          
+
           {process.env.NODE_ENV === 'development' && error && (
             <Box
               bg="red.50"
@@ -54,13 +54,8 @@ const DefaultErrorFallback: React.FC<FallbackProps> = ({ error, resetErrorBounda
             </Box>
           )}
         </Box>
-        
-        <Button
-          size="sm"
-          colorScheme="blue"
-          variant="outline"
-          onClick={resetErrorBoundary}
-        >
+
+        <Button size="sm" colorScheme="blue" variant="outline" onClick={resetErrorBoundary}>
           <FaRedo style={{ marginRight: '8px' }} />
           Try Again
         </Button>
@@ -70,14 +65,14 @@ const DefaultErrorFallback: React.FC<FallbackProps> = ({ error, resetErrorBounda
 };
 
 // Modern functional error boundary wrapper
-const ErrorBoundary: React.FC<ErrorBoundaryProps> = ({ 
-  children, 
+const ErrorBoundary: React.FC<ErrorBoundaryProps> = ({
+  children,
   fallback: FallbackComponent = DefaultErrorFallback,
-  onError 
+  onError,
 }) => {
   const handleError = (error: Error, errorInfo: ErrorInfo) => {
     // Error caught by boundary - could send to error reporting service
-    
+
     // Call custom error handler if provided
     if (onError) {
       onError(error, errorInfo);

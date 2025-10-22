@@ -13,7 +13,7 @@ jest.mock('@/contexts/AuthContext', () => ({
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -94,7 +94,9 @@ describe('UsernameSettings', () => {
       render(<UsernameSettings />, { wrapper: TestWrapper });
 
       const user = userEvent.setup();
-      const newUsernameInput = screen.getByPlaceholderText('Enter your new username') as HTMLInputElement;
+      const newUsernameInput = screen.getByPlaceholderText(
+        'Enter your new username'
+      ) as HTMLInputElement;
 
       await user.clear(newUsernameInput);
       await user.type(newUsernameInput, 'newusername');
@@ -170,11 +172,18 @@ describe('UsernameSettings', () => {
     });
 
     it('should show loading state during submission', async () => {
-      (global.fetch as jest.Mock).mockImplementation(() =>
-        new Promise(resolve => setTimeout(() => resolve({
-          ok: true,
-          json: async () => ({}),
-        }), 100))
+      (global.fetch as jest.Mock).mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(
+              () =>
+                resolve({
+                  ok: true,
+                  json: async () => ({}),
+                }),
+              100
+            )
+          )
       );
 
       render(<UsernameSettings />, { wrapper: TestWrapper });
@@ -276,7 +285,9 @@ describe('UsernameSettings', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('An error occurred while updating your username')).toBeInTheDocument();
+        expect(
+          screen.getByText('An error occurred while updating your username')
+        ).toBeInTheDocument();
       });
     });
 

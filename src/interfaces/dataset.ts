@@ -35,7 +35,7 @@ export enum FileType {
   PATIENT_VIEW = 'patient_view',
   PROVIDER_VIEW = 'provider_view',
   ROOM_VIEW = 'room_view',
-  TRANSCRIPT = 'transcript'
+  TRANSCRIPT = 'transcript',
 }
 
 // Citation Modal Props

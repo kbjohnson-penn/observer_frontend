@@ -1,18 +1,8 @@
-"use client";
+'use client';
 
-import React from "react";
-import {
-  Box,
-  Button,
-  Heading,
-  Text,
-  VStack,
-  Icon,
-  Link,
-  Dialog,
-  Portal,
-} from "@chakra-ui/react";
-import { FaExternalLinkAlt } from "react-icons/fa";
+import React from 'react';
+import { Box, Button, Heading, Text, VStack, Icon, Link, Dialog, Portal } from '@chakra-ui/react';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 
 interface AnnouncementsModalProps {
   trigger: React.ReactNode;
@@ -20,23 +10,17 @@ interface AnnouncementsModalProps {
   onClose?: () => void;
 }
 
-const AnnouncementsModal: React.FC<AnnouncementsModalProps> = ({ 
-  trigger, 
-  isOpen, 
-  onClose 
-}) => {
+const AnnouncementsModal: React.FC<AnnouncementsModalProps> = ({ trigger, isOpen, onClose }) => {
   return (
-    <Dialog.Root 
-      open={isOpen} 
+    <Dialog.Root
+      open={isOpen}
       onOpenChange={(details) => {
         if (!details.open && onClose) {
           onClose();
         }
       }}
     >
-      <Dialog.Trigger asChild>
-        {trigger}
-      </Dialog.Trigger>
+      <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
@@ -48,11 +32,20 @@ const AnnouncementsModal: React.FC<AnnouncementsModalProps> = ({
                     Observer Pilot Awards - $100K Available
                   </Heading>
                   <Text color="gray.600" fontSize="md" lineHeight="1.6">
-                    Five grants of $20,000 each supporting interdisciplinary projects using the Observer Repository. Applications from faculty, postdocs, and research teams welcome.
+                    Five grants of $20,000 each supporting interdisciplinary projects using the
+                    Observer Repository. Applications from faculty, postdocs, and research teams
+                    welcome.
                   </Text>
                 </Box>
 
-                <Box bg="blue.50" p={5} borderRadius="lg" textAlign="center" border="1px solid" borderColor="blue.100">
+                <Box
+                  bg="blue.50"
+                  p={5}
+                  borderRadius="lg"
+                  textAlign="center"
+                  border="1px solid"
+                  borderColor="blue.100"
+                >
                   <Text fontSize="sm" color="gray.700" mb={3} fontWeight="medium">
                     Ready to apply?
                   </Text>
@@ -61,7 +54,7 @@ const AnnouncementsModal: React.FC<AnnouncementsModalProps> = ({
                     color="blue.600"
                     fontWeight="semibold"
                     fontSize="lg"
-                    _hover={{ color: "blue.800", textDecoration: "underline" }}
+                    _hover={{ color: 'blue.800', textDecoration: 'underline' }}
                     display="inline-flex"
                     alignItems="center"
                     gap={2}
@@ -97,7 +90,13 @@ const AnnouncementsModal: React.FC<AnnouncementsModalProps> = ({
                   </VStack>
                 </Box>
 
-                <Box bg="green.50" p={4} borderRadius="md" border="1px solid" borderColor="green.200">
+                <Box
+                  bg="green.50"
+                  p={4}
+                  borderRadius="md"
+                  border="1px solid"
+                  borderColor="green.200"
+                >
                   <Text fontSize="sm" color="green.800" textAlign="center" fontWeight="medium">
                     Application Deadline: August 29, 2025
                   </Text>
@@ -106,13 +105,7 @@ const AnnouncementsModal: React.FC<AnnouncementsModalProps> = ({
             </Dialog.Body>
             <Dialog.Footer justifyContent="center" pt={4}>
               <Dialog.ActionTrigger asChild>
-                <Button 
-                  size="lg" 
-                  px={8}
-                  bg="blue.600"
-                  color="white"
-                  _hover={{ bg: "blue.700" }}
-                >
+                <Button size="lg" px={8} bg="blue.600" color="white" _hover={{ bg: 'blue.700' }}>
                   Close
                 </Button>
               </Dialog.ActionTrigger>

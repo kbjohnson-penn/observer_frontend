@@ -1,14 +1,7 @@
 'use client';
 
 import React from 'react';
-import {
-  Box,
-  Flex,
-  Heading,
-  Text,
-  IconButton,
-  Collapsible
-} from '@chakra-ui/react';
+import { Box, Flex, Heading, Text, IconButton, Collapsible } from '@chakra-ui/react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import COLORS from '@/constants/colors';
 
@@ -25,15 +18,10 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   subtitle,
   isOpen,
   onToggle,
-  children
+  children,
 }) => {
   return (
-    <Box 
-      bg="white" 
-      borderRadius="lg" 
-      boxShadow="sm" 
-      overflow="hidden"
-    >
+    <Box bg="white" borderRadius="lg" boxShadow="sm" overflow="hidden">
       <Flex
         p={4}
         bg={COLORS.ui.activeBg}
@@ -53,7 +41,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
           )}
         </Box>
         <IconButton
-          aria-label={isOpen ? "Collapse" : "Expand"}
+          aria-label={isOpen ? 'Collapse' : 'Expand'}
           size="sm"
           variant="ghost"
           colorScheme={COLORS.ui.buttonScheme}
@@ -62,9 +50,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         </IconButton>
       </Flex>
       <Collapsible.Root open={isOpen}>
-        <Collapsible.Content>
-          {children}
-        </Collapsible.Content>
+        <Collapsible.Content>{children}</Collapsible.Content>
       </Collapsible.Root>
     </Box>
   );

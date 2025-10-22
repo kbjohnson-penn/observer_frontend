@@ -1,21 +1,18 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Box, Flex } from "@chakra-ui/react";
-import { MultiValue, SingleValue } from "react-select";
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Box, Flex } from '@chakra-ui/react';
+import { MultiValue, SingleValue } from 'react-select';
 
-import FilterPanel from "./FilterPanel";
-import ChartsDashboard from "./ChartsDashboard";
+import FilterPanel from './FilterPanel';
+import ChartsDashboard from './ChartsDashboard';
 
-import { PublicDepartmentDataType } from "@/interfaces/department";
-import { PublicPatientDataType } from "@/interfaces/patient";
-import { PublicProviderDataType } from "@/interfaces/provider";
-import { PublicMultiModalDataType } from "@/interfaces/mmd";
-import {
-  PublicEncounterDataType,
-  CombinedDataType,
-} from "@/interfaces/encounter";
-import { DropDownOption } from "@/interfaces/interfaces";
+import { PublicDepartmentDataType } from '@/interfaces/department';
+import { PublicPatientDataType } from '@/interfaces/patient';
+import { PublicProviderDataType } from '@/interfaces/provider';
+import { PublicMultiModalDataType } from '@/interfaces/mmd';
+import { PublicEncounterDataType, CombinedDataType } from '@/interfaces/encounter';
+import { DropDownOption } from '@/interfaces/interfaces';
 
 import {
   getSummaryStats,
@@ -26,7 +23,7 @@ import {
   getSatisfactionData,
   compileData,
   downloadData,
-} from "@/lib/utils/utils";
+} from '@/lib/utils/utils';
 
 // Define interfaces for state and props
 interface PlayGroundProps {
@@ -71,22 +68,12 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   });
 
   // Destructure filter state for easier access
-  const {
-    selectedSources,
-    isDeidentified,
-    isDatePickerEnabled,
-    startDate,
-    endDate,
-  } = filterState;
+  const { selectedSources, isDeidentified, isDatePickerEnabled, startDate, endDate } = filterState;
 
   // Data state
-  const [summaryStats, setSummaryStats] = useState<{ [key: string]: number }>(
-    {}
-  );
-  const [filteredEncounterData, setFilteredEncounterData] = useState<
-    PublicEncounterDataType[]
-  >([]);
-  const [exportFormat, setExportFormat] = useState<string>("");
+  const [summaryStats, setSummaryStats] = useState<{ [key: string]: number }>({});
+  const [filteredEncounterData, setFilteredEncounterData] = useState<PublicEncounterDataType[]>([]);
+  const [exportFormat, setExportFormat] = useState<string>('');
   const [exportData, setExportData] = useState<CombinedDataType[]>([]);
   const [screenWidth, setScreenWidth] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -103,22 +90,20 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   );
 
   const encountersByEthnicGroups = useMemo(
-    () =>
-      getEncountersByEthnicGroups(filteredEncounterData, patients, providers),
+    () => getEncountersByEthnicGroups(filteredEncounterData, patients, providers),
     [filteredEncounterData, patients, providers]
   );
 
   const encountersByRacialGroups = useMemo(
-    () =>
-      getEncountersByRacialGroups(filteredEncounterData, patients, providers),
+    () => getEncountersByRacialGroups(filteredEncounterData, patients, providers),
     [filteredEncounterData, patients, providers]
   );
 
   const satisfactionData = useMemo(() => {
     const encountersWithSatisfaction = filteredEncounterData.filter(
       (encounter) =>
-        typeof encounter.patient_satisfaction !== "undefined" &&
-        typeof encounter.provider_satisfaction !== "undefined"
+        typeof encounter.patient_satisfaction !== 'undefined' &&
+        typeof encounter.provider_satisfaction !== 'undefined'
     );
     return getSatisfactionData(encountersWithSatisfaction);
   }, [filteredEncounterData]);
@@ -134,15 +119,12 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   }, []);
 
   // Event handlers with proper typing
-  const handleSourceChange = useCallback(
-    (selectedOptions: MultiValue<DropDownOption> | null) => {
-      setFilterState((prev) => ({
-        ...prev,
-        selectedSources: selectedOptions ? Array.from(selectedOptions) : [],
-      }));
-    },
-    []
-  );
+  const handleSourceChange = useCallback((selectedOptions: MultiValue<DropDownOption> | null) => {
+    setFilterState((prev) => ({
+      ...prev,
+      selectedSources: selectedOptions ? Array.from(selectedOptions) : [],
+    }));
+  }, []);
 
   const handleIsDeidentifiedChange = useCallback(
     (selectedOption: SingleValue<{ value: boolean | null; label: string }>) => {
@@ -168,14 +150,11 @@ const PlayGround: React.FC<PlayGroundProps> = ({
     }));
   }, []);
 
-  const handleFormatChange = useCallback(
-    (selectedOption: SingleValue<DropDownOption>) => {
-      if (selectedOption) {
-        setExportFormat(selectedOption.value);
-      }
-    },
-    []
-  );
+  const handleFormatChange = useCallback((selectedOption: SingleValue<DropDownOption>) => {
+    if (selectedOption) {
+      setExportFormat(selectedOption.value);
+    }
+  }, []);
 
   const handleExportClick = useCallback(() => {
     if (exportFormat) {
@@ -192,15 +171,15 @@ const PlayGround: React.FC<PlayGroundProps> = ({
 
   // Handle screen width for responsive design
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       const handleResize = () => {
         setScreenWidth(window.innerWidth);
       };
 
       setScreenWidth(window.innerWidth);
-      window.addEventListener("resize", handleResize);
+      window.addEventListener('resize', handleResize);
 
-      return () => window.removeEventListener("resize", handleResize);
+      return () => window.removeEventListener('resize', handleResize);
     }
   }, []);
 
@@ -224,14 +203,11 @@ const PlayGround: React.FC<PlayGroundProps> = ({
           // Source filter check
           const sourceFilterPassed =
             selectedSources.length === 0 ||
-            selectedSources.some(
-              (source) => source.value === encounter.encounter_source
-            );
+            selectedSources.some((source) => source.value === encounter.encounter_source);
 
           // De-identified filter check
           const deidentifiedFilterPassed =
-            isDeidentified === null ||
-            encounter.is_deidentified === isDeidentified;
+            isDeidentified === null || encounter.is_deidentified === isDeidentified;
 
           // Date filter check
           let dateFilterPassed = true;
@@ -260,9 +236,7 @@ const PlayGround: React.FC<PlayGroundProps> = ({
           }
 
           // Return true only if all filters pass
-          return (
-            sourceFilterPassed && deidentifiedFilterPassed && dateFilterPassed
-          );
+          return sourceFilterPassed && deidentifiedFilterPassed && dateFilterPassed;
         });
 
         setFilteredEncounterData(updatedEncounterData);
@@ -292,35 +266,18 @@ const PlayGround: React.FC<PlayGroundProps> = ({
   useEffect(() => {
     if (exportFormat) {
       setExportData(
-        compileData(
-          filteredEncounterData,
-          patients,
-          providers,
-          multiModalData,
-          exportFormat
-        )
+        compileData(filteredEncounterData, patients, providers, multiModalData, exportFormat)
       );
     }
-  }, [
-    filteredEncounterData,
-    exportFormat,
-    patients,
-    providers,
-    multiModalData,
-  ]);
+  }, [filteredEncounterData, exportFormat, patients, providers, multiModalData]);
 
   // Loading state to prevent UI blocking during filtering
   const isFiltering = isLoading;
 
   return (
-    <Box
-      className="dashboard-content"
-      bg="gray.50"
-      borderRadius="xl"
-      overflow="hidden"
-    >
+    <Box className="dashboard-content" bg="gray.50" borderRadius="xl" overflow="hidden">
       {/* Dashboard Layout with Sidebar and Main Content */}
-      <Flex direction={{ base: "column", lg: "row" }}>
+      <Flex direction={{ base: 'column', lg: 'row' }}>
         {/* Filters Sidebar */}
         <FilterPanel
           selectedSources={selectedSources}

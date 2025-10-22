@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Card, VStack, Text, Button } from "@chakra-ui/react";
+import React from 'react';
+import { Card, VStack, Text, Button } from '@chakra-ui/react';
 
 interface EmptyStateProps {
   onNavigateToResearch?: () => void;
@@ -19,12 +19,7 @@ export default function EmptyState({ onNavigateToResearch }: EmptyStateProps) {
             Use the Research Data tab to create filters and save them as cohorts for future analysis
           </Text>
           {onNavigateToResearch && (
-            <Button
-              colorScheme="blue"
-              variant="outline"
-              onClick={onNavigateToResearch}
-              mt={2}
-            >
+            <Button colorScheme="blue" variant="outline" onClick={onNavigateToResearch} mt={2}>
               Go to Research Data
             </Button>
           )}

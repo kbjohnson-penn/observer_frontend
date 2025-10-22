@@ -1,12 +1,7 @@
-"use client";
+'use client';
 
-import React from "react";
-import {
-  Dialog,
-  Button,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import React from 'react';
+import { Dialog, Button, Text, VStack } from '@chakra-ui/react';
 
 interface ConfirmDeleteDialogProps {
   isOpen: boolean;
@@ -35,11 +30,12 @@ export default function ConfirmDeleteDialog({
           <Dialog.Body>
             <VStack gap={3} align="start">
               <Text>
-                Are you sure you want to delete the cohort{" "}
+                Are you sure you want to delete the cohort{' '}
                 <strong>&ldquo;{cohortName}&rdquo;</strong>?
               </Text>
               <Text fontSize="sm" color="gray.600">
-                This action cannot be undone. All saved filters and settings will be permanently removed.
+                This action cannot be undone. All saved filters and settings will be permanently
+                removed.
               </Text>
             </VStack>
           </Dialog.Body>
@@ -48,12 +44,7 @@ export default function ConfirmDeleteDialog({
             <Button variant="outline" onClick={onCancel} disabled={loading}>
               Cancel
             </Button>
-            <Button
-              colorScheme="red"
-              onClick={onConfirm}
-              loading={loading}
-              disabled={loading}
-            >
+            <Button colorScheme="red" onClick={onConfirm} loading={loading} disabled={loading}>
               Delete Cohort
             </Button>
           </Dialog.Footer>

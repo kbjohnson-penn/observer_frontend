@@ -1,18 +1,11 @@
-"use client";
+'use client';
 
-import React, { useMemo } from "react";
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Table,
-  Badge,
-} from "@chakra-ui/react";
-import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
-import { VisitSearchResult } from "@/interfaces/research";
-import { VisitSearchSort } from "@/interfaces/research";
-import { expandDemographic } from "@/lib/utils/utils";
+import React, { useMemo } from 'react';
+import { Box, VStack, HStack, Text, Table, Badge } from '@chakra-ui/react';
+import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
+import { VisitSearchResult } from '@/interfaces/research';
+import { VisitSearchSort } from '@/interfaces/research';
+import { expandDemographic } from '@/lib/utils/utils';
 
 interface VisitsTableProps {
   visits: VisitSearchResult[];
@@ -24,32 +17,34 @@ interface VisitsTableProps {
 const VisitRow = React.memo(({ visit }: { visit: VisitSearchResult }) => {
   // Memoize expanded demographic labels
   const patientGenderLabel = useMemo(
-    () => visit.patient_gender ? expandDemographic(visit.patient_gender, 'gender') : null,
+    () => (visit.patient_gender ? expandDemographic(visit.patient_gender, 'gender') : null),
     [visit.patient_gender]
   );
 
   const patientRaceLabel = useMemo(
-    () => visit.patient_race ? expandDemographic(visit.patient_race, 'race') : null,
+    () => (visit.patient_race ? expandDemographic(visit.patient_race, 'race') : null),
     [visit.patient_race]
   );
 
   const patientEthnicityLabel = useMemo(
-    () => visit.patient_ethnicity ? expandDemographic(visit.patient_ethnicity, 'ethnicity') : null,
+    () =>
+      visit.patient_ethnicity ? expandDemographic(visit.patient_ethnicity, 'ethnicity') : null,
     [visit.patient_ethnicity]
   );
 
   const providerGenderLabel = useMemo(
-    () => visit.provider_gender ? expandDemographic(visit.provider_gender, 'gender') : null,
+    () => (visit.provider_gender ? expandDemographic(visit.provider_gender, 'gender') : null),
     [visit.provider_gender]
   );
 
   const providerRaceLabel = useMemo(
-    () => visit.provider_race ? expandDemographic(visit.provider_race, 'race') : null,
+    () => (visit.provider_race ? expandDemographic(visit.provider_race, 'race') : null),
     [visit.provider_race]
   );
 
   const providerEthnicityLabel = useMemo(
-    () => visit.provider_ethnicity ? expandDemographic(visit.provider_ethnicity, 'ethnicity') : null,
+    () =>
+      visit.provider_ethnicity ? expandDemographic(visit.provider_ethnicity, 'ethnicity') : null,
     [visit.provider_ethnicity]
   );
 
@@ -76,9 +71,7 @@ const VisitRow = React.memo(({ visit }: { visit: VisitSearchResult }) => {
       <Table.Cell>
         <Badge
           size="sm"
-          colorScheme={
-            visit.tier === 1 ? "green" : visit.tier === 2 ? "yellow" : "red"
-          }
+          colorScheme={visit.tier === 1 ? 'green' : visit.tier === 2 ? 'yellow' : 'red'}
         >
           Tier {visit.tier}
         </Badge>
@@ -146,15 +139,17 @@ const VisitRow = React.memo(({ visit }: { visit: VisitSearchResult }) => {
 VisitRow.displayName = 'VisitRow';
 
 // Sort icon component
-function SortIcon({ field, currentSort }: { field: VisitSearchSort['field']; currentSort: VisitSearchSort }) {
+function SortIcon({
+  field,
+  currentSort,
+}: {
+  field: VisitSearchSort['field'];
+  currentSort: VisitSearchSort;
+}) {
   if (currentSort.field !== field) {
     return <FaSort color="gray" />;
   }
-  return currentSort.direction === 'asc' ? (
-    <FaSortUp color="blue" />
-  ) : (
-    <FaSortDown color="blue" />
-  );
+  return currentSort.direction === 'asc' ? <FaSortUp color="blue" /> : <FaSortDown color="blue" />;
 }
 
 // Sortable header component
@@ -174,7 +169,7 @@ function SortableHeader({
       <HStack
         cursor="pointer"
         onClick={() => onSort(field)}
-        _hover={{ bg: "gray.100" }}
+        _hover={{ bg: 'gray.100' }}
         p={2}
         borderRadius="md"
         whiteSpace="nowrap"
@@ -196,12 +191,7 @@ export default function VisitsTable({ visits, sort, onSort }: VisitsTableProps) 
       <Table.Root size="sm" variant="outline">
         <Table.Header bg="gray.50">
           <Table.Row>
-            <SortableHeader
-              field="id"
-              label="Visit ID"
-              currentSort={sort}
-              onSort={onSort}
-            />
+            <SortableHeader field="id" label="Visit ID" currentSort={sort} onSort={onSort} />
             <SortableHeader
               field="visit_start_date"
               label="Visit Date"
@@ -214,12 +204,7 @@ export default function VisitsTable({ visits, sort, onSort }: VisitsTableProps) 
               currentSort={sort}
               onSort={onSort}
             />
-            <SortableHeader
-              field="tier_id"
-              label="Tier"
-              currentSort={sort}
-              onSort={onSort}
-            />
+            <SortableHeader field="tier_id" label="Tier" currentSort={sort} onSort={onSort} />
             <Table.ColumnHeader>Person Demographics</Table.ColumnHeader>
             <Table.ColumnHeader>Provider Demographics</Table.ColumnHeader>
           </Table.Row>

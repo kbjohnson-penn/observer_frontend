@@ -1,12 +1,6 @@
-import React, { type JSX } from "react";
+import React, { type JSX } from 'react';
 
-const Step = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) => (
+const Step = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div>
     <h2 className="text-xl font-semibold mt-6 mb-3 text-blue-800">{title}</h2>
     <div>{children}</div>
@@ -36,30 +30,23 @@ const Documentation: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="bg-white p-6 rounded shadow">
           <div className="p-8">
-            <h1
-              style={{ color: "#950019" }}
-              className="text-3xl font-bold mb-4 text-center"
-            >
+            <h1 style={{ color: '#950019' }} className="text-3xl font-bold mb-4 text-center">
               Observer Backend Documentation
             </h1>
             <p className="mb-4">
-              This guide provides detailed instructions on how to use the
-              Observer backend to manage data entries through the Django Admin
-              interface. The Observer backend is a web-based application
-              designed to store and manage data related to patient encounters,
-              including patient information, provider details, and multimodal
-              data paths. The backend allows users to create, edit, and delete
-              entries for each of these data types, as well as view and search
-              for existing records. This documentation outlines the steps
-              required to log in to the Observer backend, fill out the necessary
-              forms, review and submit the data, and log out securely.
+              This guide provides detailed instructions on how to use the Observer backend to manage
+              data entries through the Django Admin interface. The Observer backend is a web-based
+              application designed to store and manage data related to patient encounters, including
+              patient information, provider details, and multimodal data paths. The backend allows
+              users to create, edit, and delete entries for each of these data types, as well as
+              view and search for existing records. This documentation outlines the steps required
+              to log in to the Observer backend, fill out the necessary forms, review and submit the
+              data, and log out securely.
             </p>
             <Step title="Step 1: Log In to the Observer Backend">
               <ul className="list-disc ml-8 mb-4">
                 <li>Open your web browser and navigate to the login page.</li>
-                <li>
-                  Enter your username and password in the respective fields.
-                </li>
+                <li>Enter your username and password in the respective fields.</li>
                 {/* <li>Click the login button to access the dashboard.</li> */}
                 <li>Navigate to the dashboard to access admin features.</li>
               </ul>
@@ -70,18 +57,15 @@ const Documentation: React.FC = () => {
                 title="2.1 Encounter Source Form"
                 instructions={
                   <>
-                    <li>
-                      Navigate to the Encounter Source section in the admin
-                      panel.
-                    </li>
+                    <li>Navigate to the Encounter Source section in the admin panel.</li>
                     <li>Click on “Add Encounter Source” or “+Add”.</li>
                   </>
                 }
                 fields={
                   <>
                     <li>
-                      <strong>Name:</strong> Enter a unique name for the
-                      encounter source. This field is mandatory.
+                      <strong>Name:</strong> Enter a unique name for the encounter source. This
+                      field is mandatory.
                     </li>
                   </>
                 }
@@ -97,8 +81,8 @@ const Documentation: React.FC = () => {
                 fields={
                   <>
                     <li>
-                      <strong>Name:</strong> Enter a unique name for the
-                      department. This field is mandatory.
+                      <strong>Name:</strong> Enter a unique name for the department. This field is
+                      mandatory.
                     </li>
                   </>
                 }
@@ -114,8 +98,7 @@ const Documentation: React.FC = () => {
                 fields={
                   <>
                     <li>
-                      <strong>Patient ID:</strong> Mandatory, unique identifier
-                      for the patient.
+                      <strong>Patient ID:</strong> Mandatory, unique identifier for the patient.
                     </li>
                     <li>
                       <strong>First Name:</strong> Optional.
@@ -124,20 +107,17 @@ const Documentation: React.FC = () => {
                       <strong>Last Name:</strong> Optional.
                     </li>
                     <li>
-                      <strong>Date of Birth:</strong> Optional. Use a date
-                      picker if available.
+                      <strong>Date of Birth:</strong> Optional. Use a date picker if available.
                     </li>
                     <li>
-                      <strong>Sex:</strong> Optional. Select from predefined
-                      choices if available.
+                      <strong>Sex:</strong> Optional. Select from predefined choices if available.
                     </li>
                     <li>
-                      <strong>Race:</strong> Optional. Select from predefined
-                      choices if available.
+                      <strong>Race:</strong> Optional. Select from predefined choices if available.
                     </li>
                     <li>
-                      <strong>Ethnicity:</strong> Optional. Select from
-                      predefined choices if available.
+                      <strong>Ethnicity:</strong> Optional. Select from predefined choices if
+                      available.
                     </li>
                   </>
                 }
@@ -153,8 +133,7 @@ const Documentation: React.FC = () => {
                 fields={
                   <>
                     <li>
-                      <strong>Provider ID:</strong> Mandatory, unique identifier
-                      for the provider.
+                      <strong>Provider ID:</strong> Mandatory, unique identifier for the provider.
                     </li>
                     <li>
                       <strong>First Name:</strong> Optional.
@@ -166,16 +145,14 @@ const Documentation: React.FC = () => {
                       <strong>Date of Birth:</strong> Optional.
                     </li>
                     <li>
-                      <strong>Sex:</strong> Optional. Select from predefined
-                      choices if available.
+                      <strong>Sex:</strong> Optional. Select from predefined choices if available.
                     </li>
                     <li>
-                      <strong>Race:</strong> Optional. Select from predefined
-                      choices if available.
+                      <strong>Race:</strong> Optional. Select from predefined choices if available.
                     </li>
                     <li>
-                      <strong>Ethnicity:</strong> Optional. Select from
-                      predefined choices if available.
+                      <strong>Ethnicity:</strong> Optional. Select from predefined choices if
+                      available.
                     </li>
                   </>
                 }
@@ -191,8 +168,8 @@ const Documentation: React.FC = () => {
                 fields={
                   <>
                     <li>
-                      <strong>Multi Modal Data ID:</strong> Mandatory, unique
-                      identifier for the multimodal data path.
+                      <strong>Multi Modal Data ID:</strong> Mandatory, unique identifier for the
+                      multimodal data path.
                     </li>
                     <li>
                       <strong>Provider View:</strong> Optional, URL field.
@@ -235,16 +212,13 @@ const Documentation: React.FC = () => {
                 fields={
                   <>
                     <li>
-                      <strong>Case ID:</strong> Mandatory, unique identifier for
-                      the encounter.
+                      <strong>Case ID:</strong> Mandatory, unique identifier for the encounter.
                     </li>
                     <li>
-                      <strong>Encounter Source:</strong> Select from a list.
-                      Mandatory.
+                      <strong>Encounter Source:</strong> Select from a list. Mandatory.
                     </li>
                     <li>
-                      <strong>Department:</strong> Select from a list.
-                      Mandatory.
+                      <strong>Department:</strong> Select from a list. Mandatory.
                     </li>
                     <li>
                       <strong>Provider:</strong> Select from a list. Mandatory.
@@ -253,28 +227,24 @@ const Documentation: React.FC = () => {
                       <strong>Patient:</strong> Select from a list. Mandatory.
                     </li>
                     <li>
-                      <strong>Multi Modal Data:</strong> Select from a list.
-                      Mandatory.
+                      <strong>Multi Modal Data:</strong> Select from a list. Mandatory.
                     </li>
                     <li>
-                      <strong>Encounter Date and Time:</strong> Mandatory, date
-                      and time field.
+                      <strong>Encounter Date and Time:</strong> Mandatory, date and time field.
                     </li>
                     <li>
-                      <strong>Provider Satisfaction:</strong> Optional, default
-                      0. Numeric field with range validation.
+                      <strong>Provider Satisfaction:</strong> Optional, default 0. Numeric field
+                      with range validation.
                     </li>
                     <li>
-                      <strong>Patient Satisfaction:</strong> Optional, default
-                      0. Numeric field with range validation.
+                      <strong>Patient Satisfaction:</strong> Optional, default 0. Numeric field with
+                      range validation.
                     </li>
                     <li>
-                      <strong>Is Deidentified:</strong> Boolean, pre-selected as
-                      False.
+                      <strong>Is Deidentified:</strong> Boolean, pre-selected as False.
                     </li>
                     <li>
-                      <strong>Is Restricted:</strong> Boolean, pre-selected as
-                      True.
+                      <strong>Is Restricted:</strong> Boolean, pre-selected as True.
                     </li>
                   </>
                 }
@@ -282,13 +252,12 @@ const Documentation: React.FC = () => {
             </Step>
 
             <Step title="Step 3: Review and Submit">
-              Review the information to ensure accuracy and completeness before
-              saving each form.
+              Review the information to ensure accuracy and completeness before saving each form.
             </Step>
 
             <Step title="Step 4: Logout">
-              After completing all form entries, securely log out of the admin
-              interface to protect your data and access credentials.
+              After completing all form entries, securely log out of the admin interface to protect
+              your data and access credentials.
             </Step>
           </div>
         </div>

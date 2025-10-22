@@ -60,13 +60,10 @@ describe('useVisitSearch', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(mockApiClient.post).toHaveBeenCalledWith(
-      '/research/private/visits-search/?page=1',
-      {
-        filters: {},
-        sort: { field: 'id', direction: 'asc' },
-      }
-    );
+    expect(mockApiClient.post).toHaveBeenCalledWith('/research/private/visits-search/?page=1', {
+      filters: {},
+      sort: { field: 'id', direction: 'asc' },
+    });
 
     expect(result.current.results).toEqual(mockResponse.results);
     expect(result.current.pagination.totalCount).toBe(100);

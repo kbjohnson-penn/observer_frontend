@@ -1,16 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Heading,
-  Text,
-  Flex,
-  Badge,
-  Spinner,
-  Input,
-  Button
-} from '@chakra-ui/react';
+import { Box, Heading, Text, Flex, Badge, Spinner, Input, Button } from '@chakra-ui/react';
 import { FaSearch, FaDownload } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import { COLORS } from '@/constants/colors';
@@ -27,9 +18,7 @@ interface TranscriptViewerProps {
   transcriptSrc?: string;
 }
 
-const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
-  transcriptSrc
-}) => {
+const TranscriptViewer: React.FC<TranscriptViewerProps> = ({ transcriptSrc }) => {
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,24 +44,28 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
 
         const arrayBuffer = await response.arrayBuffer();
         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-        
+
         // Get the first worksheet
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        
+
         // Convert to JSON
         const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
-        
+
         // Find header row (looking for common column names)
         let headerRowIndex = -1;
         const possibleHeaders = ['timestamp', 'speaker', 'transcript', 'affect', 'proficiency'];
-        
+
         for (let i = 0; i < Math.min(data.length, 5); i++) {
           const row = data[i];
-          if (row && row.some(cell => 
-            typeof cell === 'string' && 
-            possibleHeaders.some(header => cell.toLowerCase().includes(header))
-          )) {
+          if (
+            row &&
+            row.some(
+              (cell) =>
+                typeof cell === 'string' &&
+                possibleHeaders.some((header) => cell.toLowerCase().includes(header))
+            )
+          ) {
             headerRowIndex = i;
             break;
           }
@@ -83,29 +76,34 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
           headerRowIndex = 0;
         }
 
-        const headers = data[headerRowIndex].map(h => h?.toString().toLowerCase() || '');
-        
+        const headers = data[headerRowIndex].map((h) => h?.toString().toLowerCase() || '');
+
         // Map column indices
         const colMap = {
-          timestamp: headers.findIndex(h => h.includes('timestamp') || h.includes('time')),
-          speaker: headers.findIndex(h => h.includes('speaker') || h.includes('role')),
-          transcript: headers.findIndex(h => h.includes('transcript') || h.includes('text')),
-          affect: headers.findIndex(h => h.includes('affect') || h.includes('emotion')),
-          proficiency: headers.findIndex(h => h.includes('proficiency') || h.includes('skill'))
+          timestamp: headers.findIndex((h) => h.includes('timestamp') || h.includes('time')),
+          speaker: headers.findIndex((h) => h.includes('speaker') || h.includes('role')),
+          transcript: headers.findIndex((h) => h.includes('transcript') || h.includes('text')),
+          affect: headers.findIndex((h) => h.includes('affect') || h.includes('emotion')),
+          proficiency: headers.findIndex((h) => h.includes('proficiency') || h.includes('skill')),
         };
 
         // Parse data rows
         const entries: TranscriptEntry[] = [];
         for (let i = headerRowIndex + 1; i < data.length; i++) {
           const row = data[i];
-          if (!row || row.length === 0) {continue;}
+          if (!row || row.length === 0) {
+            continue;
+          }
 
           const entry: TranscriptEntry = {
             timestamp: colMap.timestamp >= 0 ? row[colMap.timestamp]?.toString() : undefined,
             speaker: colMap.speaker >= 0 ? row[colMap.speaker]?.toString() : undefined,
-            transcript: colMap.transcript >= 0 ? row[colMap.transcript]?.toString() || '' : row[0]?.toString() || '',
+            transcript:
+              colMap.transcript >= 0
+                ? row[colMap.transcript]?.toString() || ''
+                : row[0]?.toString() || '',
             affect: colMap.affect >= 0 ? row[colMap.affect]?.toString() : undefined,
-            proficiency: colMap.proficiency >= 0 ? row[colMap.proficiency]?.toString() : undefined
+            proficiency: colMap.proficiency >= 0 ? row[colMap.proficiency]?.toString() : undefined,
           };
 
           // Only add entries with actual transcript content
@@ -126,13 +124,13 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
     loadTranscript();
   }, [transcriptSrc]);
 
-
-  const filteredTranscript = transcript.filter(entry =>
-    searchTerm === '' || 
-    entry.transcript.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    entry.speaker?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    entry.affect?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    entry.proficiency?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTranscript = transcript.filter(
+    (entry) =>
+      searchTerm === '' ||
+      entry.transcript.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      entry.speaker?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      entry.affect?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      entry.proficiency?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const escapeRegExp = (string: string): string => {
@@ -140,14 +138,16 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
   };
 
   const highlightText = (text: string) => {
-    if (!searchTerm) {return text;}
-    
+    if (!searchTerm) {
+      return text;
+    }
+
     // Escape special regex characters to prevent injection
     const escapedSearchTerm = escapeRegExp(searchTerm);
     const regex = new RegExp(`(${escapedSearchTerm})`, 'gi');
     const parts = text.split(regex);
-    
-    return parts.map((part, index) => 
+
+    return parts.map((part, index) =>
       regex.test(part) ? (
         <span key={index} style={{ backgroundColor: 'yellow', fontWeight: 'bold' }}>
           {part}
@@ -160,7 +160,11 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
 
   const getSpeakerColor = (speaker?: string) => {
     const speakerLower = speaker?.toLowerCase() || '';
-    if (speakerLower.includes('doctor') || speakerLower.includes('provider') || speakerLower.includes('clinician')) {
+    if (
+      speakerLower.includes('doctor') ||
+      speakerLower.includes('provider') ||
+      speakerLower.includes('clinician')
+    ) {
       return COLORS.semantic.doctor;
     } else if (speakerLower.includes('patient') || speakerLower.includes('subject')) {
       return COLORS.semantic.patient;
@@ -171,10 +175,13 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
   };
 
   const exportTranscript = () => {
-    const content = filteredTranscript.map(entry => 
-      `[${entry.timestamp || 'N/A'}] ${entry.speaker || 'Unknown'}: ${entry.transcript}`
-    ).join('\n\n');
-    
+    const content = filteredTranscript
+      .map(
+        (entry) =>
+          `[${entry.timestamp || 'N/A'}] ${entry.speaker || 'Unknown'}: ${entry.transcript}`
+      )
+      .join('\n\n');
+
     const blob = new Blob([content], { type: 'text/plain' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -224,19 +231,19 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
             variant="outline"
             onClick={exportTranscript}
             disabled={transcript.length === 0}
-            _hover={{ bg: "gray.50", borderColor: "blue.400" }}
+            _hover={{ bg: 'gray.50', borderColor: 'blue.400' }}
           >
             <FaDownload style={{ marginRight: '8px', color: '#2563eb' }} />
             Export
           </Button>
         </Flex>
       </Box>
-      
+
       {/* Content Section */}
       <Box p={6} pt={4}>
         {/* Search Section */}
         <Flex align="center" justify="space-between" wrap="wrap" gap={4} mb={6}>
-          <Box position="relative" w={{ base: "100%", md: "350px" }}>
+          <Box position="relative" w={{ base: '100%', md: '350px' }}>
             <Box position="absolute" left="3" top="50%" transform="translateY(-50%)" zIndex={1}>
               <FaSearch color="#3b82f6" size="14px" />
             </Box>
@@ -253,30 +260,41 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
               paddingLeft="10"
             />
           </Box>
-          
+
           <Text fontSize="sm" color="gray.600">
-            <Text as="span" fontWeight="bold">{filteredTranscript.length}</Text> of <Text as="span" fontWeight="bold">{transcript.length}</Text> entries
-            {searchTerm && <Text as="span" ml={2} fontStyle="italic">matching &ldquo;{searchTerm}&rdquo;</Text>}
+            <Text as="span" fontWeight="bold">
+              {filteredTranscript.length}
+            </Text>{' '}
+            of{' '}
+            <Text as="span" fontWeight="bold">
+              {transcript.length}
+            </Text>{' '}
+            entries
+            {searchTerm && (
+              <Text as="span" ml={2} fontStyle="italic">
+                matching &ldquo;{searchTerm}&rdquo;
+              </Text>
+            )}
           </Text>
         </Flex>
-        <Box 
-          maxH="400px" 
+        <Box
+          maxH="400px"
           overflowY="auto"
           css={{
             '&::-webkit-scrollbar': {
-              width: '12px'
+              width: '12px',
             },
             '&::-webkit-scrollbar-track': {
               background: '#f1f5f9',
-              borderRadius: '6px'
+              borderRadius: '6px',
             },
             '&::-webkit-scrollbar-thumb': {
               background: '#2563eb',
               borderRadius: '6px',
               '&:hover': {
-                background: '#1d4ed8'
-              }
-            }
+                background: '#1d4ed8',
+              },
+            },
           }}
         >
           {filteredTranscript.length === 0 && transcript.length > 0 ? (
@@ -289,18 +307,18 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
             </Box>
           ) : (
             filteredTranscript.map((entry, index) => (
-              <Box 
-                key={index} 
-                p={4} 
-                bg={`${getSpeakerColor(entry.speaker)}.50`} 
-                borderRadius="md" 
-                borderLeft="4px solid" 
-                borderLeftColor={`${getSpeakerColor(entry.speaker)}.500`} 
+              <Box
+                key={index}
+                p={4}
+                bg={`${getSpeakerColor(entry.speaker)}.50`}
+                borderRadius="md"
+                borderLeft="4px solid"
+                borderLeftColor={`${getSpeakerColor(entry.speaker)}.500`}
                 mb={4}
                 transition="all 0.2s"
-                _hover={{ 
+                _hover={{
                   bg: `${getSpeakerColor(entry.speaker)}.100`,
-                  transform: 'translateX(2px)'
+                  transform: 'translateX(2px)',
                 }}
               >
                 <Flex justify="space-between" mb={3}>
@@ -313,11 +331,11 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
                     </Text>
                   )}
                 </Flex>
-                
+
                 <Text fontSize="sm" lineHeight="tall" mb={3}>
                   {searchTerm ? highlightText(entry.transcript) : entry.transcript}
                 </Text>
-                
+
                 {(entry.affect || entry.proficiency) && (
                   <Box mt={3} pt={3} borderTop="1px" borderColor="gray.200">
                     {entry.affect && (

@@ -18,7 +18,7 @@ const getBackendUrl = (): string => {
   if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_BACKEND_API) {
     throw new Error(
       'NEXT_PUBLIC_BACKEND_API must be set in production environment. ' +
-      'Please configure this variable in your deployment settings.'
+        'Please configure this variable in your deployment settings.'
     );
   }
 
@@ -26,7 +26,7 @@ const getBackendUrl = (): string => {
   if (url.includes('127.0.0.1')) {
     logger.warn(
       'WARNING: Using 127.0.0.1 instead of localhost may break httpOnly cookie authentication. ' +
-      'Use localhost for consistency with the backend CORS configuration.'
+        'Use localhost for consistency with the backend CORS configuration.'
     );
   }
 
@@ -90,7 +90,7 @@ if (typeof window !== 'undefined') {
     if (!CONFIG.BACKEND_API.startsWith('https://')) {
       logger.warn(
         'Production environment is not using HTTPS. ' +
-        'This is insecure and may cause authentication issues.'
+          'This is insecure and may cause authentication issues.'
       );
     }
   }

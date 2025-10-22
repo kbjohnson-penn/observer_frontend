@@ -2,7 +2,16 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Box, Text, Flex, Spinner, Tabs, IconButton } from '@chakra-ui/react';
-import { FaUsers, FaStethoscope, FaChartBar, FaCog, FaPlay, FaExclamationTriangle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import {
+  FaUsers,
+  FaStethoscope,
+  FaChartBar,
+  FaCog,
+  FaPlay,
+  FaExclamationTriangle,
+  FaChevronLeft,
+  FaChevronRight,
+} from 'react-icons/fa';
 import { OMOPTableName, SampleDataAPIResponse } from '@/interfaces/observer-omop';
 import { TABLE_INFO } from '@/constants/table-info.constants';
 import { apiClient } from '@/lib/apiClient';
@@ -38,10 +47,10 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
     try {
       setLoading(true);
       setError(null);
-      
+
       // Use sampleData from props if available, otherwise fetch it
       let apiData = sampleData;
-      
+
       if (!apiData) {
         // Only fetch if no sampleData prop provided (for backward compatibility)
         const response = await apiClient.get<SampleDataAPIResponse>('/public/sample-data/', {
@@ -49,7 +58,7 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
         });
         apiData = response.data;
       }
-      
+
       // Map API response to OMOP table structure
       const loadedSampleData: Record<OMOPTableName, any[]> = {
         PERSON: apiData.persons || [],
@@ -66,21 +75,22 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
         AUDIT_LOGS: apiData.audit_logs || [],
         CONCEPT: apiData.concepts || [],
       };
-      
+
       const allTables: DataTable[] = Object.keys(TABLE_INFO).map((tableName) => {
         const info = TABLE_INFO[tableName as OMOPTableName];
         return {
           name: tableName as OMOPTableName,
           displayName: info.displayName,
           description: info.description,
-          data: loadedSampleData[tableName as OMOPTableName] || []
+          data: loadedSampleData[tableName as OMOPTableName] || [],
         };
       });
 
       setTables(allTables);
     } catch (err: any) {
       // Handle API errors
-      const errorMessage = err.response?.data?.error || err.message || 'Failed to load data from API';
+      const errorMessage =
+        err.response?.data?.error || err.message || 'Failed to load data from API';
       setError(errorMessage);
       setTables([]); // Clear tables on error
     } finally {
@@ -95,7 +105,7 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
   // Cleanup URLs on component unmount to prevent memory leaks
   useEffect(() => {
     return () => {
-      urlsToCleanup.current.forEach(url => {
+      urlsToCleanup.current.forEach((url) => {
         try {
           window.URL.revokeObjectURL(url);
         } catch {
@@ -106,23 +116,25 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
     };
   }, []);
 
-  const currentTable = tables.find(table => table.name === activeTable);
+  const currentTable = tables.find((table) => table.name === activeTable);
   const selectedTableInfo = TABLE_INFO[activeTable];
 
   // Memoize filtered data to prevent expensive recalculations on every render
   const filteredTables = useMemo(() => {
-    if (!searchTerm) {return tables;}
-    
-    return tables.map(table => ({
+    if (!searchTerm) {
+      return tables;
+    }
+
+    return tables.map((table) => ({
       ...table,
-      filteredData: table.data.filter(row =>
-        Object.values(row).some(value => 
+      filteredData: table.data.filter((row) =>
+        Object.values(row).some((value) =>
           value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
         )
-      )
+      ),
     }));
   }, [tables, searchTerm]);
-  
+
   // Helper functions
   const getTableIcon = (tableName: OMOPTableName) => {
     switch (tableName) {
@@ -173,91 +185,93 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
   };
 
   const downloadCSV = (tableName: string, data: any[]) => {
-    if (data.length === 0) {return;}
-    
+    if (data.length === 0) {
+      return;
+    }
+
     const headers = Object.keys(data[0]);
     const csvContent = [
       headers.join(','),
-      ...data.map(row => headers.map(header => sanitizeCSVValue(row[header])).join(','))
+      ...data.map((row) => headers.map((header) => sanitizeCSVValue(row[header])).join(',')),
     ].join('\n');
-    
+
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
-    
+
     // Track URL for cleanup
     urlsToCleanup.current.push(url);
-    
+
     const a = document.createElement('a');
     a.href = url;
     a.download = `${tableName}.csv`;
     a.click();
-    
+
     // Clean up immediately after download
     setTimeout(() => {
       window.URL.revokeObjectURL(url);
-      urlsToCleanup.current = urlsToCleanup.current.filter(u => u !== url);
+      urlsToCleanup.current = urlsToCleanup.current.filter((u) => u !== url);
     }, 100);
   };
 
   const downloadAllTables = async () => {
     const zip = new JSZip();
-    
+
     // Add README file with information about the export
     const currentDate = new Date().toLocaleDateString();
     const currentTime = new Date().toLocaleTimeString();
-    const tablesWithData = tables.filter(table => table.data.length > 0);
-    
+    const tablesWithData = tables.filter((table) => table.data.length > 0);
+
     const readmeContent = `Observer Data Export
 Generated: ${currentDate} at ${currentTime}
 
 This zip file contains ${tablesWithData.length} CSV files with Observer data:
 
-${tablesWithData.map(table => 
-  `- ${table.name}.csv: ${table.displayName}`
-).join('\n')}
+${tablesWithData.map((table) => `- ${table.name}.csv: ${table.displayName}`).join('\n')}
 
 File Format: CSV (Comma Separated Values)
 Encoding: UTF-8
 
 Note: This data is from the Observer platform.
 `;
-    
+
     zip.file('README.txt', readmeContent);
-    
+
     // Add each table with data to the zip
-    tables.forEach(table => {
+    tables.forEach((table) => {
       if (table.data.length > 0) {
         const headers = Object.keys(table.data[0]);
         const csvContent = [
           headers.join(','),
-          ...table.data.map(row => headers.map(header => sanitizeCSVValue(row[header])).join(','))
+          ...table.data.map((row) =>
+            headers.map((header) => sanitizeCSVValue(row[header])).join(',')
+          ),
         ].join('\n');
-        
+
         zip.file(`${table.name}.csv`, csvContent);
       }
     });
-    
+
     // Generate zip file and trigger download
     try {
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const url = window.URL.createObjectURL(zipBlob);
-      
+
       // Track URL for cleanup
       urlsToCleanup.current.push(url);
-      
+
       const a = document.createElement('a');
       a.href = url;
-      
+
       // Create filename with current date
       const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
       a.download = `observer_data_tables_${currentDate}.zip`;
-      
+
       a.click();
-      
+
       // Clean up immediately after download
       setTimeout(() => {
         window.URL.revokeObjectURL(url);
-        urlsToCleanup.current = urlsToCleanup.current.filter(u => u !== url);
+        urlsToCleanup.current = urlsToCleanup.current.filter((u) => u !== url);
       }, 100);
     } catch {
       // Error creating zip file - could show user notification
@@ -280,7 +294,6 @@ Note: This data is from the Observer platform.
     }
   };
 
-
   if (loading) {
     return (
       <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
@@ -298,9 +311,13 @@ Note: This data is from the Observer platform.
         <Box bg="red.50" border="1px" borderColor="red.200" borderRadius="md" p={4} mb={4}>
           <Flex align="center" gap={2} mb={2}>
             <FaExclamationTriangle color="red" />
-            <Text fontWeight="bold" color="red.700">API Error</Text>
+            <Text fontWeight="bold" color="red.700">
+              API Error
+            </Text>
           </Flex>
-          <Text fontSize="sm" color="red.600">{error}</Text>
+          <Text fontSize="sm" color="red.600">
+            {error}
+          </Text>
         </Box>
         <Flex justify="center">
           <Text fontSize="sm" color="gray.500">
@@ -320,11 +337,11 @@ Note: This data is from the Observer platform.
         onDownloadCurrent={() => currentTable && downloadCSV(currentTable.name, currentTable.data)}
         onDownloadAll={downloadAllTables}
       />
-      
+
       {/* Table Tabs */}
       <Box p={6} pt={4}>
-        <Tabs.Root 
-          value={activeTable} 
+        <Tabs.Root
+          value={activeTable}
           onValueChange={(details) => {
             setActiveTable(details.value as OMOPTableName);
             setSearchTerm(''); // Clear search when switching tables
@@ -346,11 +363,11 @@ Note: This data is from the Observer platform.
               borderRadius="full"
               onClick={scrollLeft}
               aria-label="Scroll left"
-              _hover={{ bg: "gray.50", borderColor: "blue.300" }}
+              _hover={{ bg: 'gray.50', borderColor: 'blue.300' }}
             >
               <FaChevronLeft />
             </IconButton>
-            
+
             {/* Scroll Right Button */}
             <IconButton
               position="absolute"
@@ -366,31 +383,31 @@ Note: This data is from the Observer platform.
               borderRadius="full"
               onClick={scrollRight}
               aria-label="Scroll right"
-              _hover={{ bg: "gray.50", borderColor: "blue.300" }}
+              _hover={{ bg: 'gray.50', borderColor: 'blue.300' }}
             >
               <FaChevronRight />
             </IconButton>
-            
-            <Box 
+
+            <Box
               ref={scrollContainerRef}
               position="relative"
-              overflowX="auto" 
+              overflowX="auto"
               pb={2}
               css={{
                 '&::-webkit-scrollbar': {
-                  height: '10px'
+                  height: '10px',
                 },
                 '&::-webkit-scrollbar-track': {
                   background: '#f1f5f9',
-                  borderRadius: '5px'
+                  borderRadius: '5px',
                 },
                 '&::-webkit-scrollbar-thumb': {
                   background: '#2563eb',
                   borderRadius: '5px',
                   '&:hover': {
-                    background: '#1d4ed8'
-                  }
-                }
+                    background: '#1d4ed8',
+                  },
+                },
               }}
             >
               {/* Scroll indicators */}
@@ -414,61 +431,59 @@ Note: This data is from the Observer platform.
                 pointerEvents="none"
                 zIndex={2}
               />
-              
-              <Tabs.List 
-                minW="max-content" 
-                bg={COLORS.table.headerBg} 
-                borderRadius="lg" 
+
+              <Tabs.List
+                minW="max-content"
+                bg={COLORS.table.headerBg}
+                borderRadius="lg"
                 p={1}
                 position="relative"
               >
-              {tables.map((table) => {
-                const isActive = activeTable === table.name;
-                return (
-                  <Tabs.Trigger 
-                    key={table.name} 
-                    value={table.name}
-                    bg={isActive ? COLORS.ui.inactiveBg : 'transparent'}
-                    color={isActive ? COLORS.ui.activeText : COLORS.ui.inactiveText}
-                    borderRadius="md"
-                    px={4}
-                    py={3}
-                    mx={1}
-                    fontSize="sm"
-                    fontWeight={isActive ? "semibold" : "medium"}
-                    transition="all 0.2s"
-                    boxShadow={isActive ? 'sm' : 'none'}
-                    _hover={{ 
-                      bg: isActive ? COLORS.ui.inactiveBg : COLORS.ui.hoverBg,
-                      color: isActive ? COLORS.ui.activeText : COLORS.ui.inactiveText,
-                      transform: 'translateY(-1px)'
-                    }}
-                  >
-                    <Flex align="center" gap={2}>
-                      <Box color={isActive ? COLORS.ui.activeIcon : COLORS.ui.inactiveIcon}>
-                        {getTableIcon(table.name)}
-                      </Box>
-                      <Text whiteSpace="nowrap">
-                        {table.displayName}
-                      </Text>
-                    </Flex>
-                  </Tabs.Trigger>
-                );
-              })}
-            </Tabs.List>
+                {tables.map((table) => {
+                  const isActive = activeTable === table.name;
+                  return (
+                    <Tabs.Trigger
+                      key={table.name}
+                      value={table.name}
+                      bg={isActive ? COLORS.ui.inactiveBg : 'transparent'}
+                      color={isActive ? COLORS.ui.activeText : COLORS.ui.inactiveText}
+                      borderRadius="md"
+                      px={4}
+                      py={3}
+                      mx={1}
+                      fontSize="sm"
+                      fontWeight={isActive ? 'semibold' : 'medium'}
+                      transition="all 0.2s"
+                      boxShadow={isActive ? 'sm' : 'none'}
+                      _hover={{
+                        bg: isActive ? COLORS.ui.inactiveBg : COLORS.ui.hoverBg,
+                        color: isActive ? COLORS.ui.activeText : COLORS.ui.inactiveText,
+                        transform: 'translateY(-1px)',
+                      }}
+                    >
+                      <Flex align="center" gap={2}>
+                        <Box color={isActive ? COLORS.ui.activeIcon : COLORS.ui.inactiveIcon}>
+                          {getTableIcon(table.name)}
+                        </Box>
+                        <Text whiteSpace="nowrap">{table.displayName}</Text>
+                      </Flex>
+                    </Tabs.Trigger>
+                  );
+                })}
+              </Tabs.List>
             </Box>
           </Box>
-          
+
           {tables.map((table) => {
             // Use memoized filtered data if search term exists, otherwise use original data
-            const tableWithFilteredData = searchTerm 
-              ? filteredTables.find(ft => ft.name === table.name)
+            const tableWithFilteredData = searchTerm
+              ? filteredTables.find((ft) => ft.name === table.name)
               : null;
-            
-            const filteredData = tableWithFilteredData 
-              ? (tableWithFilteredData.filteredData || table.data)
+
+            const filteredData = tableWithFilteredData
+              ? tableWithFilteredData.filteredData || table.data
               : table.data;
-            
+
             return (
               <Tabs.Content key={table.name} value={table.name} pt={4}>
                 <DataTable

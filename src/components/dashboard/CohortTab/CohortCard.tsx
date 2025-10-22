@@ -1,18 +1,9 @@
-"use client";
+'use client';
 
-import React, { useMemo } from "react";
-import {
-  Box,
-  Card,
-  VStack,
-  HStack,
-  Text,
-  Button,
-  Badge,
-  IconButton,
-} from "@chakra-ui/react";
-import { FaTrash, FaEye, FaDownload, FaCopy } from "react-icons/fa";
-import { Cohort, getCohortFilterSummary } from "@/interfaces/cohort";
+import React, { useMemo } from 'react';
+import { Box, Card, VStack, HStack, Text, Button, Badge, IconButton } from '@chakra-ui/react';
+import { FaTrash, FaEye, FaDownload, FaCopy } from 'react-icons/fa';
+import { Cohort, getCohortFilterSummary } from '@/interfaces/cohort';
 
 interface CohortCardProps {
   cohort: Cohort;
@@ -30,10 +21,7 @@ export default function CohortCard({
   onExport,
 }: CohortCardProps) {
   // Memoize filter summary calculation
-  const filterSummary = useMemo(
-    () => getCohortFilterSummary(cohort.filters),
-    [cohort.filters]
-  );
+  const filterSummary = useMemo(() => getCohortFilterSummary(cohort.filters), [cohort.filters]);
 
   // Memoize formatted date
   const formattedDate = useMemo(
@@ -122,12 +110,7 @@ export default function CohortCard({
 
           {/* Actions */}
           <HStack gap={2} pt={2}>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onView(cohort)}
-              flex={1}
-            >
+            <Button size="sm" variant="outline" onClick={() => onView(cohort)} flex={1}>
               <FaEye />
               View
             </Button>

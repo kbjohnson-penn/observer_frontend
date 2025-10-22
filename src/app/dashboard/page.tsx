@@ -1,15 +1,17 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Box, Container, Heading, Text, Tabs } from "@chakra-ui/react";
-import ResearchTab from "@/components/dashboard/ResearchTab";
-import CohortTab from "@/components/dashboard/CohortTab";
+import React from 'react';
+import { Box, Container, Heading, Text, Tabs } from '@chakra-ui/react';
+import ResearchTab from '@/components/dashboard/ResearchTab';
+import CohortTab from '@/components/dashboard/CohortTab';
 
 export default function DashboardPage() {
   return (
     <Container maxW="container.xl" py={8}>
       <Box mb={6}>
-        <Heading size="lg" color="gray.900">Research Dashboard</Heading>
+        <Heading size="lg" color="gray.900">
+          Research Dashboard
+        </Heading>
         <Text color="gray.600">Explore datasets and manage research cohorts</Text>
       </Box>
 

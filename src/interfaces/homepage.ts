@@ -30,8 +30,8 @@ export interface PageContent {
 }
 
 export interface ButtonStyles {
-  size: "lg";
-  colorScheme: "blue";
+  size: 'lg';
+  colorScheme: 'blue';
   bg: string;
   _hover: {
     bg: string;

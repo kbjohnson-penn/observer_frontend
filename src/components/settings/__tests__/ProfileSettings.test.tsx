@@ -13,7 +13,7 @@ jest.mock('@/contexts/AuthContext', () => ({
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -210,8 +210,12 @@ describe('ProfileSettings', () => {
       render(<ProfileSettings />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        const firstNameInput = screen.getByPlaceholderText('Enter your first name') as HTMLInputElement;
-        const lastNameInput = screen.getByPlaceholderText('Enter your last name') as HTMLInputElement;
+        const firstNameInput = screen.getByPlaceholderText(
+          'Enter your first name'
+        ) as HTMLInputElement;
+        const lastNameInput = screen.getByPlaceholderText(
+          'Enter your last name'
+        ) as HTMLInputElement;
 
         expect(firstNameInput.readOnly).toBe(true);
         expect(lastNameInput.readOnly).toBe(true);
@@ -255,11 +259,18 @@ describe('ProfileSettings', () => {
     });
 
     it('should show loading state during submission', async () => {
-      (global.fetch as jest.Mock).mockImplementation(() =>
-        new Promise(resolve => setTimeout(() => resolve({
-          ok: true,
-          json: async () => ({}),
-        }), 100))
+      (global.fetch as jest.Mock).mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(
+              () =>
+                resolve({
+                  ok: true,
+                  json: async () => ({}),
+                }),
+              100
+            )
+          )
       );
 
       render(<ProfileSettings />, { wrapper: TestWrapper });
@@ -339,7 +350,9 @@ describe('ProfileSettings', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Authentication required. Please log in again.')).toBeInTheDocument();
+        expect(
+          screen.getByText('Authentication required. Please log in again.')
+        ).toBeInTheDocument();
       });
     });
   });

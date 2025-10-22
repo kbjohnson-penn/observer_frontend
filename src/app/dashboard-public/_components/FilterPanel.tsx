@@ -1,16 +1,12 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Box, Flex, Text, Button, Checkbox } from "@chakra-ui/react";
-import Select, { MultiValue, SingleValue } from "react-select";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import React from 'react';
+import { Box, Flex, Text, Button, Checkbox } from '@chakra-ui/react';
+import Select, { MultiValue, SingleValue } from 'react-select';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-import {
-  SOURCE_OPTIONS,
-  DEIDENTIFIED_OPTIONS,
-  EXPORT_OPTIONS,
-} from "@/constants";
+import { SOURCE_OPTIONS, DEIDENTIFIED_OPTIONS, EXPORT_OPTIONS } from '@/constants';
 
 interface DropDownOption {
   value: string;
@@ -52,11 +48,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 }) => {
   return (
     <Box
-      width={{ base: "100%", lg: "300px" }}
+      width={{ base: '100%', lg: '300px' }}
       bg="white"
       p={5}
-      borderBottomWidth={{ base: "1px", lg: 0 }}
-      borderRightWidth={{ base: 0, lg: "1px" }}
+      borderBottomWidth={{ base: '1px', lg: 0 }}
+      borderRightWidth={{ base: 0, lg: '1px' }}
       borderColor="gray.200"
     >
       <Text fontSize="lg" fontWeight="bold" mb={4}>
@@ -105,8 +101,8 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             checked={isDatePickerEnabled}
             onChange={onToggleDateFilter}
             id="date-filter-toggle"
-            variant={"solid"}
-            colorPalette={"blue"}
+            variant={'solid'}
+            colorPalette={'blue'}
             disabled={isFiltering}
           >
             <Checkbox.HiddenInput />
@@ -177,11 +173,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           px={4}
           borderRadius="md"
           color="white"
-          bg={exportFormat && !isFiltering ? "blue.500" : "gray.300"}
-          _hover={exportFormat && !isFiltering ? { bg: "blue.600" } : {}}
-          cursor={exportFormat && !isFiltering ? "pointer" : "not-allowed"}
+          bg={exportFormat && !isFiltering ? 'blue.500' : 'gray.300'}
+          _hover={exportFormat && !isFiltering ? { bg: 'blue.600' } : {}}
+          cursor={exportFormat && !isFiltering ? 'pointer' : 'not-allowed'}
         >
-          {isFiltering ? "Filtering..." : "Export Data"}
+          {isFiltering ? 'Filtering...' : 'Export Data'}
         </Button>
       </Box>
     </Box>

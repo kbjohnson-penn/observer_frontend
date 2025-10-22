@@ -1,15 +1,9 @@
-"use client";
+'use client';
 
-import React, { useMemo } from "react";
-import {
-  VStack,
-  HStack,
-  Input,
-  Select,
-  createListCollection,
-} from "@chakra-ui/react";
-import { expandDemographic } from "@/lib/utils/utils";
-import { DemographicFilterValues } from "@/interfaces/researchTab";
+import React, { useMemo } from 'react';
+import { VStack, HStack, Input, Select, createListCollection } from '@chakra-ui/react';
+import { expandDemographic } from '@/lib/utils/utils';
+import { DemographicFilterValues } from '@/interfaces/researchTab';
 
 interface DemographicFiltersProps {
   values: DemographicFilterValues;
@@ -92,9 +86,7 @@ export default function DemographicFilters({
         <Select.Control>
           <Select.Trigger>
             <Select.ValueText placeholder="Gender">
-              {values.gender.length > 0
-                ? `Gender: ${genderLabels.join(', ')}`
-                : null}
+              {values.gender.length > 0 ? `Gender: ${genderLabels.join(', ')}` : null}
             </Select.ValueText>
           </Select.Trigger>
           <Select.IndicatorGroup>
@@ -125,9 +117,7 @@ export default function DemographicFilters({
         <Select.Control>
           <Select.Trigger>
             <Select.ValueText placeholder="Race">
-              {values.race.length > 0
-                ? `Race: ${raceLabels.join(', ')}`
-                : null}
+              {values.race.length > 0 ? `Race: ${raceLabels.join(', ')}` : null}
             </Select.ValueText>
           </Select.Trigger>
           <Select.IndicatorGroup>
@@ -158,9 +148,7 @@ export default function DemographicFilters({
         <Select.Control>
           <Select.Trigger>
             <Select.ValueText placeholder="Ethnicity">
-              {values.ethnicity.length > 0
-                ? `Ethnicity: ${ethnicityLabels.join(', ')}`
-                : null}
+              {values.ethnicity.length > 0 ? `Ethnicity: ${ethnicityLabels.join(', ')}` : null}
             </Select.ValueText>
           </Select.Trigger>
           <Select.IndicatorGroup>

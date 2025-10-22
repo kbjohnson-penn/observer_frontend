@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Box, Flex, Text } from "@chakra-ui/react";
+import React from 'react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 
 interface StatCardProps {
   title: string;
@@ -33,7 +33,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon }) => {
         </Text>
 
         <Text
-          fontSize={{ base: "xl", md: "2xl", lg: "3xl" }}
+          fontSize={{ base: 'xl', md: '2xl', lg: '3xl' }}
           fontWeight="bold"
           color="blue.600"
           mt="auto"

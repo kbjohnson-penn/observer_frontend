@@ -1,8 +1,6 @@
 import React from 'react';
 import { Box, Heading, Text, VStack } from '@chakra-ui/react';
-import {
-  MediaViewersSection
-} from '@/components/dataset';
+import { MediaViewersSection } from '@/components/dataset';
 import HealthcareDataBrowser from '@/components/multimodal/HealthcareDataBrowser';
 import TranscriptViewer from '@/components/multimodal/TranscriptViewer';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -12,12 +10,9 @@ import axios from 'axios';
 // Server-side data fetching function
 const fetchSampleData = async () => {
   try {
-    const response = await axios.get(
-      `${process.env.INTERNAL_BACKEND_API}/public/sample-data/`,
-      {
-        timeout: 10000,
-      }
-    );
+    const response = await axios.get(`${process.env.INTERNAL_BACKEND_API}/public/sample-data/`, {
+      timeout: 10000,
+    });
     return response.data;
   } catch (error) {
     logger.error('Error fetching sample data:', error);
@@ -28,12 +23,12 @@ const fetchSampleData = async () => {
 const DatasetExplorePage = async () => {
   // Fetch data on the server
   const sampleData = await fetchSampleData();
-  
+
   // Process video sources based on the public directory structure
   const processMediaSources = () => {
     const videoSources = { patient: '', provider: '', room: '' };
     let transcriptSource = '';
-    
+
     if (sampleData?.observations) {
       // Process observations to extract video paths
       sampleData.observations.forEach((obs: any) => {
@@ -41,7 +36,7 @@ const DatasetExplorePage = async () => {
         // For now, using the example encounter
         const encounterType = 'clinic';
         const encounterId = '103';
-        
+
         switch (obs.file_type) {
           case 'patient_view':
             videoSources.patient = `/encounters/${encounterType}/${encounterId}/patient_view.MP4`;
@@ -58,7 +53,7 @@ const DatasetExplorePage = async () => {
         }
       });
     }
-    
+
     // Fallback to example videos if no observations or videos found
     if (!videoSources.patient && !videoSources.provider && !videoSources.room) {
       videoSources.patient = '/encounters/clinic/103/patient_view.MP4';
@@ -66,7 +61,7 @@ const DatasetExplorePage = async () => {
       videoSources.room = '/encounters/clinic/103/room_view.MP4';
       transcriptSource = '/encounters/clinic/103/transcript.xlsx';
     }
-    
+
     return { videoSources, transcriptSource };
   };
 
@@ -76,26 +71,19 @@ const DatasetExplorePage = async () => {
     <Box maxW="6xl" mx="auto" py={8} px={{ base: 4, md: 6 }}>
       {/* Header Section */}
       <Box textAlign="center" mb={12}>
-        <Heading 
-          as="h1" 
-          fontSize={{ base: "3xl", md: "4xl", lg: "5xl" }} 
-          color="blue.700" 
+        <Heading
+          as="h1"
+          fontSize={{ base: '3xl', md: '4xl', lg: '5xl' }}
+          color="blue.700"
           mb={6}
           fontWeight="bold"
           lineHeight="shorter"
         >
           Explore the Dataset
         </Heading>
-        <Text 
-          fontSize="lg" 
-          color="gray.600" 
-          maxW="4xl" 
-          mx="auto" 
-          mb={8} 
-          lineHeight="tall"
-        >
-          Interactive exploration of Observer data with multimodal viewers. 
-          Browse tables or explore individual encounters with video and clinical data.
+        <Text fontSize="lg" color="gray.600" maxW="4xl" mx="auto" mb={8} lineHeight="tall">
+          Interactive exploration of Observer data with multimodal viewers. Browse tables or explore
+          individual encounters with video and clinical data.
         </Text>
       </Box>
 
@@ -107,9 +95,7 @@ const DatasetExplorePage = async () => {
 
         {/* Media Viewers Section */}
         <ErrorBoundary>
-          <MediaViewersSection
-            videoSources={videoSources}
-          />
+          <MediaViewersSection videoSources={videoSources} />
         </ErrorBoundary>
 
         {/* Transcript Viewer Section */}

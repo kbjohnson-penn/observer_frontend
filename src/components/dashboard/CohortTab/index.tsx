@@ -1,26 +1,18 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useCallback } from "react";
-import {
-  Box,
-  Grid,
-  VStack,
-  HStack,
-  Text,
-  Button,
-  Alert,
-} from "@chakra-ui/react";
-import { Cohort } from "@/interfaces/cohort";
+import React, { useState, useEffect, useCallback } from 'react';
+import { Box, Grid, VStack, HStack, Text, Button, Alert } from '@chakra-ui/react';
+import { Cohort } from '@/interfaces/cohort';
 import {
   getCohorts,
   deleteCohort,
   duplicateCohort,
   exportCohortToJSON,
-} from "@/lib/utils/cohortStorage";
-import { logger } from "@/lib/logger";
-import CohortCard from "./CohortCard";
-import EmptyState from "./EmptyState";
-import ConfirmDeleteDialog from "./ConfirmDeleteDialog";
+} from '@/lib/utils/cohortStorage';
+import { logger } from '@/lib/logger';
+import CohortCard from './CohortCard';
+import EmptyState from './EmptyState';
+import ConfirmDeleteDialog from './ConfirmDeleteDialog';
 
 export default function CohortTab() {
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
@@ -41,22 +33,27 @@ export default function CohortTab() {
       const data = await getCohorts();
       setCohorts(data);
     } catch (err) {
-      setError("Failed to load cohorts");
-      logger.error("Load cohorts error:", err);
+      setError('Failed to load cohorts');
+      logger.error('Load cohorts error:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteClick = useCallback((cohortId: string) => {
-    const cohort = cohorts.find((c) => c.id === cohortId);
-    if (cohort) {
-      setCohortToDelete(cohort);
-    }
-  }, [cohorts]);
+  const handleDeleteClick = useCallback(
+    (cohortId: string) => {
+      const cohort = cohorts.find((c) => c.id === cohortId);
+      if (cohort) {
+        setCohortToDelete(cohort);
+      }
+    },
+    [cohorts]
+  );
 
   const handleConfirmDelete = useCallback(async () => {
-    if (!cohortToDelete) {return;}
+    if (!cohortToDelete) {
+      return;
+    }
 
     try {
       setIsDeleting(true);
@@ -65,8 +62,8 @@ export default function CohortTab() {
       setCohorts((prev) => prev.filter((c) => c.id !== cohortToDelete.id));
       setCohortToDelete(null);
     } catch (err) {
-      logger.error("Delete cohort error:", err);
-      setError("Failed to delete cohort");
+      logger.error('Delete cohort error:', err);
+      setError('Failed to delete cohort');
     } finally {
       setIsDeleting(false);
     }
@@ -81,22 +78,22 @@ export default function CohortTab() {
       const duplicated = await duplicateCohort(cohort.id);
       setCohorts((prev) => [...prev, duplicated]);
     } catch (err) {
-      logger.error("Duplicate cohort error:", err);
-      setError("Failed to duplicate cohort");
+      logger.error('Duplicate cohort error:', err);
+      setError('Failed to duplicate cohort');
     }
   }, []);
 
   const handleViewCohort = useCallback((cohort: Cohort) => {
     // TODO: Navigate to cohort detail view or show modal with filter details
-    logger.log("View cohort:", cohort);
+    logger.log('View cohort:', cohort);
   }, []);
 
   const handleExportCohort = useCallback((cohort: Cohort) => {
     try {
       exportCohortToJSON(cohort);
     } catch (err) {
-      logger.error("Export cohort error:", err);
-      setError("Failed to export cohort");
+      logger.error('Export cohort error:', err);
+      setError('Failed to export cohort');
     }
   }, []);
 
@@ -137,9 +134,9 @@ export default function CohortTab() {
       {cohorts.length > 0 ? (
         <Grid
           templateColumns={{
-            base: "1fr",
-            md: "repeat(2, 1fr)",
-            lg: "repeat(3, 1fr)",
+            base: '1fr',
+            md: 'repeat(2, 1fr)',
+            lg: 'repeat(3, 1fr)',
           }}
           gap={6}
         >

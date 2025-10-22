@@ -1,6 +1,6 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { logger } from "./logger";
-import { CONFIG } from "./config";
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { logger } from './logger';
+import { CONFIG } from './config';
 
 // Extend the AxiosRequestConfig to include _retry property
 interface RetryAxiosRequestConfig extends InternalAxiosRequestConfig {
@@ -9,8 +9,10 @@ interface RetryAxiosRequestConfig extends InternalAxiosRequestConfig {
 
 // CSRF Token utility function
 const getCsrfToken = (): string | null => {
-  if (typeof document === 'undefined') {return null;} // SSR safety
-  
+  if (typeof document === 'undefined') {
+    return null;
+  } // SSR safety
+
   const cookies = document.cookie.split(';');
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split('=');
@@ -26,7 +28,7 @@ const createApiClient = () => {
   const instance = axios.create({
     baseURL: CONFIG.BACKEND_API,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     withCredentials: true, // Include cookies in all requests
     timeout: CONFIG.API_TIMEOUT, // Add timeout
@@ -36,15 +38,18 @@ const createApiClient = () => {
   instance.interceptors.request.use(
     (config) => {
       // httpOnly cookies are automatically included
-      
+
       // Add CSRF token for state-changing operations
-      if (config.method && ['post', 'put', 'patch', 'delete'].includes(config.method.toLowerCase())) {
+      if (
+        config.method &&
+        ['post', 'put', 'patch', 'delete'].includes(config.method.toLowerCase())
+      ) {
         const csrfToken = getCsrfToken();
         if (csrfToken) {
           config.headers['X-CSRFToken'] = csrfToken;
         }
       }
-      
+
       return config;
     },
     (error) => Promise.reject(error)
@@ -57,7 +62,9 @@ const createApiClient = () => {
       // Handle network errors (no response from server)
       if (!error.response) {
         logger.error('Network error:', error.message);
-        return Promise.reject(new Error('Network error. Please check your connection and try again.'));
+        return Promise.reject(
+          new Error('Network error. Please check your connection and try again.')
+        );
       }
 
       const originalRequest = error.config as RetryAxiosRequestConfig;
@@ -76,7 +83,7 @@ const createApiClient = () => {
             {},
             {
               withCredentials: true,
-              signal: controller.signal
+              signal: controller.signal,
             }
           );
 
@@ -91,7 +98,7 @@ const createApiClient = () => {
           if (axios.isCancel(refreshError)) {
             logger.error('Token refresh timed out');
           }
-          window.dispatchEvent(new CustomEvent("auth:failed"));
+          window.dispatchEvent(new CustomEvent('auth:failed'));
           return Promise.reject(refreshError);
         }
       }
@@ -115,7 +122,7 @@ export const fetchCsrfToken = async (): Promise<string | null> => {
       method: 'GET',
       credentials: 'include',
     });
-    
+
     if (response.ok) {
       const data = await response.json();
       return data.csrfToken;

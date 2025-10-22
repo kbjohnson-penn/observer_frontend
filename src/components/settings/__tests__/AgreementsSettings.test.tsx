@@ -13,7 +13,7 @@ jest.mock('@/contexts/AuthContext', () => ({
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -211,10 +211,7 @@ describe('AgreementsSettings', () => {
       render(<AgreementsSettings />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(loggerErrorSpy).toHaveBeenCalledWith(
-          'Error loading agreements:',
-          expect.any(Error)
-        );
+        expect(loggerErrorSpy).toHaveBeenCalledWith('Error loading agreements:', expect.any(Error));
       });
 
       loggerErrorSpy.mockRestore();
@@ -235,7 +232,9 @@ describe('AgreementsSettings', () => {
 
       await waitFor(() => {
         expect(screen.getByText('No data use agreements signed')).toBeInTheDocument();
-        expect(screen.getAllByText('Contact your administrator to sign required agreements').length).toBe(2);
+        expect(
+          screen.getAllByText('Contact your administrator to sign required agreements').length
+        ).toBe(2);
       });
     });
 

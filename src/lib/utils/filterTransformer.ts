@@ -21,7 +21,7 @@ function ageToYearOfBirth(
   const result: { year_of_birth_from?: number; year_of_birth_to?: number } = {};
 
   if (ageFrom) {
-    const age = parseInt(ageFrom, 10);  // Always specify radix
+    const age = parseInt(ageFrom, 10); // Always specify radix
     if (isNaN(age) || age < 0 || age > 150) {
       throw new Error('Invalid minimum age: must be between 0 and 150');
     }
@@ -30,7 +30,7 @@ function ageToYearOfBirth(
   }
 
   if (ageTo) {
-    const age = parseInt(ageTo, 10);  // Always specify radix
+    const age = parseInt(ageTo, 10); // Always specify radix
     if (isNaN(age) || age < 0 || age > 150) {
       throw new Error('Invalid maximum age: must be between 0 and 150');
     }
@@ -96,9 +96,7 @@ function buildDemographicFilters(
  * @param localFilters - Local filter state
  * @returns Visit filters object or undefined if no filters
  */
-function buildVisitFilters(
-  localFilters: LocalFilters
-): VisitSearchFilters['visit'] | undefined {
+function buildVisitFilters(localFilters: LocalFilters): VisitSearchFilters['visit'] | undefined {
   const hasFilters =
     localFilters.tier.length > 0 ||
     localFilters.visitSource.length > 0 ||
@@ -135,9 +133,7 @@ function buildVisitFilters(
  * @param localFilters - Local filter state from component
  * @returns Server-side filter object for API request
  */
-export function buildServerFilters(
-  localFilters: LocalFilters
-): VisitSearchFilters {
+export function buildServerFilters(localFilters: LocalFilters): VisitSearchFilters {
   const serverFilters: VisitSearchFilters = {};
 
   // Visit filters

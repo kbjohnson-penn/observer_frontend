@@ -1,15 +1,7 @@
-"use client";
+'use client';
 
-import React from "react";
-import {
-  Box,
-  VStack,
-  HStack,
-  Flex,
-  Stack,
-  Skeleton,
-  Card,
-} from "@chakra-ui/react";
+import React from 'react';
+import { Box, VStack, HStack, Flex, Stack, Skeleton, Card } from '@chakra-ui/react';
 
 export default function LoadingSkeleton() {
   return (
@@ -23,7 +15,7 @@ export default function LoadingSkeleton() {
           borderColor="gray.200"
           borderRadius="md"
           p={4}
-          display={{ base: "none", lg: "block" }}
+          display={{ base: 'none', lg: 'block' }}
         >
           <Stack gap={4}>
             <Skeleton height="20px" width="100px" />

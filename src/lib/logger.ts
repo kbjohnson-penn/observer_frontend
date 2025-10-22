@@ -49,7 +49,7 @@ const sanitize = (data: any): any => {
 
   for (const key in sanitized) {
     const lowerKey = key.toLowerCase();
-    if (sensitiveKeys.some(sensitive => lowerKey.includes(sensitive))) {
+    if (sensitiveKeys.some((sensitive) => lowerKey.includes(sensitive))) {
       sanitized[key] = '***REDACTED***';
     } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
       sanitized[key] = sanitize(sanitized[key]);
@@ -144,7 +144,7 @@ const table = (data: any): void => {
  */
 const safe = (...args: any[]): void => {
   if (config.isDevelopment) {
-    const sanitizedArgs = args.map(arg => sanitize(arg));
+    const sanitizedArgs = args.map((arg) => sanitize(arg));
     console.log(...sanitizedArgs);
   }
 };

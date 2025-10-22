@@ -7,8 +7,8 @@
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
   --penn-red: #990000;
-  --penn-blue: #011F5B;
-  --penn-light-blue: #82AFD3;
+  --penn-blue: #011f5b;
+  --penn-light-blue: #82afd3;
 }
 
 /* Custom text selection styling */
@@ -210,7 +210,9 @@ input.date-picker:disabled,
 .react-datepicker {
   font-family: inherit !important;
   border-color: #e2e8f0 !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 }
 
 .react-datepicker__header {
@@ -257,8 +259,8 @@ input.date-picker:disabled,
 }
 
 [data-theme] .chakra-checkbox__control[data-checked] {
-  background-color: #3182CE !important;
-  border-color: #3182CE !important;
+  background-color: #3182ce !important;
+  border-color: #3182ce !important;
 }
 
 [data-theme] .chakra-checkbox__control[data-checked] svg {
@@ -291,8 +293,8 @@ input.date-picker:disabled,
 }
 
 .chakra-checkbox__control[data-checked] {
-  background-color: #3182CE;
-  border-color: #3182CE;
+  background-color: #3182ce;
+  border-color: #3182ce;
 }
 
 .chakra-checkbox__control[data-checked] svg {
@@ -321,43 +323,43 @@ input.date-picker:disabled,
 }
 
 .chakra-checkbox__root[data-variant='subtle'] .chakra-checkbox__control {
-  border: 2px solid #CBD5E0;
-  background-color: #F7FAFC;
+  border: 2px solid #cbd5e0;
+  background-color: #f7fafc;
 }
 
 .chakra-checkbox__root[data-variant='solid'] .chakra-checkbox__control {
-  border: 2px solid #3182CE;
-  background-color: #EBF8FF;
+  border: 2px solid #3182ce;
+  background-color: #ebf8ff;
 }
 
 /* Color palette for blue */
 .chakra-checkbox__root[data-palette='blue'][data-checked] .chakra-checkbox__control {
-  background-color: #3182CE;
-  border-color: #3182CE;
+  background-color: #3182ce;
+  border-color: #3182ce;
 }
 
 /* Color palette for green */
 .chakra-checkbox__root[data-palette='green'][data-checked] .chakra-checkbox__control {
-  background-color: #38A169;
-  border-color: #38A169;
+  background-color: #38a169;
+  border-color: #38a169;
 }
 
 /* Color palette for red */
 .chakra-checkbox__root[data-palette='red'][data-checked] .chakra-checkbox__control {
-  background-color: #E53E3E;
-  border-color: #E53E3E;
+  background-color: #e53e3e;
+  border-color: #e53e3e;
 }
 
 /* Color palette for purple */
 .chakra-checkbox__root[data-palette='purple'][data-checked] .chakra-checkbox__control {
-  background-color: #805AD5;
-  border-color: #805AD5;
+  background-color: #805ad5;
+  border-color: #805ad5;
 }
 
 /* Color palette for orange */
 .chakra-checkbox__root[data-palette='orange'][data-checked] .chakra-checkbox__control {
-  background-color: #DD6B20;
-  border-color: #DD6B20;
+  background-color: #dd6b20;
+  border-color: #dd6b20;
 }
 
 /* Color palette for teal */
@@ -404,8 +406,9 @@ input.date-picker:disabled,
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
-  
-  .date-picker, .react-datepicker__input-container input {
+
+  .date-picker,
+  .react-datepicker__input-container input {
     font-size: 0.75rem;
     padding: 0.375rem;
   }

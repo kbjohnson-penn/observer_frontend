@@ -13,7 +13,7 @@ export const COLORS = {
     800: 'blue.800',
     900: 'blue.900',
   },
-  
+
   // Semantic colors for specific use cases
   semantic: {
     doctor: 'blue',
@@ -25,32 +25,32 @@ export const COLORS = {
     error: 'red',
     info: 'blue',
   },
-  
+
   // UI element colors
   ui: {
     activeBg: 'blue.50',
     activeBorder: 'blue.500',
     activeText: 'blue.700',
     activeIcon: 'blue.600',
-    
+
     inactiveBg: 'white',
     inactiveBorder: 'transparent',
     inactiveText: 'gray.700',
     inactiveIcon: 'gray.600',
-    
+
     hoverBg: 'gray.50',
     selectedBg: 'blue.100',
-    
+
     badgeScheme: 'blue',
     buttonScheme: 'blue',
   },
-  
+
   // Table specific
   table: {
     headerBg: 'gray.50',
     rowHoverBg: 'blue.50',
     borderColor: 'gray.200',
-  }
+  },
 };
 
 export default COLORS;

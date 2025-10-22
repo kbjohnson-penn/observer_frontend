@@ -1,7 +1,7 @@
-import { PublicPatientDataType, Patient } from "./patient";
-import { PublicProviderDataType, Provider } from "./provider";
-import { PublicMultiModalDataType, MultiModalData } from "./mmd";
-import { Department } from "./department";
+import { PublicPatientDataType, Patient } from './patient';
+import { PublicProviderDataType, Provider } from './provider';
+import { PublicMultiModalDataType, MultiModalData } from './mmd';
+import { Department } from './department';
 
 // Private API interfaces (different structure from public interfaces in interfaces.d.ts)
 export interface EncounterDataType {
@@ -64,9 +64,7 @@ export interface FlattenedCombinedDataType {
   [key: string]: any; // Allow additional properties
 }
 
-export type CombinedDataType =
-  | NestedCombinedDataType
-  | FlattenedCombinedDataType;
+export type CombinedDataType = NestedCombinedDataType | FlattenedCombinedDataType;
 
 // Interfaces moved from encounter.ts
 
@@ -94,10 +92,10 @@ export interface EncounterFile {
 export interface Encounter {
   id: number;
   case_id: string;
-  encounter_source: number;  // ID reference, not full object
-  department: number;        // ID reference, not full object
-  provider: number;          // ID reference, not full object
-  patient: number;           // ID reference, not full object
+  encounter_source: number; // ID reference, not full object
+  department: number; // ID reference, not full object
+  provider: number; // ID reference, not full object
+  patient: number; // ID reference, not full object
   encounter_date_and_time: string;
   provider_satisfaction?: number;
   patient_satisfaction?: number;
@@ -105,8 +103,8 @@ export interface Encounter {
   is_restricted: boolean;
   type: string;
   encounterfile_ids: number[];
-  tier: number;              // ID reference, not full object
-  multi_modal_data: number;  // ID reference, not full object
+  tier: number; // ID reference, not full object
+  multi_modal_data: number; // ID reference, not full object
 }
 
 // Full object types for when we fetch related data

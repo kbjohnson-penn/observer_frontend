@@ -1,38 +1,20 @@
 import React from 'react';
-import { 
-  Box, 
-  Heading, 
-  Text, 
-  Grid,
-  VStack
-} from '@chakra-ui/react';
+import { Box, Heading, Text, Grid, VStack } from '@chakra-ui/react';
 import { ACCESS_REQUIREMENTS } from '@/constants/dataset.constants';
 
 const DatasetInformation = () => {
   return (
     <Box mb={16} py={12} bg="white" borderRadius="xl" border="1px" borderColor="gray.200">
-      <Heading 
-        size="2xl" 
-        mb={2} 
-        color="blue.700"
-        textAlign="center"
-        fontWeight="bold"
-      >
+      <Heading size="2xl" mb={2} color="blue.700" textAlign="center" fontWeight="bold">
         Access Requirements
       </Heading>
-      
-      <Text 
-        fontSize="sm" 
-        color="gray.600" 
-        textAlign="center" 
-        mb={6}
-        fontStyle="italic"
-      >
+
+      <Text fontSize="sm" color="gray.600" textAlign="center" mb={6} fontStyle="italic">
         {ACCESS_REQUIREMENTS.updateNote}
       </Text>
-      
-      <Grid 
-        templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} 
+
+      <Grid
+        templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}
         gap={8}
         maxW="6xl"
         mx="auto"

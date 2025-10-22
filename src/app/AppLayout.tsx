@@ -1,21 +1,19 @@
-"use client";
+'use client';
 
-import React from "react";
-import { usePathname } from "next/navigation";
-import { Box, ProgressCircle } from "@chakra-ui/react";
-import { useAuth } from "@/contexts/AuthContext";
-import PublicLayout from "./layouts/PublicLayout";
-import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
+import React from 'react';
+import { usePathname } from 'next/navigation';
+import { Box, ProgressCircle } from '@chakra-ui/react';
+import { useAuth } from '@/contexts/AuthContext';
+import PublicLayout from './layouts/PublicLayout';
+import AuthenticatedLayout from './layouts/AuthenticatedLayout';
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
   const { isAuthenticated, isLoading } = useAuth();
 
   // Routes that should use authenticated layout
-  const authenticatedRoutes = ["/dashboard", "/profile"];
-  const shouldUseAuthLayout = authenticatedRoutes.some(route =>
-    pathname.startsWith(route)
-  );
+  const authenticatedRoutes = ['/dashboard', '/profile'];
+  const shouldUseAuthLayout = authenticatedRoutes.some((route) => pathname.startsWith(route));
 
   // Show loading state while checking authentication
   if (isLoading) {

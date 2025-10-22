@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { createContext, useState, useContext, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface User {
   username: string;
@@ -23,14 +23,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,29 +53,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // Listen for auth failures from API client
     const handleAuthFailure = () => {
       setUser(null);
-      router.push("/login");
+      router.push('/login');
     };
 
-    window.addEventListener("auth:failed", handleAuthFailure);
+    window.addEventListener('auth:failed', handleAuthFailure);
     checkAuth();
 
     return () => {
-      window.removeEventListener("auth:failed", handleAuthFailure);
+      window.removeEventListener('auth:failed', handleAuthFailure);
     };
   }, [router]);
 
   const login = async (username: string, password: string) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/token/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-      credentials: 'include', // Include cookies in request
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/auth/token/`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include', // Include cookies in request
+      }
+    );
 
     if (!response.ok) {
-      throw new Error("Invalid username or password");
+      throw new Error('Invalid username or password');
     }
 
     const data = await response.json();
@@ -87,55 +88,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser({
         username: data.user.username,
         email: data.user.email,
-        id: data.user.id
+        id: data.user.id,
       });
     }
 
-    router.push("/dashboard");
+    router.push('/dashboard');
   };
 
   const logout = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/logout/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: 'include', // Include cookies in request
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/auth/logout/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Include cookies in request
+        }
+      );
     } catch {
       // Logout error - continue with cleanup
     }
 
     // httpOnly cookies are cleared by backend, no need to clear localStorage
     setUser(null);
-    router.push("/login");
+    router.push('/login');
   };
 
   const refreshToken = async (): Promise<boolean> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/auth/token/refresh/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: 'include', // Include cookies in request
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/auth/token/refresh/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Include cookies in request
+        }
+      );
 
       if (response.ok) {
         // Backend handles setting new httpOnly cookies
         // We need to get user info from a protected endpoint
-        const userResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:8000/api/v1"}/accounts/profile/`, {
-          method: "GET",
-          credentials: 'include',
-        });
+        const userResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/profile/`,
+          {
+            method: 'GET',
+            credentials: 'include',
+          }
+        );
 
         if (userResponse.ok) {
           const userData = await userResponse.json();
           setUser({
-            username: userData.user?.username || userData.username || "user",
+            username: userData.user?.username || userData.username || 'user',
             email: userData.user?.email || userData.email,
-            id: userData.user?.id || userData.id
+            id: userData.user?.id || userData.id,
           });
           return true;
         }

@@ -1,11 +1,6 @@
-import {
-  Badge,
-  type BadgeProps,
-  Stat as ChakraStat,
-  FormatNumber,
-} from "@chakra-ui/react";
-import { InfoTip } from "./toggle-tip";
-import * as React from "react";
+import { Badge, type BadgeProps, Stat as ChakraStat, FormatNumber } from '@chakra-ui/react';
+import { InfoTip } from './toggle-tip';
+import * as React from 'react';
 
 interface StatLabelProps extends ChakraStat.LabelProps {
   info?: React.ReactNode;
@@ -28,18 +23,19 @@ interface StatValueTextProps extends ChakraStat.ValueTextProps {
   formatOptions?: Intl.NumberFormatOptions;
 }
 
-export const StatValueText = React.forwardRef<
-  HTMLDivElement,
-  StatValueTextProps
->(function StatValueText(props, ref) {
-  const { value, formatOptions, children, ...rest } = props;
-  return (
-    <ChakraStat.ValueText {...rest} ref={ref}>
-      {children ||
-        (value !== null && value !== undefined && <FormatNumber value={value} {...formatOptions} />)}
-    </ChakraStat.ValueText>
-  );
-});
+export const StatValueText = React.forwardRef<HTMLDivElement, StatValueTextProps>(
+  function StatValueText(props, ref) {
+    const { value, formatOptions, children, ...rest } = props;
+    return (
+      <ChakraStat.ValueText {...rest} ref={ref}>
+        {children ||
+          (value !== null && value !== undefined && (
+            <FormatNumber value={value} {...formatOptions} />
+          ))}
+      </ChakraStat.ValueText>
+    );
+  }
+);
 
 export const StatUpTrend = React.forwardRef<HTMLDivElement, BadgeProps>(
   function StatUpTrend(props, ref) {

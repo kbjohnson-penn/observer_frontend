@@ -237,11 +237,7 @@ describe('Middleware', () => {
     });
 
     it('should handle nested protected routes correctly', () => {
-      const nestedPaths = [
-        '/dashboard/settings',
-        '/dashboard/reports/view',
-        '/profile/edit',
-      ];
+      const nestedPaths = ['/dashboard/settings', '/dashboard/reports/view', '/profile/edit'];
 
       nestedPaths.forEach((path) => {
         jest.clearAllMocks();
