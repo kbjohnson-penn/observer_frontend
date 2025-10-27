@@ -10,6 +10,7 @@ import CohortTab from '../index';
 import { Provider } from '@/components/ui/provider';
 import type { Cohort } from '@/interfaces/cohort';
 import * as cohortStorage from '@/lib/utils/cohortStorage';
+import { useRouter } from 'next/navigation';
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -47,6 +48,11 @@ jest.mock('@/lib/logger', () => ({
     error: jest.fn(),
     log: jest.fn(),
   },
+}));
+
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
 }));
 
 // Mock child components
@@ -389,6 +395,11 @@ describe('CohortTab', () => {
     });
 
     it('should call handleViewCohort when view is clicked', async () => {
+      const mockPush = jest.fn();
+      (useRouter as jest.Mock).mockReturnValue({
+        push: mockPush,
+      });
+
       const user = userEvent.setup();
       render(<CohortTab />, { wrapper: TestWrapper });
 
@@ -401,8 +412,8 @@ describe('CohortTab', () => {
 
       await user.click(viewButton);
 
-      // View functionality currently just logs - no visible change to test
-      // This test verifies the button click doesn't crash the app
+      // Verify router.push was called with the correct cohort URL
+      expect(mockPush).toHaveBeenCalledWith('/cohorts/1');
     });
 
     it('should call handleDuplicateCohort and update list', async () => {
@@ -664,6 +675,79 @@ describe('CohortTab', () => {
       await waitFor(() => {
         expect(screen.getByText('Saved Cohorts (1)')).toBeInTheDocument();
       });
+    });
+  });
+
+  // ============================================================================
+  // Navigation Tests
+  // ============================================================================
+
+  describe('Navigation', () => {
+    let mockPush: jest.Mock;
+
+    beforeEach(() => {
+      mockPush = jest.fn();
+      (useRouter as jest.Mock).mockReturnValue({
+        push: mockPush,
+      });
+    });
+
+    it('should navigate to cohort view page when View button is clicked', async () => {
+      const user = userEvent.setup();
+      render(<CohortTab />, { wrapper: TestWrapper });
+
+      // Wait for cohorts to load
+      await waitFor(() => {
+        expect(screen.getByTestId('cohort-card-1')).toBeInTheDocument();
+      });
+
+      // Click View button on first cohort
+      const viewButton = screen.getAllByText('View')[0];
+      await user.click(viewButton);
+
+      // Verify router.push was called with correct URL
+      expect(mockPush).toHaveBeenCalledWith('/cohorts/1');
+      expect(mockPush).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call router.push with correct cohort ID', async () => {
+      const user = userEvent.setup();
+      render(<CohortTab />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('cohort-card-2')).toBeInTheDocument();
+      });
+
+      // Click View button on second cohort
+      const viewButtons = screen.getAllByText('View');
+      await user.click(viewButtons[1]);
+
+      // Verify router.push was called with second cohort's ID
+      expect(mockPush).toHaveBeenCalledWith('/cohorts/2');
+      expect(mockPush).toHaveBeenCalledTimes(1);
+    });
+
+    it('should navigate to correct page for each cohort independently', async () => {
+      const user = userEvent.setup();
+      render(<CohortTab />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('cohort-card-1')).toBeInTheDocument();
+        expect(screen.getByTestId('cohort-card-2')).toBeInTheDocument();
+      });
+
+      const viewButtons = screen.getAllByText('View');
+
+      // Click first cohort's View button
+      await user.click(viewButtons[0]);
+      expect(mockPush).toHaveBeenCalledWith('/cohorts/1');
+
+      // Clear mock to verify second call
+      mockPush.mockClear();
+
+      // Click second cohort's View button
+      await user.click(viewButtons[1]);
+      expect(mockPush).toHaveBeenCalledWith('/cohorts/2');
     });
   });
 });
