@@ -1,11 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Container, Heading, Text, Tabs } from '@chakra-ui/react';
 import ResearchTab from '@/components/dashboard/ResearchTab';
 import CohortTab from '@/components/dashboard/CohortTab';
 
 export default function DashboardPage() {
+  const [activeTab, setActiveTab] = useState('research');
+
   return (
     <Container maxW="container.xl" py={8}>
       <Box mb={6}>
@@ -15,7 +17,12 @@ export default function DashboardPage() {
         <Text color="gray.600">Explore datasets and manage research cohorts</Text>
       </Box>
 
-      <Tabs.Root defaultValue="research" variant="line">
+      <Tabs.Root
+        defaultValue="research"
+        variant="line"
+        value={activeTab}
+        onValueChange={(e) => setActiveTab(e.value)}
+      >
         <Tabs.List>
           <Tabs.Trigger value="research">Research Data</Tabs.Trigger>
           <Tabs.Trigger value="cohorts">Cohorts</Tabs.Trigger>
@@ -26,7 +33,8 @@ export default function DashboardPage() {
         </Tabs.Content>
 
         <Tabs.Content value="cohorts" mt={6}>
-          <CohortTab />
+          {/* Remount CohortTab when switching to it to reload cohorts */}
+          <CohortTab key={activeTab === 'cohorts' ? `cohorts-${Date.now()}` : 'cohorts-inactive'} />
         </Tabs.Content>
       </Tabs.Root>
     </Container>

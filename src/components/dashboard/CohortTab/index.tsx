@@ -111,16 +111,21 @@ export default function CohortTab() {
       <HStack justify="space-between">
         <Box>
           <Text fontSize="lg" fontWeight="semibold">
-            Saved Cohorts
+            Saved Cohorts ({cohorts.length})
           </Text>
           <Text fontSize="sm" color="gray.600">
             Manage your research cohorts and export data
           </Text>
         </Box>
-        {/* TODO: Enable create button when integrated with ResearchTab */}
-        <Button colorScheme="blue" disabled>
-          Create New Cohort
-        </Button>
+        <HStack gap={2}>
+          <Button onClick={loadCohorts} variant="outline">
+            Refresh
+          </Button>
+          {/* TODO: Enable create button when integrated with ResearchTab */}
+          <Button colorScheme="blue" disabled>
+            Create New Cohort
+          </Button>
+        </HStack>
       </HStack>
 
       {/* Error Alert */}
@@ -154,13 +159,6 @@ export default function CohortTab() {
       ) : (
         <EmptyState />
       )}
-
-      {/* Info Alert */}
-      <Alert.Root status="info">
-        <Alert.Title>
-          Cohorts are currently stored locally. Server-side sync coming soon.
-        </Alert.Title>
-      </Alert.Root>
 
       {/* Confirm Delete Dialog */}
       {cohortToDelete && (
