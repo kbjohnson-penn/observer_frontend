@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Box, Text, Flex, Spinner, Tabs, IconButton } from '@chakra-ui/react';
+import { Box, Text, Flex, Tabs, IconButton, Skeleton, Stack, HStack } from '@chakra-ui/react';
 import {
   FaUsers,
   FaStethoscope,
@@ -12,33 +12,84 @@ import {
   FaChevronLeft,
   FaChevronRight,
 } from 'react-icons/fa';
-import { OMOPTableName, SampleDataAPIResponse } from '@/interfaces/observer-omop';
+import { OMOPTableName, SampleDataAPIResponse, OMOPTableData } from '@/interfaces/observer-omop';
 import { TABLE_INFO } from '@/constants/table-info.constants';
 import { apiClient } from '@/lib/apiClient';
+import { logger } from '@/lib/logger';
 import TableHeader from './TableHeader';
 import DataTable from './DataTable';
 import COLORS from '@/constants/colors';
 import JSZip from 'jszip';
+import {
+  ColumnVisibility,
+  loadColumnPreferences,
+  saveColumnPreferences,
+  getDefaultColumnVisibility,
+} from '@/lib/utils/userPreferences';
 
+/**
+ * Props for the HealthcareDataBrowser component
+ */
 interface HealthcareDataBrowserProps {
+  /** Optional CSS class name for styling */
   className?: string;
+  /** Pre-loaded sample data from OMOP CDM tables. If not provided, data will be fetched from API */
   sampleData?: SampleDataAPIResponse | null;
 }
 
+/**
+ * Internal interface representing a data table with its metadata and data
+ */
 interface DataTable {
+  /** OMOP CDM table name (e.g., 'PERSON', 'VISIT_OCCURRENCE') */
   name: OMOPTableName;
+  /** Human-readable display name for the table */
   displayName: string;
+  /** Description of what data the table contains */
   description: string;
-  data: any[];
-  filteredData?: any[];
+  /** Array of rows from the table */
+  data: OMOPTableData[];
+  /** Filtered subset of data based on search term */
+  filteredData?: OMOPTableData[];
 }
 
+/**
+ * HealthcareDataBrowser Component
+ *
+ * A comprehensive data browser for exploring OMOP Common Data Model (CDM) tables.
+ * Supports table switching, search/filter, pagination, sorting, column management,
+ * and CSV export capabilities.
+ *
+ * Features:
+ * - Tab-based navigation between OMOP tables
+ * - Global search across all columns
+ * - Pagination with configurable page size
+ * - Column sorting (ascending/descending)
+ * - Column visibility toggle
+ * - CSV export (single table or all tables as ZIP)
+ * - Persistent user preferences for column visibility
+ *
+ * @component
+ * @example
+ * // With pre-loaded data
+ * <HealthcareDataBrowser sampleData={omopData} />
+ *
+ * @example
+ * // Fetch data from API
+ * <HealthcareDataBrowser />
+ */
 const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className, sampleData }) => {
   const [tables, setTables] = useState<DataTable[]>([]);
   const [activeTable, setActiveTable] = useState<OMOPTableName>('PERSON');
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [currentPages, setCurrentPages] = useState<Record<string, number>>({});
+  const [pageSize] = useState(20);
+  const [sortConfigs, setSortConfigs] = useState<
+    Record<string, { field: string; direction: 'asc' | 'desc' }>
+  >({});
+  const [columnVisibility, setColumnVisibility] = useState<Record<string, ColumnVisibility>>({});
   const urlsToCleanup = useRef<string[]>([]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -60,7 +111,7 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
       }
 
       // Map API response to OMOP table structure
-      const loadedSampleData: Record<OMOPTableName, any[]> = {
+      const loadedSampleData: Record<OMOPTableName, OMOPTableData[]> = {
         PERSON: apiData.persons || [],
         PROVIDER: apiData.providers || [],
         VISIT_OCCURRENCE: apiData.visits || [],
@@ -116,8 +167,166 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
     };
   }, []);
 
+  // Helper function to clean up blob URLs immediately
+  const cleanupUrl = useCallback((url: string) => {
+    try {
+      window.URL.revokeObjectURL(url);
+      urlsToCleanup.current = urlsToCleanup.current.filter((u) => u !== url);
+    } catch (error) {
+      logger.error('Failed to revoke URL:', error);
+    }
+  }, []);
+
   const currentTable = tables.find((table) => table.name === activeTable);
   const selectedTableInfo = TABLE_INFO[activeTable];
+
+  // Helper to get current page for a table (default to 1)
+  const getCurrentPage = (tableName: string) => currentPages[tableName] || 1;
+
+  // Helper to handle page changes
+  const handlePageChange = useCallback((tableName: string, page: number) => {
+    setCurrentPages((prev) => ({
+      ...prev,
+      [tableName]: page,
+    }));
+  }, []);
+
+  // Helper to get sort config for a table
+  const getSortConfig = (tableName: string) => sortConfigs[tableName] || null;
+
+  // Helper to handle sort changes
+  const handleSortChange = useCallback((tableName: string, field: string) => {
+    setSortConfigs((prev) => {
+      const currentConfig = prev[tableName];
+      const newDirection =
+        currentConfig?.field === field && currentConfig.direction === 'asc' ? 'desc' : 'asc';
+
+      return {
+        ...prev,
+        [tableName]: { field, direction: newDirection },
+      };
+    });
+
+    // Reset to page 1 when sort changes
+    setCurrentPages((prev) => ({
+      ...prev,
+      [tableName]: 1,
+    }));
+  }, []);
+
+  // Sort function that handles different data types
+  const sortData = useCallback(
+    (data: OMOPTableData[], sortConfig: { field: string; direction: 'asc' | 'desc' } | null) => {
+      if (!sortConfig) {
+        return data;
+      }
+
+      return [...data].sort((a, b) => {
+        const aVal = (a as Record<string, any>)[sortConfig.field];
+        const bVal = (b as Record<string, any>)[sortConfig.field];
+
+        // Handle null/undefined
+        if (aVal === null || aVal === undefined) {
+          if (bVal === null || bVal === undefined) {
+            return 0;
+          }
+          return 1;
+        }
+        if (bVal === null || bVal === undefined) {
+          return -1;
+        }
+
+        // Try date parsing first
+        const aDate = new Date(aVal);
+        const bDate = new Date(bVal);
+        if (!isNaN(aDate.getTime()) && !isNaN(bDate.getTime())) {
+          return sortConfig.direction === 'asc'
+            ? aDate.getTime() - bDate.getTime()
+            : bDate.getTime() - aDate.getTime();
+        }
+
+        // Handle numbers
+        const aNum = Number(aVal);
+        const bNum = Number(bVal);
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+          return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
+        }
+
+        // Default to string comparison
+        const aStr = String(aVal).toLowerCase();
+        const bStr = String(bVal).toLowerCase();
+
+        if (sortConfig.direction === 'asc') {
+          return aStr.localeCompare(bStr);
+        } else {
+          return bStr.localeCompare(aStr);
+        }
+      });
+    },
+    []
+  );
+
+  // Get column visibility for a table
+  const getColumnVisibility = useCallback(
+    (tableName: string, columns: string[]): ColumnVisibility => {
+      if (!columnVisibility[tableName]) {
+        // Try to load from localStorage
+        const saved = loadColumnPreferences(tableName);
+        if (saved) {
+          return saved;
+        }
+        // Return default (all visible)
+        return getDefaultColumnVisibility(columns);
+      }
+      return columnVisibility[tableName];
+    },
+    [columnVisibility]
+  );
+
+  // Handle column visibility change
+  const handleColumnVisibilityChange = useCallback(
+    (tableName: string, columnId: string, visible: boolean) => {
+      setColumnVisibility((prev) => {
+        const tableVisibility = prev[tableName] || {};
+        const newVisibility = {
+          ...tableVisibility,
+          [columnId]: visible,
+        };
+
+        // Save to localStorage
+        saveColumnPreferences(tableName, newVisibility);
+
+        return {
+          ...prev,
+          [tableName]: newVisibility,
+        };
+      });
+    },
+    []
+  );
+
+  // Show all columns for a table
+  const handleShowAllColumns = useCallback((tableName: string, columns: string[]) => {
+    const allVisible = getDefaultColumnVisibility(columns);
+    setColumnVisibility((prev) => ({
+      ...prev,
+      [tableName]: allVisible,
+    }));
+    saveColumnPreferences(tableName, allVisible);
+  }, []);
+
+  // Hide all columns for a table
+  const handleHideAllColumns = useCallback((tableName: string, columns: string[]) => {
+    const allHidden = columns.reduce((acc, col) => {
+      acc[col] = false;
+      return acc;
+    }, {} as ColumnVisibility);
+    setColumnVisibility((prev) => ({
+      ...prev,
+      [tableName]: allHidden,
+    }));
+    saveColumnPreferences(tableName, allHidden);
+  }, []);
 
   // Memoize filtered data to prevent expensive recalculations on every render
   const filteredTables = useMemo(() => {
@@ -135,8 +344,15 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
     }));
   }, [tables, searchTerm]);
 
-  // Helper functions
-  const getTableIcon = (tableName: OMOPTableName) => {
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    if (searchTerm) {
+      setCurrentPages({});
+    }
+  }, [searchTerm]);
+
+  // Helper functions (memoized for performance)
+  const getTableIcon = useCallback((tableName: OMOPTableName) => {
     switch (tableName) {
       case 'PERSON':
       case 'PROVIDER':
@@ -159,7 +375,7 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
       default:
         return null;
     }
-  };
+  }, []);
 
   const sanitizeCSVValue = (value: any): string => {
     const str = String(value || '').trim();
@@ -184,33 +400,51 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
     return `"${str.replace(/"/g, '""')}"`;
   };
 
-  const downloadCSV = (tableName: string, data: any[]) => {
-    if (data.length === 0) {
+  const downloadCSV = (tableName: string, data: OMOPTableData[]) => {
+    // Validate data array
+    if (!data || data.length === 0) {
+      logger.warn('Cannot download CSV: no data available', { tableName });
+      return;
+    }
+
+    // Validate first row structure
+    if (!data[0] || typeof data[0] !== 'object') {
+      logger.warn('Cannot download CSV: invalid data structure', { tableName });
       return;
     }
 
     const headers = Object.keys(data[0]);
-    const csvContent = [
-      headers.join(','),
-      ...data.map((row) => headers.map((header) => sanitizeCSVValue(row[header])).join(',')),
-    ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    // Validate headers exist
+    if (headers.length === 0) {
+      logger.warn('Cannot download CSV: no columns found', { tableName });
+      return;
+    }
 
-    // Track URL for cleanup
-    urlsToCleanup.current.push(url);
+    try {
+      const csvContent = [
+        headers.join(','),
+        ...data.map((row) =>
+          headers.map((header) => sanitizeCSVValue((row as Record<string, any>)[header])).join(',')
+        ),
+      ].join('\n');
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${tableName}.csv`;
-    a.click();
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
 
-    // Clean up immediately after download
-    setTimeout(() => {
-      window.URL.revokeObjectURL(url);
-      urlsToCleanup.current = urlsToCleanup.current.filter((u) => u !== url);
-    }, 100);
+      // Track URL for cleanup
+      urlsToCleanup.current.push(url);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${tableName}.csv`;
+      a.click();
+
+      // Clean up immediately (no setTimeout delay reduces memory leak risk)
+      cleanupUrl(url);
+    } catch (error) {
+      logger.error('Failed to generate CSV:', { tableName, error });
+    }
   };
 
   const downloadAllTables = async () => {
@@ -238,16 +472,38 @@ Note: This data is from the Observer platform.
 
     // Add each table with data to the zip
     tables.forEach((table) => {
-      if (table.data.length > 0) {
-        const headers = Object.keys(table.data[0]);
+      // Validate table data
+      if (!table.data || table.data.length === 0) {
+        return; // Skip tables with no data
+      }
+
+      // Validate first row structure
+      if (!table.data[0] || typeof table.data[0] !== 'object') {
+        logger.warn('Skipping table with invalid data structure', { tableName: table.name });
+        return;
+      }
+
+      const headers = Object.keys(table.data[0]);
+
+      // Validate headers exist
+      if (headers.length === 0) {
+        logger.warn('Skipping table with no columns', { tableName: table.name });
+        return;
+      }
+
+      try {
         const csvContent = [
           headers.join(','),
           ...table.data.map((row) =>
-            headers.map((header) => sanitizeCSVValue(row[header])).join(',')
+            headers
+              .map((header) => sanitizeCSVValue((row as Record<string, any>)[header]))
+              .join(',')
           ),
         ].join('\n');
 
         zip.file(`${table.name}.csv`, csvContent);
+      } catch (error) {
+        logger.error('Failed to add table to ZIP', { tableName: table.name, error });
       }
     });
 
@@ -268,19 +524,16 @@ Note: This data is from the Observer platform.
 
       a.click();
 
-      // Clean up immediately after download
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-        urlsToCleanup.current = urlsToCleanup.current.filter((u) => u !== url);
-      }, 100);
+      // Clean up immediately (no setTimeout delay reduces memory leak risk)
+      cleanupUrl(url);
     } catch {
       // Error creating zip file - could show user notification
     }
   };
 
-  const renderFieldValue = (value: any) => {
+  const renderFieldValue = useCallback((value: any) => {
     return value?.toString() || '-';
-  };
+  }, []);
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -296,11 +549,81 @@ Note: This data is from the Observer platform.
 
   if (loading) {
     return (
-      <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
-        <Flex direction="column" align="center" justify="center" py={8}>
-          <Spinner size="lg" mb={4} />
-          <Text>Loading Sample data...</Text>
+      <Box bg="white" p={6} borderRadius="lg" boxShadow="md">
+        {/* Skeleton for header */}
+        <Flex
+          justify="space-between"
+          align="center"
+          mb={6}
+          pb={4}
+          borderBottom="1px"
+          borderColor="gray.200"
+        >
+          <Skeleton height="24px" width="200px" />
+          <HStack gap={3}>
+            <Skeleton height="32px" width="100px" />
+            <Skeleton height="32px" width="100px" />
+          </HStack>
         </Flex>
+
+        {/* Skeleton for tabs */}
+        <Stack gap={4} mb={6}>
+          <HStack gap={2} mb={4}>
+            {Array.from({ length: 6 }, (_, i) => (
+              <Skeleton key={`tab-${i}`} height="40px" width="120px" borderRadius="md" />
+            ))}
+          </HStack>
+
+          {/* Skeleton for table description */}
+          <Box p={4} bg="blue.50" borderRadius="lg" border="1px" borderColor="blue.200">
+            <HStack gap={3} mb={3}>
+              <Skeleton height="24px" width="24px" borderRadius="full" />
+              <Stack gap={1} flex={1}>
+                <Skeleton height="20px" width="150px" />
+                <Skeleton height="16px" width="300px" />
+              </Stack>
+            </HStack>
+            <Flex justify="space-between" align="center">
+              <Skeleton height="32px" width="250px" />
+              <Skeleton height="16px" width="100px" />
+            </Flex>
+          </Box>
+
+          {/* Skeleton for table */}
+          <Box border="1px" borderColor="gray.200" borderRadius="lg" p={4}>
+            <Stack gap={2}>
+              {/* Header row */}
+              <HStack gap={4} pb={2} borderBottom="2px" borderColor="gray.300">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <Skeleton key={`header-${i}`} height="20px" width="100px" />
+                ))}
+              </HStack>
+              {/* Data rows */}
+              {Array.from({ length: pageSize }, (_, i) => (
+                <HStack key={`row-${i}`} gap={4} py={2} borderBottom="1px" borderColor="gray.100">
+                  {Array.from({ length: 5 }, (_, j) => (
+                    <Skeleton
+                      key={`cell-${i}-${j}`}
+                      height="18px"
+                      width={j === 0 ? '60px' : j === 1 ? '120px' : '100px'}
+                    />
+                  ))}
+                </HStack>
+              ))}
+            </Stack>
+          </Box>
+
+          {/* Skeleton for pagination */}
+          <Flex justify="space-between" align="center" mt={4}>
+            <Skeleton height="32px" width="80px" />
+            <HStack gap={2}>
+              {Array.from({ length: 5 }, (_, i) => (
+                <Skeleton key={`page-${i}`} height="32px" width="32px" borderRadius="md" />
+              ))}
+            </HStack>
+            <Skeleton height="32px" width="80px" />
+          </Flex>
+        </Stack>
       </Box>
     );
   }
@@ -484,16 +807,47 @@ Note: This data is from the Observer platform.
               ? tableWithFilteredData.filteredData || table.data
               : table.data;
 
+            // Apply sorting
+            const sortConfig = getSortConfig(table.name);
+            const sortedData = sortData(filteredData, sortConfig);
+
+            // Pagination calculations
+            const currentPage = getCurrentPage(table.name);
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const paginatedData = sortedData.slice(startIndex, endIndex);
+            const totalCount = sortedData.length;
+            const hasNext = endIndex < totalCount;
+            const hasPrevious = currentPage > 1;
+
+            // Get columns and column visibility for this table
+            const tableColumns = table.data.length > 0 ? Object.keys(table.data[0]) : [];
+            const tableColumnVisibility = getColumnVisibility(table.name, tableColumns);
+
             return (
               <Tabs.Content key={table.name} value={table.name} pt={4}>
                 <DataTable
                   table={table}
                   selectedTableInfo={selectedTableInfo}
-                  filteredData={filteredData}
+                  filteredData={paginatedData}
+                  totalFilteredCount={totalCount}
                   searchTerm={searchTerm}
                   onSearchChange={setSearchTerm}
                   getTableIcon={getTableIcon}
                   renderFieldValue={renderFieldValue}
+                  currentPage={currentPage}
+                  pageSize={pageSize}
+                  hasNext={hasNext}
+                  hasPrevious={hasPrevious}
+                  onPageChange={(page) => handlePageChange(table.name, page)}
+                  sortConfig={sortConfig}
+                  onSortChange={(field) => handleSortChange(table.name, field)}
+                  columnVisibility={tableColumnVisibility}
+                  onColumnVisibilityChange={(columnId, visible) =>
+                    handleColumnVisibilityChange(table.name, columnId, visible)
+                  }
+                  onShowAllColumns={() => handleShowAllColumns(table.name, tableColumns)}
+                  onHideAllColumns={() => handleHideAllColumns(table.name, tableColumns)}
                 />
               </Tabs.Content>
             );

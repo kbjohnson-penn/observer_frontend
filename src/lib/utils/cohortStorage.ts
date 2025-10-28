@@ -1,45 +1,33 @@
 /**
  * Cohort storage utility
- * Currently uses localStorage, designed for easy migration to API
+ * Uses Observer backend API for persistent storage
  */
 
 import { Cohort, CohortCreateRequest } from '@/interfaces/cohort';
+import { apiClient } from '../apiClient';
 import { logger } from '../logger';
-
-const STORAGE_KEY = 'observer-research-cohorts';
-
-/**
- * Get storage information (size and count)
- */
-const getStorageInfo = () => {
-  if (typeof window === 'undefined') {
-    return { size: '0', count: 0 };
-  }
-
-  const stored = localStorage.getItem(STORAGE_KEY);
-  const size = stored ? new Blob([stored]).size : 0;
-  const sizeKB = (size / 1024).toFixed(2);
-  const count = stored ? JSON.parse(stored).length : 0;
-  return { size: sizeKB, count };
-};
 
 /**
  * Get all cohorts for the current user
- * TODO: Replace with API call - GET /api/v1/research/cohorts/
+ * GET /api/v1/accounts/cohorts/
  */
 export async function getCohorts(): Promise<Cohort[]> {
   try {
-    if (typeof window === 'undefined') {
-      return [];
-    }
+    const response = await apiClient.get('/accounts/cohorts/');
 
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) {
-      return [];
-    }
+    // API returns { cohorts: Cohort[], count: number }
+    const cohorts = response.data.cohorts || [];
 
-    const cohorts = JSON.parse(stored) as Cohort[];
-    return cohorts;
+    // Transform API response to match frontend interface
+    return cohorts.map((cohort: any) => ({
+      id: cohort.id.toString(),
+      name: cohort.name,
+      description: cohort.description || '',
+      filters: cohort.filters,
+      visitCount: cohort.visit_count,
+      createdAt: cohort.created_at,
+      updatedAt: cohort.updated_at,
+    }));
   } catch (error) {
     logger.error('Failed to load cohorts:', error);
     return [];
@@ -48,12 +36,23 @@ export async function getCohorts(): Promise<Cohort[]> {
 
 /**
  * Get a single cohort by ID
- * TODO: Replace with API call - GET /api/v1/research/cohorts/{id}/
+ * GET /api/v1/accounts/cohorts/{id}/
  */
 export async function getCohort(id: string): Promise<Cohort | null> {
   try {
-    const cohorts = await getCohorts();
-    return cohorts.find((c) => c.id === id) || null;
+    const response = await apiClient.get(`/accounts/cohorts/${id}/`);
+    const cohort = response.data;
+
+    // Transform API response to match frontend interface
+    return {
+      id: cohort.id.toString(),
+      name: cohort.name,
+      description: cohort.description || '',
+      filters: cohort.filters,
+      visitCount: cohort.visit_count,
+      createdAt: cohort.created_at,
+      updatedAt: cohort.updated_at,
+    };
   } catch (error) {
     logger.error('Failed to load cohort:', error);
     return null;
@@ -62,41 +61,31 @@ export async function getCohort(id: string): Promise<Cohort | null> {
 
 /**
  * Create a new cohort
- * TODO: Replace with API call - POST /api/v1/research/cohorts/
+ * POST /api/v1/accounts/cohorts/
  */
 export async function createCohort(data: CohortCreateRequest): Promise<Cohort> {
   try {
-    const now = new Date().toISOString();
-    const newCohort: Cohort = {
-      id: `cohort-${Date.now()}`, // TODO: Use server-generated ID
+    // Transform frontend request to API format
+    const payload = {
       name: data.name,
-      description: data.description,
+      description: data.description || '',
       filters: data.filters,
-      visitCount: data.visitCount,
-      createdAt: now,
-      updatedAt: now,
+      visit_count: data.visitCount,
     };
 
-    const cohorts = await getCohorts();
-    const updated = [...cohorts, newCohort];
+    const response = await apiClient.post('/accounts/cohorts/', payload);
+    const cohort = response.data;
 
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      } catch (storageError) {
-        // Handle quota exceeded error with detailed information
-        if (storageError instanceof Error && storageError.name === 'QuotaExceededError') {
-          const { size, count } = getStorageInfo();
-          throw new Error(
-            `Storage quota exceeded (${size}KB used, ${count} cohorts). ` +
-              `Please delete or export cohorts to free up space.`
-          );
-        }
-        throw storageError;
-      }
-    }
-
-    return newCohort;
+    // Transform API response to match frontend interface
+    return {
+      id: cohort.id.toString(),
+      name: cohort.name,
+      description: cohort.description || '',
+      filters: cohort.filters,
+      visitCount: cohort.visit_count,
+      createdAt: cohort.created_at,
+      updatedAt: cohort.updated_at,
+    };
   } catch (error) {
     logger.error('Failed to create cohort:', error);
     if (error instanceof Error) {
@@ -108,41 +97,38 @@ export async function createCohort(data: CohortCreateRequest): Promise<Cohort> {
 
 /**
  * Update an existing cohort
- * TODO: Replace with API call - PATCH /api/v1/research/cohorts/{id}/
+ * PATCH /api/v1/accounts/cohorts/{id}/
  */
 export async function updateCohort(id: string, updates: Partial<Cohort>): Promise<Cohort> {
   try {
-    const cohorts = await getCohorts();
-    const index = cohorts.findIndex((c) => c.id === id);
-
-    if (index === -1) {
-      throw new Error('Cohort not found');
+    // Transform frontend updates to API format
+    const payload: any = {};
+    if (updates.name !== undefined) {
+      payload.name = updates.name;
+    }
+    if (updates.description !== undefined) {
+      payload.description = updates.description;
+    }
+    if (updates.filters !== undefined) {
+      payload.filters = updates.filters;
+    }
+    if (updates.visitCount !== undefined) {
+      payload.visit_count = updates.visitCount;
     }
 
-    const updatedCohort = {
-      ...cohorts[index],
-      ...updates,
-      updatedAt: new Date().toISOString(),
+    const response = await apiClient.patch(`/accounts/cohorts/${id}/`, payload);
+    const cohort = response.data;
+
+    // Transform API response to match frontend interface
+    return {
+      id: cohort.id.toString(),
+      name: cohort.name,
+      description: cohort.description || '',
+      filters: cohort.filters,
+      visitCount: cohort.visit_count,
+      createdAt: cohort.created_at,
+      updatedAt: cohort.updated_at,
     };
-
-    cohorts[index] = updatedCohort;
-
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(cohorts));
-      } catch (storageError) {
-        if (storageError instanceof Error && storageError.name === 'QuotaExceededError') {
-          const { size, count } = getStorageInfo();
-          throw new Error(
-            `Storage quota exceeded (${size}KB used, ${count} cohorts). ` +
-              `Please delete or export cohorts to free up space.`
-          );
-        }
-        throw storageError;
-      }
-    }
-
-    return updatedCohort;
   } catch (error) {
     logger.error('Failed to update cohort:', error);
     if (error instanceof Error) {
@@ -154,16 +140,11 @@ export async function updateCohort(id: string, updates: Partial<Cohort>): Promis
 
 /**
  * Delete a cohort
- * TODO: Replace with API call - DELETE /api/v1/research/cohorts/{id}/
+ * DELETE /api/v1/accounts/cohorts/{id}/
  */
 export async function deleteCohort(id: string): Promise<void> {
   try {
-    const cohorts = await getCohorts();
-    const filtered = cohorts.filter((c) => c.id !== id);
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    }
+    await apiClient.delete(`/accounts/cohorts/${id}/`);
   } catch (error) {
     logger.error('Failed to delete cohort:', error);
     throw new Error('Failed to delete cohort');
@@ -172,21 +153,24 @@ export async function deleteCohort(id: string): Promise<void> {
 
 /**
  * Duplicate a cohort
- * TODO: Replace with API call - POST /api/v1/research/cohorts/{id}/duplicate/
+ * POST /api/v1/accounts/cohorts/{id}/duplicate/
  */
-export async function duplicateCohort(id: string): Promise<Cohort> {
+export async function duplicateCohort(id: string, newName?: string): Promise<Cohort> {
   try {
-    const original = await getCohort(id);
-    if (!original) {
-      throw new Error('Cohort not found');
-    }
+    const payload = newName ? { name: newName } : {};
+    const response = await apiClient.post(`/accounts/cohorts/${id}/duplicate/`, payload);
+    const cohort = response.data;
 
-    return createCohort({
-      name: `${original.name} (Copy)`,
-      description: original.description,
-      filters: original.filters,
-      visitCount: original.visitCount,
-    });
+    // Transform API response to match frontend interface
+    return {
+      id: cohort.id.toString(),
+      name: cohort.name,
+      description: cohort.description || '',
+      filters: cohort.filters,
+      visitCount: cohort.visit_count,
+      createdAt: cohort.created_at,
+      updatedAt: cohort.updated_at,
+    };
   } catch (error) {
     logger.error('Failed to duplicate cohort:', error);
     throw new Error('Failed to duplicate cohort');

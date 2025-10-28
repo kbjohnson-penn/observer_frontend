@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Box, Grid, VStack, HStack, Text, Button, Alert } from '@chakra-ui/react';
 import { Cohort } from '@/interfaces/cohort';
 import {
@@ -15,6 +16,7 @@ import EmptyState from './EmptyState';
 import ConfirmDeleteDialog from './ConfirmDeleteDialog';
 
 export default function CohortTab() {
+  const router = useRouter();
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -83,10 +85,12 @@ export default function CohortTab() {
     }
   }, []);
 
-  const handleViewCohort = useCallback((cohort: Cohort) => {
-    // TODO: Navigate to cohort detail view or show modal with filter details
-    logger.log('View cohort:', cohort);
-  }, []);
+  const handleViewCohort = useCallback(
+    (cohort: Cohort) => {
+      router.push(`/cohorts/${cohort.id}`);
+    },
+    [router]
+  );
 
   const handleExportCohort = useCallback((cohort: Cohort) => {
     try {
@@ -111,16 +115,21 @@ export default function CohortTab() {
       <HStack justify="space-between">
         <Box>
           <Text fontSize="lg" fontWeight="semibold">
-            Saved Cohorts
+            Saved Cohorts ({cohorts.length})
           </Text>
           <Text fontSize="sm" color="gray.600">
             Manage your research cohorts and export data
           </Text>
         </Box>
-        {/* TODO: Enable create button when integrated with ResearchTab */}
-        <Button colorScheme="blue" disabled>
-          Create New Cohort
-        </Button>
+        <HStack gap={2}>
+          <Button onClick={loadCohorts} variant="outline">
+            Refresh
+          </Button>
+          {/* TODO: Enable create button when integrated with ResearchTab */}
+          <Button colorScheme="blue" disabled>
+            Create New Cohort
+          </Button>
+        </HStack>
       </HStack>
 
       {/* Error Alert */}
@@ -154,13 +163,6 @@ export default function CohortTab() {
       ) : (
         <EmptyState />
       )}
-
-      {/* Info Alert */}
-      <Alert.Root status="info">
-        <Alert.Title>
-          Cohorts are currently stored locally. Server-side sync coming soon.
-        </Alert.Title>
-      </Alert.Root>
 
       {/* Confirm Delete Dialog */}
       {cohortToDelete && (

@@ -247,19 +247,19 @@ export type OMOPTableData =
 
 // API Response interface
 export interface SampleDataAPIResponse {
-  persons: any[];
-  providers: any[];
-  visits: any[];
-  notes: any[];
-  conditions: any[];
-  drugs: any[];
-  procedures: any[];
-  measurements: any[];
-  observations: any[];
-  patient_surveys: any[];
-  provider_surveys: any[];
-  audit_logs: any[];
-  concepts: any[];
+  persons: Person[];
+  providers: Provider[];
+  visits: VisitOccurrence[];
+  notes: Note[];
+  conditions: ConditionOccurrence[];
+  drugs: DrugExposure[];
+  procedures: ProcedureOccurrence[];
+  measurements: Measurement[];
+  observations: Observation[];
+  patient_surveys: PatientSurvey[];
+  provider_surveys: ProviderSurvey[];
+  audit_logs: AuditLogs[];
+  concepts: Concept[];
   _metadata: {
     description: string;
     source: string;

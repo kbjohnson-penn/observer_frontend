@@ -4,11 +4,13 @@ import React, { ErrorInfo } from 'react';
 import { ErrorBoundary as ReactErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { Box, Heading, Text, Button, Flex } from '@chakra-ui/react';
 import { FaExclamationTriangle, FaRedo } from 'react-icons/fa';
+import { logger } from '@/lib/logger';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ComponentType<FallbackProps>;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  componentName?: string;
 }
 
 // Default error fallback component
@@ -69,9 +71,21 @@ const ErrorBoundary: React.FC<ErrorBoundaryProps> = ({
   children,
   fallback: FallbackComponent = DefaultErrorFallback,
   onError,
+  componentName,
 }) => {
   const handleError = (error: Error, errorInfo: ErrorInfo) => {
-    // Error caught by boundary - could send to error reporting service
+    // Log error to centralized logger for monitoring
+    logger.error('ErrorBoundary caught error:', {
+      component: componentName || 'Unknown',
+      error: {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      },
+      errorInfo: {
+        componentStack: errorInfo.componentStack,
+      },
+    });
 
     // Call custom error handler if provided
     if (onError) {

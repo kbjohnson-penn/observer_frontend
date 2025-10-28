@@ -45,11 +45,24 @@ export interface CohortFilterSummary {
 /**
  * Calculates filter summary from VisitSearchFilters
  */
-export function getCohortFilterSummary(filters: VisitSearchFilters): CohortFilterSummary {
+export function getCohortFilterSummary(
+  filters: VisitSearchFilters | null | undefined
+): CohortFilterSummary {
   let visitFilters = 0;
   let personDemographicFilters = 0;
   let providerDemographicFilters = 0;
   let clinicalFilters = 0;
+
+  // Guard against undefined or null filters
+  if (!filters) {
+    return {
+      visitFilters: 0,
+      personDemographicFilters: 0,
+      providerDemographicFilters: 0,
+      clinicalFilters: 0,
+      totalActiveFilters: 0,
+    };
+  }
 
   // Count visit filters
   if (filters.visit) {

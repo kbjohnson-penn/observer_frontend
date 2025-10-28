@@ -60,8 +60,7 @@ export default function RegisterForm() {
     'edu', // Educational institutions
     'ac.uk', // UK academic institutions
     'gov', // Government institutions
-    'nih.gov', // National Institutes of Health
-    'upenn.edu', // University of Pennsylvania
+    'mil', // Military institutions
     ...getTestDomains(), // Test domains only in development
   ];
 
