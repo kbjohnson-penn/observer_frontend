@@ -4,15 +4,36 @@
  * This logger ensures that sensitive information is not logged in production
  * and provides a consistent interface for logging throughout the application.
  *
- * Usage:
- *   import { logger } from '@/lib/logger';
- *   logger.log('User action', userData);      // Only logs in development
- *   logger.error('API error', error);         // Logs in all environments
- *   logger.debug('Debug info', debugData);    // Only logs in development
+ * Features:
+ * - Environment-aware logging (development vs production)
+ * - Automatic sanitization of sensitive data (passwords, tokens, etc.)
+ * - Consistent API across the application
+ * - Ready for integration with error tracking services (Sentry)
+ *
+ * @module logger
+ *
+ * @example
+ * import { logger } from '@/lib/logger';
+ *
+ * // Development only logs
+ * logger.log('User action', userData);
+ * logger.debug('Debug info', debugData);
+ *
+ * // Production logs (use sparingly)
+ * logger.warn('Validation warning', { field: 'email' });
+ * logger.error('API error', error);
+ *
+ * // Sanitized logging
+ * logger.safe({ password: '123', username: 'john' }); // password will be redacted
  */
 
+/**
+ * Logger configuration interface
+ */
 interface LoggerConfig {
+  /** Whether app is running in development mode */
   isDevelopment: boolean;
+  /** Whether app is running in production mode */
   isProduction: boolean;
   // Future: Add integration with error tracking service (Sentry, LogRocket, etc.)
 }

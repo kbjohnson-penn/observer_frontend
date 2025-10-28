@@ -27,19 +27,57 @@ import {
   getDefaultColumnVisibility,
 } from '@/lib/utils/userPreferences';
 
+/**
+ * Props for the HealthcareDataBrowser component
+ */
 interface HealthcareDataBrowserProps {
+  /** Optional CSS class name for styling */
   className?: string;
+  /** Pre-loaded sample data from OMOP CDM tables. If not provided, data will be fetched from API */
   sampleData?: SampleDataAPIResponse | null;
 }
 
+/**
+ * Internal interface representing a data table with its metadata and data
+ */
 interface DataTable {
+  /** OMOP CDM table name (e.g., 'PERSON', 'VISIT_OCCURRENCE') */
   name: OMOPTableName;
+  /** Human-readable display name for the table */
   displayName: string;
+  /** Description of what data the table contains */
   description: string;
+  /** Array of rows from the table */
   data: OMOPTableData[];
+  /** Filtered subset of data based on search term */
   filteredData?: OMOPTableData[];
 }
 
+/**
+ * HealthcareDataBrowser Component
+ *
+ * A comprehensive data browser for exploring OMOP Common Data Model (CDM) tables.
+ * Supports table switching, search/filter, pagination, sorting, column management,
+ * and CSV export capabilities.
+ *
+ * Features:
+ * - Tab-based navigation between OMOP tables
+ * - Global search across all columns
+ * - Pagination with configurable page size
+ * - Column sorting (ascending/descending)
+ * - Column visibility toggle
+ * - CSV export (single table or all tables as ZIP)
+ * - Persistent user preferences for column visibility
+ *
+ * @component
+ * @example
+ * // With pre-loaded data
+ * <HealthcareDataBrowser sampleData={omopData} />
+ *
+ * @example
+ * // Fetch data from API
+ * <HealthcareDataBrowser />
+ */
 const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className, sampleData }) => {
   const [tables, setTables] = useState<DataTable[]>([]);
   const [activeTable, setActiveTable] = useState<OMOPTableName>('PERSON');

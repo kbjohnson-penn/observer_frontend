@@ -1,13 +1,46 @@
+/**
+ * API Client Module
+ *
+ * Provides a configured Axios instance for making HTTP requests to the Observer backend API.
+ * Handles authentication, CSRF protection, token refresh, and error handling automatically.
+ *
+ * Features:
+ * - Automatic CSRF token injection for state-changing requests
+ * - httpOnly cookie-based authentication
+ * - Automatic token refresh on 401 errors
+ * - Request/response logging
+ * - Network error handling
+ * - Auth failure events
+ *
+ * @module apiClient
+ */
+
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { logger } from './logger';
 import { CONFIG } from './config';
 
-// Extend the AxiosRequestConfig to include _retry property
+/**
+ * Extended Axios request config to track retry attempts
+ */
 interface RetryAxiosRequestConfig extends InternalAxiosRequestConfig {
+  /** Flag to prevent infinite retry loops */
   _retry?: boolean;
 }
 
-// CSRF Token utility function
+/**
+ * Extract CSRF token from document cookies
+ *
+ * Searches for the 'csrftoken' cookie and returns its value.
+ * Required for Django's CSRF protection on state-changing requests.
+ *
+ * @returns CSRF token string, or null if not found or in SSR context
+ *
+ * @example
+ * const token = getCsrfToken();
+ * if (token) {
+ *   headers['X-CSRFToken'] = token;
+ * }
+ */
 const getCsrfToken = (): string | null => {
   if (typeof document === 'undefined') {
     return null;
