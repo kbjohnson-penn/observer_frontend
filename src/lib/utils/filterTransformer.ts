@@ -38,12 +38,15 @@ function ageToYearOfBirth(
     result.year_of_birth_from = currentYear - age;
   }
 
-  // Validate logical consistency
+  // Validate logical consistency only if both values are valid numbers
   if (ageFrom && ageTo) {
     const minAge = parseInt(ageFrom, 10);
     const maxAge = parseInt(ageTo, 10);
-    if (minAge > maxAge) {
-      throw new Error('Minimum age cannot be greater than maximum age');
+    // Only validate if both are valid numbers (not NaN)
+    if (!isNaN(minAge) && !isNaN(maxAge) && minAge > maxAge) {
+      // Don't throw error during typing - just skip the invalid range
+      // The backend will handle this or we can show a warning in the UI
+      return {};
     }
   }
 

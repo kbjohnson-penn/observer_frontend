@@ -31,6 +31,51 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   disconnect: jest.fn(),
 }));
 
+// Mock the hooks
+jest.mock('@/hooks/useFilterOptions', () => ({
+  useFilterOptions: jest.fn(() => ({
+    filterOptions: {
+      total_accessible_visits: 1234,
+      demographics: {
+        genders: ['M', 'F'],
+        races: ['White', 'Black'],
+        ethnicities: ['Hispanic', 'Non-Hispanic'],
+        year_of_birth_range: { min: 1950, max: 2000 },
+      },
+      visit_options: {
+        tiers: [1, 2, 3],
+        visit_sources: ['Inpatient', 'Outpatient'],
+        date_range: { earliest: '2020-01-01', latest: '2024-01-01' },
+      },
+      clinical_options: {
+        conditions: { available_codes: ['A', 'B'], available_values: [], total_visits: 100 },
+        labs: {
+          procedure_names: ['Lab1'],
+          result_flags: [],
+          order_statuses: [],
+          total_visits: 100,
+        },
+        drugs: { common_drugs: ['Drug1', 'Drug2'], total_visits: 100 },
+        procedures: { common_names: ['Proc1'], future_or_stand_options: [], total_visits: 100 },
+        notes: { note_types: ['Note1'], note_statuses: [], total_visits: 100 },
+        observations: { file_types: ['PDF'], total_visits: 100 },
+        measurements: {
+          total_visits: 100,
+          bp_systolic_range: { min: 90, max: 180 },
+          weight_range: { min: 100, max: 300 },
+        },
+      },
+    },
+    loading: false,
+    error: null,
+    refetch: jest.fn(),
+  })),
+}));
+
+jest.mock('@/lib/utils/cohortStorage', () => ({
+  getCohorts: jest.fn(() => Promise.resolve([{ id: '1', name: 'Test Cohort' }])),
+}));
+
 // Mock the child tab components
 jest.mock('@/components/dashboard/ResearchTab', () => {
   return function MockResearchTab() {
@@ -57,6 +102,13 @@ jest.mock('@/components/dashboard/CohortTab', () => {
   };
 });
 
+// Mock DashboardStats component
+jest.mock('@/components/dashboard/DashboardStats', () => {
+  return function MockDashboardStats() {
+    return <div data-testid="dashboard-stats">Dashboard Stats</div>;
+  };
+});
+
 // Test wrapper with Chakra Provider
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <Provider>{children}</Provider>;
@@ -74,7 +126,11 @@ describe('DashboardPage', () => {
       render(<DashboardPage />, { wrapper: TestWrapper });
 
       expect(screen.getByText('Research Dashboard')).toBeInTheDocument();
-      expect(screen.getByText('Explore datasets and manage research cohorts')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Explore healthcare datasets, create custom cohorts, and manage your research projects'
+        )
+      ).toBeInTheDocument();
     });
 
     it('should render both tab triggers', () => {
@@ -96,6 +152,12 @@ describe('DashboardPage', () => {
 
       expect(screen.getByTestId('research-tab')).toBeInTheDocument();
       expect(screen.getByText('Research Tab Content')).toBeInTheDocument();
+    });
+
+    it('should render DashboardStats component', () => {
+      render(<DashboardPage />, { wrapper: TestWrapper });
+
+      expect(screen.getByTestId('dashboard-stats')).toBeInTheDocument();
     });
   });
 
