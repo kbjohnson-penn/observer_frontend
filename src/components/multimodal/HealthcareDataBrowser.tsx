@@ -15,6 +15,7 @@ import {
 import { OMOPTableName, SampleDataAPIResponse, OMOPTableData } from '@/interfaces/observer-omop';
 import { TABLE_INFO } from '@/constants/table-info.constants';
 import { apiClient } from '@/lib/apiClient';
+import { logger } from '@/lib/logger';
 import TableHeader from './TableHeader';
 import DataTable from './DataTable';
 import COLORS from '@/constants/colors';
@@ -352,34 +353,53 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
   };
 
   const downloadCSV = (tableName: string, data: OMOPTableData[]) => {
-    if (data.length === 0) {
+    // Validate data array
+    if (!data || data.length === 0) {
+      logger.warn('Cannot download CSV: no data available', { tableName });
+      return;
+    }
+
+    // Validate first row structure
+    if (!data[0] || typeof data[0] !== 'object') {
+      logger.warn('Cannot download CSV: invalid data structure', { tableName });
       return;
     }
 
     const headers = Object.keys(data[0]);
-    const csvContent = [
-      headers.join(','),
-      ...data.map((row) =>
-        headers.map((header) => sanitizeCSVValue((row as Record<string, any>)[header])).join(',')
-      ),
-    ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    // Validate headers exist
+    if (headers.length === 0) {
+      logger.warn('Cannot download CSV: no columns found', { tableName });
+      return;
+    }
 
-    // Track URL for cleanup
-    urlsToCleanup.current.push(url);
+    try {
+      const csvContent = [
+        headers.join(','),
+        ...data.map((row) =>
+          headers.map((header) => sanitizeCSVValue((row as Record<string, any>)[header])).join(',')
+        ),
+      ].join('\n');
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${tableName}.csv`;
-    a.click();
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
 
-    // Clean up immediately after download
-    setTimeout(() => {
-      window.URL.revokeObjectURL(url);
-      urlsToCleanup.current = urlsToCleanup.current.filter((u) => u !== url);
-    }, 100);
+      // Track URL for cleanup
+      urlsToCleanup.current.push(url);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${tableName}.csv`;
+      a.click();
+
+      // Clean up immediately after download
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        urlsToCleanup.current = urlsToCleanup.current.filter((u) => u !== url);
+      }, 100);
+    } catch (error) {
+      logger.error('Failed to generate CSV:', { tableName, error });
+    }
   };
 
   const downloadAllTables = async () => {
@@ -407,8 +427,26 @@ Note: This data is from the Observer platform.
 
     // Add each table with data to the zip
     tables.forEach((table) => {
-      if (table.data.length > 0) {
-        const headers = Object.keys(table.data[0]);
+      // Validate table data
+      if (!table.data || table.data.length === 0) {
+        return; // Skip tables with no data
+      }
+
+      // Validate first row structure
+      if (!table.data[0] || typeof table.data[0] !== 'object') {
+        logger.warn('Skipping table with invalid data structure', { tableName: table.name });
+        return;
+      }
+
+      const headers = Object.keys(table.data[0]);
+
+      // Validate headers exist
+      if (headers.length === 0) {
+        logger.warn('Skipping table with no columns', { tableName: table.name });
+        return;
+      }
+
+      try {
         const csvContent = [
           headers.join(','),
           ...table.data.map((row) =>
@@ -419,6 +457,8 @@ Note: This data is from the Observer platform.
         ].join('\n');
 
         zip.file(`${table.name}.csv`, csvContent);
+      } catch (error) {
+        logger.error('Failed to add table to ZIP', { tableName: table.name, error });
       }
     });
 

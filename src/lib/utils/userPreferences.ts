@@ -3,6 +3,8 @@
  * Manages localStorage for user preferences like column visibility
  */
 
+import { logger } from '@/lib/logger';
+
 export interface ColumnVisibility {
   [columnId: string]: boolean;
 }
@@ -18,7 +20,7 @@ export const saveColumnPreferences = (tableName: string, visibility: ColumnVisib
     localStorage.setItem(key, JSON.stringify(visibility));
   } catch (error) {
     // Silently fail if localStorage is unavailable (e.g., private browsing)
-    console.warn('Failed to save column preferences:', error);
+    logger.warn('Failed to save column preferences:', error);
   }
 };
 
@@ -31,7 +33,7 @@ export const loadColumnPreferences = (tableName: string): ColumnVisibility | nul
     const saved = localStorage.getItem(key);
     return saved ? JSON.parse(saved) : null;
   } catch (error) {
-    console.warn('Failed to load column preferences:', error);
+    logger.warn('Failed to load column preferences:', error);
     return null;
   }
 };
@@ -44,7 +46,7 @@ export const clearColumnPreferences = (tableName: string): void => {
     const key = `${STORAGE_PREFIX}columns_${tableName}`;
     localStorage.removeItem(key);
   } catch (error) {
-    console.warn('Failed to clear column preferences:', error);
+    logger.warn('Failed to clear column preferences:', error);
   }
 };
 
@@ -60,7 +62,7 @@ export const clearAllPreferences = (): void => {
       }
     });
   } catch (error) {
-    console.warn('Failed to clear all preferences:', error);
+    logger.warn('Failed to clear all preferences:', error);
   }
 };
 

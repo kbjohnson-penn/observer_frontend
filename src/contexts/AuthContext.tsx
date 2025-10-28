@@ -62,7 +62,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       window.removeEventListener('auth:failed', handleAuthFailure);
     };
-  }, [router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps intentional: router is stable in Next.js App Router, refreshToken defined in component
 
   const login = async (username: string, password: string) => {
     const response = await fetch(
