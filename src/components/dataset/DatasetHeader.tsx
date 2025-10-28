@@ -32,7 +32,7 @@ const DatasetHeader = () => {
         <Link href="/dataset/explore">
           <Button
             size="lg"
-            colorScheme="blue"
+            colorPalette="blue"
             bg="blue.500"
             _hover={{ bg: 'blue.600' }}
             transition="all 0.2s"

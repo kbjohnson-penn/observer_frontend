@@ -39,7 +39,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
           <MenuTrigger asChild>
             <Button
               size="md"
-              colorScheme="blue"
+              colorPalette="blue"
               variant="outline"
               _hover={{ bg: 'gray.50', borderColor: 'blue.400' }}
             >

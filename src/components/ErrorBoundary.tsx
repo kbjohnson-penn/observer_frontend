@@ -57,7 +57,7 @@ const DefaultErrorFallback: React.FC<FallbackProps> = ({ error, resetErrorBounda
           )}
         </Box>
 
-        <Button size="sm" colorScheme="blue" variant="outline" onClick={resetErrorBoundary}>
+        <Button size="sm" colorPalette="blue" variant="outline" onClick={resetErrorBoundary}>
           <FaRedo style={{ marginRight: '8px' }} />
           Try Again
         </Button>

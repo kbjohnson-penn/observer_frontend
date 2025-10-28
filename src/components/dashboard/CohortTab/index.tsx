@@ -126,7 +126,7 @@ export default function CohortTab() {
             Refresh
           </Button>
           {/* TODO: Enable create button when integrated with ResearchTab */}
-          <Button colorScheme="blue" disabled>
+          <Button colorPalette="blue" disabled>
             Create New Cohort
           </Button>
         </HStack>

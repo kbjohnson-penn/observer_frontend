@@ -6,6 +6,7 @@ import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { VisitSearchResult } from '@/interfaces/research';
 import { VisitSearchSort } from '@/interfaces/research';
 import { expandDemographic } from '@/lib/utils/utils';
+import { COLORS } from '@/constants/colors';
 
 interface VisitsTableProps {
   visits: VisitSearchResult[];
@@ -54,9 +55,9 @@ const VisitRow = React.memo(({ visit }: { visit: VisitSearchResult }) => {
   );
 
   return (
-    <Table.Row>
+    <Table.Row _hover={{ bg: COLORS.table.rowHoverBg, transition: 'all 0.2s' }}>
       <Table.Cell>
-        <Text fontWeight="medium" color="blue.600">
+        <Text fontWeight="semibold" color="blue.600" fontSize="md">
           {visit.visit_id}
         </Text>
       </Table.Cell>
@@ -64,40 +65,40 @@ const VisitRow = React.memo(({ visit }: { visit: VisitSearchResult }) => {
         <Text fontSize="sm">{visitDate}</Text>
       </Table.Cell>
       <Table.Cell>
-        <Badge size="sm" variant="subtle">
+        <Badge size="md" variant="subtle" colorPalette={COLORS.visitSource}>
           {visit.visit_source}
         </Badge>
       </Table.Cell>
       <Table.Cell>
         <Badge
-          size="sm"
-          colorScheme={visit.tier === 1 ? 'green' : visit.tier === 2 ? 'yellow' : 'red'}
+          size="md"
+          colorPalette={COLORS.tier[visit.tier as keyof typeof COLORS.tier] || 'gray'}
         >
           Tier {visit.tier}
         </Badge>
       </Table.Cell>
       <Table.Cell>
-        <VStack gap={1} align="start">
-          <HStack gap={1} flexWrap="wrap">
+        <VStack gap={1.5} align="start">
+          <HStack gap={1.5} flexWrap="wrap">
             {visit.patient_age !== null && (
-              <Badge size="sm" colorScheme="blue">
+              <Badge size="md" colorPalette={COLORS.patientBadges.age} variant="subtle">
                 Age {visit.patient_age}
               </Badge>
             )}
             {patientGenderLabel && (
-              <Badge size="sm" variant="subtle">
+              <Badge size="md" variant="outline" colorPalette={COLORS.patientBadges.gender}>
                 {patientGenderLabel}
               </Badge>
             )}
           </HStack>
-          <HStack gap={1} flexWrap="wrap">
+          <HStack gap={1.5} flexWrap="wrap">
             {patientRaceLabel && (
-              <Badge size="sm" variant="subtle">
+              <Badge size="md" variant="outline" colorPalette={COLORS.patientBadges.race}>
                 {patientRaceLabel}
               </Badge>
             )}
             {patientEthnicityLabel && (
-              <Badge size="sm" variant="subtle">
+              <Badge size="md" variant="outline" colorPalette={COLORS.patientBadges.ethnicity}>
                 {patientEthnicityLabel}
               </Badge>
             )}
@@ -105,27 +106,27 @@ const VisitRow = React.memo(({ visit }: { visit: VisitSearchResult }) => {
         </VStack>
       </Table.Cell>
       <Table.Cell>
-        <VStack gap={1} align="start">
-          <HStack gap={1} flexWrap="wrap">
+        <VStack gap={1.5} align="start">
+          <HStack gap={1.5} flexWrap="wrap">
             {visit.provider_age !== null && (
-              <Badge size="sm" colorScheme="purple">
+              <Badge size="md" colorPalette={COLORS.providerBadges.age} variant="subtle">
                 Age {visit.provider_age}
               </Badge>
             )}
             {providerGenderLabel && (
-              <Badge size="sm" variant="subtle">
+              <Badge size="md" variant="outline" colorPalette={COLORS.providerBadges.gender}>
                 {providerGenderLabel}
               </Badge>
             )}
           </HStack>
-          <HStack gap={1} flexWrap="wrap">
+          <HStack gap={1.5} flexWrap="wrap">
             {providerRaceLabel && (
-              <Badge size="sm" variant="subtle">
+              <Badge size="md" variant="outline" colorPalette={COLORS.providerBadges.race}>
                 {providerRaceLabel}
               </Badge>
             )}
             {providerEthnicityLabel && (
-              <Badge size="sm" variant="subtle">
+              <Badge size="md" variant="outline" colorPalette={COLORS.providerBadges.ethnicity}>
                 {providerEthnicityLabel}
               </Badge>
             )}
@@ -146,10 +147,23 @@ function SortIcon({
   field: VisitSearchSort['field'];
   currentSort: VisitSearchSort;
 }) {
-  if (currentSort.field !== field) {
-    return <FaSort color="gray" />;
+  const isActive = currentSort.field === field;
+  if (!isActive) {
+    return (
+      <Box color="gray.400" fontSize="sm">
+        <FaSort />
+      </Box>
+    );
   }
-  return currentSort.direction === 'asc' ? <FaSortUp color="blue" /> : <FaSortDown color="blue" />;
+  return currentSort.direction === 'asc' ? (
+    <Box color="blue.600" fontSize="sm">
+      <FaSortUp />
+    </Box>
+  ) : (
+    <Box color="blue.600" fontSize="sm">
+      <FaSortDown />
+    </Box>
+  );
 }
 
 // Sortable header component
@@ -164,17 +178,24 @@ function SortableHeader({
   currentSort: VisitSearchSort;
   onSort: (field: VisitSearchSort['field']) => void;
 }) {
+  const isActive = currentSort.field === field;
   return (
     <Table.ColumnHeader>
       <HStack
         cursor="pointer"
         onClick={() => onSort(field)}
-        _hover={{ bg: 'gray.100' }}
+        _hover={{ bg: COLORS.table.rowHoverBg }}
         p={2}
         borderRadius="md"
         whiteSpace="nowrap"
+        transition="all 0.2s"
       >
-        <Text>{label}</Text>
+        <Text
+          fontWeight={isActive ? 'bold' : 'semibold'}
+          color={isActive ? 'blue.700' : 'gray.700'}
+        >
+          {label}
+        </Text>
         <SortIcon field={field} currentSort={currentSort} />
       </HStack>
     </Table.ColumnHeader>
@@ -187,8 +208,8 @@ export default function VisitsTable({ visits, sort, onSort }: VisitsTableProps) 
   }
 
   return (
-    <Box overflowX="auto">
-      <Table.Root size="sm" variant="outline">
+    <Box overflowX="auto" border="1px" borderColor="gray.200" borderRadius="md">
+      <Table.Root size="sm" variant="outline" striped>
         <Table.Header bg="gray.50">
           <Table.Row>
             <SortableHeader field="id" label="Visit ID" currentSort={sort} onSort={onSort} />
@@ -205,8 +226,16 @@ export default function VisitsTable({ visits, sort, onSort }: VisitsTableProps) 
               onSort={onSort}
             />
             <SortableHeader field="tier_id" label="Tier" currentSort={sort} onSort={onSort} />
-            <Table.ColumnHeader>Person Demographics</Table.ColumnHeader>
-            <Table.ColumnHeader>Provider Demographics</Table.ColumnHeader>
+            <Table.ColumnHeader>
+              <Text fontWeight="semibold" color="gray.700" p={2}>
+                Person Demographics
+              </Text>
+            </Table.ColumnHeader>
+            <Table.ColumnHeader>
+              <Text fontWeight="semibold" color="gray.700" p={2}>
+                Provider Demographics
+              </Text>
+            </Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>

@@ -127,7 +127,7 @@ export default function CreateCohortDialog({
               Cancel
             </Button>
             <Button
-              colorScheme="blue"
+              colorPalette="blue"
               onClick={handleSave}
               loading={loading}
               disabled={!name.trim() || loading}

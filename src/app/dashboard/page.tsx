@@ -9,6 +9,7 @@ import DashboardStats from '@/components/dashboard/DashboardStats';
 import { useFilterOptions } from '@/hooks/useFilterOptions';
 import { getCohorts } from '@/lib/utils/cohortStorage';
 import { logger } from '@/lib/logger';
+import { COLORS } from '@/constants/colors';
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('research');
@@ -79,7 +80,7 @@ export default function DashboardPage() {
           Research Dashboard
         </Heading>
         <Text color="gray.700" fontSize="md">
-          Explore healthcare datasets, create custom cohorts, and manage your research projects
+          Explore Observer dataset and create custom cohorts for your research studies.
         </Text>
       </Box>
 
@@ -104,7 +105,11 @@ export default function DashboardPage() {
               <FaSearch />
               <Text>Research Data</Text>
               {totalVisits > 0 && (
-                <Badge colorScheme="blue" variant="subtle" ml={1}>
+                <Badge
+                  colorPalette={COLORS.ui.dashboard.researchDataTabBadge}
+                  variant="subtle"
+                  ml={1}
+                >
                   {totalVisits.toLocaleString()}
                 </Badge>
               )}
@@ -115,7 +120,7 @@ export default function DashboardPage() {
               <FaUsers />
               <Text>Cohorts</Text>
               {cohortCount > 0 && (
-                <Badge colorScheme="green" variant="subtle" ml={1}>
+                <Badge colorPalette={COLORS.ui.dashboard.cohortsTabBadge} variant="subtle" ml={1}>
                   {cohortCount}
                 </Badge>
               )}
@@ -128,7 +133,6 @@ export default function DashboardPage() {
         </Tabs.Content>
 
         <Tabs.Content value="cohorts" mt={6}>
-          {/* Remount CohortTab when switching to it to reload cohorts */}
           <CohortTab key={activeTab === 'cohorts' ? `cohorts-${Date.now()}` : 'cohorts-inactive'} />
         </Tabs.Content>
       </Tabs.Root>

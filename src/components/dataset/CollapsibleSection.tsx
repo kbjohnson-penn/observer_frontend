@@ -44,7 +44,8 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
           aria-label={isOpen ? 'Collapse' : 'Expand'}
           size="sm"
           variant="ghost"
-          colorScheme={COLORS.ui.buttonScheme}
+          colorPalette={COLORS.ui.buttonScheme}
+          color="blue.500"
         >
           {isOpen ? <FaChevronUp /> : <FaChevronDown />}
         </IconButton>

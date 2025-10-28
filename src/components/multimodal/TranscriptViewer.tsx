@@ -227,7 +227,7 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({ transcriptSrc }) =>
           </Box>
           <Button
             size="md"
-            colorScheme="blue"
+            colorPalette="blue"
             variant="outline"
             onClick={exportTranscript}
             disabled={transcript.length === 0}
@@ -322,7 +322,7 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({ transcriptSrc }) =>
                 }}
               >
                 <Flex justify="space-between" mb={3}>
-                  <Badge colorScheme={getSpeakerColor(entry.speaker)} variant="solid">
+                  <Badge colorPalette={getSpeakerColor(entry.speaker)} variant="solid">
                     {entry.speaker || 'Unknown'}
                   </Badge>
                   {entry.timestamp && (

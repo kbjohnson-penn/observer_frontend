@@ -26,6 +26,64 @@ export const COLORS = {
     info: 'blue',
   },
 
+  // Tier badge colors
+  tier: {
+    1: 'green', // Tier 1 - Complete deidentification
+    2: 'yellow', // Tier 2 - Blur + voice protection
+    3: 'red', // Tier 3 - Face + voice protection
+    4: 'orange', // Tier 4 - DUA + External access only
+  },
+
+  // Patient demographics badge colors (cool colors)
+  patientBadges: {
+    age: 'blue',
+    gender: 'blue',
+    race: 'teal',
+    ethnicity: 'cyan',
+  },
+
+  // Provider demographics badge colors (warm colors)
+  providerBadges: {
+    age: 'purple',
+    gender: 'purple',
+    race: 'pink',
+    ethnicity: 'orange',
+  },
+
+  // Visit source badge color
+  visitSource: 'gray',
+
+  // Cohort action icon colors
+  cohortActions: {
+    delete: 'red.500',
+    view: 'blue.500',
+    duplicate: 'purple.500',
+    export: 'green.500',
+  },
+
+  // Research tab specific colors
+  researchTab: {
+    // Action icons
+    saveIcon: 'blue.500',
+    clearIcon: 'blue.500',
+
+    // Navigation icons
+    chevronIcon: 'gray.500',
+    sortActiveIcon: 'blue.600',
+    sortInactiveIcon: 'gray.400',
+
+    // Pagination colors
+    pagination: {
+      activeBackground: 'blue.500',
+      activeText: 'white',
+      inactiveBackground: 'white',
+      inactiveText: 'gray.700',
+      hoverActiveBackground: 'blue.600',
+      hoverInactiveBackground: 'gray.50',
+      buttonBorder: 'gray.300',
+    },
+  },
+
   // UI element colors
   ui: {
     activeBg: 'blue.50',
@@ -43,6 +101,20 @@ export const COLORS = {
 
     badgeScheme: 'blue',
     buttonScheme: 'blue',
+
+    // Filter section icon colors
+    filterIcon: 'blue.500',
+    infoIcon: 'blue.500',
+    visitDetailsIcon: 'blue.500',
+    personDemographicsIcon: 'green.500',
+    providerDemographicsIcon: 'purple.500',
+
+    // Dashboard badge colors
+    dashboard: {
+      researchDataTabBadge: 'blue',
+      cohortsTabBadge: 'green',
+      activeFiltersBadge: 'blue',
+    },
   },
 
   // Table specific

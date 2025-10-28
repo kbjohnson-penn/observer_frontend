@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { HStack, Button, Text } from '@chakra-ui/react';
+import { COLORS } from '@/constants/colors';
 
 interface PaginationControlsProps {
   currentPage: number;
@@ -42,6 +43,8 @@ export default function PaginationControls({
         size="sm"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={!hasPrevious || loading}
+        colorPalette="gray"
+        borderColor={COLORS.researchTab.pagination.buttonBorder}
       >
         Previous
       </Button>
@@ -57,11 +60,27 @@ export default function PaginationControls({
             <Button
               size="sm"
               variant={currentPage === page ? 'solid' : 'outline'}
-              bg={currentPage === page ? 'blue.500' : 'white'}
-              color={currentPage === page ? 'white' : 'gray.700'}
+              colorPalette={currentPage === page ? 'blue' : 'gray'}
+              bg={
+                currentPage === page
+                  ? COLORS.researchTab.pagination.activeBackground
+                  : COLORS.researchTab.pagination.inactiveBackground
+              }
+              color={
+                currentPage === page
+                  ? COLORS.researchTab.pagination.activeText
+                  : COLORS.researchTab.pagination.inactiveText
+              }
+              borderColor={
+                currentPage === page ? undefined : COLORS.researchTab.pagination.buttonBorder
+              }
               onClick={() => onPageChange(page)}
               disabled={loading}
-              _hover={currentPage === page ? { bg: 'blue.600' } : { bg: 'gray.50' }}
+              _hover={
+                currentPage === page
+                  ? { bg: COLORS.researchTab.pagination.hoverActiveBackground }
+                  : { bg: COLORS.researchTab.pagination.hoverInactiveBackground }
+              }
             >
               {page}
             </Button>
@@ -75,6 +94,8 @@ export default function PaginationControls({
         size="sm"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={!hasNext || loading}
+        colorPalette="gray"
+        borderColor={COLORS.researchTab.pagination.buttonBorder}
       >
         Next
       </Button>

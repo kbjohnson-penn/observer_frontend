@@ -687,6 +687,7 @@ Note: This data is from the Observer platform.
               onClick={scrollLeft}
               aria-label="Scroll left"
               _hover={{ bg: 'gray.50', borderColor: 'blue.300' }}
+              color="gray.600"
             >
               <FaChevronLeft />
             </IconButton>
@@ -707,6 +708,7 @@ Note: This data is from the Observer platform.
               onClick={scrollRight}
               aria-label="Scroll right"
               _hover={{ bg: 'gray.50', borderColor: 'blue.300' }}
+              color="gray.600"
             >
               <FaChevronRight />
             </IconButton>

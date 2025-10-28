@@ -227,7 +227,7 @@ const Header: React.FC<HeaderProps> = ({ showLinks = true, logo = { width: 200, 
                 <Button
                   onClick={handleLogout}
                   variant="outline"
-                  colorScheme="whiteAlpha"
+                  colorPalette="whiteAlpha"
                   size="sm"
                   color="white"
                   borderColor="white"

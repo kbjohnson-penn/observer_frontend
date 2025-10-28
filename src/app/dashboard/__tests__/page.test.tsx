@@ -128,7 +128,7 @@ describe('DashboardPage', () => {
       expect(screen.getByText('Research Dashboard')).toBeInTheDocument();
       expect(
         screen.getByText(
-          'Explore healthcare datasets, create custom cohorts, and manage your research projects'
+          'Explore Observer dataset and create custom cohorts for your research studies.'
         )
       ).toBeInTheDocument();
     });

@@ -40,7 +40,7 @@ export default function EmptyState({ onNavigateToResearch }: EmptyStateProps) {
 
           {/* Action Button */}
           {onNavigateToResearch && (
-            <Button colorScheme="blue" size="lg" onClick={onNavigateToResearch} mt={2}>
+            <Button colorPalette="blue" size="lg" onClick={onNavigateToResearch} mt={2}>
               Explore Research Data
               <Box as="span" ml={2}>
                 <FaArrowRight />
