@@ -1,12 +1,15 @@
 'use client';
 
-import React from 'react';
-import { Box, Text, Heading, Flex, Input } from '@chakra-ui/react';
-import { FaSearch } from 'react-icons/fa';
+import React, { useMemo, useCallback } from 'react';
+import { Box, Text, Heading, Flex, Input, HStack } from '@chakra-ui/react';
+import { FaSearch, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { OMOPTableName } from '@/interfaces/observer-omop';
 import { MEDICAL_TERMS } from '@/constants/table-info.constants';
 import { Tooltip } from '@/components/ui/tooltip';
 import COLORS from '@/constants/colors';
+import PaginationControls from '@/components/dashboard/ResearchTab/PaginationControls';
+import ColumnSelector from './ColumnSelector';
+import { ColumnVisibility } from '@/lib/utils/userPreferences';
 
 interface DataTableProps {
   table: {
@@ -20,28 +23,172 @@ interface DataTableProps {
     category: string;
   };
   filteredData: any[];
+  totalFilteredCount: number;
   searchTerm: string;
   onSearchChange: (value: string) => void;
   getTableIcon: (tableName: OMOPTableName) => React.ReactNode;
   renderFieldValue: (value: any) => string;
+  currentPage: number;
+  pageSize: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  onPageChange: (page: number) => void;
+  sortConfig: { field: string; direction: 'asc' | 'desc' } | null;
+  onSortChange: (field: string) => void;
+  columnVisibility: ColumnVisibility;
+  onColumnVisibilityChange: (columnId: string, visible: boolean) => void;
+  onShowAllColumns: () => void;
+  onHideAllColumns: () => void;
 }
 
 const DataTable: React.FC<DataTableProps> = ({
   table,
   selectedTableInfo,
   filteredData,
+  totalFilteredCount,
   searchTerm,
   onSearchChange,
   getTableIcon,
   renderFieldValue,
+  currentPage,
+  pageSize,
+  hasNext,
+  hasPrevious,
+  onPageChange,
+  sortConfig,
+  onSortChange,
+  columnVisibility,
+  onColumnVisibilityChange,
+  onShowAllColumns,
+  onHideAllColumns,
 }) => {
-  const renderTableHeader = (tableData: any[]) => (
+  // Get visible columns based on columnVisibility
+  const visibleColumns = useMemo(() => {
+    if (!table.data.length) {
+      return [];
+    }
+    const allColumns = Object.keys(table.data[0]);
+    return allColumns.filter((col) => columnVisibility[col] !== false);
+  }, [table.data, columnVisibility]);
+
+  // Memoized sort icon component
+  const SortIcon = useMemo(() => {
+    const Component = ({ field }: { field: string }) => {
+      if (!sortConfig || sortConfig.field !== field) {
+        return <FaSort color={COLORS.ui.inactiveIcon} size="12px" />;
+      }
+      return sortConfig.direction === 'asc' ? (
+        <FaSortUp color={COLORS.primary[600]} size="12px" />
+      ) : (
+        <FaSortDown color={COLORS.primary[600]} size="12px" />
+      );
+    };
+    Component.displayName = 'SortIcon';
+    return Component;
+  }, [sortConfig]);
+
+  // Highlight search term in text
+  const highlightText = useCallback((text: string, search: string): React.ReactNode => {
+    if (!search || !text) {
+      return text;
+    }
+
+    const textStr = String(text);
+    const searchLower = search.toLowerCase();
+    const textLower = textStr.toLowerCase();
+
+    if (!textLower.includes(searchLower)) {
+      return textStr;
+    }
+
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+
+    while (lastIndex < textStr.length) {
+      const index = textLower.indexOf(searchLower, lastIndex);
+      if (index === -1) {
+        parts.push(textStr.substring(lastIndex));
+        break;
+      }
+
+      // Add text before match
+      if (index > lastIndex) {
+        parts.push(textStr.substring(lastIndex, index));
+      }
+
+      // Add highlighted match
+      parts.push(
+        <Box
+          as="mark"
+          key={index}
+          bg="yellow.200"
+          color="gray.900"
+          fontWeight="semibold"
+          px={0.5}
+          borderRadius="sm"
+        >
+          {textStr.substring(index, index + search.length)}
+        </Box>
+      );
+
+      lastIndex = index + search.length;
+    }
+
+    return <>{parts}</>;
+  }, []);
+
+  // Memoized TableRow component for performance
+  const TableRow = React.memo(
+    ({
+      row,
+      columns,
+      onRenderValue,
+      search,
+      onHighlight,
+    }: {
+      row: any;
+      columns: string[];
+      onRenderValue: (value: any) => string;
+      search: string;
+      onHighlight: (text: string, search: string) => React.ReactNode;
+    }) => (
+      <Box
+        as="tr"
+        _hover={{ bg: COLORS.table.rowHoverBg }}
+        transition="background-color 0.2s"
+        borderBottom="1px"
+        borderColor={COLORS.table.borderColor}
+      >
+        {columns.map((col) => {
+          const value = onRenderValue(row[col]);
+          return (
+            <Box as="td" key={col} px={4} py={3} fontSize="sm" color="gray.700" verticalAlign="top">
+              <Text overflow="hidden" textOverflow="ellipsis">
+                {search ? onHighlight(value, search) : value}
+              </Text>
+            </Box>
+          );
+        })}
+      </Box>
+    )
+  );
+  TableRow.displayName = 'TableRow';
+
+  const renderTableHeader = () => (
     <Box as="thead" position="sticky" top={0} bg={COLORS.table.headerBg} zIndex={1}>
       <Box as="tr">
-        {Object.keys(tableData[0] || {}).map((key) => (
+        {visibleColumns.map((key) => (
           <Box
             as="th"
             key={key}
+            role="columnheader"
+            aria-sort={
+              sortConfig && sortConfig.field === key
+                ? sortConfig.direction === 'asc'
+                  ? 'ascending'
+                  : 'descending'
+                : 'none'
+            }
             textAlign="left"
             px={4}
             py={3}
@@ -53,33 +200,59 @@ const DataTable: React.FC<DataTableProps> = ({
             textTransform="uppercase"
             letterSpacing="wide"
           >
-            {MEDICAL_TERMS[key] ? (
-              <Tooltip
-                content={<Text>{MEDICAL_TERMS[key]}</Text>}
-                contentProps={{
-                  bg: 'gray.800',
-                  color: 'white',
-                  px: 3,
-                  py: 2,
-                  borderRadius: 'md',
-                  fontSize: 'sm',
-                  maxW: '300px',
-                }}
-              >
-                <Text
-                  as="span"
-                  cursor="help"
-                  textDecoration="underline"
-                  textDecorationStyle="dotted"
-                  color="blue.600"
-                  _hover={{ color: 'blue.800' }}
+            <HStack
+              gap={2}
+              cursor="pointer"
+              onClick={() => onSortChange(key)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSortChange(key);
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-label={`Sort by ${key.replace(/_/g, ' ')}`}
+              _hover={{ bg: 'gray.100' }}
+              _focus={{
+                outline: '2px solid',
+                outlineColor: COLORS.primary[500],
+                outlineOffset: '2px',
+                bg: 'gray.50',
+              }}
+              p={1}
+              borderRadius="md"
+              transition="background-color 0.2s"
+            >
+              {MEDICAL_TERMS[key] ? (
+                <Tooltip
+                  content={<Text>{MEDICAL_TERMS[key]}</Text>}
+                  contentProps={{
+                    bg: 'gray.800',
+                    color: 'white',
+                    px: 3,
+                    py: 2,
+                    borderRadius: 'md',
+                    fontSize: 'sm',
+                    maxW: '300px',
+                  }}
                 >
-                  {key.replace(/_/g, ' ')}
-                </Text>
-              </Tooltip>
-            ) : (
-              <Text as="span">{key.replace(/_/g, ' ')}</Text>
-            )}
+                  <Text
+                    as="span"
+                    cursor="help"
+                    textDecoration="underline"
+                    textDecorationStyle="dotted"
+                    color="blue.600"
+                    _hover={{ color: 'blue.800' }}
+                  >
+                    {key.replace(/_/g, ' ')}
+                  </Text>
+                </Tooltip>
+              ) : (
+                <Text as="span">{key.replace(/_/g, ' ')}</Text>
+              )}
+              <SortIcon field={key} />
+            </HStack>
           </Box>
         ))}
       </Box>
@@ -131,21 +304,46 @@ const DataTable: React.FC<DataTableProps> = ({
           />
         </Box>
 
-        <Text fontSize="sm" color={COLORS.primary[700]}>
-          <Text as="span" fontWeight="bold">
-            {filteredData.length}
-          </Text>{' '}
-          of{' '}
-          <Text as="span" fontWeight="bold">
-            {table.data.length}
-          </Text>{' '}
-          records
-          {searchTerm && (
-            <Text as="span" ml={2} fontStyle="italic">
-              matching &ldquo;{searchTerm}&rdquo;
-            </Text>
-          )}
-        </Text>
+        <Flex align="center" gap={4}>
+          <ColumnSelector
+            columns={Object.keys(table.data[0] || {})}
+            columnVisibility={columnVisibility}
+            onColumnVisibilityChange={onColumnVisibilityChange}
+            onShowAll={onShowAllColumns}
+            onHideAll={onHideAllColumns}
+          />
+          <Text fontSize="sm" color={COLORS.primary[700]}>
+            {totalFilteredCount > pageSize ? (
+              <>
+                <Text as="span" fontWeight="bold">
+                  {(currentPage - 1) * pageSize + 1}-
+                  {Math.min(currentPage * pageSize, totalFilteredCount)}
+                </Text>{' '}
+                of{' '}
+                <Text as="span" fontWeight="bold">
+                  {totalFilteredCount}
+                </Text>{' '}
+                {searchTerm ? 'filtered' : ''} records
+              </>
+            ) : (
+              <>
+                <Text as="span" fontWeight="bold">
+                  {totalFilteredCount}
+                </Text>{' '}
+                of{' '}
+                <Text as="span" fontWeight="bold">
+                  {table.data.length}
+                </Text>{' '}
+                records
+              </>
+            )}
+            {searchTerm && (
+              <Text as="span" ml={2} fontStyle="italic">
+                matching &ldquo;{searchTerm}&rdquo;
+              </Text>
+            )}
+          </Text>
+        </Flex>
       </Flex>
     </Box>
   );
@@ -219,33 +417,17 @@ const DataTable: React.FC<DataTableProps> = ({
           zIndex={1}
         />
         <Box as="table" width="100%" fontSize="sm">
-          {renderTableHeader(table.data)}
+          {renderTableHeader()}
           <Box as="tbody">
             {filteredData.map((row, index) => (
-              <Box
-                as="tr"
-                key={index}
-                _hover={{ bg: COLORS.table.rowHoverBg }}
-                transition="background-color 0.2s"
-                borderBottom="1px"
-                borderColor={COLORS.table.borderColor}
-              >
-                {Object.entries(row).map(([, value]: [string, any], cellIndex) => (
-                  <Box
-                    as="td"
-                    key={cellIndex}
-                    px={4}
-                    py={3}
-                    fontSize="sm"
-                    color="gray.700"
-                    verticalAlign="top"
-                  >
-                    <Text overflow="hidden" textOverflow="ellipsis">
-                      {renderFieldValue(value)}
-                    </Text>
-                  </Box>
-                ))}
-              </Box>
+              <TableRow
+                key={row.id || index}
+                row={row}
+                columns={visibleColumns}
+                onRenderValue={renderFieldValue}
+                search={searchTerm}
+                onHighlight={highlightText}
+              />
             ))}
           </Box>
         </Box>
@@ -261,6 +443,17 @@ const DataTable: React.FC<DataTableProps> = ({
           </Text>
         </Box>
       )}
+
+      {/* Pagination Controls */}
+      <PaginationControls
+        currentPage={currentPage}
+        totalCount={totalFilteredCount}
+        pageSize={pageSize}
+        hasNext={hasNext}
+        hasPrevious={hasPrevious}
+        loading={false}
+        onPageChange={onPageChange}
+      />
     </>
   );
 };
