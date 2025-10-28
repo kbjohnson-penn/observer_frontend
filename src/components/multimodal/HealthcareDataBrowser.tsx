@@ -129,6 +129,16 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
     };
   }, []);
 
+  // Helper function to clean up blob URLs immediately
+  const cleanupUrl = useCallback((url: string) => {
+    try {
+      window.URL.revokeObjectURL(url);
+      urlsToCleanup.current = urlsToCleanup.current.filter((u) => u !== url);
+    } catch (error) {
+      logger.error('Failed to revoke URL:', error);
+    }
+  }, []);
+
   const currentTable = tables.find((table) => table.name === activeTable);
   const selectedTableInfo = TABLE_INFO[activeTable];
 
@@ -392,11 +402,8 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
       a.download = `${tableName}.csv`;
       a.click();
 
-      // Clean up immediately after download
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-        urlsToCleanup.current = urlsToCleanup.current.filter((u) => u !== url);
-      }, 100);
+      // Clean up immediately (no setTimeout delay reduces memory leak risk)
+      cleanupUrl(url);
     } catch (error) {
       logger.error('Failed to generate CSV:', { tableName, error });
     }
@@ -479,11 +486,8 @@ Note: This data is from the Observer platform.
 
       a.click();
 
-      // Clean up immediately after download
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-        urlsToCleanup.current = urlsToCleanup.current.filter((u) => u !== url);
-      }, 100);
+      // Clean up immediately (no setTimeout delay reduces memory leak risk)
+      cleanupUrl(url);
     } catch {
       // Error creating zip file - could show user notification
     }

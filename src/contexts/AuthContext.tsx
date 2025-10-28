@@ -2,6 +2,7 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { CONFIG } from '@/lib/config';
 
 interface User {
   username: string;
@@ -66,17 +67,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []); // Empty deps intentional: router is stable in Next.js App Router, refreshToken defined in component
 
   const login = async (username: string, password: string) => {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/auth/token/`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-        credentials: 'include', // Include cookies in request
-      }
-    );
+    const response = await fetch(CONFIG.getApiUrl('/accounts/auth/token/'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+      credentials: 'include', // Include cookies in request
+    });
 
     if (!response.ok) {
       throw new Error('Invalid username or password');
@@ -98,16 +96,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/auth/logout/`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include', // Include cookies in request
-        }
-      );
+      await fetch(CONFIG.getApiUrl('/accounts/auth/logout/'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Include cookies in request
+      });
     } catch {
       // Logout error - continue with cleanup
     }
@@ -119,27 +114,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshToken = async (): Promise<boolean> => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/auth/token/refresh/`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include', // Include cookies in request
-        }
-      );
+      const response = await fetch(CONFIG.getApiUrl('/accounts/auth/token/refresh/'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Include cookies in request
+      });
 
       if (response.ok) {
         // Backend handles setting new httpOnly cookies
         // We need to get user info from a protected endpoint
-        const userResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/profile/`,
-          {
-            method: 'GET',
-            credentials: 'include',
-          }
-        );
+        const userResponse = await fetch(CONFIG.getApiUrl('/accounts/profile/'), {
+          method: 'GET',
+          credentials: 'include',
+        });
 
         if (userResponse.ok) {
           const userData = await userResponse.json();

@@ -124,7 +124,7 @@ const CohortViewPage = ({ params }: CohortViewPageProps) => {
 
       {/* Healthcare Data Browser */}
       <VStack gap={8} align="stretch">
-        <ErrorBoundary>
+        <ErrorBoundary componentName="HealthcareDataBrowser">
           <HealthcareDataBrowser sampleData={cohortData} />
         </ErrorBoundary>
       </VStack>

@@ -10,15 +10,42 @@ import { logger } from './logger';
 /**
  * Get the backend API URL with validation
  * @returns Backend API URL
+ * @throws Error if NEXT_PUBLIC_BACKEND_API is not set (fails fast)
  */
 const getBackendUrl = (): string => {
-  const url = process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1';
+  const url = process.env.NEXT_PUBLIC_BACKEND_API;
 
-  // Validate in production - backend URL must be explicitly set
-  if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_BACKEND_API) {
+  // In test environment, use mock URL if not set
+  if (process.env.NODE_ENV === 'test' && !url) {
+    return 'http://localhost:8000/api/v1'; // Mock URL for tests
+  }
+
+  // Strict validation: require explicit configuration
+  if (!url) {
+    // In development, provide helpful error message
+    if (process.env.NODE_ENV === 'development') {
+      throw new Error(
+        'NEXT_PUBLIC_BACKEND_API environment variable is not set.\n\n' +
+          'Please create a .env.local file in the root directory with:\n' +
+          'NEXT_PUBLIC_BACKEND_API=http://localhost:8000/api/v1\n\n' +
+          'See .env.example for reference.'
+      );
+    }
+
+    // In production, fail immediately with clear error
     throw new Error(
       'NEXT_PUBLIC_BACKEND_API must be set in production environment. ' +
         'Please configure this variable in your deployment settings.'
+    );
+  }
+
+  // Validate URL format
+  try {
+    new URL(url);
+  } catch {
+    throw new Error(
+      `Invalid NEXT_PUBLIC_BACKEND_API URL format: "${url}". ` +
+        'Must be a valid URL (e.g., http://localhost:8000/api/v1)'
     );
   }
 
@@ -28,6 +55,32 @@ const getBackendUrl = (): string => {
       'WARNING: Using 127.0.0.1 instead of localhost may break httpOnly cookie authentication. ' +
         'Use localhost for consistency with the backend CORS configuration.'
     );
+  }
+
+  // Ensure production deployment uses HTTPS (but allow localhost for development/testing)
+  // Skip validation in test environment
+  if (process.env.NODE_ENV === 'production' && !url.startsWith('https://')) {
+    // Allow localhost/127.0.0.1 for local development and testing
+    const isLocalhost = url.includes('localhost') || url.includes('127.0.0.1');
+
+    if (!isLocalhost) {
+      logger.error(
+        'SECURITY WARNING: Production environment is not using HTTPS. ' +
+          'This is insecure and will cause authentication issues.'
+      );
+      throw new Error(
+        'Production NEXT_PUBLIC_BACKEND_API must use HTTPS for non-localhost URLs. ' +
+          `Current value: ${url}`
+      );
+    }
+
+    // Warn about localhost in production mode (might be build artifact)
+    if (isLocalhost && typeof window !== 'undefined') {
+      logger.warn(
+        'Using localhost URL in production mode. ' +
+          'This is OK for development but should use HTTPS in production deployment.'
+      );
+    }
   }
 
   return url;

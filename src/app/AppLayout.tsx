@@ -6,6 +6,7 @@ import { Box, ProgressCircle } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/AuthContext';
 import PublicLayout from './layouts/PublicLayout';
 import AuthenticatedLayout from './layouts/AuthenticatedLayout';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
@@ -33,11 +34,19 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // For authenticated routes, use AuthenticatedLayout if user is logged in
   if (shouldUseAuthLayout && isAuthenticated) {
-    return <AuthenticatedLayout>{children}</AuthenticatedLayout>;
+    return (
+      <ErrorBoundary componentName="AuthenticatedLayout">
+        <AuthenticatedLayout>{children}</AuthenticatedLayout>
+      </ErrorBoundary>
+    );
   }
 
   // For all other routes (public routes, login, etc.), use PublicLayout
-  return <PublicLayout>{children}</PublicLayout>;
+  return (
+    <ErrorBoundary componentName="PublicLayout">
+      <PublicLayout>{children}</PublicLayout>
+    </ErrorBoundary>
+  );
 };
 
 export default AppLayout;
