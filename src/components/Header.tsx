@@ -132,7 +132,7 @@ const Header: React.FC<HeaderProps> = ({ showLinks = true, logo = { width: 200, 
             {/* Right Navigation Links + Avatar */}
             <HStack gap={6} display={{ base: 'none', md: 'flex' }} alignItems="center">
               <NavigationLink href={isAuthenticated ? '/dashboard' : '/dashboard-public'}>
-                Explore
+                Dashboard
               </NavigationLink>
               <NavigationLink href="/dataset">Dataset</NavigationLink>
 
