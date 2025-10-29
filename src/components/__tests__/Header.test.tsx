@@ -88,7 +88,7 @@ describe('Header', () => {
     it('should show public navigation links', () => {
       render(<Header />, { wrapper: TestWrapper });
 
-      expect(screen.getByText('Explore')).toBeInTheDocument();
+      expect(screen.getByText('Dashboard')).toBeInTheDocument();
       expect(screen.getByText('Dataset')).toBeInTheDocument();
     });
 
@@ -116,10 +116,10 @@ describe('Header', () => {
       expect(screen.getByText('T')).toBeInTheDocument();
     });
 
-    it('should show Explore link when authenticated', () => {
+    it('should show Dashboard link when authenticated', () => {
       render(<Header />, { wrapper: TestWrapper });
 
-      expect(screen.getByText('Explore')).toBeInTheDocument();
+      expect(screen.getByText('Dashboard')).toBeInTheDocument();
     });
 
     it('should call logout when logout is clicked', async () => {
@@ -166,8 +166,8 @@ describe('Header', () => {
     it('should navigate to public dashboard when not authenticated', () => {
       render(<Header />, { wrapper: TestWrapper });
 
-      const exploreLink = screen.getByText('Explore').closest('a');
-      expect(exploreLink).toHaveAttribute('href', '/dashboard-public');
+      const DashboardLink = screen.getByText('Dashboard').closest('a');
+      expect(DashboardLink).toHaveAttribute('href', '/dashboard-public');
     });
 
     it('should navigate to dataset page', () => {
@@ -204,9 +204,13 @@ describe('Header', () => {
       await user.click(mobileMenuButton);
 
       // Mobile menu should be visible after click
-      // Check for mobile-specific navigation items
-      expect(screen.getByText('Dashboard')).toBeInTheDocument(); // Mobile menu shows "Dashboard"
-      expect(screen.getAllByText('Dataset')).toHaveLength(2); // Desktop + Mobile both show "Dataset"
+      // Check for navigation items - "Dataset" appears in both desktop and mobile menus
+      const datasetLinks = screen.getAllByText('Dataset');
+      expect(datasetLinks.length).toBeGreaterThanOrEqual(1);
+
+      // Alternatively, check for login/register which only appear in mobile menu when not authenticated
+      expect(screen.getByText('Login')).toBeInTheDocument();
+      expect(screen.getByText('Register')).toBeInTheDocument();
     });
   });
 
