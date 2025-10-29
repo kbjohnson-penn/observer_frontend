@@ -197,7 +197,7 @@ export default function FilterSidebar({
                 Visit Details
               </Text>
             </HStack>
-            <VStack gap={2.5} align="stretch">
+            <VStack gap={3} align="stretch">
               {/* Visit Source Select */}
               <Select.Root
                 collection={visitSourceCollection}
@@ -231,58 +231,39 @@ export default function FilterSidebar({
                 </Select.Positioner>
               </Select.Root>
 
-              {/* Tier Select with Info Icon */}
-              <HStack gap={1} align="start">
-                <Box flex={1}>
-                  <Select.Root
-                    collection={tierCollection}
-                    size="sm"
-                    multiple
-                    value={localFilters.tier}
-                    onValueChange={(details) => onFilterChange('tier', details.value)}
-                  >
-                    <Select.HiddenSelect />
-                    <Select.Control>
-                      <Select.Trigger>
-                        <Select.ValueText placeholder="Tier">
-                          {localFilters.tier.length > 0
-                            ? `Tier: ${localFilters.tier.map((t) => `Tier ${t}`).join(', ')}`
-                            : null}
-                        </Select.ValueText>
-                      </Select.Trigger>
-                      <Select.IndicatorGroup>
-                        <Select.Indicator />
-                      </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Select.Positioner>
-                      <Select.Content>
-                        {tierCollection.items.map((tier) => (
-                          <Select.Item item={tier} key={tier.value}>
-                            {tier.label}
-                            <Select.ItemIndicator />
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select.Positioner>
-                  </Select.Root>
-                </Box>
-                <Tooltip.Root>
-                  <Tooltip.Trigger asChild>
-                    <Box color={COLORS.ui.infoIcon} cursor="help" fontSize="sm" mt={2}>
-                      <FaInfoCircle />
-                    </Box>
-                  </Tooltip.Trigger>
-                  <Tooltip.Positioner>
-                    <Tooltip.Content maxW="450px" whiteSpace="pre-wrap">
-                      <Tooltip.Arrow />
-                      <Text fontSize="sm" fontFamily="monospace" lineHeight="tall">
-                        {getAllTiersTooltip()}
-                      </Text>
-                    </Tooltip.Content>
-                  </Tooltip.Positioner>
-                </Tooltip.Root>
-              </HStack>
-
+              <Box flex={1}>
+                <Select.Root
+                  collection={tierCollection}
+                  size="sm"
+                  multiple
+                  value={localFilters.tier}
+                  onValueChange={(details) => onFilterChange('tier', details.value)}
+                >
+                  <Select.HiddenSelect />
+                  <Select.Control>
+                    <Select.Trigger>
+                      <Select.ValueText placeholder="Tier">
+                        {localFilters.tier.length > 0
+                          ? `Tier: ${localFilters.tier.map((t) => `Tier ${t}`).join(', ')}`
+                          : null}
+                      </Select.ValueText>
+                    </Select.Trigger>
+                    <Select.IndicatorGroup>
+                      <Select.Indicator />
+                    </Select.IndicatorGroup>
+                  </Select.Control>
+                  <Select.Positioner>
+                    <Select.Content>
+                      {tierCollection.items.map((tier) => (
+                        <Select.Item item={tier} key={tier.value}>
+                          {tier.label}
+                          <Select.ItemIndicator />
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Positioner>
+                </Select.Root>
+              </Box>
               {/* Link to full tier comparison table */}
               <Link href="/dataset" target="_blank" rel="noopener noreferrer">
                 <HStack gap={1} fontSize="xs" color="blue.600" _hover={{ color: 'blue.800' }}>
@@ -312,7 +293,7 @@ export default function FilterSidebar({
                   />
                 </HStack>
                 <Text fontSize="xs" color="gray.500">
-                  Format: YYYY-MM-DD (e.g., 2024-01-15)
+                  Format: MM-DD-YYYY (e.g., 01-15-2024)
                 </Text>
               </VStack>
             </VStack>

@@ -90,37 +90,6 @@ export default function CohortCard({
             </VStack>
           </HStack>
 
-          {/* Filter Summary */}
-          {filterSummary.totalActiveFilters > 0 && (
-            <Box>
-              <Text fontSize="xs" color="gray.600" mb={1}>
-                Applied Filters ({filterSummary.totalActiveFilters}):
-              </Text>
-              <HStack wrap="wrap" gap={1}>
-                {filterSummary.visitFilters > 0 && (
-                  <Badge size="sm" variant="subtle" colorPalette="blue">
-                    Visit ({filterSummary.visitFilters})
-                  </Badge>
-                )}
-                {filterSummary.personDemographicFilters > 0 && (
-                  <Badge size="sm" variant="subtle" colorPalette="green">
-                    Person ({filterSummary.personDemographicFilters})
-                  </Badge>
-                )}
-                {filterSummary.providerDemographicFilters > 0 && (
-                  <Badge size="sm" variant="subtle" colorPalette="purple">
-                    Provider ({filterSummary.providerDemographicFilters})
-                  </Badge>
-                )}
-                {filterSummary.clinicalFilters > 0 && (
-                  <Badge size="sm" variant="subtle" colorPalette="orange">
-                    Clinical ({filterSummary.clinicalFilters})
-                  </Badge>
-                )}
-              </HStack>
-            </Box>
-          )}
-
           {/* Actions */}
           <HStack gap={2} pt={2}>
             <Button

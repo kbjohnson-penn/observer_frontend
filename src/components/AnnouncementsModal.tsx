@@ -31,7 +31,7 @@ const AnnouncementsModal: React.FC<AnnouncementsModalProps> = ({ trigger, isOpen
                   <Heading fontSize="xl" color="blue.700" mb={3} fontWeight="bold">
                     Observer Pilot Awards - $100K Available
                   </Heading>
-                  <Text color="gray.600" fontSize="md" lineHeight="1.6">
+                  <Text color="gray.600" fontSize="md" lineHeight="tall">
                     Five grants of $20,000 each supporting interdisciplinary projects using the
                     Observer Repository. Applications from faculty, postdocs, and research teams
                     welcome.

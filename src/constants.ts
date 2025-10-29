@@ -20,16 +20,6 @@ export const GENDER_CATEGORIES: { [key: string]: string } = {
   UN: 'Unknown or Not Reported',
 };
 
-export const DEPARTMENT_COLORS: { [key: string]: string } = {
-  SimCenter: '#8ED081',
-  Oncology: '#B4D2BA',
-  'Primary Care': '#DCE2AA',
-  Neurology: '#FFD700',
-  'Family Medicine': '#B57F50',
-  Cardiology: '#FFC0CB',
-  Orthopedics: '#4B543B',
-};
-
 export const SOURCE_OPTIONS = [
   { value: 'Simcenter', label: 'Simulation Center' },
   { value: 'Clinic', label: 'Clinic' },
@@ -71,28 +61,6 @@ export const MULTI_MODAL_DATA_OPTIONS = [
   { value: 'patient_annotation', label: 'Patient Annotation' },
   { value: 'provider_annotation', label: 'Provider Annotation' },
 ];
-
-export const MULTI_MODAL_DATA_PATHS_COLORS: { [key: string]: string } = {
-  provider_view: '#0088FE',
-  patient_view: '#00C49F',
-  room_view: '#FFBB28',
-  audio: '#D84315',
-  transcript: '#6A1B9A',
-  patient_survey: '#00838F',
-  provider_survey: '#3E2723',
-  patient_annotation: '#FFD600',
-  provider_annotation: '#FF6D00',
-  // rias_transcript: "#FF8042",
-  // rias_codes: "#F1C40F",
-};
-
-export const NODE_COLORS: { [key: string]: string } = {
-  MultiModalDataPathNode: '#9d82ca',
-  ProviderNode: '#EC7063',
-  EncounterNode: '#2ECC71',
-  PatientNode: '#3498DB',
-  DepartmentNode: '#F1C40F',
-};
 
 export const EXPORT_OPTIONS = [
   { value: 'csv', label: 'CSV' },

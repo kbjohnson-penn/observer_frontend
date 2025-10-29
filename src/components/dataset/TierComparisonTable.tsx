@@ -46,18 +46,12 @@ const TierComparisonTable = () => {
                         <Text fontWeight="semibold" color="green.700">
                           Tier 1
                         </Text>
-                        <Text fontSize="xs" color="gray.600" fontWeight="normal">
-                          Level 1
-                        </Text>
                       </VStack>
                     </Table.ColumnHeader>
                     <Table.ColumnHeader textAlign="center">
                       <VStack gap={0}>
                         <Text fontWeight="semibold" color="yellow.700">
                           Tier 2
-                        </Text>
-                        <Text fontSize="xs" color="gray.600" fontWeight="normal">
-                          Level 2
                         </Text>
                       </VStack>
                     </Table.ColumnHeader>
@@ -66,18 +60,12 @@ const TierComparisonTable = () => {
                         <Text fontWeight="semibold" color="orange.700">
                           Tier 3
                         </Text>
-                        <Text fontSize="xs" color="gray.600" fontWeight="normal">
-                          Level 3
-                        </Text>
                       </VStack>
                     </Table.ColumnHeader>
                     <Table.ColumnHeader textAlign="center">
                       <VStack gap={0}>
                         <Text fontWeight="semibold" color="red.700">
                           Tier 4
-                        </Text>
-                        <Text fontSize="xs" color="gray.600" fontWeight="normal">
-                          Level 4
                         </Text>
                       </VStack>
                     </Table.ColumnHeader>

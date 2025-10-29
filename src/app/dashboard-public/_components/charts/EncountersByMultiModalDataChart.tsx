@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Label } from 'recharts';
+import { DATA_PATH_COLORS } from '@/constants/colors';
 
 // Define the mapping for grouping data types
 const DATA_TYPE_GROUPING = {
@@ -14,14 +15,14 @@ const DATA_TYPE_GROUPING = {
   provider_annotation: 'annotations',
 };
 
-// Define colors for the grouped categories
+// Map grouped categories to colors from centralized constants
 const GROUP_COLORS = {
-  egocentric_view: '#4285F4', // Blue
-  room_view: '#34A853', // Green
-  audio: '#FBBC05', // Yellow
-  transcript: '#EA4335', // Red
-  survey: '#8F44AD', // Purple
-  annotations: '#16A085', // Teal
+  egocentric_view: DATA_PATH_COLORS.providerView,
+  room_view: DATA_PATH_COLORS.roomView,
+  audio: DATA_PATH_COLORS.audio,
+  transcript: DATA_PATH_COLORS.transcript,
+  survey: DATA_PATH_COLORS.survey,
+  annotations: DATA_PATH_COLORS.annotations,
 };
 
 interface GroupedDataItem {

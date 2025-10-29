@@ -126,3 +126,46 @@ export const COLORS = {
 };
 
 export default COLORS;
+
+// Chart colors for Recharts (non-Chakra components)
+// Values extracted from theme.ts - Single source of truth
+export const CHART_COLORS = {
+  primary: '#8884d8',
+  secondary: '#82ca9d',
+  axis: '#666',
+  label: '#555',
+} as const;
+
+// Multi-modal data path colors from theme.ts
+export const DATA_PATH_COLORS = {
+  providerView: '#4285F4',
+  patientView: '#34A853',
+  roomView: '#34A853',
+  audio: '#FBBC05',
+  transcript: '#EA4335',
+  survey: '#8F44AD',
+  patientSurvey: '#00838F',
+  providerSurvey: '#3E2723',
+  annotations: '#16A085',
+  patientAnnotation: '#FFD600',
+  providerAnnotation: '#FF6D00',
+} as const;
+
+// Sentiment colors from theme.ts
+export const SENTIMENT_COLORS = {
+  positive: '#82ca9d',
+  neutral: '#8884d8',
+  negative: '#CF1259',
+} as const;
+
+// Chart styling (not in theme - UI specific)
+export const CHART_STYLES = {
+  tooltip: {
+    background: '#fff',
+    border: '1px solid #e2e8f0',
+    padding: '10px',
+  },
+  cartesianGrid: {
+    strokeDasharray: '3 3',
+  },
+} as const;

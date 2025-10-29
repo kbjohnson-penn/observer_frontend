@@ -10,8 +10,7 @@ export const TIER_INFO = {
       { name: 'Blur sexually explicit body parts', enabled: false },
       { name: 'Blur face', enabled: false },
       { name: 'Obscure voice', enabled: false },
-      { name: 'DUA', enabled: false },
-      { name: 'External access', enabled: true },
+      { name: 'Data Use Agreement', enabled: false },
     ],
   },
   2: {
@@ -21,8 +20,7 @@ export const TIER_INFO = {
       { name: 'Blur sexually explicit body parts', enabled: true },
       { name: 'Blur face', enabled: true },
       { name: 'Obscure voice', enabled: true },
-      { name: 'DUA', enabled: true },
-      { name: 'External access', enabled: true },
+      { name: 'Data Use Agreement', enabled: true },
     ],
   },
   3: {
@@ -32,8 +30,7 @@ export const TIER_INFO = {
       { name: 'Blur sexually explicit body parts', enabled: false },
       { name: 'Blur face', enabled: true },
       { name: 'Obscure voice', enabled: true },
-      { name: 'DUA', enabled: true },
-      { name: 'External access', enabled: true },
+      { name: 'Data Use Agreement', enabled: true },
     ],
   },
   4: {
@@ -43,8 +40,7 @@ export const TIER_INFO = {
       { name: 'Blur sexually explicit body parts', enabled: false },
       { name: 'Blur face', enabled: false },
       { name: 'Obscure voice', enabled: false },
-      { name: 'DUA', enabled: true },
-      { name: 'External access', enabled: true },
+      { name: 'Data Use Agreement', enabled: true },
     ],
   },
 } as const;
