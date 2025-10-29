@@ -50,6 +50,7 @@ jest.mock('@/hooks/useVisitSearch', () => ({
 // Mock cohortStorage
 jest.mock('@/lib/utils/cohortStorage', () => ({
   createCohort: jest.fn(),
+  getCohorts: jest.fn(() => Promise.resolve([])),
 }));
 
 // Mock filterTransformer
@@ -67,94 +68,115 @@ jest.mock('@/lib/logger', () => ({
 
 // Mock child components
 jest.mock('../FilterSidebar', () => {
-  return function MockFilterSidebar({
-    localFilters,
-    filterOptions,
-    filterSummary,
-    onFilterChange,
-    onClearFilters,
-    onSaveCohort,
-  }: any) {
-    return (
-      <div data-testid="filter-sidebar">
-        <div>Filter Sidebar</div>
-        <button onClick={() => onFilterChange('tier', ['1'])}>Change Tier Filter</button>
-        <button onClick={onClearFilters}>Clear Filters</button>
-        <button onClick={onSaveCohort}>Save as Cohort</button>
-        <div data-testid="active-filters">{filterSummary?.activeFilters || 0} filters active</div>
-      </div>
-    );
+  return {
+    __esModule: true,
+    default: function MockFilterSidebar({
+      localFilters,
+      filterOptions,
+      filterSummary,
+      onFilterChange,
+      onClearFilters,
+      onSaveCohort,
+    }: any) {
+      return (
+        <div data-testid="filter-sidebar">
+          <div>Filter Sidebar</div>
+          <button onClick={() => onFilterChange('tier', ['1'])}>Change Tier Filter</button>
+          <button onClick={onClearFilters}>Clear Filters</button>
+          <button onClick={onSaveCohort}>Save as Cohort</button>
+          <div data-testid="active-filters">{filterSummary?.activeFilters || 0} filters active</div>
+        </div>
+      );
+    },
   };
 });
 
 jest.mock('../VisitsTable', () => {
-  return function MockVisitsTable({ visits, sort, onSort }: any) {
-    return (
-      <div data-testid="visits-table">
-        <div>Visits: {visits.length}</div>
-        <button onClick={() => onSort('id')}>Sort by ID</button>
-        <button onClick={() => onSort('visit_start_date')}>Sort by Date</button>
-        <div data-testid="sort-info">
-          {sort.field} - {sort.direction}
+  return {
+    __esModule: true,
+    default: function MockVisitsTable({ visits, sort, onSort }: any) {
+      return (
+        <div data-testid="visits-table">
+          <div>Visits: {visits.length}</div>
+          <button onClick={() => onSort('id')}>Sort by ID</button>
+          <button onClick={() => onSort('visit_start_date')}>Sort by Date</button>
+          <div data-testid="sort-info">
+            {sort.field} - {sort.direction}
+          </div>
         </div>
-      </div>
-    );
+      );
+    },
   };
 });
 
 jest.mock('../PaginationControls', () => {
-  return function MockPaginationControls({
-    currentPage,
-    totalCount,
-    hasNext,
-    hasPrevious,
-    onPageChange,
-  }: any) {
-    return (
-      <div data-testid="pagination-controls">
-        <div>Page {currentPage}</div>
-        <div>Total: {totalCount}</div>
-        <button onClick={() => onPageChange(currentPage - 1)} disabled={!hasPrevious}>
-          Previous
-        </button>
-        <button onClick={() => onPageChange(currentPage + 1)} disabled={!hasNext}>
-          Next
-        </button>
-      </div>
-    );
+  return {
+    __esModule: true,
+    default: function MockPaginationControls({
+      currentPage,
+      totalCount,
+      hasNext,
+      hasPrevious,
+      onPageChange,
+    }: any) {
+      return (
+        <div data-testid="pagination-controls">
+          <div>Page {currentPage}</div>
+          <div>Total: {totalCount}</div>
+          <button onClick={() => onPageChange(currentPage - 1)} disabled={!hasPrevious}>
+            Previous
+          </button>
+          <button onClick={() => onPageChange(currentPage + 1)} disabled={!hasNext}>
+            Next
+          </button>
+        </div>
+      );
+    },
   };
 });
 
 jest.mock('../LoadingSkeleton', () => {
-  return function MockLoadingSkeleton() {
-    return <div data-testid="loading-skeleton">Loading...</div>;
+  return {
+    __esModule: true,
+    default: function MockLoadingSkeleton() {
+      return <div data-testid="loading-skeleton">Loading...</div>;
+    },
   };
 });
 
 jest.mock('../../CohortTab/CreateCohortDialog', () => {
-  return function MockCreateCohortDialog({ isOpen, onClose, onSave, filters, visitCount }: any) {
-    if (!isOpen) {
-      return null;
-    }
-    return (
-      <div data-testid="create-cohort-dialog">
-        <div>Create Cohort Dialog</div>
-        <div data-testid="visit-count">Visit Count: {visitCount}</div>
-        <button
-          onClick={async () => {
-            try {
-              await onSave({ name: 'Test Cohort', filters, visitCount });
-              onClose();
-            } catch {
-              // Error is handled in the dialog, don't close on error
-            }
-          }}
-        >
-          Save Cohort
-        </button>
-        <button onClick={onClose}>Cancel</button>
-      </div>
-    );
+  return {
+    __esModule: true,
+    default: function MockCreateCohortDialog({
+      isOpen,
+      onClose,
+      onSave,
+      filters,
+      visitCount,
+    }: any) {
+      if (!isOpen) {
+        return null;
+      }
+      return (
+        <div data-testid="create-cohort-dialog">
+          <div>Create Cohort Dialog</div>
+          <div data-testid="visit-count">Visit Count: {visitCount}</div>
+          <button
+            onClick={async () => {
+              try {
+                await onSave({ name: 'Test Cohort', filters, visitCount });
+                onClose();
+              } catch {
+                // Error is handled in the dialog, don't close on error
+              }
+            }}
+          >
+            Save Cohort
+          </button>
+          <button onClick={onClose}>Cancel</button>
+        </div>
+      );
+    },
   };
 });
 
@@ -305,7 +327,9 @@ describe('ResearchTab', () => {
   });
 
   afterEach(() => {
+    jest.runOnlyPendingTimers();
     jest.useRealTimers();
+    jest.clearAllMocks();
   });
 
   describe('Initial Rendering & Loading', () => {

@@ -1,8 +1,21 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Box, Grid, VStack, HStack, Text, Button, Alert } from '@chakra-ui/react';
+import {
+  Box,
+  Grid,
+  VStack,
+  HStack,
+  Text,
+  Button,
+  Alert,
+  Input,
+  IconButton,
+  Card,
+  Badge,
+} from '@chakra-ui/react';
+import { FaSearch, FaTimes, FaUsers } from 'react-icons/fa';
 import { Cohort } from '@/interfaces/cohort';
 import {
   getCohorts,
@@ -22,6 +35,7 @@ export default function CohortTab() {
   const [error, setError] = useState<string | null>(null);
   const [cohortToDelete, setCohortToDelete] = useState<Cohort | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Load cohorts on mount
   useEffect(() => {
@@ -101,6 +115,23 @@ export default function CohortTab() {
     }
   }, []);
 
+  // Filter cohorts based on search term
+  const filteredCohorts = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return cohorts;
+    }
+    const lowerSearch = searchTerm.toLowerCase();
+    return cohorts.filter(
+      (cohort) =>
+        cohort.name.toLowerCase().includes(lowerSearch) ||
+        (cohort.description && cohort.description.toLowerCase().includes(lowerSearch))
+    );
+  }, [cohorts, searchTerm]);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchTerm('');
+  }, []);
+
   if (loading) {
     return (
       <Box py={8}>
@@ -111,26 +142,86 @@ export default function CohortTab() {
 
   return (
     <VStack gap={6} align="stretch">
-      {/* Header */}
-      <HStack justify="space-between">
-        <Box>
-          <Text fontSize="lg" fontWeight="semibold">
-            Saved Cohorts ({cohorts.length})
-          </Text>
-          <Text fontSize="sm" color="gray.600">
-            Manage your research cohorts and export data
-          </Text>
-        </Box>
-        <HStack gap={2}>
-          <Button onClick={loadCohorts} variant="outline">
-            Refresh
-          </Button>
-          {/* TODO: Enable create button when integrated with ResearchTab */}
-          <Button colorScheme="blue" disabled>
-            Create New Cohort
-          </Button>
-        </HStack>
-      </HStack>
+      {/* Header & Search Combined Card */}
+      <Card.Root bg="white" shadow="md" border="1px" borderColor="gray.200">
+        <Card.Body py={4}>
+          <VStack gap={4} align="stretch">
+            {/* Header Section */}
+            <HStack justify="space-between" align="start">
+              <VStack align="start" gap={1}>
+                <HStack gap={2}>
+                  <Box color="blue.500" fontSize="xl">
+                    <FaUsers />
+                  </Box>
+                  <Text fontSize="xl" fontWeight="bold" color="gray.800">
+                    Saved Cohorts
+                  </Text>
+                  {cohorts.length > 0 && (
+                    <Badge colorPalette="blue" variant="solid">
+                      {cohorts.length}
+                    </Badge>
+                  )}
+                </HStack>
+                <Text fontSize="sm" color="gray.600" ml={8}>
+                  Manage your research cohorts and export data
+                </Text>
+              </VStack>
+              <Button onClick={loadCohorts} variant="outline" colorPalette="blue">
+                Refresh
+              </Button>
+            </HStack>
+
+            {/* Search Section (only when cohorts exist) */}
+            {cohorts.length > 0 && (
+              <Box pt={2}>
+                <Box position="relative">
+                  <Box
+                    position="absolute"
+                    left={3}
+                    top="50%"
+                    transform="translateY(-50%)"
+                    color="gray.400"
+                  >
+                    <FaSearch />
+                  </Box>
+                  <Input
+                    placeholder="Search cohorts by name or description..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    pl={10}
+                    pr={searchTerm ? 10 : 4}
+                    size="md"
+                    borderColor="gray.300"
+                    _focus={{
+                      borderColor: 'blue.500',
+                      boxShadow: '0 0 0 1px blue.500',
+                    }}
+                  />
+                  {searchTerm && (
+                    <IconButton
+                      aria-label="Clear search"
+                      position="absolute"
+                      right={2}
+                      top="50%"
+                      transform="translateY(-50%)"
+                      size="sm"
+                      variant="ghost"
+                      onClick={handleClearSearch}
+                    >
+                      <FaTimes />
+                    </IconButton>
+                  )}
+                </Box>
+                {searchTerm && (
+                  <Text fontSize="sm" color="blue.600" fontWeight="medium" mt={2}>
+                    Showing {filteredCohorts.length} of {cohorts.length} cohorts
+                  </Text>
+                )}
+              </Box>
+            )}
+          </VStack>
+        </Card.Body>
+      </Card.Root>
 
       {/* Error Alert */}
       {error && (
@@ -141,25 +232,50 @@ export default function CohortTab() {
 
       {/* Cohorts Grid or Empty State */}
       {cohorts.length > 0 ? (
-        <Grid
-          templateColumns={{
-            base: '1fr',
-            md: 'repeat(2, 1fr)',
-            lg: 'repeat(3, 1fr)',
-          }}
-          gap={6}
-        >
-          {cohorts.map((cohort) => (
-            <CohortCard
-              key={cohort.id}
-              cohort={cohort}
-              onView={handleViewCohort}
-              onDuplicate={handleDuplicateCohort}
-              onDelete={handleDeleteClick}
-              onExport={handleExportCohort}
-            />
-          ))}
-        </Grid>
+        filteredCohorts.length > 0 ? (
+          <Box>
+            <Box mb={4}>
+              <Text
+                fontSize="sm"
+                fontWeight="semibold"
+                color="gray.600"
+                textTransform="uppercase"
+                letterSpacing="wide"
+              >
+                Your Cohorts
+              </Text>
+            </Box>
+            <Grid
+              templateColumns={{
+                base: '1fr',
+                md: 'repeat(2, 1fr)',
+                lg: 'repeat(3, 1fr)',
+              }}
+              gap={6}
+              pb={6}
+            >
+              {filteredCohorts.map((cohort) => (
+                <CohortCard
+                  key={cohort.id}
+                  cohort={cohort}
+                  onView={handleViewCohort}
+                  onDuplicate={handleDuplicateCohort}
+                  onDelete={handleDeleteClick}
+                  onExport={handleExportCohort}
+                />
+              ))}
+            </Grid>
+          </Box>
+        ) : (
+          <Box py={8} textAlign="center">
+            <Text color="gray.600" mb={2}>
+              No cohorts match your search
+            </Text>
+            <Button size="sm" variant="outline" onClick={handleClearSearch}>
+              Clear Search
+            </Button>
+          </Box>
+        )
       ) : (
         <EmptyState />
       )}

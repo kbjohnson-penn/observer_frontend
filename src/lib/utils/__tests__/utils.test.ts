@@ -78,10 +78,10 @@ describe('expandDemographic', () => {
   });
 
   describe('edge cases', () => {
-    it('should return empty string for null', () => {
-      expect(expandDemographic(null, 'gender')).toBe('');
-      expect(expandDemographic(null, 'race')).toBe('');
-      expect(expandDemographic(null, 'ethnicity')).toBe('');
+    it('should return N/A for null', () => {
+      expect(expandDemographic(null, 'gender')).toBe('N/A');
+      expect(expandDemographic(null, 'race')).toBe('N/A');
+      expect(expandDemographic(null, 'ethnicity')).toBe('N/A');
     });
 
     it('should return original code for unknown codes', () => {

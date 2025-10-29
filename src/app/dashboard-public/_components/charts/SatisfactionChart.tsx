@@ -10,6 +10,7 @@ import {
   Legend,
   CartesianGrid,
 } from 'recharts';
+import { CHART_COLORS, CHART_STYLES, SENTIMENT_COLORS } from '@/constants/colors';
 
 interface SatisfactionChartProps {
   data: {
@@ -23,17 +24,10 @@ interface SatisfactionChartProps {
 const CustomTooltip: React.FC<any> = ({ active, payload, colors }) => {
   if (active && payload && payload.length) {
     return (
-      <div
-        className="custom-tooltip"
-        style={{
-          backgroundColor: '#fff',
-          border: '1px solid #ccc',
-          padding: '10px',
-        }}
-      >
+      <div className="custom-tooltip" style={CHART_STYLES.tooltip}>
         <p
           className="text-base font-medium"
-          style={{ color: '#CF1259' }}
+          style={{ color: SENTIMENT_COLORS.negative }}
         >{`Encounters: ${payload[0].payload.count}`}</p>
         <p
           className="text-sm"
@@ -54,7 +48,7 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({ data, screenWidth
   return (
     <ResponsiveContainer width="100%" height={350}>
       <ScatterChart width={400} height={400}>
-        <CartesianGrid strokeDasharray="3 3" />
+        <CartesianGrid {...CHART_STYLES.cartesianGrid} />
         <XAxis
           type="number"
           dataKey="patientSatisfaction"
@@ -83,11 +77,13 @@ const SatisfactionChart: React.FC<SatisfactionChartProps> = ({ data, screenWidth
             offset={-5}
           />
         </YAxis>
-        <Tooltip content={<CustomTooltip colors={['#8884d8', '#82ca9d']} />} />
+        <Tooltip
+          content={<CustomTooltip colors={[CHART_COLORS.primary, CHART_COLORS.secondary]} />}
+        />
         <Scatter
           name="Satisfaction Scores"
           data={data}
-          fill="#8884d8"
+          fill={CHART_COLORS.primary}
           shape="circle"
           legendType="circle"
         ></Scatter>

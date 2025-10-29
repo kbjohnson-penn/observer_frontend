@@ -1,7 +1,7 @@
 import React from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Label } from 'recharts';
-
 import { format, toZonedTime } from 'date-fns-tz';
+import { CHART_COLORS, CHART_STYLES, SENTIMENT_COLORS } from '@/constants/colors';
 
 interface EncountersOverTimeChartProps {
   data: any[];
@@ -11,17 +11,10 @@ interface EncountersOverTimeChartProps {
 const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
   if (active && payload && payload.length) {
     return (
-      <div
-        className="custom-tooltip"
-        style={{
-          backgroundColor: '#fff',
-          padding: '10px',
-          border: '1px solid #ddd',
-        }}
-      >
+      <div className="custom-tooltip" style={CHART_STYLES.tooltip}>
         <p
           className="text-base font-medium"
-          style={{ color: '#CF1259' }}
+          style={{ color: SENTIMENT_COLORS.negative }}
         >{`${new Date(label).toLocaleDateString()}`}</p>
         <p className="text-sm" style={{ color: colors[0] }}>{`Encounters: ${payload[0].value}`}</p>
         <p
@@ -96,13 +89,21 @@ const EncountersOverTimeChart: React.FC<EncountersOverTimeChartProps> = ({ data,
             dx={10}
           />
         </YAxis>
-        <Tooltip content={<CustomTooltip colors={['#8884d8', '#82ca9d']} />} />
-        <Line yAxisId="left" type="monotone" dataKey="count" stroke="#8884d8" dot={false} />
+        <Tooltip
+          content={<CustomTooltip colors={[CHART_COLORS.primary, CHART_COLORS.secondary]} />}
+        />
+        <Line
+          yAxisId="left"
+          type="monotone"
+          dataKey="count"
+          stroke={CHART_COLORS.primary}
+          dot={false}
+        />
         <Line
           yAxisId="right"
           type="monotone"
           dataKey="cumulativeCount"
-          stroke="#82ca9d"
+          stroke={CHART_COLORS.secondary}
           dot={false}
         />
       </LineChart>

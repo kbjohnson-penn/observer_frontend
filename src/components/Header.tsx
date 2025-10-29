@@ -132,7 +132,7 @@ const Header: React.FC<HeaderProps> = ({ showLinks = true, logo = { width: 200, 
             {/* Right Navigation Links + Avatar */}
             <HStack gap={6} display={{ base: 'none', md: 'flex' }} alignItems="center">
               <NavigationLink href={isAuthenticated ? '/dashboard' : '/dashboard-public'}>
-                Explore
+                Dashboard
               </NavigationLink>
               <NavigationLink href="/dataset">Dataset</NavigationLink>
 
@@ -210,7 +210,7 @@ const Header: React.FC<HeaderProps> = ({ showLinks = true, logo = { width: 200, 
             isActive={isActive('/dashboard') || isActive('/dashboard-public')}
             isMobile
           >
-            Explore
+            Dashboard
           </NavigationLink>
 
           <NavigationLink href="/dataset" isActive={isActive('/dataset')} isMobile>
@@ -227,7 +227,7 @@ const Header: React.FC<HeaderProps> = ({ showLinks = true, logo = { width: 200, 
                 <Button
                   onClick={handleLogout}
                   variant="outline"
-                  colorScheme="whiteAlpha"
+                  colorPalette="whiteAlpha"
                   size="sm"
                   color="white"
                   borderColor="white"

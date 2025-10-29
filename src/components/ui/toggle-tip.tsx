@@ -38,7 +38,13 @@ export const InfoTip = React.forwardRef<HTMLDivElement, Partial<ToggleTipProps>>
     const { children, ...rest } = props;
     return (
       <ToggleTip content={children} {...rest} ref={ref}>
-        <IconButton variant="ghost" aria-label="info" size="2xs" colorPalette="gray">
+        <IconButton
+          variant="ghost"
+          aria-label="info"
+          size="2xs"
+          colorPalette="gray"
+          color="gray.500"
+        >
           <HiOutlineInformationCircle />
         </IconButton>
       </ToggleTip>

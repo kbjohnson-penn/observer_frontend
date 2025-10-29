@@ -111,7 +111,7 @@ const CohortViewPage = ({ params }: CohortViewPageProps) => {
         {/* Cohort Metadata */}
         <HStack justify="center" gap={6} flexWrap="wrap">
           <HStack>
-            <Badge size="lg" colorScheme="blue" px={3} py={1}>
+            <Badge size="lg" colorPalette="blue" px={3} py={1}>
               {cohort.visit_count.toLocaleString()} visits
             </Badge>
           </HStack>

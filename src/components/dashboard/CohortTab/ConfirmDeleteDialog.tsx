@@ -44,7 +44,7 @@ export default function ConfirmDeleteDialog({
             <Button variant="outline" onClick={onCancel} disabled={loading}>
               Cancel
             </Button>
-            <Button colorScheme="red" onClick={onConfirm} loading={loading} disabled={loading}>
+            <Button colorPalette="red" onClick={onConfirm} loading={loading} disabled={loading}>
               Delete Cohort
             </Button>
           </Dialog.Footer>

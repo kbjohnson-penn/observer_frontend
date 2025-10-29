@@ -11,11 +11,25 @@ import {
   Select,
   Collapsible,
   createListCollection,
+  Badge,
+  Tooltip,
+  Link,
 } from '@chakra-ui/react';
-import { FaChevronDown } from 'react-icons/fa';
+import {
+  FaChevronDown,
+  FaFilter,
+  FaCalendar,
+  FaUsers,
+  FaUserMd,
+  FaSave,
+  FaInfoCircle,
+  FaExternalLinkAlt,
+} from 'react-icons/fa';
 import { LocalFilters, DemographicFilterValues } from '@/interfaces/researchTab';
 import { FilterOptions } from '@/interfaces/research';
 import DemographicFilters from './DemographicFilters';
+import { COLORS } from '@/constants/colors';
+import { getAllTiersTooltip } from '@/constants/tierInfo';
 
 interface FilterSidebarProps {
   localFilters: LocalFilters;
@@ -37,6 +51,45 @@ export default function FilterSidebar({
   onClearFilters,
   onSaveCohort,
 }: FilterSidebarProps) {
+  // Calculate active filter count
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (localFilters.visitSource.length > 0) {
+      count++;
+    }
+    if (localFilters.tier.length > 0) {
+      count++;
+    }
+    if (localFilters.dateFrom || localFilters.dateTo) {
+      count++;
+    }
+    if (localFilters.personGender.length > 0) {
+      count++;
+    }
+    if (localFilters.personRace.length > 0) {
+      count++;
+    }
+    if (localFilters.personEthnicity.length > 0) {
+      count++;
+    }
+    if (localFilters.personAgeFrom || localFilters.personAgeTo) {
+      count++;
+    }
+    if (localFilters.providerGender.length > 0) {
+      count++;
+    }
+    if (localFilters.providerRace.length > 0) {
+      count++;
+    }
+    if (localFilters.providerEthnicity.length > 0) {
+      count++;
+    }
+    if (localFilters.providerAgeFrom || localFilters.providerAgeTo) {
+      count++;
+    }
+    return count;
+  }, [localFilters]);
+
   // Memoize visit source collection
   const visitSourceCollection = useMemo(
     () =>
@@ -84,7 +137,9 @@ export default function FilterSidebar({
       w="320px"
       bg="white"
       borderRadius="lg"
-      boxShadow="sm"
+      boxShadow="lg"
+      border="1px"
+      borderColor="gray.200"
       h="fit-content"
       position="sticky"
       top={4}
@@ -100,13 +155,27 @@ export default function FilterSidebar({
         borderTopRadius="lg"
       >
         <HStack justify="space-between">
-          <Text fontWeight="bold" fontSize="md" color="gray.700">
-            Filters
-          </Text>
+          <HStack gap={2}>
+            <Box color={COLORS.ui.filterIcon} fontSize="md">
+              <FaFilter />
+            </Box>
+            <Text fontWeight="bold" fontSize="md" color="gray.700">
+              Filters
+            </Text>
+            {activeFilterCount > 0 && (
+              <Badge
+                colorPalette={COLORS.ui.dashboard.activeFiltersBadge}
+                variant="solid"
+                fontSize="xs"
+              >
+                {activeFilterCount}
+              </Badge>
+            )}
+          </HStack>
           <Button
             size="xs"
             variant="ghost"
-            colorScheme="blue"
+            colorPalette="blue"
             onClick={onClearFilters}
             fontWeight="medium"
           >
@@ -120,10 +189,15 @@ export default function FilterSidebar({
         <VStack gap={4} align="stretch">
           {/* Visit Details Section */}
           <Box>
-            <Text fontSize="sm" fontWeight="semibold" color="gray.700" mb={3}>
-              Visit Details
-            </Text>
-            <VStack gap={2.5} align="stretch">
+            <HStack gap={2} mb={3}>
+              <Box color={COLORS.ui.visitDetailsIcon} fontSize="sm">
+                <FaCalendar />
+              </Box>
+              <Text fontSize="md" fontWeight="semibold" color="gray.700">
+                Visit Details
+              </Text>
+            </HStack>
+            <VStack gap={3} align="stretch">
               {/* Visit Source Select */}
               <Select.Root
                 collection={visitSourceCollection}
@@ -157,69 +231,94 @@ export default function FilterSidebar({
                 </Select.Positioner>
               </Select.Root>
 
-              {/* Tier Select */}
-              <Select.Root
-                collection={tierCollection}
-                size="sm"
-                multiple
-                value={localFilters.tier}
-                onValueChange={(details) => onFilterChange('tier', details.value)}
-              >
-                <Select.HiddenSelect />
-                <Select.Control>
-                  <Select.Trigger>
-                    <Select.ValueText placeholder="Tier">
-                      {localFilters.tier.length > 0
-                        ? `Tier: ${localFilters.tier.map((t) => `Tier ${t}`).join(', ')}`
-                        : null}
-                    </Select.ValueText>
-                  </Select.Trigger>
-                  <Select.IndicatorGroup>
-                    <Select.Indicator />
-                  </Select.IndicatorGroup>
-                </Select.Control>
-                <Select.Positioner>
-                  <Select.Content>
-                    {tierCollection.items.map((tier) => (
-                      <Select.Item item={tier} key={tier.value}>
-                        {tier.label}
-                        <Select.ItemIndicator />
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select.Positioner>
-              </Select.Root>
+              <Box flex={1}>
+                <Select.Root
+                  collection={tierCollection}
+                  size="sm"
+                  multiple
+                  value={localFilters.tier}
+                  onValueChange={(details) => onFilterChange('tier', details.value)}
+                >
+                  <Select.HiddenSelect />
+                  <Select.Control>
+                    <Select.Trigger>
+                      <Select.ValueText placeholder="Tier">
+                        {localFilters.tier.length > 0
+                          ? `Tier: ${localFilters.tier.map((t) => `Tier ${t}`).join(', ')}`
+                          : null}
+                      </Select.ValueText>
+                    </Select.Trigger>
+                    <Select.IndicatorGroup>
+                      <Select.Indicator />
+                    </Select.IndicatorGroup>
+                  </Select.Control>
+                  <Select.Positioner>
+                    <Select.Content>
+                      {tierCollection.items.map((tier) => (
+                        <Select.Item item={tier} key={tier.value}>
+                          {tier.label}
+                          <Select.ItemIndicator />
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Positioner>
+                </Select.Root>
+              </Box>
+              {/* Link to full tier comparison table */}
+              <Link href="/dataset" target="_blank" rel="noopener noreferrer">
+                <HStack gap={1} fontSize="xs" color="blue.600" _hover={{ color: 'blue.800' }}>
+                  <FaExternalLinkAlt size={10} />
+                  <Text>View full tier comparison table</Text>
+                </HStack>
+              </Link>
 
               {/* Date Range */}
-              <HStack gap={2}>
-                <Input
-                  type="date"
-                  placeholder="From"
-                  size="sm"
-                  value={localFilters.dateFrom}
-                  onChange={(e) => onFilterChange('dateFrom', e.target.value)}
-                  aria-label="Start date"
-                />
-                <Input
-                  type="date"
-                  placeholder="To"
-                  size="sm"
-                  value={localFilters.dateTo}
-                  onChange={(e) => onFilterChange('dateTo', e.target.value)}
-                  aria-label="End date"
-                />
-              </HStack>
+              <VStack gap={1} align="stretch">
+                <HStack gap={2}>
+                  <Input
+                    type="date"
+                    placeholder="From"
+                    size="sm"
+                    value={localFilters.dateFrom}
+                    onChange={(e) => onFilterChange('dateFrom', e.target.value)}
+                    aria-label="Start date"
+                  />
+                  <Input
+                    type="date"
+                    placeholder="To"
+                    size="sm"
+                    value={localFilters.dateTo}
+                    onChange={(e) => onFilterChange('dateTo', e.target.value)}
+                    aria-label="End date"
+                  />
+                </HStack>
+                <Text fontSize="xs" color="gray.500">
+                  Format: MM-DD-YYYY (e.g., 01-15-2024)
+                </Text>
+              </VStack>
             </VStack>
           </Box>
 
           {/* Person Demographics */}
           <Collapsible.Root defaultOpen>
-            <Collapsible.Trigger py={0} width="full">
+            <Collapsible.Trigger
+              py={2}
+              px={3}
+              width="full"
+              borderRadius="md"
+              _hover={{ bg: 'gray.50' }}
+              transition="all 0.2s"
+            >
               <HStack justify="space-between" width="full">
-                <Text fontSize="sm" fontWeight="semibold" color="gray.700">
-                  Person Demographics
-                </Text>
-                <Box color="gray.500" fontSize="xs">
+                <HStack gap={2}>
+                  <Box color={COLORS.ui.personDemographicsIcon} fontSize="sm">
+                    <FaUsers />
+                  </Box>
+                  <Text fontSize="md" fontWeight="semibold" color="gray.700">
+                    Person Demographics
+                  </Text>
+                </HStack>
+                <Box color={COLORS.researchTab.chevronIcon} fontSize="sm">
                   <FaChevronDown />
                 </Box>
               </HStack>
@@ -244,12 +343,24 @@ export default function FilterSidebar({
 
           {/* Provider Demographics */}
           <Collapsible.Root defaultOpen>
-            <Collapsible.Trigger py={0} width="full">
+            <Collapsible.Trigger
+              py={2}
+              px={3}
+              width="full"
+              borderRadius="md"
+              _hover={{ bg: 'gray.50' }}
+              transition="all 0.2s"
+            >
               <HStack justify="space-between" width="full">
-                <Text fontSize="sm" fontWeight="semibold" color="gray.700">
-                  Provider Demographics
-                </Text>
-                <Box color="gray.500" fontSize="xs">
+                <HStack gap={2}>
+                  <Box color={COLORS.ui.providerDemographicsIcon} fontSize="sm">
+                    <FaUserMd />
+                  </Box>
+                  <Text fontSize="md" fontWeight="semibold" color="gray.700">
+                    Provider Demographics
+                  </Text>
+                </HStack>
+                <Box color={COLORS.researchTab.chevronIcon} fontSize="sm">
                   <FaChevronDown />
                 </Box>
               </HStack>
@@ -273,21 +384,32 @@ export default function FilterSidebar({
           </Collapsible.Root>
 
           {/* Summary and Actions */}
-          <Box pt={3} borderTop="1px" borderColor="gray.100">
-            <Text fontSize="xs" color="gray.600" mb={3} fontWeight="medium">
-              {filterSummary
-                ? `${filterSummary.filteredVisits} of ${filterSummary.totalVisits} visits`
-                : 'Loading...'}
-            </Text>
-            <Button
-              size="sm"
-              colorScheme="blue"
-              width="full"
-              disabled={!filterSummary || filterSummary.filteredVisits === 0}
-              onClick={onSaveCohort}
-            >
-              Save as Cohort
-            </Button>
+          <Box pt={4} borderTop="2px" borderColor="blue.100">
+            <VStack gap={3} align="stretch">
+              <Box>
+                <Text fontSize="xs" color="gray.500" fontWeight="medium" mb={1}>
+                  FILTERED RESULTS
+                </Text>
+                <Text fontSize="lg" fontWeight="bold" color="blue.600">
+                  {filterSummary ? `${filterSummary.filteredVisits.toLocaleString()}` : '...'}{' '}
+                  <Text as="span" fontSize="sm" fontWeight="normal" color="gray.600">
+                    of {filterSummary ? filterSummary.totalVisits.toLocaleString() : '...'} visits
+                  </Text>
+                </Text>
+              </Box>
+              <Button
+                size="md"
+                colorPalette="blue"
+                width="full"
+                disabled={!filterSummary || filterSummary.filteredVisits === 0}
+                onClick={onSaveCohort}
+              >
+                <HStack gap={2}>
+                  <Box as={FaSave} color={COLORS.researchTab.saveIcon} />
+                  <Text>Save as Cohort</Text>
+                </HStack>
+              </Button>
+            </VStack>
           </Box>
         </VStack>
       </Box>

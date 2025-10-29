@@ -229,17 +229,19 @@ describe('CohortTab', () => {
       render(<CohortTab />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(screen.getByText('Saved Cohorts (2)')).toBeInTheDocument();
+        expect(screen.getByText('Saved Cohorts')).toBeInTheDocument();
+        expect(screen.getByText('2')).toBeInTheDocument();
       });
     });
 
-    it('should show "Saved Cohorts (0)" when empty', async () => {
+    it('should show "Saved Cohorts" without badge when empty', async () => {
       mockGetCohorts.mockResolvedValue([]);
 
       render(<CohortTab />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(screen.getByText('Saved Cohorts (0)')).toBeInTheDocument();
+        expect(screen.getByText('Saved Cohorts')).toBeInTheDocument();
+        expect(screen.queryByText('0')).not.toBeInTheDocument();
       });
     });
 
@@ -254,7 +256,8 @@ describe('CohortTab', () => {
       render(<CohortTab />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(screen.getByText('Saved Cohorts (5)')).toBeInTheDocument();
+        expect(screen.getByText('Saved Cohorts')).toBeInTheDocument();
+        expect(screen.getByText('5')).toBeInTheDocument();
       });
     });
 
@@ -263,16 +266,6 @@ describe('CohortTab', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /refresh/i })).toBeInTheDocument();
-      });
-    });
-
-    it('should render disabled create button', async () => {
-      render(<CohortTab />, { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        const createButton = screen.getByRole('button', { name: /create new cohort/i });
-        expect(createButton).toBeInTheDocument();
-        expect(createButton).toBeDisabled();
       });
     });
 
@@ -340,7 +333,7 @@ describe('CohortTab', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Cohort: New Cohort')).toBeInTheDocument();
-        expect(screen.getByText('Saved Cohorts (3)')).toBeInTheDocument();
+        expect(screen.getByText('3')).toBeInTheDocument();
       });
     });
 
@@ -349,7 +342,7 @@ describe('CohortTab', () => {
       render(<CohortTab />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(screen.getByText('Saved Cohorts (2)')).toBeInTheDocument();
+        expect(screen.getByText('2')).toBeInTheDocument();
       });
 
       // Mock empty cohorts after refresh
@@ -359,7 +352,8 @@ describe('CohortTab', () => {
       await user.click(refreshButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Saved Cohorts (0)')).toBeInTheDocument();
+        expect(screen.queryByText('2')).not.toBeInTheDocument();
+        expect(screen.getByText('Saved Cohorts')).toBeInTheDocument();
       });
     });
 
@@ -532,7 +526,7 @@ describe('CohortTab', () => {
       });
 
       // Count should update
-      expect(screen.getByText('Saved Cohorts (1)')).toBeInTheDocument();
+      expect(screen.getByText('1')).toBeInTheDocument();
     });
 
     it('should close dialog on cancel', async () => {
@@ -663,7 +657,8 @@ describe('CohortTab', () => {
       const { unmount } = render(<CohortTab />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(screen.getByText('Saved Cohorts (2)')).toBeInTheDocument();
+        expect(screen.getByText('Saved Cohorts')).toBeInTheDocument();
+        expect(screen.getByText('2')).toBeInTheDocument();
       });
 
       unmount();
@@ -673,7 +668,8 @@ describe('CohortTab', () => {
       render(<CohortTab key="new-key" />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(screen.getByText('Saved Cohorts (1)')).toBeInTheDocument();
+        expect(screen.getByText('Saved Cohorts')).toBeInTheDocument();
+        expect(screen.getByText('1')).toBeInTheDocument();
       });
     });
   });

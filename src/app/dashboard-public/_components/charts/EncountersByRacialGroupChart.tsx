@@ -1,5 +1,6 @@
 import React from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Label } from 'recharts';
+import { CHART_COLORS, CHART_STYLES, SENTIMENT_COLORS } from '@/constants/colors';
 
 interface EncountersByRacialGroupChartProps {
   data: { name: string; patientCount: number; providerCount: number }[];
@@ -9,15 +10,11 @@ interface EncountersByRacialGroupChartProps {
 const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
   if (active && payload && payload.length) {
     return (
-      <div
-        className="custom-tooltip"
-        style={{
-          backgroundColor: '#fff',
-          border: '1px solid #ccc',
-          padding: '10px',
-        }}
-      >
-        <p className="text-base font-medium" style={{ color: '#CF1259' }}>{`${label}`}</p>
+      <div className="custom-tooltip" style={CHART_STYLES.tooltip}>
+        <p
+          className="text-base font-medium"
+          style={{ color: SENTIMENT_COLORS.negative }}
+        >{`${label}`}</p>
         <p className="text-sm" style={{ color: colors[0] }}>{`Patient: ${payload[0].value}`}</p>
         <p className="text-sm" style={{ color: colors[1] }}>{`Provider: ${payload[1].value}`}</p>
       </div>
@@ -150,7 +147,9 @@ const EncountersByRacialGroupChart: React.FC<EncountersByRacialGroupChartProps> 
         <YAxis allowDecimals={false} style={{ fontSize: screenWidth <= 768 ? '10px' : '11px' }}>
           <Label value="Total" angle={-90} style={{ fontSize: '11px' }} offset={-5} />
         </YAxis>
-        <Tooltip content={<CustomTooltip colors={['#8884d8', '#82ca9d']} />} />
+        <Tooltip
+          content={<CustomTooltip colors={[CHART_COLORS.primary, CHART_COLORS.secondary]} />}
+        />
         <Legend
           verticalAlign="top"
           iconSize={12}
@@ -160,14 +159,14 @@ const EncountersByRacialGroupChart: React.FC<EncountersByRacialGroupChartProps> 
           dataKey="patientCount"
           name="Patients"
           stackId="a"
-          fill="#8884d8"
+          fill={CHART_COLORS.primary}
           barSize={screenWidth <= 768 ? 28 : 34} // Slightly smaller bars to allow more space between them
         />
         <Bar
           dataKey="providerCount"
           name="Providers"
           stackId="a"
-          fill="#82ca9d"
+          fill={CHART_COLORS.secondary}
           barSize={screenWidth <= 768 ? 28 : 34}
         />
       </BarChart>

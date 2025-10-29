@@ -14,7 +14,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { Field } from '@/components/ui/field';
-import { CohortCreateRequest } from '@/interfaces/cohort';
+import { Cohort, CohortCreateRequest } from '@/interfaces/cohort';
 import { VisitSearchFilters } from '@/interfaces/research';
 
 interface CreateCohortDialogProps {
@@ -23,6 +23,7 @@ interface CreateCohortDialogProps {
   onSave: (cohort: CohortCreateRequest) => Promise<void>;
   filters: VisitSearchFilters;
   visitCount: number;
+  existingCohorts: Cohort[];
 }
 
 export default function CreateCohortDialog({
@@ -31,6 +32,7 @@ export default function CreateCohortDialog({
   onSave,
   filters,
   visitCount,
+  existingCohorts,
 }: CreateCohortDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -44,12 +46,23 @@ export default function CreateCohortDialog({
       return;
     }
 
+    // Check for duplicate name (case-insensitive)
+    const trimmedName = name.trim();
+    const isDuplicate = existingCohorts.some(
+      (cohort) => cohort.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+
+    if (isDuplicate) {
+      setError('A cohort with this name already exists. Please choose a different name.');
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
 
       await onSave({
-        name: name.trim(),
+        name: trimmedName,
         description: description.trim() || undefined,
         filters,
         visitCount,
@@ -127,7 +140,7 @@ export default function CreateCohortDialog({
               Cancel
             </Button>
             <Button
-              colorScheme="blue"
+              colorPalette="blue"
               onClick={handleSave}
               loading={loading}
               disabled={!name.trim() || loading}

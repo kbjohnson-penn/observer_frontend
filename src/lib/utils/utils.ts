@@ -609,7 +609,7 @@ type DemographicType = 'gender' | 'race' | 'ethnicity';
  */
 export const expandDemographic = (code: string | null, type: DemographicType): string => {
   if (!code) {
-    return '';
+    return 'N/A';
   }
 
   const normalizedCode = code.toUpperCase();
