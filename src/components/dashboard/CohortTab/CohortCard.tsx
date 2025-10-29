@@ -31,7 +31,18 @@ export default function CohortCard({
   );
 
   return (
-    <Card.Root bg="white" shadow="md" border="1px" borderColor="gray.200">
+    <Card.Root
+      bg="white"
+      shadow="md"
+      border="1px"
+      borderColor="gray.200"
+      transition="all 0.2s"
+      _hover={{
+        shadow: 'lg',
+        borderColor: 'blue.300',
+        transform: 'translateY(-2px)',
+      }}
+    >
       <Card.Header>
         <HStack justify="space-between" align="start">
           <VStack align="start" gap={1} flex={1}>

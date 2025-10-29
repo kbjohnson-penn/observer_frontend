@@ -18,9 +18,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color }) => {
       p={6}
       borderRadius="lg"
       boxShadow="sm"
-      transition="all 0.3s"
       height="100%"
-      className="hover:-translate-y-1 hover:shadow-md"
       border="1px"
       borderColor="gray.200"
     >

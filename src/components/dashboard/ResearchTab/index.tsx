@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Box,
   VStack,
@@ -18,8 +18,8 @@ import { useVisitSearch } from '@/hooks/useVisitSearch';
 import { VisitSearchSort } from '@/interfaces/research';
 import { LocalFilters, INITIAL_LOCAL_FILTERS } from '@/interfaces/researchTab';
 import { buildServerFilters } from '@/lib/utils/filterTransformer';
-import { createCohort } from '@/lib/utils/cohortStorage';
-import { CohortCreateRequest } from '@/interfaces/cohort';
+import { createCohort, getCohorts } from '@/lib/utils/cohortStorage';
+import { CohortCreateRequest, Cohort } from '@/interfaces/cohort';
 import { logger } from '@/lib/logger';
 import FilterSidebar from './FilterSidebar';
 import VisitsTable from './VisitsTable';
@@ -27,7 +27,11 @@ import PaginationControls from './PaginationControls';
 import LoadingSkeleton from './LoadingSkeleton';
 import CreateCohortDialog from '../CohortTab/CreateCohortDialog';
 
-export default function ResearchTab() {
+interface ResearchTabProps {
+  onCohortCreated?: () => void;
+}
+
+export default function ResearchTab({ onCohortCreated }: ResearchTabProps) {
   const {
     filterOptions,
     loading: filterOptionsLoading,
@@ -52,6 +56,16 @@ export default function ResearchTab() {
   // Cohort dialog state
   const [isCohortDialogOpen, setIsCohortDialogOpen] = useState(false);
   const [cohortSuccess, setCohortSuccess] = useState(false);
+  const [existingCohorts, setExistingCohorts] = useState<Cohort[]>([]);
+
+  // Load existing cohorts for duplicate validation
+  useEffect(() => {
+    const loadCohorts = async () => {
+      const cohorts = await getCohorts();
+      setExistingCohorts(cohorts);
+    };
+    loadCohorts();
+  }, []);
 
   // Handle filter changes
   const handleFilterChange = useCallback(
@@ -92,21 +106,31 @@ export default function ResearchTab() {
   }, []);
 
   // Handle cohort creation
-  const handleCreateCohort = useCallback(async (cohortData: CohortCreateRequest) => {
-    try {
-      await createCohort(cohortData);
-      setCohortSuccess(true);
+  const handleCreateCohort = useCallback(
+    async (cohortData: CohortCreateRequest) => {
+      try {
+        await createCohort(cohortData);
+        setCohortSuccess(true);
 
-      // Hide success message after 3 seconds
-      setTimeout(() => {
-        setCohortSuccess(false);
-      }, 3000);
-    } catch (error) {
-      logger.error('Failed to create cohort:', error);
-      // Error is already handled and shown in CreateCohortDialog
-      throw error; // Re-throw so dialog can display error
-    }
-  }, []);
+        // Reload cohorts list for future validation
+        const cohorts = await getCohorts();
+        setExistingCohorts(cohorts);
+
+        // Notify parent component to update cohort count badge
+        onCohortCreated?.();
+
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          setCohortSuccess(false);
+        }, 3000);
+      } catch (error) {
+        logger.error('Failed to create cohort:', error);
+        // Error is already handled and shown in CreateCohortDialog
+        throw error; // Re-throw so dialog can display error
+      }
+    },
+    [onCohortCreated]
+  );
 
   const error = filterOptionsError || visitsError;
 
@@ -221,6 +245,7 @@ export default function ResearchTab() {
           onSave={handleCreateCohort}
           filters={buildServerFilters(localFilters)}
           visitCount={filterSummary.filteredVisits}
+          existingCohorts={existingCohorts}
         />
       )}
     </VStack>

@@ -13,6 +13,7 @@ import {
   createListCollection,
   Badge,
   Tooltip,
+  Link,
 } from '@chakra-ui/react';
 import {
   FaChevronDown,
@@ -22,6 +23,7 @@ import {
   FaUserMd,
   FaSave,
   FaInfoCircle,
+  FaExternalLinkAlt,
 } from 'react-icons/fa';
 import { LocalFilters, DemographicFilterValues } from '@/interfaces/researchTab';
 import { FilterOptions } from '@/interfaces/research';
@@ -281,25 +283,38 @@ export default function FilterSidebar({
                 </Tooltip.Root>
               </HStack>
 
+              {/* Link to full tier comparison table */}
+              <Link href="/dataset" target="_blank" rel="noopener noreferrer">
+                <HStack gap={1} fontSize="xs" color="blue.600" _hover={{ color: 'blue.800' }}>
+                  <FaExternalLinkAlt size={10} />
+                  <Text>View full tier comparison table</Text>
+                </HStack>
+              </Link>
+
               {/* Date Range */}
-              <HStack gap={2}>
-                <Input
-                  type="date"
-                  placeholder="From"
-                  size="sm"
-                  value={localFilters.dateFrom}
-                  onChange={(e) => onFilterChange('dateFrom', e.target.value)}
-                  aria-label="Start date"
-                />
-                <Input
-                  type="date"
-                  placeholder="To"
-                  size="sm"
-                  value={localFilters.dateTo}
-                  onChange={(e) => onFilterChange('dateTo', e.target.value)}
-                  aria-label="End date"
-                />
-              </HStack>
+              <VStack gap={1} align="stretch">
+                <HStack gap={2}>
+                  <Input
+                    type="date"
+                    placeholder="From"
+                    size="sm"
+                    value={localFilters.dateFrom}
+                    onChange={(e) => onFilterChange('dateFrom', e.target.value)}
+                    aria-label="Start date"
+                  />
+                  <Input
+                    type="date"
+                    placeholder="To"
+                    size="sm"
+                    value={localFilters.dateTo}
+                    onChange={(e) => onFilterChange('dateTo', e.target.value)}
+                    aria-label="End date"
+                  />
+                </HStack>
+                <Text fontSize="xs" color="gray.500">
+                  Format: YYYY-MM-DD (e.g., 2024-01-15)
+                </Text>
+              </VStack>
             </VStack>
           </Box>
 

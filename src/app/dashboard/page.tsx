@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Box, Container, Heading, Text, Tabs, HStack, Badge } from '@chakra-ui/react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Box, Container, Text, Tabs, HStack, Badge } from '@chakra-ui/react';
 import { FaSearch, FaUsers } from 'react-icons/fa';
 import ResearchTab from '@/components/dashboard/ResearchTab';
 import CohortTab from '@/components/dashboard/CohortTab';
@@ -16,18 +16,27 @@ export default function DashboardPage() {
   const [cohortCount, setCohortCount] = useState(0);
   const { filterOptions, loading: filterOptionsLoading } = useFilterOptions();
 
-  // Load cohort count on mount
-  useEffect(() => {
-    const loadCohortCount = async () => {
-      try {
-        const cohorts = await getCohorts();
-        setCohortCount(cohorts.length);
-      } catch (error) {
-        logger.error('Failed to load cohort count:', error);
-      }
-    };
-    loadCohortCount();
+  // Load cohort count function (reusable for callbacks and tab switches)
+  const loadCohortCount = useCallback(async () => {
+    try {
+      const cohorts = await getCohorts();
+      setCohortCount(cohorts.length);
+    } catch (error) {
+      logger.error('Failed to load cohort count:', error);
+    }
   }, []);
+
+  // Initial load on mount
+  useEffect(() => {
+    loadCohortCount();
+  }, [loadCohortCount]);
+
+  // Reload cohort count when switching to cohorts tab (backup mechanism)
+  useEffect(() => {
+    if (activeTab === 'cohorts') {
+      loadCohortCount();
+    }
+  }, [activeTab, loadCohortCount]);
 
   // Calculate total available filters from filter options
   const calculateFilterCount = (): number => {
@@ -74,16 +83,6 @@ export default function DashboardPage() {
 
   return (
     <Container maxW="container.xl" py={8}>
-      {/* Header Section */}
-      <Box mb={8} bg="blue.50" p={6} borderRadius="lg" border="1px" borderColor="blue.100">
-        <Heading size={{ base: 'xl', md: '2xl' }} color="gray.900" mb={2}>
-          Research Dashboard
-        </Heading>
-        <Text color="gray.700" fontSize="md">
-          Explore Observer dataset and create custom cohorts for your research studies.
-        </Text>
-      </Box>
-
       {/* Dashboard Statistics */}
       <DashboardStats
         totalVisits={totalVisits}
@@ -99,15 +98,27 @@ export default function DashboardPage() {
         value={activeTab}
         onValueChange={(e) => setActiveTab(e.value)}
       >
-        <Tabs.List gap={6}>
-          <Tabs.Trigger value="research">
+        <Tabs.List gap={4} borderBottom="2px" borderColor="gray.200">
+          <Tabs.Trigger
+            value="research"
+            px={4}
+            py={3}
+            fontWeight={activeTab === 'research' ? 'semibold' : 'normal'}
+            color={activeTab === 'research' ? 'blue.600' : 'gray.600'}
+            borderBottom={activeTab === 'research' ? '3px solid' : 'none'}
+            borderColor={activeTab === 'research' ? 'blue.600' : 'transparent'}
+            _hover={{ bg: 'gray.50', color: activeTab === 'research' ? 'blue.700' : 'gray.800' }}
+            transition="all 0.2s"
+          >
             <HStack gap={2}>
-              <FaSearch />
+              <Box color={activeTab === 'research' ? 'blue.600' : 'gray.500'}>
+                <FaSearch />
+              </Box>
               <Text>Research Data</Text>
               {totalVisits > 0 && (
                 <Badge
                   colorPalette={COLORS.ui.dashboard.researchDataTabBadge}
-                  variant="subtle"
+                  variant={activeTab === 'research' ? 'solid' : 'subtle'}
                   ml={1}
                 >
                   {totalVisits.toLocaleString()}
@@ -115,12 +126,28 @@ export default function DashboardPage() {
               )}
             </HStack>
           </Tabs.Trigger>
-          <Tabs.Trigger value="cohorts">
+          <Tabs.Trigger
+            value="cohorts"
+            px={4}
+            py={3}
+            fontWeight={activeTab === 'cohorts' ? 'semibold' : 'normal'}
+            color={activeTab === 'cohorts' ? 'green.600' : 'gray.600'}
+            borderBottom={activeTab === 'cohorts' ? '3px solid' : 'none'}
+            borderColor={activeTab === 'cohorts' ? 'green.600' : 'transparent'}
+            _hover={{ bg: 'gray.50', color: activeTab === 'cohorts' ? 'green.700' : 'gray.800' }}
+            transition="all 0.2s"
+          >
             <HStack gap={2}>
-              <FaUsers />
+              <Box color={activeTab === 'cohorts' ? 'green.600' : 'gray.500'}>
+                <FaUsers />
+              </Box>
               <Text>Cohorts</Text>
               {cohortCount > 0 && (
-                <Badge colorPalette={COLORS.ui.dashboard.cohortsTabBadge} variant="subtle" ml={1}>
+                <Badge
+                  colorPalette={COLORS.ui.dashboard.cohortsTabBadge}
+                  variant={activeTab === 'cohorts' ? 'solid' : 'subtle'}
+                  ml={1}
+                >
                   {cohortCount}
                 </Badge>
               )}
@@ -129,7 +156,7 @@ export default function DashboardPage() {
         </Tabs.List>
 
         <Tabs.Content value="research" mt={6}>
-          <ResearchTab />
+          <ResearchTab onCohortCreated={loadCohortCount} />
         </Tabs.Content>
 
         <Tabs.Content value="cohorts" mt={6}>

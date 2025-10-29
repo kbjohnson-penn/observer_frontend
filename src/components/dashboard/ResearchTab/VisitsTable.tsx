@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Box, VStack, HStack, Text, Table, Badge } from '@chakra-ui/react';
+import { Box, VStack, HStack, Text, Table, Badge, Tooltip } from '@chakra-ui/react';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { VisitSearchResult } from '@/interfaces/research';
 import { VisitSearchSort } from '@/interfaces/research';
@@ -14,38 +14,45 @@ interface VisitsTableProps {
   onSort: (field: VisitSearchSort['field']) => void;
 }
 
+// Format visit source: "clinic" -> "Clinic", "sim_center" -> "Sim Center"
+function formatVisitSource(source: string): string {
+  return source
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 // Memoized table row component for performance
 const VisitRow = React.memo(({ visit }: { visit: VisitSearchResult }) => {
   // Memoize expanded demographic labels
   const patientGenderLabel = useMemo(
-    () => (visit.patient_gender ? expandDemographic(visit.patient_gender, 'gender') : null),
+    () => expandDemographic(visit.patient_gender, 'gender'),
     [visit.patient_gender]
   );
 
   const patientRaceLabel = useMemo(
-    () => (visit.patient_race ? expandDemographic(visit.patient_race, 'race') : null),
+    () => expandDemographic(visit.patient_race, 'race'),
     [visit.patient_race]
   );
 
   const patientEthnicityLabel = useMemo(
-    () =>
-      visit.patient_ethnicity ? expandDemographic(visit.patient_ethnicity, 'ethnicity') : null,
+    () => expandDemographic(visit.patient_ethnicity, 'ethnicity'),
     [visit.patient_ethnicity]
   );
 
   const providerGenderLabel = useMemo(
-    () => (visit.provider_gender ? expandDemographic(visit.provider_gender, 'gender') : null),
+    () => expandDemographic(visit.provider_gender, 'gender'),
     [visit.provider_gender]
   );
 
   const providerRaceLabel = useMemo(
-    () => (visit.provider_race ? expandDemographic(visit.provider_race, 'race') : null),
+    () => expandDemographic(visit.provider_race, 'race'),
     [visit.provider_race]
   );
 
   const providerEthnicityLabel = useMemo(
-    () =>
-      visit.provider_ethnicity ? expandDemographic(visit.provider_ethnicity, 'ethnicity') : null,
+    () => expandDemographic(visit.provider_ethnicity, 'ethnicity'),
     [visit.provider_ethnicity]
   );
 
@@ -66,7 +73,7 @@ const VisitRow = React.memo(({ visit }: { visit: VisitSearchResult }) => {
       </Table.Cell>
       <Table.Cell>
         <Badge size="md" variant="subtle" colorPalette={COLORS.visitSource}>
-          {visit.visit_source}
+          {formatVisitSource(visit.visit_source)}
         </Badge>
       </Table.Cell>
       <Table.Cell>
@@ -80,56 +87,100 @@ const VisitRow = React.memo(({ visit }: { visit: VisitSearchResult }) => {
       <Table.Cell>
         <VStack gap={1.5} align="start">
           <HStack gap={1.5} flexWrap="wrap">
-            {visit.patient_age !== null && (
-              <Badge size="md" colorPalette={COLORS.patientBadges.age} variant="subtle">
-                Age {visit.patient_age}
-              </Badge>
-            )}
-            {patientGenderLabel && (
-              <Badge size="md" variant="outline" colorPalette={COLORS.patientBadges.gender}>
-                {patientGenderLabel}
-              </Badge>
-            )}
+            <Tooltip.Root positioning={{ placement: 'top' }}>
+              <Tooltip.Trigger asChild>
+                <Badge
+                  size="md"
+                  colorPalette={visit.patient_age !== null ? COLORS.patientBadges.age : 'gray'}
+                  variant={visit.patient_age !== null ? 'subtle' : 'outline'}
+                >
+                  {visit.patient_age !== null ? `Age ${visit.patient_age}` : 'N/A'}
+                </Badge>
+              </Tooltip.Trigger>
+              <Tooltip.Positioner>
+                <Tooltip.Content>
+                  <Text fontSize="xs">Age at time of visit</Text>
+                  <Tooltip.Arrow>
+                    <Tooltip.ArrowTip />
+                  </Tooltip.Arrow>
+                </Tooltip.Content>
+              </Tooltip.Positioner>
+            </Tooltip.Root>
+            <Badge
+              size="md"
+              variant="outline"
+              colorPalette={patientGenderLabel === 'N/A' ? 'gray' : COLORS.patientBadges.gender}
+            >
+              {patientGenderLabel}
+            </Badge>
           </HStack>
           <HStack gap={1.5} flexWrap="wrap">
-            {patientRaceLabel && (
-              <Badge size="md" variant="outline" colorPalette={COLORS.patientBadges.race}>
-                {patientRaceLabel}
-              </Badge>
-            )}
-            {patientEthnicityLabel && (
-              <Badge size="md" variant="outline" colorPalette={COLORS.patientBadges.ethnicity}>
-                {patientEthnicityLabel}
-              </Badge>
-            )}
+            <Badge
+              size="md"
+              variant="outline"
+              colorPalette={patientRaceLabel === 'N/A' ? 'gray' : COLORS.patientBadges.race}
+            >
+              {patientRaceLabel}
+            </Badge>
+            <Badge
+              size="md"
+              variant="outline"
+              colorPalette={
+                patientEthnicityLabel === 'N/A' ? 'gray' : COLORS.patientBadges.ethnicity
+              }
+            >
+              {patientEthnicityLabel}
+            </Badge>
           </HStack>
         </VStack>
       </Table.Cell>
       <Table.Cell>
         <VStack gap={1.5} align="start">
           <HStack gap={1.5} flexWrap="wrap">
-            {visit.provider_age !== null && (
-              <Badge size="md" colorPalette={COLORS.providerBadges.age} variant="subtle">
-                Age {visit.provider_age}
-              </Badge>
-            )}
-            {providerGenderLabel && (
-              <Badge size="md" variant="outline" colorPalette={COLORS.providerBadges.gender}>
-                {providerGenderLabel}
-              </Badge>
-            )}
+            <Tooltip.Root positioning={{ placement: 'top' }}>
+              <Tooltip.Trigger asChild>
+                <Badge
+                  size="md"
+                  colorPalette={visit.provider_age !== null ? COLORS.providerBadges.age : 'gray'}
+                  variant={visit.provider_age !== null ? 'subtle' : 'outline'}
+                >
+                  {visit.provider_age !== null ? `Age ${visit.provider_age}` : 'N/A'}
+                </Badge>
+              </Tooltip.Trigger>
+              <Tooltip.Positioner>
+                <Tooltip.Content>
+                  <Text fontSize="xs">Age at time of visit</Text>
+                  <Tooltip.Arrow>
+                    <Tooltip.ArrowTip />
+                  </Tooltip.Arrow>
+                </Tooltip.Content>
+              </Tooltip.Positioner>
+            </Tooltip.Root>
+            <Badge
+              size="md"
+              variant="outline"
+              colorPalette={providerGenderLabel === 'N/A' ? 'gray' : COLORS.providerBadges.gender}
+            >
+              {providerGenderLabel}
+            </Badge>
           </HStack>
           <HStack gap={1.5} flexWrap="wrap">
-            {providerRaceLabel && (
-              <Badge size="md" variant="outline" colorPalette={COLORS.providerBadges.race}>
-                {providerRaceLabel}
-              </Badge>
-            )}
-            {providerEthnicityLabel && (
-              <Badge size="md" variant="outline" colorPalette={COLORS.providerBadges.ethnicity}>
-                {providerEthnicityLabel}
-              </Badge>
-            )}
+            <Badge
+              size="md"
+              variant="outline"
+              colorPalette={providerRaceLabel === 'N/A' ? 'gray' : COLORS.providerBadges.race}
+            >
+              {providerRaceLabel}
+            </Badge>
+            <Badge
+              size="md"
+              variant="outline"
+              colorPalette={
+                providerEthnicityLabel === 'N/A' ? 'gray' : COLORS.providerBadges.ethnicity
+              }
+            >
+              {providerEthnicityLabel}
+            </Badge>
           </HStack>
         </VStack>
       </Table.Cell>
@@ -172,32 +223,49 @@ function SortableHeader({
   label,
   currentSort,
   onSort,
+  tooltip,
 }: {
   field: VisitSearchSort['field'];
   label: string;
   currentSort: VisitSearchSort;
   onSort: (field: VisitSearchSort['field']) => void;
+  tooltip?: string;
 }) {
   const isActive = currentSort.field === field;
+  const headerContent = (
+    <HStack
+      cursor="pointer"
+      onClick={() => onSort(field)}
+      _hover={{ bg: COLORS.table.rowHoverBg }}
+      p={2}
+      borderRadius="md"
+      whiteSpace="nowrap"
+      transition="all 0.2s"
+    >
+      <Text fontWeight={isActive ? 'bold' : 'semibold'} color={isActive ? 'blue.700' : 'gray.700'}>
+        {label}
+      </Text>
+      <SortIcon field={field} currentSort={currentSort} />
+    </HStack>
+  );
+
   return (
     <Table.ColumnHeader>
-      <HStack
-        cursor="pointer"
-        onClick={() => onSort(field)}
-        _hover={{ bg: COLORS.table.rowHoverBg }}
-        p={2}
-        borderRadius="md"
-        whiteSpace="nowrap"
-        transition="all 0.2s"
-      >
-        <Text
-          fontWeight={isActive ? 'bold' : 'semibold'}
-          color={isActive ? 'blue.700' : 'gray.700'}
-        >
-          {label}
-        </Text>
-        <SortIcon field={field} currentSort={currentSort} />
-      </HStack>
+      {tooltip ? (
+        <Tooltip.Root positioning={{ placement: 'top' }}>
+          <Tooltip.Trigger asChild>{headerContent}</Tooltip.Trigger>
+          <Tooltip.Positioner>
+            <Tooltip.Content>
+              <Text fontSize="xs">{tooltip}</Text>
+              <Tooltip.Arrow>
+                <Tooltip.ArrowTip />
+              </Tooltip.Arrow>
+            </Tooltip.Content>
+          </Tooltip.Positioner>
+        </Tooltip.Root>
+      ) : (
+        headerContent
+      )}
     </Table.ColumnHeader>
   );
 }
@@ -218,6 +286,7 @@ export default function VisitsTable({ visits, sort, onSort }: VisitsTableProps) 
               label="Visit Date"
               currentSort={sort}
               onSort={onSort}
+              tooltip="Date format: MM/DD/YYYY based on your browser locale"
             />
             <SortableHeader
               field="visit_source_value"
