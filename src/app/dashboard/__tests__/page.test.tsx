@@ -122,15 +122,15 @@ describe('DashboardPage', () => {
   });
 
   describe('Initial Rendering', () => {
-    it('should render the dashboard page with heading and description', () => {
+    it('should render the dashboard page with tabs and stats', () => {
       render(<DashboardPage />, { wrapper: TestWrapper });
 
-      expect(screen.getByText('Research Dashboard')).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          'Explore Observer dataset and create custom cohorts for your research studies.'
-        )
-      ).toBeInTheDocument();
+      // Check that tabs are rendered
+      expect(screen.getByText('Research Data')).toBeInTheDocument();
+      expect(screen.getByText('Cohorts')).toBeInTheDocument();
+
+      // Check that dashboard stats component is rendered
+      expect(screen.getByTestId('dashboard-stats')).toBeInTheDocument();
     });
 
     it('should render both tab triggers', () => {

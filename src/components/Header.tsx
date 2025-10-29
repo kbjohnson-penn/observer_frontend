@@ -210,7 +210,7 @@ const Header: React.FC<HeaderProps> = ({ showLinks = true, logo = { width: 200, 
             isActive={isActive('/dashboard') || isActive('/dashboard-public')}
             isMobile
           >
-            Explore
+            Dashboard
           </NavigationLink>
 
           <NavigationLink href="/dataset" isActive={isActive('/dataset')} isMobile>

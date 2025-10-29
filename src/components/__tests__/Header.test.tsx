@@ -204,8 +204,9 @@ describe('Header', () => {
       await user.click(mobileMenuButton);
 
       // Mobile menu should be visible after click
-      // Check for navigation items that would be in mobile menu (should have duplicates)
-      expect(screen.getAllByText('Explore')).toHaveLength(2); // Desktop + Mobile
+      // Check for mobile-specific navigation items
+      expect(screen.getByText('Dashboard')).toBeInTheDocument(); // Mobile menu shows "Dashboard"
+      expect(screen.getAllByText('Dataset')).toHaveLength(2); // Desktop + Mobile both show "Dataset"
     });
   });
 
