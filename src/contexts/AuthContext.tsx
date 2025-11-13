@@ -167,7 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
     }
 
-    router.push('/dashboard');
+    router.replace('/dashboard');
   };
 
   const logout = async () => {

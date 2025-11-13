@@ -10,6 +10,7 @@ jest.mock('next/navigation', () => ({
 
 const mockRouter = {
   push: jest.fn(),
+  replace: jest.fn(),
 };
 
 const mockFetch = jest.fn();
@@ -21,6 +22,7 @@ describe('AuthContext', () => {
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     mockFetch.mockClear();
     mockRouter.push.mockClear();
+    mockRouter.replace.mockClear();
   });
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -89,7 +91,7 @@ describe('AuthContext', () => {
         id: 1,
       });
       expect(result.current.isAuthenticated).toBe(true);
-      expect(mockRouter.push).toHaveBeenCalledWith('/dashboard');
+      expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
     });
 
     it('should handle login failure with invalid credentials', async () => {
@@ -480,7 +482,7 @@ describe('AuthContext', () => {
       });
 
       expect(result.current.user).toBeNull();
-      expect(mockRouter.push).toHaveBeenCalledWith('/dashboard');
+      expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
     });
 
     it('should handle user data with nested user object in refresh', async () => {

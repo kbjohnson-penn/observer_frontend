@@ -185,16 +185,8 @@ describe('LoginForm', () => {
     });
   });
 
-  it('should redirect to dashboard when already authenticated', () => {
-    mockUseAuth.mockReturnValue({
-      login: mockLogin,
-      isAuthenticated: true,
-    });
-
-    render(<LoginForm />, { wrapper: TestWrapper });
-
-    expect(mockRouter.push).toHaveBeenCalledWith('/dashboard');
-  });
+  // Note: Redirect when already authenticated is now handled by middleware
+  // and AuthContext, not by the LoginForm component itself
 
   it('should clear error on new submission', async () => {
     mockLogin
