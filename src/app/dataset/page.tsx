@@ -7,6 +7,7 @@ import { Box } from '@chakra-ui/react';
 import DatasetHeader from '@/components/dataset/DatasetHeader';
 import DatabaseStructure from '@/components/dataset/DatabaseStructure';
 import DatasetInformation from '@/components/dataset/DatasetInformation';
+import DeIdentificationProcess from '@/components/dataset/DeIdentificationProcess';
 import CitationUsage from '@/components/dataset/CitationUsage';
 import CitationModal from '@/components/dataset/CitationModal';
 
@@ -18,6 +19,7 @@ const DatasetPage = () => {
       <DatasetHeader />
       <DatabaseStructure />
       <DatasetInformation />
+      <DeIdentificationProcess />
       <CitationUsage onOpenModal={() => setIsModalOpen(true)} />
       <CitationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </Box>
