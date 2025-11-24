@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Box, VStack, HStack, Text, Button, Alert } from '@chakra-ui/react';
 import { PasswordInput } from '@/components/ui/password-input';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Reusable password field component
 interface PasswordFieldProps {
@@ -53,6 +54,7 @@ interface PasswordFormData {
 }
 
 export default function PasswordSettings() {
+  const { logout } = useAuth();
   const [formData, setFormData] = useState<PasswordFormData>({
     current_password: '',
     new_password: '',
@@ -120,12 +122,26 @@ export default function PasswordSettings() {
       );
 
       if (response.ok) {
-        setMessage({ type: 'success', text: 'Password updated successfully!' });
+        const data = await response.json();
+
+        setMessage({
+          type: 'success',
+          text:
+            data.detail || 'Password updated successfully! You will be logged out in 3 seconds...',
+        });
         setFormData({
           current_password: '',
           new_password: '',
           confirm_password: '',
         });
+
+        // Check if backend requires logout (for security after password change)
+        if (data.logout_required) {
+          // Wait 3 seconds to show the success message, then logout
+          setTimeout(() => {
+            logout();
+          }, 3000);
+        }
       } else {
         const errorData = await response.json();
         let errorMessage = 'Failed to update password';

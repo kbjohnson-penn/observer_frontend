@@ -4,6 +4,19 @@ import userEvent from '@testing-library/user-event';
 import PasswordSettings from '../PasswordSettings';
 import { Provider } from '@/components/ui/provider';
 
+// Mock useAuth hook
+const mockLogout = jest.fn();
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({
+    logout: mockLogout,
+    user: { username: 'testuser', email: 'test@example.com', id: 1 },
+    isAuthenticated: true,
+    isLoading: false,
+    login: jest.fn(),
+    refreshToken: jest.fn(),
+  }),
+}));
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -124,7 +137,10 @@ describe('PasswordSettings', () => {
     it('should submit password change successfully', async () => {
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ message: 'Password updated successfully' }),
+        json: async () => ({
+          detail: 'Password updated successfully. Please log in again with your new password.',
+          logout_required: true,
+        }),
       });
 
       render(<PasswordSettings />, { wrapper: TestWrapper });
@@ -141,7 +157,11 @@ describe('PasswordSettings', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Password updated successfully!')).toBeInTheDocument();
+        expect(
+          screen.getByText(
+            'Password updated successfully. Please log in again with your new password.'
+          )
+        ).toBeInTheDocument();
       });
 
       expect(global.fetch).toHaveBeenCalledWith(
@@ -161,7 +181,10 @@ describe('PasswordSettings', () => {
     it('should clear form fields after successful submission', async () => {
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({}),
+        json: async () => ({
+          detail: 'Password updated successfully. Please log in again with your new password.',
+          logout_required: true,
+        }),
       });
 
       render(<PasswordSettings />, { wrapper: TestWrapper });
@@ -198,7 +221,11 @@ describe('PasswordSettings', () => {
               () =>
                 resolve({
                   ok: true,
-                  json: async () => ({}),
+                  json: async () => ({
+                    detail:
+                      'Password updated successfully. Please log in again with your new password.',
+                    logout_required: true,
+                  }),
                 }),
               100
             )
@@ -327,6 +354,84 @@ describe('PasswordSettings', () => {
           screen.getByText('An error occurred while updating your password')
         ).toBeInTheDocument();
       });
+    });
+
+    it('should trigger logout when logout_required flag is true', async () => {
+      jest.useFakeTimers();
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          detail: 'Password updated successfully. Please log in again with your new password.',
+          logout_required: true,
+        }),
+      });
+
+      render(<PasswordSettings />, { wrapper: TestWrapper });
+
+      const user = userEvent.setup({ delay: null });
+      const currentPasswordInput = screen.getByPlaceholderText('Enter your current password');
+      const newPasswordInput = screen.getByPlaceholderText('Enter your new password');
+      const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password');
+      const submitButton = screen.getByRole('button', { name: /update password/i });
+
+      await user.type(currentPasswordInput, 'OldPassword123!');
+      await user.type(newPasswordInput, 'NewPassword456!');
+      await user.type(confirmPasswordInput, 'NewPassword456!');
+      await user.click(submitButton);
+
+      // Wait for success message
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            'Password updated successfully. Please log in again with your new password.'
+          )
+        ).toBeInTheDocument();
+      });
+
+      // Verify logout has not been called yet
+      expect(mockLogout).not.toHaveBeenCalled();
+
+      // Fast-forward time by 3 seconds
+      jest.advanceTimersByTime(3000);
+
+      // Verify logout was called
+      await waitFor(() => {
+        expect(mockLogout).toHaveBeenCalledTimes(1);
+      });
+
+      jest.useRealTimers();
+    });
+
+    it('should not trigger logout when logout_required flag is false', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          detail: 'Password updated successfully!',
+          logout_required: false,
+        }),
+      });
+
+      render(<PasswordSettings />, { wrapper: TestWrapper });
+
+      const user = userEvent.setup();
+      const currentPasswordInput = screen.getByPlaceholderText('Enter your current password');
+      const newPasswordInput = screen.getByPlaceholderText('Enter your new password');
+      const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password');
+      const submitButton = screen.getByRole('button', { name: /update password/i });
+
+      await user.type(currentPasswordInput, 'OldPassword123!');
+      await user.type(newPasswordInput, 'NewPassword456!');
+      await user.type(confirmPasswordInput, 'NewPassword456!');
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('Password updated successfully!')).toBeInTheDocument();
+      });
+
+      // Wait a bit to ensure logout is not called
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      expect(mockLogout).not.toHaveBeenCalled();
     });
   });
 });

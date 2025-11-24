@@ -139,11 +139,34 @@ const HealthcareDataBrowser: React.FC<HealthcareDataBrowserProps> = ({ className
 
       setTables(allTables);
     } catch (err: any) {
-      // Handle API errors
-      const errorMessage =
-        err.response?.data?.error || err.message || 'Failed to load data from API';
+      // Handle API errors with user-friendly messages
+      let errorMessage = 'Failed to load data from API';
+
+      // Check for specific error types
+      if (err.response) {
+        const status = err.response.status;
+        if (status === 404) {
+          errorMessage =
+            'Sample data is currently unavailable. Please check back later or contact support.';
+        } else if (status === 401 || status === 403) {
+          errorMessage = 'Authentication required to view this content. Please log in to continue.';
+        } else if (status >= 500) {
+          errorMessage = 'Server is temporarily unavailable. Please try again later.';
+        } else {
+          errorMessage = err.response?.data?.error || err.message || errorMessage;
+        }
+      } else if (err.code === 'ECONNABORTED') {
+        errorMessage = 'Request timed out. Please check your connection and try again.';
+      } else {
+        errorMessage = err.message || errorMessage;
+      }
+
       setError(errorMessage);
       setTables([]); // Clear tables on error
+      logger.error('HealthcareDataBrowser: Failed to load data', {
+        error: err,
+        message: errorMessage,
+      });
     } finally {
       setLoading(false);
     }
@@ -629,24 +652,38 @@ Note: This data is from the Observer platform.
   }
 
   if (error) {
+    // Determine error severity based on message content
+    const isAuthError = error.includes('Authentication') || error.includes('log in');
+    const isServerError = error.includes('Server') || error.includes('unavailable');
+    const bgColor = isAuthError ? 'blue.50' : isServerError ? 'orange.50' : 'red.50';
+    const borderColor = isAuthError ? 'blue.200' : isServerError ? 'orange.200' : 'red.200';
+    const textColor = isAuthError ? 'blue.700' : isServerError ? 'orange.700' : 'red.700';
+    const iconColor = isAuthError ? '#3182ce' : isServerError ? '#dd6b20' : '#e53e3e'; // blue.500, orange.500, red.500
+
     return (
       <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
-        <Box bg="red.50" border="1px" borderColor="red.200" borderRadius="md" p={4} mb={4}>
+        <Box bg={bgColor} border="1px" borderColor={borderColor} borderRadius="md" p={4} mb={4}>
           <Flex align="center" gap={2} mb={2}>
-            <FaExclamationTriangle color="red" />
-            <Text fontWeight="bold" color="red.700">
-              API Error
+            <FaExclamationTriangle color={iconColor} />
+            <Text fontWeight="bold" color={textColor}>
+              {isAuthError
+                ? 'Login Required'
+                : isServerError
+                  ? 'Temporarily Unavailable'
+                  : 'Data Loading Error'}
             </Text>
           </Flex>
-          <Text fontSize="sm" color="red.600">
+          <Text fontSize="sm" color={textColor}>
             {error}
           </Text>
         </Box>
-        <Flex justify="center">
-          <Text fontSize="sm" color="gray.500">
-            Please check your network connection and try refreshing the page.
-          </Text>
-        </Flex>
+        {!isAuthError && (
+          <Flex justify="center">
+            <Text fontSize="sm" color="gray.500">
+              Please try refreshing the page or contact support if the problem persists.
+            </Text>
+          </Flex>
+        )}
       </Box>
     );
   }
