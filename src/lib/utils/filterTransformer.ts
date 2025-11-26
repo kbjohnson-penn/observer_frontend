@@ -117,7 +117,7 @@ function buildVisitFilters(localFilters: LocalFilters): VisitSearchFilters['visi
   }
 
   if (localFilters.visitSource.length > 0) {
-    filters.visit_source_value = localFilters.visitSource.join(',');
+    filters.visit_source_value = localFilters.visitSource;
   }
 
   if (localFilters.dateFrom) {

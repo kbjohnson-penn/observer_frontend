@@ -31,6 +31,30 @@ import DemographicFilters from './DemographicFilters';
 import { COLORS } from '@/constants/colors';
 import { getAllTiersTooltip } from '@/constants/tierInfo';
 
+/**
+ * Maps visit source values to their display labels
+ */
+const VISIT_SOURCE_LABELS: Record<string, string> = {
+  clinic: 'Clinic',
+  simcenter: 'Sim Center',
+  pennpersonalizedcare: 'Penn Personalized Care',
+};
+
+/**
+ * Gets the display label for a visit source value
+ * Falls back to Title Case formatting for unknown values
+ */
+function formatVisitSourceLabel(value: string): string {
+  if (VISIT_SOURCE_LABELS[value.toLowerCase()]) {
+    return VISIT_SOURCE_LABELS[value.toLowerCase()];
+  }
+  // Fallback: split on underscores and capitalize
+  return value
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 interface FilterSidebarProps {
   localFilters: LocalFilters;
   filterOptions: FilterOptions;
@@ -90,12 +114,12 @@ export default function FilterSidebar({
     return count;
   }, [localFilters]);
 
-  // Memoize visit source collection
+  // Memoize visit source collection with formatted labels
   const visitSourceCollection = useMemo(
     () =>
       createListCollection({
         items: filterOptions.visit_options.visit_sources.map((vs) => ({
-          label: vs,
+          label: formatVisitSourceLabel(vs),
           value: vs,
         })),
       }),
@@ -211,7 +235,7 @@ export default function FilterSidebar({
                   <Select.Trigger>
                     <Select.ValueText placeholder="Visit Source">
                       {localFilters.visitSource.length > 0
-                        ? `Visit Source: ${localFilters.visitSource.join(', ')}`
+                        ? `Visit Source: ${localFilters.visitSource.map(formatVisitSourceLabel).join(', ')}`
                         : null}
                     </Select.ValueText>
                   </Select.Trigger>
