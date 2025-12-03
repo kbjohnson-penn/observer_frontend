@@ -160,7 +160,10 @@ export default function DashboardPage() {
         </Tabs.Content>
 
         <Tabs.Content value="cohorts" mt={6}>
-          <CohortTab key={activeTab === 'cohorts' ? `cohorts-${Date.now()}` : 'cohorts-inactive'} />
+          <CohortTab
+            key={activeTab === 'cohorts' ? `cohorts-${Date.now()}` : 'cohorts-inactive'}
+            onCohortCountChanged={loadCohortCount}
+          />
         </Tabs.Content>
       </Tabs.Root>
     </Container>

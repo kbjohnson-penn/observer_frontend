@@ -38,6 +38,30 @@ export const formatVisitDate = (date: string) => {
   )}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
+export const formatDateString = (dateStr: string | null | undefined): string => {
+  if (!dateStr) {
+    return 'N/A';
+  }
+
+  // Validate format: must be YYYY-MM-DD
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) {
+    return 'N/A';
+  }
+
+  const [year, month, day] = parts.map(Number);
+
+  // Validate parsed values
+  if (isNaN(year) || isNaN(month) || isNaN(day)) {
+    return 'N/A';
+  }
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return 'N/A';
+  }
+
+  return new Date(year, month - 1, day).toLocaleDateString();
+};
+
 export const getDepartmentColors = (departmentData: PublicDepartmentDataType[]) => {
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
   const departmentColors: { [key: string]: string } = {}; // Add index signature

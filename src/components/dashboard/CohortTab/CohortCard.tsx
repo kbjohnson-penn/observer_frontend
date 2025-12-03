@@ -1,26 +1,23 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Box, Card, VStack, HStack, Text, Button, Badge, IconButton } from '@chakra-ui/react';
-import { FaTrash, FaEye, FaDownload, FaCopy } from 'react-icons/fa';
+import { Card, VStack, HStack, Text, Button, Badge, IconButton } from '@chakra-ui/react';
+import { FaTrash, FaEye, FaPencilAlt } from 'react-icons/fa';
 import { Cohort, getCohortFilterSummary } from '@/interfaces/cohort';
 import { COLORS } from '@/constants/colors';
 
 interface CohortCardProps {
   cohort: Cohort;
   onView: (cohort: Cohort) => void;
-  onDuplicate: (cohort: Cohort) => void;
+  onRename: (cohort: Cohort) => void;
+  // TODO: Re-enable when duplicate functionality is ready
+  onDuplicate?: (cohort: Cohort) => void;
   onDelete: (cohortId: string) => void;
-  onExport: (cohort: Cohort) => void;
+  // TODO: Re-enable when export functionality is ready
+  onExport?: (cohort: Cohort) => void;
 }
 
-export default function CohortCard({
-  cohort,
-  onView,
-  onDuplicate,
-  onDelete,
-  onExport,
-}: CohortCardProps) {
+export default function CohortCard({ cohort, onView, onRename, onDelete }: CohortCardProps) {
   // Memoize filter summary calculation
   const filterSummary = useMemo(() => getCohortFilterSummary(cohort.filters), [cohort.filters]);
 
@@ -90,6 +87,32 @@ export default function CohortCard({
             </VStack>
           </HStack>
 
+          {/* Filter Summary */}
+          {filterSummary.totalActiveFilters > 0 && (
+            <HStack gap={2} flexWrap="wrap">
+              {filterSummary.visitFilters > 0 && (
+                <Badge size="sm" colorPalette="blue">
+                  Visit: {filterSummary.visitFilters}
+                </Badge>
+              )}
+              {filterSummary.personDemographicFilters > 0 && (
+                <Badge size="sm" colorPalette="purple">
+                  Patient: {filterSummary.personDemographicFilters}
+                </Badge>
+              )}
+              {filterSummary.providerDemographicFilters > 0 && (
+                <Badge size="sm" colorPalette="teal">
+                  Provider: {filterSummary.providerDemographicFilters}
+                </Badge>
+              )}
+              {filterSummary.clinicalFilters > 0 && (
+                <Badge size="sm" colorPalette="orange">
+                  Clinical: {filterSummary.clinicalFilters}
+                </Badge>
+              )}
+            </HStack>
+          )}
+
           {/* Actions */}
           <HStack gap={2} pt={2}>
             <Button
@@ -106,6 +129,17 @@ export default function CohortCard({
             <IconButton
               size="sm"
               variant="outline"
+              aria-label="Rename cohort"
+              onClick={() => onRename(cohort)}
+              colorPalette="yellow"
+              color={COLORS.cohortActions.rename}
+            >
+              <FaPencilAlt />
+            </IconButton>
+            {/* TODO: Re-enable when duplicate functionality is ready
+            <IconButton
+              size="sm"
+              variant="outline"
               aria-label="Duplicate cohort"
               onClick={() => onDuplicate(cohort)}
               colorPalette="purple"
@@ -113,6 +147,8 @@ export default function CohortCard({
             >
               <FaCopy />
             </IconButton>
+            */}
+            {/* TODO: Re-enable when export functionality is ready
             <IconButton
               size="sm"
               variant="outline"
@@ -123,6 +159,7 @@ export default function CohortCard({
             >
               <FaDownload />
             </IconButton>
+            */}
           </HStack>
         </VStack>
       </Card.Body>

@@ -113,7 +113,7 @@ function buildVisitFilters(localFilters: LocalFilters): VisitSearchFilters['visi
   const filters: VisitSearchFilters['visit'] = {};
 
   if (localFilters.tier.length > 0) {
-    filters.tier_id = localFilters.tier.map((t) => parseInt(t));
+    filters.tier_id = localFilters.tier.map((t) => parseInt(t, 10));
   }
 
   if (localFilters.visitSource.length > 0) {

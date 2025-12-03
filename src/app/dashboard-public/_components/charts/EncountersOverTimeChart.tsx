@@ -2,6 +2,7 @@ import React from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Label } from 'recharts';
 import { format, toZonedTime } from 'date-fns-tz';
 import { CHART_COLORS, CHART_STYLES, SENTIMENT_COLORS } from '@/constants/colors';
+import { formatDateString } from '@/lib/utils/utils';
 
 interface EncountersOverTimeChartProps {
   data: any[];
@@ -15,7 +16,7 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, colors }) => {
         <p
           className="text-base font-medium"
           style={{ color: SENTIMENT_COLORS.negative }}
-        >{`${new Date(label).toLocaleDateString()}`}</p>
+        >{`${formatDateString(label)}`}</p>
         <p className="text-sm" style={{ color: colors[0] }}>{`Encounters: ${payload[0].value}`}</p>
         <p
           className="text-sm"

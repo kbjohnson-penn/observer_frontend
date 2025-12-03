@@ -24,6 +24,7 @@ import {
   FaSave,
   FaInfoCircle,
   FaExternalLinkAlt,
+  FaTimes,
 } from 'react-icons/fa';
 import { LocalFilters, DemographicFilterValues } from '@/interfaces/researchTab';
 import { FilterOptions } from '@/interfaces/research';
@@ -316,14 +317,24 @@ export default function FilterSidebar({
                     aria-label="End date"
                   />
                 </HStack>
-                <Text fontSize="xs" color="gray.500">
-                  Format: MM-DD-YYYY (e.g., 01-15-2024)
-                </Text>
+                {(localFilters.dateFrom || localFilters.dateTo) && (
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    colorPalette="gray"
+                    onClick={() => {
+                      onFilterChange('dateFrom', '');
+                      onFilterChange('dateTo', '');
+                    }}
+                  >
+                    <FaTimes /> Clear dates
+                  </Button>
+                )}
               </VStack>
             </VStack>
           </Box>
 
-          {/* Person Demographics */}
+          {/* Patient Demographics */}
           <Collapsible.Root defaultOpen>
             <Collapsible.Trigger
               py={2}
@@ -339,7 +350,7 @@ export default function FilterSidebar({
                     <FaUsers />
                   </Box>
                   <Text fontSize="md" fontWeight="semibold" color="gray.700">
-                    Person Demographics
+                    Patient Demographics
                   </Text>
                 </HStack>
                 <Box color={COLORS.researchTab.chevronIcon} fontSize="sm">

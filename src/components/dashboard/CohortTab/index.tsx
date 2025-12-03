@@ -22,27 +22,30 @@ import {
   deleteCohort,
   duplicateCohort,
   exportCohortToJSON,
+  updateCohort,
 } from '@/lib/utils/cohortStorage';
 import { logger } from '@/lib/logger';
 import CohortCard from './CohortCard';
 import EmptyState from './EmptyState';
 import ConfirmDeleteDialog from './ConfirmDeleteDialog';
+import RenameCohortDialog from './RenameCohortDialog';
 
-export default function CohortTab() {
+interface CohortTabProps {
+  onCohortCountChanged?: () => void;
+}
+
+export default function CohortTab({ onCohortCountChanged }: CohortTabProps) {
   const router = useRouter();
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cohortToDelete, setCohortToDelete] = useState<Cohort | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [cohortToRename, setCohortToRename] = useState<Cohort | null>(null);
+  const [isRenaming, setIsRenaming] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Load cohorts on mount
-  useEffect(() => {
-    loadCohorts();
-  }, []);
-
-  const loadCohorts = async () => {
+  const loadCohorts = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -54,7 +57,12 @@ export default function CohortTab() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Load cohorts on mount
+  useEffect(() => {
+    loadCohorts();
+  }, [loadCohorts]);
 
   const handleDeleteClick = useCallback(
     (cohortId: string) => {
@@ -77,27 +85,65 @@ export default function CohortTab() {
       await deleteCohort(cohortToDelete.id);
       setCohorts((prev) => prev.filter((c) => c.id !== cohortToDelete.id));
       setCohortToDelete(null);
+      // Notify parent that cohort count changed
+      onCohortCountChanged?.();
     } catch (err) {
       logger.error('Delete cohort error:', err);
       setError('Failed to delete cohort');
     } finally {
       setIsDeleting(false);
     }
-  }, [cohortToDelete]);
+  }, [cohortToDelete, onCohortCountChanged]);
 
   const handleCancelDelete = useCallback(() => {
     setCohortToDelete(null);
   }, []);
 
-  const handleDuplicateCohort = useCallback(async (cohort: Cohort) => {
-    try {
-      const duplicated = await duplicateCohort(cohort.id);
-      setCohorts((prev) => [...prev, duplicated]);
-    } catch (err) {
-      logger.error('Duplicate cohort error:', err);
-      setError('Failed to duplicate cohort');
-    }
+  // Rename handlers
+  const handleRenameClick = useCallback((cohort: Cohort) => {
+    setCohortToRename(cohort);
   }, []);
+
+  const handleConfirmRename = useCallback(
+    async (newName: string) => {
+      if (!cohortToRename) {
+        return;
+      }
+
+      try {
+        setIsRenaming(true);
+        setError(null);
+        const updated = await updateCohort(cohortToRename.id, { name: newName });
+        setCohorts((prev) => prev.map((c) => (c.id === cohortToRename.id ? updated : c)));
+        setCohortToRename(null);
+      } catch (err) {
+        logger.error('Rename cohort error:', err);
+        setError('Failed to rename cohort');
+      } finally {
+        setIsRenaming(false);
+      }
+    },
+    [cohortToRename]
+  );
+
+  const handleCancelRename = useCallback(() => {
+    setCohortToRename(null);
+  }, []);
+
+  const handleDuplicateCohort = useCallback(
+    async (cohort: Cohort) => {
+      try {
+        const duplicated = await duplicateCohort(cohort.id);
+        setCohorts((prev) => [...prev, duplicated]);
+        // Notify parent that cohort count changed
+        onCohortCountChanged?.();
+      } catch (err) {
+        logger.error('Duplicate cohort error:', err);
+        setError('Failed to duplicate cohort');
+      }
+    },
+    [onCohortCountChanged]
+  );
 
   const handleViewCohort = useCallback(
     (cohort: Cohort) => {
@@ -259,6 +305,7 @@ export default function CohortTab() {
                   key={cohort.id}
                   cohort={cohort}
                   onView={handleViewCohort}
+                  onRename={handleRenameClick}
                   onDuplicate={handleDuplicateCohort}
                   onDelete={handleDeleteClick}
                   onExport={handleExportCohort}
@@ -290,6 +337,16 @@ export default function CohortTab() {
           loading={isDeleting}
         />
       )}
+
+      {/* Rename Cohort Dialog */}
+      <RenameCohortDialog
+        isOpen={!!cohortToRename}
+        cohort={cohortToRename}
+        existingCohorts={cohorts}
+        onConfirm={handleConfirmRename}
+        onCancel={handleCancelRename}
+        loading={isRenaming}
+      />
     </VStack>
   );
 }

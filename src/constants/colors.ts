@@ -57,6 +57,7 @@ export const COLORS = {
   cohortActions: {
     delete: 'red.500',
     view: 'blue.500',
+    rename: 'yellow.600',
     duplicate: 'purple.500',
     export: 'green.500',
   },

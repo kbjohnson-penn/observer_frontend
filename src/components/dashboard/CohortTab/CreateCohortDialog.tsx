@@ -11,11 +11,13 @@ import {
   Input,
   Textarea,
   VStack,
+  HStack,
   Text,
 } from '@chakra-ui/react';
 import { Field } from '@/components/ui/field';
 import { Cohort, CohortCreateRequest } from '@/interfaces/cohort';
 import { VisitSearchFilters } from '@/interfaces/research';
+import { validateCohortName, COHORT_NAME_MAX_LENGTH } from '@/lib/utils/cohortValidation';
 
 interface CreateCohortDialogProps {
   isOpen: boolean;
@@ -40,20 +42,11 @@ export default function CreateCohortDialog({
   const [error, setError] = useState<string | null>(null);
 
   const handleSave = async () => {
-    // Validation
-    if (!name.trim()) {
-      setError('Cohort name is required');
-      return;
-    }
+    // Use shared validation utility
+    const validationError = validateCohortName(name, existingCohorts);
 
-    // Check for duplicate name (case-insensitive)
-    const trimmedName = name.trim();
-    const isDuplicate = existingCohorts.some(
-      (cohort) => cohort.name.toLowerCase() === trimmedName.toLowerCase()
-    );
-
-    if (isDuplicate) {
-      setError('A cohort with this name already exists. Please choose a different name.');
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -62,7 +55,7 @@ export default function CreateCohortDialog({
       setError(null);
 
       await onSave({
-        name: trimmedName,
+        name: name.trim(),
         description: description.trim() || undefined,
         filters,
         visitCount,
@@ -76,6 +69,12 @@ export default function CreateCohortDialog({
       setError(err instanceof Error ? err.message : 'Failed to create cohort');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !loading && name.trim()) {
+      handleSave();
     }
   };
 
@@ -109,11 +108,22 @@ export default function CreateCohortDialog({
               <Field label="Cohort Name" required>
                 <Input
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setError(null);
+                  }}
+                  onKeyDown={handleKeyDown}
                   placeholder="e.g., Pediatric Patients 2024"
                   disabled={loading}
+                  maxLength={COHORT_NAME_MAX_LENGTH}
                 />
               </Field>
+
+              <HStack justify="space-between">
+                <Text fontSize="xs" color="gray.500">
+                  {name.length}/{COHORT_NAME_MAX_LENGTH} characters
+                </Text>
+              </HStack>
 
               {/* Description Field */}
               <Field label="Description (Optional)">

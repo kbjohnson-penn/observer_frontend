@@ -5,7 +5,7 @@ import { Box, VStack, HStack, Text, Table, Badge, Tooltip } from '@chakra-ui/rea
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { VisitSearchResult } from '@/interfaces/research';
 import { VisitSearchSort } from '@/interfaces/research';
-import { expandDemographic } from '@/lib/utils/utils';
+import { expandDemographic, formatDateString } from '@/lib/utils/utils';
 import { COLORS } from '@/constants/colors';
 
 interface VisitsTableProps {
@@ -56,10 +56,7 @@ const VisitRow = React.memo(({ visit }: { visit: VisitSearchResult }) => {
     [visit.provider_ethnicity]
   );
 
-  const visitDate = useMemo(
-    () => new Date(visit.visit_date).toLocaleDateString(),
-    [visit.visit_date]
-  );
+  const visitDate = useMemo(() => formatDateString(visit.visit_date), [visit.visit_date]);
 
   return (
     <Table.Row _hover={{ bg: COLORS.table.rowHoverBg, transition: 'all 0.2s' }}>
@@ -297,7 +294,7 @@ export default function VisitsTable({ visits, sort, onSort }: VisitsTableProps) 
             <SortableHeader field="tier_id" label="Tier" currentSort={sort} onSort={onSort} />
             <Table.ColumnHeader>
               <Text fontWeight="semibold" color="gray.700" p={2}>
-                Person Demographics
+                Patient Demographics
               </Text>
             </Table.ColumnHeader>
             <Table.ColumnHeader>
