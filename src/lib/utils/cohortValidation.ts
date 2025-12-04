@@ -14,7 +14,7 @@ import { Cohort } from '@/interfaces/cohort';
 export const COHORT_NAME_PATTERN = /^[a-zA-Z0-9\s\-_().,':\/&+]+$/;
 
 export const COHORT_NAME_MIN_LENGTH = 3;
-export const COHORT_NAME_MAX_LENGTH = 255;
+export const COHORT_NAME_MAX_LENGTH = 50;
 
 /**
  * Validates a cohort name and returns an error message if invalid

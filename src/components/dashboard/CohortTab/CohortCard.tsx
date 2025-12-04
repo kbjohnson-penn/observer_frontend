@@ -5,6 +5,7 @@ import { Card, VStack, HStack, Text, Button, Badge, IconButton } from '@chakra-u
 import { FaTrash, FaEye, FaPencilAlt } from 'react-icons/fa';
 import { Cohort, getCohortFilterSummary } from '@/interfaces/cohort';
 import { COLORS } from '@/constants/colors';
+import { COHORT_NAME_MAX_LENGTH } from '@/lib/utils/cohortValidation';
 
 interface CohortCardProps {
   cohort: Cohort;
@@ -20,6 +21,14 @@ interface CohortCardProps {
 export default function CohortCard({ cohort, onView, onRename, onDelete }: CohortCardProps) {
   // Memoize filter summary calculation
   const filterSummary = useMemo(() => getCohortFilterSummary(cohort.filters), [cohort.filters]);
+
+  // Truncate name for display if too long
+  const displayName = useMemo(() => {
+    if (cohort.name.length <= COHORT_NAME_MAX_LENGTH) {
+      return cohort.name;
+    }
+    return `${cohort.name.slice(0, COHORT_NAME_MAX_LENGTH)}...`;
+  }, [cohort.name]);
 
   // Memoize formatted date
   const formattedDate = useMemo(
@@ -43,8 +52,8 @@ export default function CohortCard({ cohort, onView, onRename, onDelete }: Cohor
       <Card.Header>
         <HStack justify="space-between" align="start">
           <VStack align="start" gap={1} flex={1}>
-            <Text fontWeight="semibold" fontSize="md" lineClamp={2}>
-              {cohort.name}
+            <Text fontWeight="semibold" fontSize="md" lineClamp={2} wordBreak="break-word">
+              {displayName}
             </Text>
             {cohort.description && (
               <Text fontSize="xs" color="gray.600" lineClamp={2}>

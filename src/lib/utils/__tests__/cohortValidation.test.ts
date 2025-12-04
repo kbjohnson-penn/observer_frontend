@@ -89,7 +89,7 @@ describe('cohortValidation', () => {
     });
 
     it('has correct maximum length', () => {
-      expect(COHORT_NAME_MAX_LENGTH).toBe(255);
+      expect(COHORT_NAME_MAX_LENGTH).toBe(50);
     });
   });
 
