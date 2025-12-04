@@ -30,15 +30,27 @@ export const formatDepartmentName = (name: string): string => {
   return formattedName;
 };
 
-export const formatVisitDate = (date: string) => {
-  const d = new Date(date);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-    2,
-    '0'
-  )}-${String(d.getDate()).padStart(2, '0')}`;
+export const formatDateForInput = (date: Date | string): string => {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
-export const formatDateString = (dateStr: string | null | undefined): string => {
+export const parseLocalDate = (dateString: string): Date => {
+  const parts = dateString.split('-');
+  if (parts.length !== 3) {
+    return new Date(NaN); // Return Invalid Date for malformed input
+  }
+  const [year, month, day] = parts.map(Number);
+  if (isNaN(year) || isNaN(month) || isNaN(day)) {
+    return new Date(NaN);
+  }
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return new Date(NaN);
+  }
+  return new Date(year, month - 1, day);
+};
+
+export const formatDateForDisplay = (dateStr: string | null | undefined): string => {
   if (!dateStr) {
     return 'N/A';
   }
@@ -618,6 +630,7 @@ export const downloadData = (combinedData: CombinedDataType[], format: string) =
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
 
 /**

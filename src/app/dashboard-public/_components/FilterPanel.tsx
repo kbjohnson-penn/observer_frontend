@@ -1,12 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Box, Flex, Text, Button, Checkbox } from '@chakra-ui/react';
+import { Box, Flex, Text, Button, Checkbox, Input } from '@chakra-ui/react';
 import Select, { MultiValue, SingleValue } from 'react-select';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 
 import { SOURCE_OPTIONS, DEIDENTIFIED_OPTIONS, EXPORT_OPTIONS } from '@/constants';
+import { formatDateForInput, parseLocalDate } from '@/lib/utils/utils';
 
 interface DropDownOption {
   value: string;
@@ -119,34 +118,32 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           <Text fontSize="sm" mb={1} color="gray.600">
             Start Date
           </Text>
-          <Box position="relative" className="date-picker-container">
-            <DatePicker
-              selected={startDate}
-              onChange={onStartDateChange}
-              disabled={!isDatePickerEnabled || isFiltering}
-              className="date-picker w-full"
-              dateFormat="yyyy-MM-dd"
-              wrapperClassName="date-picker-wrapper"
-              maxDate={endDate}
-            />
-          </Box>
+          <Input
+            type="date"
+            size="sm"
+            value={formatDateForInput(startDate)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              e.target.value && onStartDateChange(parseLocalDate(e.target.value))
+            }
+            disabled={!isDatePickerEnabled || isFiltering}
+            max={formatDateForInput(endDate)}
+          />
         </Box>
 
         <Box>
           <Text fontSize="sm" mb={1} color="gray.600">
             End Date
           </Text>
-          <Box position="relative" className="date-picker-container">
-            <DatePicker
-              selected={endDate}
-              onChange={onEndDateChange}
-              disabled={!isDatePickerEnabled || isFiltering}
-              className="date-picker w-full"
-              dateFormat="yyyy-MM-dd"
-              wrapperClassName="date-picker-wrapper"
-              minDate={startDate}
-            />
-          </Box>
+          <Input
+            type="date"
+            size="sm"
+            value={formatDateForInput(endDate)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              e.target.value && onEndDateChange(parseLocalDate(e.target.value))
+            }
+            disabled={!isDatePickerEnabled || isFiltering}
+            min={formatDateForInput(startDate)}
+          />
         </Box>
       </Box>
 

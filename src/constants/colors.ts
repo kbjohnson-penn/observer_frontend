@@ -170,3 +170,10 @@ export const CHART_STYLES = {
     strokeDasharray: '3 3',
   },
 } as const;
+
+// Scrollbar colors for CSS-in-JS (maps to Chakra palette)
+export const SCROLLBAR_COLORS = {
+  track: '#f1f5f9', // gray.100
+  thumb: '#2563eb', // blue.600
+  thumbHover: '#1d4ed8', // blue.700
+} as const;

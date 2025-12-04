@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Heading, Text, Flex, Badge, Spinner, Input, Button } from '@chakra-ui/react';
 import { FaSearch, FaDownload } from 'react-icons/fa';
-import * as XLSX from 'xlsx';
-import { COLORS } from '@/constants/colors';
+import Papa from 'papaparse';
+import { COLORS, SCROLLBAR_COLORS } from '@/constants/colors';
 
 interface TranscriptEntry {
   timestamp?: string;
@@ -36,87 +36,43 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({ transcriptSrc }) =>
         setLoading(true);
         setError(null);
 
-        // Fetch the Excel file
+        // Fetch the CSV file
         const response = await fetch(transcriptSrc);
         if (!response.ok) {
           throw new Error('Failed to load transcript file');
         }
 
-        const arrayBuffer = await response.arrayBuffer();
-        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const csvText = await response.text();
 
-        // Get the first worksheet
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
+        // Parse CSV using PapaParse
+        Papa.parse<Record<string, string>>(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            const entries: TranscriptEntry[] = results.data
+              .map((row) => ({
+                timestamp: row.Timestamp || row.timestamp || row.Time || row.time,
+                speaker: row.Speaker || row.speaker || row.Role || row.role,
+                transcript: row.Transcript || row.transcript || row.Text || row.text || '',
+                affect: row.Affect || row.affect || row.Emotion || row.emotion,
+                proficiency: row.Proficiency || row.proficiency || row.Skill || row.skill,
+              }))
+              .filter((entry) => entry.transcript.trim());
 
-        // Convert to JSON
-        const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
-
-        // Find header row (looking for common column names)
-        let headerRowIndex = -1;
-        const possibleHeaders = ['timestamp', 'speaker', 'transcript', 'affect', 'proficiency'];
-
-        for (let i = 0; i < Math.min(data.length, 5); i++) {
-          const row = data[i];
-          if (
-            row &&
-            row.some(
-              (cell) =>
-                typeof cell === 'string' &&
-                possibleHeaders.some((header) => cell.toLowerCase().includes(header))
-            )
-          ) {
-            headerRowIndex = i;
-            break;
-          }
-        }
-
-        if (headerRowIndex === -1) {
-          // If no header found, assume first row is header
-          headerRowIndex = 0;
-        }
-
-        const headers = data[headerRowIndex].map((h) => h?.toString().toLowerCase() || '');
-
-        // Map column indices
-        const colMap = {
-          timestamp: headers.findIndex((h) => h.includes('timestamp') || h.includes('time')),
-          speaker: headers.findIndex((h) => h.includes('speaker') || h.includes('role')),
-          transcript: headers.findIndex((h) => h.includes('transcript') || h.includes('text')),
-          affect: headers.findIndex((h) => h.includes('affect') || h.includes('emotion')),
-          proficiency: headers.findIndex((h) => h.includes('proficiency') || h.includes('skill')),
-        };
-
-        // Parse data rows
-        const entries: TranscriptEntry[] = [];
-        for (let i = headerRowIndex + 1; i < data.length; i++) {
-          const row = data[i];
-          if (!row || row.length === 0) {
-            continue;
-          }
-
-          const entry: TranscriptEntry = {
-            timestamp: colMap.timestamp >= 0 ? row[colMap.timestamp]?.toString() : undefined,
-            speaker: colMap.speaker >= 0 ? row[colMap.speaker]?.toString() : undefined,
-            transcript:
-              colMap.transcript >= 0
-                ? row[colMap.transcript]?.toString() || ''
-                : row[0]?.toString() || '',
-            affect: colMap.affect >= 0 ? row[colMap.affect]?.toString() : undefined,
-            proficiency: colMap.proficiency >= 0 ? row[colMap.proficiency]?.toString() : undefined,
-          };
-
-          // Only add entries with actual transcript content
-          if (entry.transcript.trim()) {
-            entries.push(entry);
-          }
-        }
-
-        setTranscript(entries);
+            setTranscript(entries);
+            setLoading(false);
+          },
+          error: (parseError: Error) => {
+            console.error('CSV Parse Error:', parseError);
+            setError(
+              `Failed to parse transcript CSV file: ${parseError.message || 'Unknown error'}`
+            );
+            setLoading(false);
+          },
+        });
       } catch {
         // Error loading transcript - will show error state to user
         setError('Failed to load transcript. Please check the file format.');
-      } finally {
         setLoading(false);
       }
     };
@@ -175,19 +131,37 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({ transcriptSrc }) =>
   };
 
   const exportTranscript = () => {
-    const content = filteredTranscript
-      .map(
-        (entry) =>
-          `[${entry.timestamp || 'N/A'}] ${entry.speaker || 'Unknown'}: ${entry.transcript}`
-      )
-      .join('\n\n');
+    // CSV header
+    const header = 'Timestamp,Speaker,Transcript,Affect,Proficiency';
 
-    const blob = new Blob([content], { type: 'text/plain' });
+    // CSV rows - escape quotes and wrap fields
+    const rows = filteredTranscript.map((entry) => {
+      const escapeField = (field: string | undefined): string => {
+        if (!field) {
+          return '';
+        }
+        // Escape quotes by doubling them and wrap in quotes if contains comma/quote/newline
+        const escaped = field.replace(/"/g, '""');
+        return /[,"\n\r]/.test(field) ? `"${escaped}"` : escaped;
+      };
+      return [
+        escapeField(entry.timestamp || 'N/A'),
+        escapeField(entry.speaker || 'Unknown'),
+        escapeField(entry.transcript),
+        escapeField(entry.affect),
+        escapeField(entry.proficiency),
+      ].join(',');
+    });
+
+    const content = [header, ...rows].join('\n');
+    const blob = new Blob([content], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'transcript.txt';
+    a.download = 'transcript.csv';
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   };
 
@@ -285,14 +259,14 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({ transcriptSrc }) =>
               width: '12px',
             },
             '&::-webkit-scrollbar-track': {
-              background: '#f1f5f9',
+              background: SCROLLBAR_COLORS.track,
               borderRadius: '6px',
             },
             '&::-webkit-scrollbar-thumb': {
-              background: '#2563eb',
+              background: SCROLLBAR_COLORS.thumb,
               borderRadius: '6px',
               '&:hover': {
-                background: '#1d4ed8',
+                background: SCROLLBAR_COLORS.thumbHover,
               },
             },
           }}
