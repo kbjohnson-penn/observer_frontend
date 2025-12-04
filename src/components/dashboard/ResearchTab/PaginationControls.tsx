@@ -36,15 +36,17 @@ export default function PaginationControls({
   );
 
   return (
-    <HStack justify="space-between" mt={4} align="center">
+    <HStack justify="center" mt={4} align="center">
       {/* Previous Button */}
       <Button
-        variant="outline"
+        variant="ghost"
         size="sm"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={!hasPrevious || loading}
         colorPalette="gray"
-        borderColor={COLORS.researchTab.pagination.buttonBorder}
+        px={4}
+        py={2}
+        _hover={{ bg: 'gray.100' }}
       >
         Previous
       </Button>
@@ -90,12 +92,14 @@ export default function PaginationControls({
 
       {/* Next Button */}
       <Button
-        variant="outline"
+        variant="ghost"
         size="sm"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={!hasNext || loading}
         colorPalette="gray"
-        borderColor={COLORS.researchTab.pagination.buttonBorder}
+        px={4}
+        py={2}
+        _hover={{ bg: 'gray.100' }}
       >
         Next
       </Button>

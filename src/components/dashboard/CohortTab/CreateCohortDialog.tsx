@@ -114,6 +114,7 @@ export default function CreateCohortDialog({
                   }}
                   onKeyDown={handleKeyDown}
                   placeholder="e.g., Pediatric Patients 2024"
+                  padding={3}
                   disabled={loading}
                   maxLength={COHORT_NAME_MAX_LENGTH}
                 />
@@ -131,6 +132,7 @@ export default function CreateCohortDialog({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Add notes about this cohort..."
+                  padding={3}
                   rows={3}
                   disabled={loading}
                 />

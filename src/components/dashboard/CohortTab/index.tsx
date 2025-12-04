@@ -105,7 +105,7 @@ export default function CohortTab({ onCohortCountChanged }: CohortTabProps) {
   }, []);
 
   const handleConfirmRename = useCallback(
-    async (newName: string) => {
+    async (newName: string, newDescription: string) => {
       if (!cohortToRename) {
         return;
       }
@@ -113,12 +113,15 @@ export default function CohortTab({ onCohortCountChanged }: CohortTabProps) {
       try {
         setIsRenaming(true);
         setError(null);
-        const updated = await updateCohort(cohortToRename.id, { name: newName });
+        const updated = await updateCohort(cohortToRename.id, {
+          name: newName,
+          description: newDescription,
+        });
         setCohorts((prev) => prev.map((c) => (c.id === cohortToRename.id ? updated : c)));
         setCohortToRename(null);
       } catch (err) {
         logger.error('Rename cohort error:', err);
-        setError('Failed to rename cohort');
+        setError('Failed to update cohort');
       } finally {
         setIsRenaming(false);
       }

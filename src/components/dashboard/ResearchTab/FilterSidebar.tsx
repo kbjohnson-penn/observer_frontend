@@ -334,6 +334,8 @@ export default function FilterSidebar({
             </VStack>
           </Box>
 
+          <Box borderTop="1px solid" borderColor="gray.200" />
+
           {/* Patient Demographics */}
           <Collapsible.Root defaultOpen>
             <Collapsible.Trigger
@@ -375,6 +377,8 @@ export default function FilterSidebar({
               </Box>
             </Collapsible.Content>
           </Collapsible.Root>
+
+          <Box borderTop="1px solid" borderColor="gray.200" />
 
           {/* Provider Demographics */}
           <Collapsible.Root defaultOpen>
