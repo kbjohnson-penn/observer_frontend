@@ -13,7 +13,6 @@ import {
   Input,
   IconButton,
   Card,
-  Badge,
 } from '@chakra-ui/react';
 import { FaSearch, FaTimes, FaUsers } from 'react-icons/fa';
 import { Cohort } from '@/interfaces/cohort';
@@ -29,6 +28,7 @@ import CohortCard from './CohortCard';
 import EmptyState from './EmptyState';
 import ConfirmDeleteDialog from './ConfirmDeleteDialog';
 import RenameCohortDialog from './RenameCohortDialog';
+import LoadingSkeleton from './LoadingSkeleton';
 
 interface CohortTabProps {
   onCohortCountChanged?: () => void;
@@ -182,11 +182,7 @@ export default function CohortTab({ onCohortCountChanged }: CohortTabProps) {
   }, []);
 
   if (loading) {
-    return (
-      <Box py={8}>
-        <Text>Loading cohorts...</Text>
-      </Box>
-    );
+    return <LoadingSkeleton />;
   }
 
   return (
@@ -196,29 +192,19 @@ export default function CohortTab({ onCohortCountChanged }: CohortTabProps) {
         <Card.Body py={4}>
           <VStack gap={4} align="stretch">
             {/* Header Section */}
-            <HStack justify="space-between" align="start">
-              <VStack align="start" gap={1}>
-                <HStack gap={2}>
-                  <Box color="blue.500" fontSize="xl">
-                    <FaUsers />
-                  </Box>
-                  <Text fontSize="xl" fontWeight="bold" color="gray.800">
-                    Saved Cohorts
-                  </Text>
-                  {cohorts.length > 0 && (
-                    <Badge colorPalette="blue" variant="solid">
-                      {cohorts.length}
-                    </Badge>
-                  )}
-                </HStack>
-                <Text fontSize="sm" color="gray.600" ml={8}>
-                  Manage your research cohorts and export data
+            <VStack align="start" gap={1}>
+              <HStack gap={2}>
+                <Box color="blue.500" fontSize="xl">
+                  <FaUsers />
+                </Box>
+                <Text fontSize="xl" fontWeight="bold" color="gray.800">
+                  Your Cohorts
                 </Text>
-              </VStack>
-              <Button onClick={loadCohorts} variant="outline" colorPalette="blue">
-                Refresh
-              </Button>
-            </HStack>
+              </HStack>
+              <Text fontSize="sm" color="gray.600" ml={8}>
+                Manage your research cohorts and export data
+              </Text>
+            </VStack>
 
             {/* Search Section (only when cohorts exist) */}
             {cohorts.length > 0 && (
@@ -240,10 +226,13 @@ export default function CohortTab({ onCohortCountChanged }: CohortTabProps) {
                     pl={10}
                     pr={searchTerm ? 10 : 4}
                     size="md"
+                    variant="outline"
+                    border="1px solid"
                     borderColor="gray.300"
+                    _hover={{ borderColor: 'gray.400' }}
                     _focus={{
                       borderColor: 'blue.500',
-                      boxShadow: '0 0 0 1px blue.500',
+                      boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
                     }}
                   />
                   {searchTerm && (

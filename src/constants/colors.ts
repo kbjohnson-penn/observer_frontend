@@ -124,6 +124,11 @@ export const COLORS = {
     rowHoverBg: 'blue.50',
     borderColor: 'gray.200',
   },
+
+  // Animation values
+  animation: {
+    cardHoverLift: 'translateY(-2px)',
+  },
 };
 
 export default COLORS;

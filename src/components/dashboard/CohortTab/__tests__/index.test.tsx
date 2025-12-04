@@ -88,6 +88,12 @@ jest.mock('../EmptyState', () => {
   };
 });
 
+jest.mock('../LoadingSkeleton', () => {
+  return function MockLoadingSkeleton() {
+    return <div data-testid="loading-skeleton">Loading...</div>;
+  };
+});
+
 jest.mock('../ConfirmDeleteDialog', () => {
   return function MockConfirmDeleteDialog({
     isOpen,
@@ -173,7 +179,7 @@ describe('CohortTab', () => {
 
       render(<CohortTab />, { wrapper: TestWrapper });
 
-      expect(screen.getByText('Loading cohorts...')).toBeInTheDocument();
+      expect(screen.getByTestId('loading-skeleton')).toBeInTheDocument();
     });
 
     it('should call getCohorts on mount', async () => {
@@ -182,7 +188,7 @@ describe('CohortTab', () => {
       expect(mockGetCohorts).toHaveBeenCalledTimes(1);
 
       await waitFor(() => {
-        expect(screen.queryByText('Loading cohorts...')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('loading-skeleton')).not.toBeInTheDocument();
       });
     });
 
@@ -216,7 +222,7 @@ describe('CohortTab', () => {
       render(<CohortTab />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(screen.queryByText('Loading cohorts...')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('loading-skeleton')).not.toBeInTheDocument();
       });
 
       // Should not crash and should show empty state
@@ -225,154 +231,21 @@ describe('CohortTab', () => {
   });
 
   describe('Header Section', () => {
-    it('should display cohort count in header', async () => {
+    it('should display cohorts after loading', async () => {
       render(<CohortTab />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(screen.getByText('Saved Cohorts')).toBeInTheDocument();
-        expect(screen.getByText('2')).toBeInTheDocument();
+        expect(screen.getByTestId('cohort-card-1')).toBeInTheDocument();
+        expect(screen.getByTestId('cohort-card-2')).toBeInTheDocument();
       });
     });
 
-    it('should show "Saved Cohorts" without badge when empty', async () => {
+    it('should display empty state when no cohorts', async () => {
       mockGetCohorts.mockResolvedValue([]);
 
       render(<CohortTab />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(screen.getByText('Saved Cohorts')).toBeInTheDocument();
-        expect(screen.queryByText('0')).not.toBeInTheDocument();
-      });
-    });
-
-    it('should show correct count with multiple cohorts', async () => {
-      const manyCohorts = Array.from({ length: 5 }, (_, i) => ({
-        ...mockCohorts[0],
-        id: `${i + 1}`,
-        name: `Cohort ${i + 1}`,
-      }));
-      mockGetCohorts.mockResolvedValue(manyCohorts);
-
-      render(<CohortTab />, { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(screen.getByText('Saved Cohorts')).toBeInTheDocument();
-        expect(screen.getByText('5')).toBeInTheDocument();
-      });
-    });
-
-    it('should render refresh button', async () => {
-      render(<CohortTab />, { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: /refresh/i })).toBeInTheDocument();
-      });
-    });
-
-    it('should display description text', async () => {
-      render(<CohortTab />, { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(
-          screen.getByText('Manage your research cohorts and export data')
-        ).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Refresh Functionality', () => {
-    it('should reload cohorts when refresh button clicked', async () => {
-      const user = userEvent.setup();
-      render(<CohortTab />, { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(screen.getByTestId('cohort-card-1')).toBeInTheDocument();
-      });
-
-      // Clear the initial call
-      mockGetCohorts.mockClear();
-
-      // Click refresh button
-      const refreshButton = screen.getByRole('button', { name: /refresh/i });
-      await user.click(refreshButton);
-
-      expect(mockGetCohorts).toHaveBeenCalledTimes(1);
-    });
-
-    it('should show updated cohort list after refresh', async () => {
-      const user = userEvent.setup();
-      render(<CohortTab />, { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(screen.getByTestId('cohort-card-1')).toBeInTheDocument();
-      });
-
-      // Mock updated cohorts list
-      const updatedCohorts = [
-        ...mockCohorts,
-        {
-          id: '3',
-          name: 'New Cohort',
-          description: 'New description',
-          filters: {
-            visit: {},
-            person_demographics: {},
-            provider_demographics: {},
-            clinical: {},
-          },
-          visitCount: 75,
-          createdAt: '2024-01-17T10:00:00Z',
-          updatedAt: '2024-01-17T10:00:00Z',
-        },
-      ];
-      mockGetCohorts.mockResolvedValue(updatedCohorts);
-
-      // Click refresh
-      const refreshButton = screen.getByRole('button', { name: /refresh/i });
-      await user.click(refreshButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('Cohort: New Cohort')).toBeInTheDocument();
-        expect(screen.getByText('3')).toBeInTheDocument();
-      });
-    });
-
-    it('should update count after refresh', async () => {
-      const user = userEvent.setup();
-      render(<CohortTab />, { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(screen.getByText('2')).toBeInTheDocument();
-      });
-
-      // Mock empty cohorts after refresh
-      mockGetCohorts.mockResolvedValue([]);
-
-      const refreshButton = screen.getByRole('button', { name: /refresh/i });
-      await user.click(refreshButton);
-
-      await waitFor(() => {
-        expect(screen.queryByText('2')).not.toBeInTheDocument();
-        expect(screen.getByText('Saved Cohorts')).toBeInTheDocument();
-      });
-    });
-
-    it('should handle refresh errors gracefully', async () => {
-      const user = userEvent.setup();
-      render(<CohortTab />, { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(screen.getByTestId('cohort-card-1')).toBeInTheDocument();
-      });
-
-      // Mock error on refresh - getCohorts returns empty array on error
-      mockGetCohorts.mockResolvedValue([]);
-
-      const refreshButton = screen.getByRole('button', { name: /refresh/i });
-      await user.click(refreshButton);
-
-      await waitFor(() => {
-        // Should show empty state without crashing
         expect(screen.getByTestId('empty-state')).toBeInTheDocument();
       });
     });
@@ -525,8 +398,8 @@ describe('CohortTab', () => {
         expect(screen.queryByTestId('cohort-card-1')).not.toBeInTheDocument();
       });
 
-      // Count should update
-      expect(screen.getByText('1')).toBeInTheDocument();
+      // Second cohort should still be visible
+      expect(screen.getByTestId('cohort-card-2')).toBeInTheDocument();
     });
 
     it('should close dialog on cancel', async () => {
@@ -657,19 +530,19 @@ describe('CohortTab', () => {
       const { unmount } = render(<CohortTab />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(screen.getByText('Saved Cohorts')).toBeInTheDocument();
-        expect(screen.getByText('2')).toBeInTheDocument();
+        expect(screen.getByTestId('cohort-card-1')).toBeInTheDocument();
+        expect(screen.getByTestId('cohort-card-2')).toBeInTheDocument();
       });
 
       unmount();
 
-      // Remount with different data
+      // Remount with different data (only first cohort)
       mockGetCohorts.mockResolvedValue([mockCohorts[0]]);
       render(<CohortTab key="new-key" />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(screen.getByText('Saved Cohorts')).toBeInTheDocument();
-        expect(screen.getByText('1')).toBeInTheDocument();
+        expect(screen.getByTestId('cohort-card-1')).toBeInTheDocument();
+        expect(screen.queryByTestId('cohort-card-2')).not.toBeInTheDocument();
       });
     });
   });

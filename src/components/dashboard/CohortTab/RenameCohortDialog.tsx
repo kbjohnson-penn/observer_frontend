@@ -1,7 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Dialog, Button, Text, VStack, Input, Textarea } from '@chakra-ui/react';
+import { Button, Input, Textarea, VStack } from '@chakra-ui/react';
+import {
+  DialogRoot,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogTitle,
+  DialogCloseTrigger,
+} from '@/components/ui/dialog';
 import { Field } from '@/components/ui/field';
 import { Cohort } from '@/interfaces/cohort';
 import {
@@ -68,70 +77,97 @@ export default function RenameCohortDialog({
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(e) => !e.open && handleClose()}>
-      <Dialog.Backdrop />
-      <Dialog.Positioner>
-        <Dialog.Content>
-          <Dialog.Header>
-            <Dialog.Title>Edit Cohort</Dialog.Title>
-          </Dialog.Header>
+    <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && handleClose()}>
+      <DialogContent>
+        <DialogHeader borderBottomWidth="1px" pb={4}>
+          <DialogTitle fontSize="lg" fontWeight="semibold">
+            Edit Cohort
+          </DialogTitle>
+        </DialogHeader>
+        <DialogCloseTrigger />
 
-          <Dialog.Body>
-            <VStack gap={4} align="stretch">
-              <Field label="Name" required>
-                <Input
-                  value={newName}
-                  onChange={(e) => {
-                    setNewName(e.target.value);
-                    setError(null);
-                  }}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Enter cohort name"
-                  disabled={loading}
-                  maxLength={COHORT_NAME_MAX_LENGTH}
-                />
-                <Text fontSize="xs" color="gray.500" mt={1}>
-                  {newName.length}/{COHORT_NAME_MAX_LENGTH} characters
-                </Text>
-              </Field>
-
-              <Field label="Description">
-                <Textarea
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                  placeholder="Enter cohort description (optional)"
-                  disabled={loading}
-                  maxLength={COHORT_DESCRIPTION_MAX_LENGTH}
-                  rows={3}
-                />
-                <Text fontSize="xs" color="gray.500" mt={1}>
-                  {newDescription.length}/{COHORT_DESCRIPTION_MAX_LENGTH} characters
-                </Text>
-              </Field>
-
-              {error && (
-                <Text color="red.500" fontSize="sm">
-                  {error}
-                </Text>
-              )}
-            </VStack>
-          </Dialog.Body>
-
-          <Dialog.Footer>
-            <Button variant="outline" onClick={handleClose} disabled={loading}>
-              Cancel
-            </Button>
-            <Button
-              colorPalette="blue"
-              onClick={handleSubmit}
-              loading={loading}
-              disabled={!newName.trim() || loading}
+        <DialogBody py={6}>
+          <VStack gap={4} align="stretch">
+            <Field
+              label="Name"
+              required
+              invalid={!!error}
+              errorText={error || undefined}
+              helperText={
+                !error ? `${newName.length}/${COHORT_NAME_MAX_LENGTH} characters` : undefined
+              }
             >
-              Save
-            </Button>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog.Positioner>
-    </Dialog.Root>
+              <Input
+                value={newName}
+                onChange={(e) => {
+                  setNewName(e.target.value);
+                  setError(null);
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder="Enter cohort name"
+                disabled={loading}
+                maxLength={COHORT_NAME_MAX_LENGTH}
+                variant="outline"
+                padding={2}
+                border="1px solid"
+                borderColor="gray.300"
+                _hover={{ borderColor: 'gray.400' }}
+                _focus={{ borderColor: 'blue.500' }}
+              />
+            </Field>
+
+            <Field
+              label="Description"
+              helperText={`${newDescription.length}/${COHORT_DESCRIPTION_MAX_LENGTH} characters`}
+            >
+              <Textarea
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+                placeholder="Enter cohort description (optional)"
+                disabled={loading}
+                maxLength={COHORT_DESCRIPTION_MAX_LENGTH}
+                rows={3}
+                variant="outline"
+                padding={2}
+                border="1px solid"
+                borderColor="gray.300"
+                _hover={{ borderColor: 'gray.400' }}
+                _focus={{ borderColor: 'blue.500' }}
+              />
+            </Field>
+          </VStack>
+        </DialogBody>
+
+        <DialogFooter borderTopWidth="1px" pt={4} gap={3}>
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            disabled={loading}
+            borderWidth="1px"
+            borderStyle="solid"
+            borderColor="gray.400"
+            bg="white"
+            color="gray.700"
+            px={4}
+            py={2}
+            _hover={{ bg: 'gray.100', borderColor: 'gray.500' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            loading={loading}
+            disabled={!newName.trim() || loading}
+            bg="blue.600"
+            color="white"
+            px={4}
+            py={2}
+            _hover={{ bg: 'blue.700' }}
+          >
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </DialogRoot>
   );
 }
