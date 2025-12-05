@@ -31,10 +31,11 @@ import RenameCohortDialog from './RenameCohortDialog';
 import LoadingSkeleton from './LoadingSkeleton';
 
 interface CohortTabProps {
+  isActive?: boolean;
   onCohortCountChanged?: () => void;
 }
 
-export default function CohortTab({ onCohortCountChanged }: CohortTabProps) {
+export default function CohortTab({ isActive, onCohortCountChanged }: CohortTabProps) {
   const router = useRouter();
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,10 +60,17 @@ export default function CohortTab({ onCohortCountChanged }: CohortTabProps) {
     }
   }, []);
 
-  // Load cohorts on mount
+  // Load cohorts on mount and when tab becomes active
   useEffect(() => {
     loadCohorts();
   }, [loadCohorts]);
+
+  // Reload cohorts when tab becomes active (for tab switching)
+  useEffect(() => {
+    if (isActive) {
+      loadCohorts();
+    }
+  }, [isActive, loadCohorts]);
 
   const handleDeleteClick = useCallback(
     (cohortId: string) => {
