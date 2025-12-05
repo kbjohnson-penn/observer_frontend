@@ -547,6 +547,70 @@ describe('CohortTab', () => {
     });
   });
 
+  describe('isActive Prop Behavior', () => {
+    it('should reload cohorts when isActive changes from false to true', async () => {
+      const { rerender } = render(<CohortTab isActive={false} />, { wrapper: TestWrapper });
+
+      // Wait for initial load
+      await waitFor(() => {
+        expect(mockGetCohorts).toHaveBeenCalled();
+      });
+
+      const callCountAfterMount = mockGetCohorts.mock.calls.length;
+
+      // Change isActive to true
+      rerender(
+        <Provider>
+          <CohortTab isActive={true} />
+        </Provider>
+      );
+
+      // Should trigger at least one more load when becoming active
+      await waitFor(() => {
+        expect(mockGetCohorts.mock.calls.length).toBeGreaterThan(callCountAfterMount);
+      });
+    });
+
+    it('should display updated cohort data when tab becomes active', async () => {
+      const { rerender } = render(<CohortTab isActive={false} />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('cohort-card-1')).toBeInTheDocument();
+        expect(screen.getByTestId('cohort-card-2')).toBeInTheDocument();
+      });
+
+      // Add a new cohort to mock data
+      const newCohort: Cohort = {
+        id: '3',
+        name: 'New Cohort',
+        description: 'Newly added',
+        filters: {
+          visit: {},
+          person_demographics: {},
+          provider_demographics: {},
+          clinical: {},
+        },
+        visitCount: 75,
+        createdAt: '2024-01-17T10:00:00Z',
+        updatedAt: '2024-01-17T10:00:00Z',
+      };
+      mockGetCohorts.mockResolvedValue([...mockCohorts, newCohort]);
+
+      // Activate the tab
+      rerender(
+        <Provider>
+          <CohortTab isActive={true} />
+        </Provider>
+      );
+
+      // Should show the new cohort
+      await waitFor(() => {
+        expect(screen.getByTestId('cohort-card-3')).toBeInTheDocument();
+        expect(screen.getByText('Cohort: New Cohort')).toBeInTheDocument();
+      });
+    });
+  });
+
   // ============================================================================
   // Navigation Tests
   // ============================================================================

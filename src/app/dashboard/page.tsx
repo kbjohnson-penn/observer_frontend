@@ -135,7 +135,7 @@ export default function DashboardPage() {
         </Tabs.Content>
 
         <Tabs.Content value="cohorts" mt={6}>
-          <CohortTab onCohortCountChanged={loadCohortCount} />
+          <CohortTab isActive={activeTab === 'cohorts'} onCohortCountChanged={loadCohortCount} />
         </Tabs.Content>
       </Tabs.Root>
     </Container>
