@@ -69,6 +69,12 @@ describe('AuthContext', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
+      // Mock CSRF token fetch
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
+      });
+
       // Mock login call
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -107,6 +113,12 @@ describe('AuthContext', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
+      // Mock CSRF token fetch
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
+      });
+
       // Mock failed login call
       mockFetch.mockResolvedValueOnce({
         ok: false,
@@ -135,6 +147,12 @@ describe('AuthContext', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
+      // Mock CSRF token fetch
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
+      });
+
       // Mock login call
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -157,6 +175,7 @@ describe('AuthContext', () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'X-CSRFToken': 'test-csrf-token',
           },
           body: JSON.stringify({
             username: 'testuser',
@@ -180,6 +199,12 @@ describe('AuthContext', () => {
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
+      });
+
+      // Mock CSRF token fetch
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
       });
 
       // Setup: login first
@@ -226,6 +251,12 @@ describe('AuthContext', () => {
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
+      });
+
+      // Mock CSRF token fetch
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
       });
 
       // Setup: login first
@@ -361,6 +392,12 @@ describe('AuthContext', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
+      // Mock CSRF token fetch
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
+      });
+
       // Setup: login first
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -452,6 +489,12 @@ describe('AuthContext', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
+      // Mock CSRF token fetch
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
+      });
+
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(result.current.login('testuser', 'password123')).rejects.toThrow();
@@ -470,6 +513,12 @@ describe('AuthContext', () => {
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
+      });
+
+      // Mock CSRF token fetch
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
       });
 
       mockFetch.mockResolvedValueOnce({

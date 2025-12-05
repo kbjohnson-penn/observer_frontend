@@ -31,6 +31,26 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   disconnect: jest.fn(),
 }));
 
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(() => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+  })),
+}));
+
+// Mock AuthContext
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: jest.fn(() => ({
+    isAuthenticated: true,
+    isLoading: false,
+    user: { username: 'testuser', email: 'test@example.com', id: 1 },
+    login: jest.fn(),
+    logout: jest.fn(),
+    refreshToken: jest.fn(),
+  })),
+}));
+
 // Mock the hooks
 jest.mock('@/hooks/useFilterOptions', () => ({
   useFilterOptions: jest.fn(() => ({
