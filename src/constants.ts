@@ -67,6 +67,11 @@ export const EXPORT_OPTIONS = [
   { value: 'json', label: 'JSON' },
 ];
 
+/**
+ * Pagination constants
+ */
+export const DEFAULT_PAGE_SIZE = 20;
+
 export const CSV_COLUMN_ORDER = [
   'id',
   'provider_id',

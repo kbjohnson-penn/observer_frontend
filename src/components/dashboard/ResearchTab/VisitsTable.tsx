@@ -5,22 +5,13 @@ import { Box, VStack, HStack, Text, Table, Badge, Tooltip } from '@chakra-ui/rea
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { VisitSearchResult } from '@/interfaces/research';
 import { VisitSearchSort } from '@/interfaces/research';
-import { expandDemographic, formatDateForDisplay } from '@/lib/utils/utils';
+import { expandDemographic, formatDateForDisplay, formatVisitSource } from '@/lib/utils/utils';
 import { COLORS } from '@/constants/colors';
 
 interface VisitsTableProps {
   visits: VisitSearchResult[];
   sort: VisitSearchSort;
   onSort: (field: VisitSearchSort['field']) => void;
-}
-
-// Format visit source: "clinic" -> "Clinic", "sim_center" -> "Sim Center"
-function formatVisitSource(source: string): string {
-  return source
-    .replace(/_/g, ' ')
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
 }
 
 // Memoized table row component for performance

@@ -3,6 +3,7 @@
 import React from 'react';
 import { HStack, Button, Text } from '@chakra-ui/react';
 import { COLORS } from '@/constants/colors';
+import { DEFAULT_PAGE_SIZE } from '@/constants';
 
 interface PaginationControlsProps {
   currentPage: number;
@@ -17,7 +18,7 @@ interface PaginationControlsProps {
 export default function PaginationControls({
   currentPage,
   totalCount,
-  pageSize = 20,
+  pageSize = DEFAULT_PAGE_SIZE,
   hasNext,
   hasPrevious,
   loading,

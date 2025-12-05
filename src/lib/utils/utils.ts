@@ -634,6 +634,38 @@ export const downloadData = (combinedData: CombinedDataType[], format: string) =
 };
 
 /**
+ * Visit source formatting
+ */
+
+/**
+ * Maps visit source values to their display labels
+ */
+const VISIT_SOURCE_LABELS: Record<string, string> = {
+  clinic: 'Clinic',
+  simcenter: 'Sim Center',
+  pennpersonalizedcare: 'Penn Personalized Care',
+};
+
+/**
+ * Formats visit source values to display labels
+ * Handles known values with explicit mapping, falls back to title case
+ * @param source - The visit source value (e.g., 'clinic', 'sim_center')
+ * @returns Formatted display label (e.g., 'Clinic', 'Sim Center')
+ */
+export const formatVisitSource = (source: string): string => {
+  const normalizedSource = source.toLowerCase();
+  if (VISIT_SOURCE_LABELS[normalizedSource]) {
+    return VISIT_SOURCE_LABELS[normalizedSource];
+  }
+  // Fallback: split on underscores and capitalize each word
+  return source
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+/**
  * Demographics utilities
  */
 type DemographicType = 'gender' | 'race' | 'ethnicity';
