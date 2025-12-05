@@ -1,19 +1,23 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Container, Text, Tabs, HStack, Badge } from '@chakra-ui/react';
+import { Box, Container, Text, Tabs, HStack, Badge, Spinner, Center } from '@chakra-ui/react';
 import { FaSearch, FaUsers } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 import ResearchTab from '@/components/dashboard/ResearchTab';
 import CohortTab from '@/components/dashboard/CohortTab';
 import { useFilterOptions } from '@/hooks/useFilterOptions';
 import { getCohorts } from '@/lib/utils/cohortStorage';
 import { logger } from '@/lib/logger';
 import { COLORS } from '@/constants/colors';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function DashboardPage() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('research');
   const [cohortCount, setCohortCount] = useState(0);
-  const { filterOptions, loading: filterOptionsLoading } = useFilterOptions();
+  const { filterOptions } = useFilterOptions();
 
   // Load cohort count function (reusable for callbacks and tab switches)
   const loadCohortCount = useCallback(async () => {
@@ -24,6 +28,13 @@ export default function DashboardPage() {
       logger.error('Failed to load cohort count:', error);
     }
   }, []);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   // Initial load on mount
   useEffect(() => {
@@ -38,6 +49,20 @@ export default function DashboardPage() {
   }, [activeTab, loadCohortCount]);
 
   const totalVisits = filterOptions?.total_accessible_visits || 0;
+
+  // Show loading spinner while checking auth
+  if (authLoading) {
+    return (
+      <Center h="50vh">
+        <Spinner size="xl" color="blue.500" />
+      </Center>
+    );
+  }
+
+  // Return nothing while redirect is in progress
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <Container maxW="container.xl" py={8}>
@@ -110,10 +135,7 @@ export default function DashboardPage() {
         </Tabs.Content>
 
         <Tabs.Content value="cohorts" mt={6}>
-          <CohortTab
-            key={activeTab === 'cohorts' ? `cohorts-${Date.now()}` : 'cohorts-inactive'}
-            onCohortCountChanged={loadCohortCount}
-          />
+          <CohortTab onCohortCountChanged={loadCohortCount} />
         </Tabs.Content>
       </Tabs.Root>
     </Container>
