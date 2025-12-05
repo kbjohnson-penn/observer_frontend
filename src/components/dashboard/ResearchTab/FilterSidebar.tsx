@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   Box,
   VStack,
@@ -29,6 +29,11 @@ import { FilterOptions } from '@/interfaces/research';
 import { formatVisitSource } from '@/lib/utils/utils';
 import DemographicFilters from './DemographicFilters';
 import { COLORS } from '@/constants/colors';
+import {
+  PERSON_DEMOGRAPHIC_KEY_MAP,
+  PROVIDER_DEMOGRAPHIC_KEY_MAP,
+  STICKY_SIDEBAR_TOP,
+} from '@/constants';
 
 interface FilterSidebarProps {
   localFilters: LocalFilters;
@@ -162,38 +167,21 @@ export default function FilterSidebar({
     [filterOptions.visit_options.tiers]
   );
 
-  // Type-safe key mappings for demographic handlers
-  const PERSON_KEY_MAP: Record<keyof DemographicFilterValues, keyof LocalFilters> = {
-    gender: 'personGender',
-    race: 'personRace',
-    ethnicity: 'personEthnicity',
-    ageFrom: 'personAgeFrom',
-    ageTo: 'personAgeTo',
-  };
+  // Handler for person demographic changes (memoized to prevent unnecessary re-renders)
+  const handlePersonDemographicChange = useCallback(
+    (key: keyof DemographicFilterValues, value: string | string[]) => {
+      onFilterChange(PERSON_DEMOGRAPHIC_KEY_MAP[key], value);
+    },
+    [onFilterChange]
+  );
 
-  const PROVIDER_KEY_MAP: Record<keyof DemographicFilterValues, keyof LocalFilters> = {
-    gender: 'providerGender',
-    race: 'providerRace',
-    ethnicity: 'providerEthnicity',
-    ageFrom: 'providerAgeFrom',
-    ageTo: 'providerAgeTo',
-  };
-
-  // Handler for person demographic changes
-  const handlePersonDemographicChange = (
-    key: keyof DemographicFilterValues,
-    value: string | string[]
-  ) => {
-    onFilterChange(PERSON_KEY_MAP[key], value);
-  };
-
-  // Handler for provider demographic changes
-  const handleProviderDemographicChange = (
-    key: keyof DemographicFilterValues,
-    value: string | string[]
-  ) => {
-    onFilterChange(PROVIDER_KEY_MAP[key], value);
-  };
+  // Handler for provider demographic changes (memoized to prevent unnecessary re-renders)
+  const handleProviderDemographicChange = useCallback(
+    (key: keyof DemographicFilterValues, value: string | string[]) => {
+      onFilterChange(PROVIDER_DEMOGRAPHIC_KEY_MAP[key], value);
+    },
+    [onFilterChange]
+  );
 
   return (
     <Box
@@ -205,7 +193,8 @@ export default function FilterSidebar({
       borderColor="gray.200"
       h="fit-content"
       position="sticky"
-      top={4}
+      top={STICKY_SIDEBAR_TOP}
+      zIndex={10}
       display={{ base: 'none', lg: 'block' }}
     >
       {/* Header */}

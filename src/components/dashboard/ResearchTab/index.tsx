@@ -158,7 +158,7 @@ export default function ResearchTab({ onCohortCreated }: ResearchTabProps) {
 
       {/* Main Content Area */}
       {filterOptions && (
-        <Flex gap={6}>
+        <Flex gap={6} alignItems="flex-start">
           {/* Filter Sidebar */}
           <FilterSidebar
             localFilters={localFilters}

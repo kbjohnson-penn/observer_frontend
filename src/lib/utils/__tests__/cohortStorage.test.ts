@@ -570,7 +570,7 @@ describe('cohortStorage', () => {
         id: '1',
         name: 'Export Test',
         description: 'Export description',
-        filters: { visit: { visit_source_value: 'Inpatient' } },
+        filters: { visit: { visit_source_value: ['Inpatient'] } },
         visitCount: 25,
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',

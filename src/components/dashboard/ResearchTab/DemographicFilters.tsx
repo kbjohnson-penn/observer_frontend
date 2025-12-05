@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, memo } from 'react';
 import { VStack, HStack, Input, Select, createListCollection, Text } from '@chakra-ui/react';
 import { expandDemographic } from '@/lib/utils/utils';
 import { DemographicFilterValues } from '@/interfaces/researchTab';
+import { MAX_AGE, MIN_AGE } from '@/constants';
 
 interface DemographicFiltersProps {
   values: DemographicFilterValues;
@@ -16,7 +17,7 @@ interface DemographicFiltersProps {
   keyPrefix?: string; // For unique keys when rendering multiple instances
 }
 
-export default function DemographicFilters({
+function DemographicFilters({
   values,
   onChange,
   availableOptions,
@@ -71,6 +72,16 @@ export default function DemographicFilters({
     () => values.ethnicity.map((e) => expandDemographic(e, 'ethnicity')),
     [values.ethnicity]
   );
+
+  // Check if age range is invalid (min > max)
+  const hasAgeRangeError = useMemo(() => {
+    if (!values.ageFrom || !values.ageTo) {
+      return false;
+    }
+    const from = Number(values.ageFrom);
+    const to = Number(values.ageTo);
+    return !isNaN(from) && !isNaN(to) && from > to;
+  }, [values.ageFrom, values.ageTo]);
 
   return (
     <VStack gap={2} align="stretch">
@@ -219,15 +230,17 @@ export default function DemographicFilters({
             value={values.ageFrom}
             onChange={(e) => onChange('ageFrom', e.target.value)}
             padding={2}
-            min={0}
-            max={values.ageTo ? Number(values.ageTo) : 120}
+            min={MIN_AGE}
+            max={values.ageTo ? Number(values.ageTo) : MAX_AGE}
             aria-label="Minimum age"
             bg="white"
-            borderColor="gray.300"
-            _hover={{ borderColor: 'gray.400' }}
+            borderColor={hasAgeRangeError ? 'red.300' : 'gray.300'}
+            _hover={{ borderColor: hasAgeRangeError ? 'red.400' : 'gray.400' }}
             _focus={{
-              borderColor: 'blue.500',
-              boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+              borderColor: hasAgeRangeError ? 'red.500' : 'blue.500',
+              boxShadow: hasAgeRangeError
+                ? '0 0 0 1px var(--chakra-colors-red-500)'
+                : '0 0 0 1px var(--chakra-colors-blue-500)',
             }}
             _placeholder={{ fontSize: 'sm', color: 'gray.400' }}
           />
@@ -242,20 +255,29 @@ export default function DemographicFilters({
             value={values.ageTo}
             onChange={(e) => onChange('ageTo', e.target.value)}
             padding={2}
-            min={values.ageFrom ? Number(values.ageFrom) : 0}
-            max={120}
+            min={values.ageFrom ? Number(values.ageFrom) : MIN_AGE}
+            max={MAX_AGE}
             aria-label="Maximum age"
             bg="white"
-            borderColor="gray.300"
-            _hover={{ borderColor: 'gray.400' }}
+            borderColor={hasAgeRangeError ? 'red.300' : 'gray.300'}
+            _hover={{ borderColor: hasAgeRangeError ? 'red.400' : 'gray.400' }}
             _focus={{
-              borderColor: 'blue.500',
-              boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+              borderColor: hasAgeRangeError ? 'red.500' : 'blue.500',
+              boxShadow: hasAgeRangeError
+                ? '0 0 0 1px var(--chakra-colors-red-500)'
+                : '0 0 0 1px var(--chakra-colors-blue-500)',
             }}
             _placeholder={{ fontSize: 'sm', color: 'gray.400' }}
           />
         </HStack>
+        {hasAgeRangeError && (
+          <Text fontSize="xs" color="red.500">
+            Min age cannot exceed max age
+          </Text>
+        )}
       </VStack>
     </VStack>
   );
 }
+
+export default memo(DemographicFilters);
