@@ -56,7 +56,7 @@ export const formatTierTooltip = (tierNumber: number): string => {
     return '';
   }
 
-  const features = tier.features.map((f) => `${f.enabled ? '✓' : '✗'} ${f.name}`).join('\n');
+  const features = tier.features.map((f) => `${f.enabled ? '✓' : '•'} ${f.name}`).join('\n');
 
   return `${tier.label}:\n${features}`;
 };
