@@ -18,7 +18,7 @@ import { apiClient } from '@/lib/apiClient';
 import { logger } from '@/lib/logger';
 import TableHeader from './TableHeader';
 import DataTable from './DataTable';
-import COLORS from '@/constants/colors';
+import COLORS, { SCROLLBAR_COLORS } from '@/constants/colors';
 import JSZip from 'jszip';
 import {
   ColumnVisibility,
@@ -760,15 +760,12 @@ Note: This data is from the Observer platform.
                   height: '10px',
                 },
                 '&::-webkit-scrollbar-track': {
-                  background: '#f1f5f9',
+                  background: SCROLLBAR_COLORS.track,
                   borderRadius: '5px',
                 },
                 '&::-webkit-scrollbar-thumb': {
-                  background: '#2563eb',
+                  background: SCROLLBAR_COLORS.thumb,
                   borderRadius: '5px',
-                  '&:hover': {
-                    background: '#1d4ed8',
-                  },
                 },
               }}
             >

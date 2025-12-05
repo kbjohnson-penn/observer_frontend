@@ -265,9 +265,6 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({ transcriptSrc }) =>
             '&::-webkit-scrollbar-thumb': {
               background: SCROLLBAR_COLORS.thumb,
               borderRadius: '6px',
-              '&:hover': {
-                background: SCROLLBAR_COLORS.thumbHover,
-              },
             },
           }}
         >

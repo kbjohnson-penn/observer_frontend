@@ -188,5 +188,4 @@ export const CHART_STYLES = {
 export const SCROLLBAR_COLORS = {
   track: '#f1f5f9', // gray.100
   thumb: '#2563eb', // blue.600
-  thumbHover: '#1d4ed8', // blue.700
 } as const;

@@ -83,5 +83,12 @@
     "*.{json,md,yml,yaml}": [
       "prettier --write"
     ]
-  }
+  },
+  "browserslist": [
+    "Safari >= 13",
+    "iOS >= 13",
+    "Chrome >= 90",
+    "Firefox >= 88",
+    "Edge >= 90"
+  ]
 }
