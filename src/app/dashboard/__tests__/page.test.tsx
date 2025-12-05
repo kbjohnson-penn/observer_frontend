@@ -102,13 +102,6 @@ jest.mock('@/components/dashboard/CohortTab', () => {
   };
 });
 
-// Mock DashboardStats component
-jest.mock('@/components/dashboard/DashboardStats', () => {
-  return function MockDashboardStats() {
-    return <div data-testid="dashboard-stats">Dashboard Stats</div>;
-  };
-});
-
 // Test wrapper with Chakra Provider
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <Provider>{children}</Provider>;
@@ -122,15 +115,12 @@ describe('DashboardPage', () => {
   });
 
   describe('Initial Rendering', () => {
-    it('should render the dashboard page with tabs and stats', () => {
+    it('should render the dashboard page with tabs', () => {
       render(<DashboardPage />, { wrapper: TestWrapper });
 
       // Check that tabs are rendered
       expect(screen.getByText('Research Data')).toBeInTheDocument();
       expect(screen.getByText('Cohorts')).toBeInTheDocument();
-
-      // Check that dashboard stats component is rendered
-      expect(screen.getByTestId('dashboard-stats')).toBeInTheDocument();
     });
 
     it('should render both tab triggers', () => {
@@ -152,12 +142,6 @@ describe('DashboardPage', () => {
 
       expect(screen.getByTestId('research-tab')).toBeInTheDocument();
       expect(screen.getByText('Research Tab Content')).toBeInTheDocument();
-    });
-
-    it('should render DashboardStats component', () => {
-      render(<DashboardPage />, { wrapper: TestWrapper });
-
-      expect(screen.getByTestId('dashboard-stats')).toBeInTheDocument();
     });
   });
 

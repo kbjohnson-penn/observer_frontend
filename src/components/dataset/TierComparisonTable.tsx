@@ -1,15 +1,19 @@
 'use client';
 
-import React from 'react';
-import { Box, Card, Heading, HStack, Link, Table, Text, VStack } from '@chakra-ui/react';
-import { FaCheck, FaTimes, FaExternalLinkAlt } from 'react-icons/fa';
+import React, { memo, useMemo } from 'react';
+import { Box, Card, Heading, HStack, Table, Text, VStack } from '@chakra-ui/react';
+import { FaCheck } from 'react-icons/fa';
 import { TIER_INFO } from '@/constants/tierInfo';
 import COLORS from '@/constants/colors';
 
-const TierComparisonTable = () => {
-  // Get all unique features across all tiers
-  const allFeatures = Array.from(
-    new Set(Object.values(TIER_INFO).flatMap((tier) => tier.features.map((f) => f.name)))
+const TierComparisonTable = memo(function TierComparisonTable() {
+  // Get all unique features across all tiers (memoized since TIER_INFO is constant)
+  const allFeatures = useMemo(
+    () =>
+      Array.from(
+        new Set(Object.values(TIER_INFO).flatMap((tier) => tier.features.map((f) => f.name)))
+      ),
+    []
   );
 
   return (
@@ -43,28 +47,28 @@ const TierComparisonTable = () => {
                     </Table.ColumnHeader>
                     <Table.ColumnHeader textAlign="center">
                       <VStack gap={0}>
-                        <Text fontWeight="semibold" color="green.700">
+                        <Text fontWeight="semibold" color={COLORS.tierText[1]}>
                           Tier 1
                         </Text>
                       </VStack>
                     </Table.ColumnHeader>
                     <Table.ColumnHeader textAlign="center">
                       <VStack gap={0}>
-                        <Text fontWeight="semibold" color="yellow.700">
+                        <Text fontWeight="semibold" color={COLORS.tierText[2]}>
                           Tier 2
                         </Text>
                       </VStack>
                     </Table.ColumnHeader>
                     <Table.ColumnHeader textAlign="center">
                       <VStack gap={0}>
-                        <Text fontWeight="semibold" color="orange.700">
+                        <Text fontWeight="semibold" color={COLORS.tierText[3]}>
                           Tier 3
                         </Text>
                       </VStack>
                     </Table.ColumnHeader>
                     <Table.ColumnHeader textAlign="center">
                       <VStack gap={0}>
-                        <Text fontWeight="semibold" color="red.700">
+                        <Text fontWeight="semibold" color={COLORS.tierText[4]}>
                           Tier 4
                         </Text>
                       </VStack>
@@ -96,9 +100,9 @@ const TierComparisonTable = () => {
                                 <FaCheck size={16} />
                               </HStack>
                             ) : (
-                              <HStack justify="center" color="red.500">
-                                <FaTimes size={16} />
-                              </HStack>
+                              <Text color="gray.300" fontSize="lg">
+                                •
+                              </Text>
                             )}
                           </Table.Cell>
                         );
@@ -113,6 +117,6 @@ const TierComparisonTable = () => {
       </Box>
     </Box>
   );
-};
+});
 
 export default TierComparisonTable;

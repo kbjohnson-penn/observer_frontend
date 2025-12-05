@@ -6,7 +6,7 @@ import { FaSearch, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { OMOPTableName } from '@/interfaces/observer-omop';
 import { MEDICAL_TERMS } from '@/constants/table-info.constants';
 import { Tooltip } from '@/components/ui/tooltip';
-import COLORS from '@/constants/colors';
+import COLORS, { SCROLLBAR_COLORS } from '@/constants/colors';
 import PaginationControls from '@/components/dashboard/ResearchTab/PaginationControls';
 import ColumnSelector from './ColumnSelector';
 import { ColumnVisibility } from '@/lib/utils/userPreferences';
@@ -40,6 +40,44 @@ interface DataTableProps {
   onShowAllColumns: () => void;
   onHideAllColumns: () => void;
 }
+
+// Memoized TableRow component - defined outside DataTable for optimal memoization
+interface TableRowProps {
+  row: any;
+  columns: string[];
+  onRenderValue: (value: any) => string;
+  search: string;
+  onHighlight: (text: string, search: string) => React.ReactNode;
+}
+
+const TableRow = React.memo(function TableRow({
+  row,
+  columns,
+  onRenderValue,
+  search,
+  onHighlight,
+}: TableRowProps) {
+  return (
+    <Box
+      as="tr"
+      _hover={{ bg: COLORS.table.rowHoverBg }}
+      transition="background-color 0.2s"
+      borderBottom="1px"
+      borderColor={COLORS.table.borderColor}
+    >
+      {columns.map((col) => {
+        const value = onRenderValue(row[col]);
+        return (
+          <Box as="td" key={col} px={4} py={3} fontSize="sm" color="gray.700" verticalAlign="top">
+            <Text overflow="hidden" textOverflow="ellipsis">
+              {search ? onHighlight(value, search) : value}
+            </Text>
+          </Box>
+        );
+      })}
+    </Box>
+  );
+});
 
 const DataTable: React.FC<DataTableProps> = ({
   table,
@@ -136,43 +174,6 @@ const DataTable: React.FC<DataTableProps> = ({
 
     return <>{parts}</>;
   }, []);
-
-  // Memoized TableRow component for performance
-  const TableRow = React.memo(
-    ({
-      row,
-      columns,
-      onRenderValue,
-      search,
-      onHighlight,
-    }: {
-      row: any;
-      columns: string[];
-      onRenderValue: (value: any) => string;
-      search: string;
-      onHighlight: (text: string, search: string) => React.ReactNode;
-    }) => (
-      <Box
-        as="tr"
-        _hover={{ bg: COLORS.table.rowHoverBg }}
-        transition="background-color 0.2s"
-        borderBottom="1px"
-        borderColor={COLORS.table.borderColor}
-      >
-        {columns.map((col) => {
-          const value = onRenderValue(row[col]);
-          return (
-            <Box as="td" key={col} px={4} py={3} fontSize="sm" color="gray.700" verticalAlign="top">
-              <Text overflow="hidden" textOverflow="ellipsis">
-                {search ? onHighlight(value, search) : value}
-              </Text>
-            </Box>
-          );
-        })}
-      </Box>
-    )
-  );
-  TableRow.displayName = 'TableRow';
 
   const renderTableHeader = () => (
     <Box as="thead" position="sticky" top={0} bg={COLORS.table.headerBg} zIndex={1}>
@@ -380,18 +381,12 @@ const DataTable: React.FC<DataTableProps> = ({
             height: '12px',
           },
           '&::-webkit-scrollbar-track': {
-            background: '#f1f5f9',
+            background: SCROLLBAR_COLORS.track,
             borderRadius: '6px',
           },
           '&::-webkit-scrollbar-thumb': {
-            background: '#2563eb',
+            background: SCROLLBAR_COLORS.thumb,
             borderRadius: '6px',
-            '&:hover': {
-              background: '#1d4ed8',
-            },
-          },
-          '&::-webkit-scrollbar-corner': {
-            background: '#f1f5f9',
           },
         }}
       >

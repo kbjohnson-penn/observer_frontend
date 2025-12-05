@@ -1,3 +1,5 @@
+import { DemographicFilterValues, LocalFilters } from '@/interfaces/researchTab';
+
 export const RACIAL_CATEGORIES: { [key: string]: string } = {
   AI: 'American Indian or Alaska Native',
   A: 'Asian',
@@ -66,6 +68,48 @@ export const EXPORT_OPTIONS = [
   { value: 'csv', label: 'CSV' },
   { value: 'json', label: 'JSON' },
 ];
+
+/**
+ * Pagination constants
+ */
+export const DEFAULT_PAGE_SIZE = 20;
+
+/**
+ * Age filter constants
+ */
+export const MIN_AGE = 0;
+export const MAX_AGE = 120;
+
+/**
+ * Layout constants
+ */
+export const HEADER_HEIGHT = 80;
+export const SIDEBAR_TOP_MARGIN = 16;
+export const STICKY_SIDEBAR_TOP = `${HEADER_HEIGHT + SIDEBAR_TOP_MARGIN}px`;
+
+/**
+ * Demographic filter key mappings for Research Tab
+ * Maps DemographicFilterValues keys to LocalFilters keys
+ */
+export const PERSON_DEMOGRAPHIC_KEY_MAP: Record<keyof DemographicFilterValues, keyof LocalFilters> =
+  {
+    gender: 'personGender',
+    race: 'personRace',
+    ethnicity: 'personEthnicity',
+    ageFrom: 'personAgeFrom',
+    ageTo: 'personAgeTo',
+  };
+
+export const PROVIDER_DEMOGRAPHIC_KEY_MAP: Record<
+  keyof DemographicFilterValues,
+  keyof LocalFilters
+> = {
+  gender: 'providerGender',
+  race: 'providerRace',
+  ethnicity: 'providerEthnicity',
+  ageFrom: 'providerAgeFrom',
+  ageTo: 'providerAgeTo',
+};
 
 export const CSV_COLUMN_ORDER = [
   'id',

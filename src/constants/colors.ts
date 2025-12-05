@@ -26,12 +26,20 @@ export const COLORS = {
     info: 'blue',
   },
 
-  // Tier badge colors
+  // Tier badge colors (for Badge colorPalette)
   tier: {
     1: 'green', // Tier 1 - Complete deidentification
     2: 'yellow', // Tier 2 - Blur + voice protection
-    3: 'red', // Tier 3 - Face + voice protection
-    4: 'orange', // Tier 4 - DUA + External access only
+    3: 'orange', // Tier 3 - Face + voice protection
+    4: 'red', // Tier 4 - DUA + External access only (most restricted)
+  },
+
+  // Tier text colors (for Text color prop)
+  tierText: {
+    1: 'green.700',
+    2: 'yellow.600', // Using .600 for better visibility (yellow.700 is too dark/brownish)
+    3: 'orange.700',
+    4: 'red.700',
   },
 
   // Patient demographics badge colors (cool colors)
@@ -57,6 +65,7 @@ export const COLORS = {
   cohortActions: {
     delete: 'red.500',
     view: 'blue.500',
+    rename: 'yellow.600',
     duplicate: 'purple.500',
     export: 'green.500',
   },
@@ -123,6 +132,11 @@ export const COLORS = {
     rowHoverBg: 'blue.50',
     borderColor: 'gray.200',
   },
+
+  // Animation values
+  animation: {
+    cardHoverLift: 'translateY(-2px)',
+  },
 };
 
 export default COLORS;
@@ -168,4 +182,10 @@ export const CHART_STYLES = {
   cartesianGrid: {
     strokeDasharray: '3 3',
   },
+} as const;
+
+// Scrollbar colors for CSS-in-JS (maps to Chakra palette)
+export const SCROLLBAR_COLORS = {
+  track: '#f1f5f9', // gray.100
+  thumb: '#2563eb', // blue.600
 } as const;

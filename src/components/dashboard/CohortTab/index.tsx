@@ -13,7 +13,6 @@ import {
   Input,
   IconButton,
   Card,
-  Badge,
 } from '@chakra-ui/react';
 import { FaSearch, FaTimes, FaUsers } from 'react-icons/fa';
 import { Cohort } from '@/interfaces/cohort';
@@ -22,27 +21,31 @@ import {
   deleteCohort,
   duplicateCohort,
   exportCohortToJSON,
+  updateCohort,
 } from '@/lib/utils/cohortStorage';
 import { logger } from '@/lib/logger';
 import CohortCard from './CohortCard';
 import EmptyState from './EmptyState';
 import ConfirmDeleteDialog from './ConfirmDeleteDialog';
+import RenameCohortDialog from './RenameCohortDialog';
+import LoadingSkeleton from './LoadingSkeleton';
 
-export default function CohortTab() {
+interface CohortTabProps {
+  onCohortCountChanged?: () => void;
+}
+
+export default function CohortTab({ onCohortCountChanged }: CohortTabProps) {
   const router = useRouter();
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cohortToDelete, setCohortToDelete] = useState<Cohort | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [cohortToRename, setCohortToRename] = useState<Cohort | null>(null);
+  const [isRenaming, setIsRenaming] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Load cohorts on mount
-  useEffect(() => {
-    loadCohorts();
-  }, []);
-
-  const loadCohorts = async () => {
+  const loadCohorts = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -54,7 +57,12 @@ export default function CohortTab() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Load cohorts on mount
+  useEffect(() => {
+    loadCohorts();
+  }, [loadCohorts]);
 
   const handleDeleteClick = useCallback(
     (cohortId: string) => {
@@ -77,27 +85,68 @@ export default function CohortTab() {
       await deleteCohort(cohortToDelete.id);
       setCohorts((prev) => prev.filter((c) => c.id !== cohortToDelete.id));
       setCohortToDelete(null);
+      // Notify parent that cohort count changed
+      onCohortCountChanged?.();
     } catch (err) {
       logger.error('Delete cohort error:', err);
       setError('Failed to delete cohort');
     } finally {
       setIsDeleting(false);
     }
-  }, [cohortToDelete]);
+  }, [cohortToDelete, onCohortCountChanged]);
 
   const handleCancelDelete = useCallback(() => {
     setCohortToDelete(null);
   }, []);
 
-  const handleDuplicateCohort = useCallback(async (cohort: Cohort) => {
-    try {
-      const duplicated = await duplicateCohort(cohort.id);
-      setCohorts((prev) => [...prev, duplicated]);
-    } catch (err) {
-      logger.error('Duplicate cohort error:', err);
-      setError('Failed to duplicate cohort');
-    }
+  // Rename handlers
+  const handleRenameClick = useCallback((cohort: Cohort) => {
+    setCohortToRename(cohort);
   }, []);
+
+  const handleConfirmRename = useCallback(
+    async (newName: string, newDescription: string) => {
+      if (!cohortToRename) {
+        return;
+      }
+
+      try {
+        setIsRenaming(true);
+        setError(null);
+        const updated = await updateCohort(cohortToRename.id, {
+          name: newName,
+          description: newDescription,
+        });
+        setCohorts((prev) => prev.map((c) => (c.id === cohortToRename.id ? updated : c)));
+        setCohortToRename(null);
+      } catch (err) {
+        logger.error('Rename cohort error:', err);
+        setError('Failed to update cohort');
+      } finally {
+        setIsRenaming(false);
+      }
+    },
+    [cohortToRename]
+  );
+
+  const handleCancelRename = useCallback(() => {
+    setCohortToRename(null);
+  }, []);
+
+  const handleDuplicateCohort = useCallback(
+    async (cohort: Cohort) => {
+      try {
+        const duplicated = await duplicateCohort(cohort.id);
+        setCohorts((prev) => [...prev, duplicated]);
+        // Notify parent that cohort count changed
+        onCohortCountChanged?.();
+      } catch (err) {
+        logger.error('Duplicate cohort error:', err);
+        setError('Failed to duplicate cohort');
+      }
+    },
+    [onCohortCountChanged]
+  );
 
   const handleViewCohort = useCallback(
     (cohort: Cohort) => {
@@ -133,11 +182,7 @@ export default function CohortTab() {
   }, []);
 
   if (loading) {
-    return (
-      <Box py={8}>
-        <Text>Loading cohorts...</Text>
-      </Box>
-    );
+    return <LoadingSkeleton />;
   }
 
   return (
@@ -147,29 +192,19 @@ export default function CohortTab() {
         <Card.Body py={4}>
           <VStack gap={4} align="stretch">
             {/* Header Section */}
-            <HStack justify="space-between" align="start">
-              <VStack align="start" gap={1}>
-                <HStack gap={2}>
-                  <Box color="blue.500" fontSize="xl">
-                    <FaUsers />
-                  </Box>
-                  <Text fontSize="xl" fontWeight="bold" color="gray.800">
-                    Saved Cohorts
-                  </Text>
-                  {cohorts.length > 0 && (
-                    <Badge colorPalette="blue" variant="solid">
-                      {cohorts.length}
-                    </Badge>
-                  )}
-                </HStack>
-                <Text fontSize="sm" color="gray.600" ml={8}>
-                  Manage your research cohorts and export data
+            <VStack align="start" gap={1}>
+              <HStack gap={2}>
+                <Box color="blue.500" fontSize="xl">
+                  <FaUsers />
+                </Box>
+                <Text fontSize="xl" fontWeight="bold" color="gray.800">
+                  Your Cohorts
                 </Text>
-              </VStack>
-              <Button onClick={loadCohorts} variant="outline" colorPalette="blue">
-                Refresh
-              </Button>
-            </HStack>
+              </HStack>
+              <Text fontSize="sm" color="gray.600" ml={8}>
+                Manage your research cohorts and export data
+              </Text>
+            </VStack>
 
             {/* Search Section (only when cohorts exist) */}
             {cohorts.length > 0 && (
@@ -191,10 +226,13 @@ export default function CohortTab() {
                     pl={10}
                     pr={searchTerm ? 10 : 4}
                     size="md"
+                    variant="outline"
+                    border="1px solid"
                     borderColor="gray.300"
+                    _hover={{ borderColor: 'gray.400' }}
                     _focus={{
                       borderColor: 'blue.500',
-                      boxShadow: '0 0 0 1px blue.500',
+                      boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
                     }}
                   />
                   {searchTerm && (
@@ -259,6 +297,7 @@ export default function CohortTab() {
                   key={cohort.id}
                   cohort={cohort}
                   onView={handleViewCohort}
+                  onRename={handleRenameClick}
                   onDuplicate={handleDuplicateCohort}
                   onDelete={handleDeleteClick}
                   onExport={handleExportCohort}
@@ -290,6 +329,16 @@ export default function CohortTab() {
           loading={isDeleting}
         />
       )}
+
+      {/* Rename Cohort Dialog */}
+      <RenameCohortDialog
+        isOpen={!!cohortToRename}
+        cohort={cohortToRename}
+        existingCohorts={cohorts}
+        onConfirm={handleConfirmRename}
+        onCancel={handleCancelRename}
+        loading={isRenaming}
+      />
     </VStack>
   );
 }

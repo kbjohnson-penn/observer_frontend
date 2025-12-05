@@ -79,7 +79,7 @@ export interface VisitSearchFilters {
     tier_id?: number[];
     date_from?: string;
     date_to?: string;
-    visit_source_value?: string;
+    visit_source_value?: string[];
   };
   person_demographics?: {
     gender?: string[];

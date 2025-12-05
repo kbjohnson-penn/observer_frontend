@@ -1,28 +1,34 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Box, Card, VStack, HStack, Text, Button, Badge, IconButton } from '@chakra-ui/react';
-import { FaTrash, FaEye, FaDownload, FaCopy } from 'react-icons/fa';
+import { Card, VStack, HStack, Text, Button, Badge } from '@chakra-ui/react';
+import { FaTrash, FaEye, FaPencilAlt } from 'react-icons/fa';
 import { Cohort, getCohortFilterSummary } from '@/interfaces/cohort';
 import { COLORS } from '@/constants/colors';
+import { COHORT_NAME_MAX_LENGTH } from '@/lib/utils/cohortValidation';
 
 interface CohortCardProps {
   cohort: Cohort;
   onView: (cohort: Cohort) => void;
-  onDuplicate: (cohort: Cohort) => void;
+  onRename: (cohort: Cohort) => void;
+  // TODO: Re-enable when duplicate functionality is ready
+  onDuplicate?: (cohort: Cohort) => void;
   onDelete: (cohortId: string) => void;
-  onExport: (cohort: Cohort) => void;
+  // TODO: Re-enable when export functionality is ready
+  onExport?: (cohort: Cohort) => void;
 }
 
-export default function CohortCard({
-  cohort,
-  onView,
-  onDuplicate,
-  onDelete,
-  onExport,
-}: CohortCardProps) {
+export default function CohortCard({ cohort, onView, onRename, onDelete }: CohortCardProps) {
   // Memoize filter summary calculation
   const filterSummary = useMemo(() => getCohortFilterSummary(cohort.filters), [cohort.filters]);
+
+  // Truncate name for display if too long
+  const displayName = useMemo(() => {
+    if (cohort.name.length <= COHORT_NAME_MAX_LENGTH) {
+      return cohort.name;
+    }
+    return `${cohort.name.slice(0, COHORT_NAME_MAX_LENGTH)}...`;
+  }, [cohort.name]);
 
   // Memoize formatted date
   const formattedDate = useMemo(
@@ -40,32 +46,20 @@ export default function CohortCard({
       _hover={{
         shadow: 'lg',
         borderColor: 'blue.300',
-        transform: 'translateY(-2px)',
+        transform: COLORS.animation.cardHoverLift,
       }}
     >
       <Card.Header>
-        <HStack justify="space-between" align="start">
-          <VStack align="start" gap={1} flex={1}>
-            <Text fontWeight="semibold" fontSize="md" lineClamp={2}>
-              {cohort.name}
+        <VStack align="start" gap={1}>
+          <Text fontWeight="semibold" fontSize="md" lineClamp={2} wordBreak="break-word">
+            {displayName}
+          </Text>
+          {cohort.description && (
+            <Text fontSize="xs" color="gray.600" lineClamp={2}>
+              {cohort.description}
             </Text>
-            {cohort.description && (
-              <Text fontSize="xs" color="gray.600" lineClamp={2}>
-                {cohort.description}
-              </Text>
-            )}
-          </VStack>
-          <IconButton
-            size="sm"
-            variant="ghost"
-            aria-label="Delete cohort"
-            onClick={() => onDelete(cohort.id)}
-            colorPalette="red"
-            color={COLORS.cohortActions.delete}
-          >
-            <FaTrash />
-          </IconButton>
-        </HStack>
+          )}
+        </VStack>
       </Card.Header>
 
       <Card.Body pt={2}>
@@ -90,8 +84,34 @@ export default function CohortCard({
             </VStack>
           </HStack>
 
+          {/* Filter Summary */}
+          {filterSummary.totalActiveFilters > 0 && (
+            <HStack gap={2} flexWrap="wrap">
+              {filterSummary.visitFilters > 0 && (
+                <Badge size="sm" colorPalette="blue">
+                  Visit: {filterSummary.visitFilters}
+                </Badge>
+              )}
+              {filterSummary.personDemographicFilters > 0 && (
+                <Badge size="sm" colorPalette="purple">
+                  Patient: {filterSummary.personDemographicFilters}
+                </Badge>
+              )}
+              {filterSummary.providerDemographicFilters > 0 && (
+                <Badge size="sm" colorPalette="teal">
+                  Provider: {filterSummary.providerDemographicFilters}
+                </Badge>
+              )}
+              {filterSummary.clinicalFilters > 0 && (
+                <Badge size="sm" colorPalette="orange">
+                  Clinical: {filterSummary.clinicalFilters}
+                </Badge>
+              )}
+            </HStack>
+          )}
+
           {/* Actions */}
-          <HStack gap={2} pt={2}>
+          <HStack gap={2} pt={2} justify="stretch">
             <Button
               size="sm"
               variant="outline"
@@ -103,26 +123,29 @@ export default function CohortCard({
               <FaEye />
               View
             </Button>
-            <IconButton
+            <Button
               size="sm"
               variant="outline"
-              aria-label="Duplicate cohort"
-              onClick={() => onDuplicate(cohort)}
-              colorPalette="purple"
-              color={COLORS.cohortActions.duplicate}
+              onClick={() => onRename(cohort)}
+              flex={1}
+              colorPalette="yellow"
+              color={COLORS.cohortActions.rename}
             >
-              <FaCopy />
-            </IconButton>
-            <IconButton
+              <FaPencilAlt />
+              Edit
+            </Button>
+            <Button
               size="sm"
-              variant="outline"
-              aria-label="Export cohort"
-              onClick={() => onExport(cohort)}
-              colorPalette="green"
-              color={COLORS.cohortActions.export}
+              variant="ghost"
+              onClick={() => onDelete(cohort.id)}
+              flex={1}
+              colorPalette="red"
+              color={COLORS.cohortActions.delete}
+              _hover={{ bg: 'red.50' }}
             >
-              <FaDownload />
-            </IconButton>
+              <FaTrash />
+              Delete
+            </Button>
           </HStack>
         </VStack>
       </Card.Body>

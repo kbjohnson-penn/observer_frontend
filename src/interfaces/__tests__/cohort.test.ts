@@ -11,7 +11,7 @@ describe('cohort interfaces', () => {
       const filters: VisitSearchFilters = {
         visit: {
           tier_id: [1, 2],
-          visit_source_value: 'ER',
+          visit_source_value: ['ER'],
           date_from: '2024-01-01',
           date_to: '2024-12-31',
         },

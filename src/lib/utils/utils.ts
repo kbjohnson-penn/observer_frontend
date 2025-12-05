@@ -30,12 +30,48 @@ export const formatDepartmentName = (name: string): string => {
   return formattedName;
 };
 
-export const formatVisitDate = (date: string) => {
-  const d = new Date(date);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-    2,
-    '0'
-  )}-${String(d.getDate()).padStart(2, '0')}`;
+export const formatDateForInput = (date: Date | string): string => {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+export const parseLocalDate = (dateString: string): Date => {
+  const parts = dateString.split('-');
+  if (parts.length !== 3) {
+    return new Date(NaN); // Return Invalid Date for malformed input
+  }
+  const [year, month, day] = parts.map(Number);
+  if (isNaN(year) || isNaN(month) || isNaN(day)) {
+    return new Date(NaN);
+  }
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return new Date(NaN);
+  }
+  return new Date(year, month - 1, day);
+};
+
+export const formatDateForDisplay = (dateStr: string | null | undefined): string => {
+  if (!dateStr) {
+    return 'N/A';
+  }
+
+  // Validate format: must be YYYY-MM-DD
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) {
+    return 'N/A';
+  }
+
+  const [year, month, day] = parts.map(Number);
+
+  // Validate parsed values
+  if (isNaN(year) || isNaN(month) || isNaN(day)) {
+    return 'N/A';
+  }
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return 'N/A';
+  }
+
+  return new Date(year, month - 1, day).toLocaleDateString();
 };
 
 export const getDepartmentColors = (departmentData: PublicDepartmentDataType[]) => {
@@ -594,6 +630,39 @@ export const downloadData = (combinedData: CombinedDataType[], format: string) =
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
+/**
+ * Visit source formatting
+ */
+
+/**
+ * Maps visit source values to their display labels
+ */
+const VISIT_SOURCE_LABELS: Record<string, string> = {
+  clinic: 'Clinic',
+  simcenter: 'Sim Center',
+  pennpersonalizedcare: 'Penn Personalized Care',
+};
+
+/**
+ * Formats visit source values to display labels
+ * Handles known values with explicit mapping, falls back to title case
+ * @param source - The visit source value (e.g., 'clinic', 'sim_center')
+ * @returns Formatted display label (e.g., 'Clinic', 'Sim Center')
+ */
+export const formatVisitSource = (source: string): string => {
+  const normalizedSource = source.toLowerCase();
+  if (VISIT_SOURCE_LABELS[normalizedSource]) {
+    return VISIT_SOURCE_LABELS[normalizedSource];
+  }
+  // Fallback: split on underscores and capitalize each word
+  return source
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 };
 
 /**

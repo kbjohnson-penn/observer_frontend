@@ -138,10 +138,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             id: userData.user?.id || userData.id,
           });
           return true;
+        } else {
+          // Profile fetch failed - clear user state
+          setUser(null);
         }
+      } else {
+        // Token refresh failed (401, 403, etc.) - clear user state
+        setUser(null);
       }
-    } catch {
-      // Token refresh failed
+    } catch (error) {
+      // Token refresh failed - clear user state
+      setUser(null);
     }
 
     return false;

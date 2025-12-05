@@ -18,6 +18,7 @@ import { useVisitSearch } from '@/hooks/useVisitSearch';
 import { VisitSearchSort } from '@/interfaces/research';
 import { LocalFilters, INITIAL_LOCAL_FILTERS } from '@/interfaces/researchTab';
 import { buildServerFilters } from '@/lib/utils/filterTransformer';
+import { DEFAULT_PAGE_SIZE } from '@/constants';
 import { createCohort, getCohorts } from '@/lib/utils/cohortStorage';
 import { CohortCreateRequest, Cohort } from '@/interfaces/cohort';
 import { logger } from '@/lib/logger';
@@ -157,7 +158,7 @@ export default function ResearchTab({ onCohortCreated }: ResearchTabProps) {
 
       {/* Main Content Area */}
       {filterOptions && (
-        <Flex gap={6}>
+        <Flex gap={6} alignItems="flex-start">
           {/* Filter Sidebar */}
           <FilterSidebar
             localFilters={localFilters}
@@ -177,9 +178,12 @@ export default function ResearchTab({ onCohortCreated }: ResearchTabProps) {
                   <Text color="gray.600" fontSize="sm">
                     {filterSummary && pagination.totalCount > 0 && (
                       <>
-                        Showing {(pagination.currentPage - 1) * 20 + 1}-
-                        {Math.min(pagination.currentPage * 20, pagination.totalCount)} of{' '}
-                        {pagination.totalCount} visits
+                        Showing {(pagination.currentPage - 1) * DEFAULT_PAGE_SIZE + 1}-
+                        {Math.min(
+                          pagination.currentPage * DEFAULT_PAGE_SIZE,
+                          pagination.totalCount
+                        )}{' '}
+                        of {pagination.totalCount} visits
                         {filterSummary.activeFilters > 0 && (
                           <Text as="span" color="blue.600" fontSize="xs" ml={1}>
                             ({filterSummary.activeFilters}{' '}

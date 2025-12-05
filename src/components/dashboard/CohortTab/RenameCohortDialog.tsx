@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Button, Input, Textarea, VStack, Text } from '@chakra-ui/react';
+import React, { useState, useEffect } from 'react';
+import { Button, Input, Textarea, VStack } from '@chakra-ui/react';
 import {
   DialogRoot,
   DialogContent,
@@ -12,75 +12,67 @@ import {
   DialogCloseTrigger,
 } from '@/components/ui/dialog';
 import { Field } from '@/components/ui/field';
-import { Cohort, CohortCreateRequest } from '@/interfaces/cohort';
-import { VisitSearchFilters } from '@/interfaces/research';
-import { validateCohortName, COHORT_NAME_MAX_LENGTH } from '@/lib/utils/cohortValidation';
+import { Cohort } from '@/interfaces/cohort';
+import {
+  validateCohortName,
+  COHORT_NAME_MAX_LENGTH,
+  COHORT_DESCRIPTION_MAX_LENGTH,
+} from '@/lib/utils/cohortValidation';
 
-interface CreateCohortDialogProps {
+interface RenameCohortDialogProps {
   isOpen: boolean;
-  onClose: () => void;
-  onSave: (cohort: CohortCreateRequest) => Promise<void>;
-  filters: VisitSearchFilters;
-  visitCount: number;
+  cohort: Cohort | null;
   existingCohorts: Cohort[];
+  onConfirm: (newName: string, newDescription: string) => void;
+  onCancel: () => void;
+  loading?: boolean;
 }
 
-export default function CreateCohortDialog({
+export default function RenameCohortDialog({
   isOpen,
-  onClose,
-  onSave,
-  filters,
-  visitCount,
+  cohort,
   existingCohorts,
-}: CreateCohortDialogProps) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [loading, setLoading] = useState(false);
+  onConfirm,
+  onCancel,
+  loading = false,
+}: RenameCohortDialogProps) {
+  const [newName, setNewName] = useState('');
+  const [newDescription, setNewDescription] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const handleSave = async () => {
+  // Reset form when dialog opens with a cohort
+  useEffect(() => {
+    if (isOpen && cohort) {
+      setNewName(cohort.name);
+      setNewDescription(cohort.description || '');
+      setError(null);
+    }
+  }, [isOpen, cohort]);
+
+  const handleSubmit = () => {
     // Use shared validation utility
-    const validationError = validateCohortName(name, existingCohorts);
+    const validationError = validateCohortName(newName, existingCohorts, cohort?.id);
 
     if (validationError) {
       setError(validationError);
       return;
     }
 
-    try {
-      setLoading(true);
-      setError(null);
-
-      await onSave({
-        name: name.trim(),
-        description: description.trim() || undefined,
-        filters,
-        visitCount,
-      });
-
-      // Reset form
-      setName('');
-      setDescription('');
-      onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create cohort');
-    } finally {
-      setLoading(false);
-    }
+    onConfirm(newName.trim(), newDescription.trim());
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !loading && name.trim()) {
-      handleSave();
+    if (e.key === 'Enter' && !loading && newName.trim()) {
+      handleSubmit();
     }
   };
 
   const handleClose = () => {
     if (!loading) {
-      setName('');
-      setDescription('');
+      setNewName('');
+      setNewDescription('');
       setError(null);
-      onClose();
+      onCancel();
     }
   };
 
@@ -89,37 +81,30 @@ export default function CreateCohortDialog({
       <DialogContent>
         <DialogHeader borderBottomWidth="1px" pb={4}>
           <DialogTitle fontSize="lg" fontWeight="semibold">
-            Save as Cohort
+            Edit Cohort
           </DialogTitle>
         </DialogHeader>
         <DialogCloseTrigger />
 
         <DialogBody py={6}>
           <VStack gap={4} align="stretch">
-            {/* Visit Count Info */}
-            <Text fontSize="sm" color="gray.600">
-              This cohort will include <strong>{visitCount.toLocaleString()}</strong> visits based
-              on your current filters.
-            </Text>
-
-            {/* Name Field */}
             <Field
-              label="Cohort Name"
+              label="Name"
               required
               invalid={!!error}
               errorText={error || undefined}
               helperText={
-                !error ? `${name.length}/${COHORT_NAME_MAX_LENGTH} characters` : undefined
+                !error ? `${newName.length}/${COHORT_NAME_MAX_LENGTH} characters` : undefined
               }
             >
               <Input
-                value={name}
+                value={newName}
                 onChange={(e) => {
-                  setName(e.target.value);
+                  setNewName(e.target.value);
                   setError(null);
                 }}
                 onKeyDown={handleKeyDown}
-                placeholder="e.g., Pediatric Patients 2024"
+                placeholder="Enter cohort name"
                 disabled={loading}
                 maxLength={COHORT_NAME_MAX_LENGTH}
                 variant="outline"
@@ -131,16 +116,19 @@ export default function CreateCohortDialog({
               />
             </Field>
 
-            {/* Description Field */}
-            <Field label="Description (Optional)">
+            <Field
+              label="Description"
+              helperText={`${newDescription.length}/${COHORT_DESCRIPTION_MAX_LENGTH} characters`}
+            >
               <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Add notes about this cohort..."
-                rows={3}
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+                placeholder="Enter cohort description (optional)"
                 disabled={loading}
-                padding={2}
+                maxLength={COHORT_DESCRIPTION_MAX_LENGTH}
+                rows={3}
                 variant="outline"
+                padding={2}
                 border="1px solid"
                 borderColor="gray.300"
                 _hover={{ borderColor: 'gray.400' }}
@@ -167,16 +155,16 @@ export default function CreateCohortDialog({
             Cancel
           </Button>
           <Button
-            onClick={handleSave}
+            onClick={handleSubmit}
             loading={loading}
-            disabled={!name.trim() || loading}
+            disabled={!newName.trim() || loading}
             bg="blue.600"
             color="white"
             px={4}
             py={2}
             _hover={{ bg: 'blue.700' }}
           >
-            Save Cohort
+            Save
           </Button>
         </DialogFooter>
       </DialogContent>

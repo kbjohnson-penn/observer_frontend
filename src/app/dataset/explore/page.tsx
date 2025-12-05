@@ -48,7 +48,7 @@ const DatasetExplorePage = async () => {
             videoSources.room = `/encounters/${encounterType}/${encounterId}/room_view.MP4`;
             break;
           case 'transcript':
-            transcriptSource = `/encounters/${encounterType}/${encounterId}/transcript.xlsx`;
+            transcriptSource = `/encounters/${encounterType}/${encounterId}/transcript.csv`;
             break;
         }
       });
@@ -59,7 +59,7 @@ const DatasetExplorePage = async () => {
       videoSources.patient = '/encounters/clinic/103/patient_view.MP4';
       videoSources.provider = '/encounters/clinic/103/provider_view.MP4';
       videoSources.room = '/encounters/clinic/103/room_view.MP4';
-      transcriptSource = '/encounters/clinic/103/transcript.xlsx';
+      transcriptSource = '/encounters/clinic/103/transcript.csv';
     }
 
     return { videoSources, transcriptSource };

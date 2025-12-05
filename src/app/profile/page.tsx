@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient } from '@/lib/apiClient';
+import { formatDateForDisplay } from '@/lib/utils/utils';
 
 interface UserProfile {
   first_name: string;
@@ -161,7 +162,7 @@ export default function ProfilePage() {
                       </Text>
                       <Text color="gray.900" bg="gray.50" p={3} borderRadius="md">
                         {profile.date_of_birth
-                          ? new Date(profile.date_of_birth).toLocaleDateString()
+                          ? formatDateForDisplay(profile.date_of_birth)
                           : 'Not provided'}
                       </Text>
                     </Box>
