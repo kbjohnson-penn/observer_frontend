@@ -43,6 +43,61 @@ export interface CohortFilterSummary {
 }
 
 /**
+ * Detailed filter summary with actual filter values for display
+ */
+export interface DetailedFilterSummary {
+  visit: {
+    tiers: number[];
+    visitSources: string[];
+    dateFrom: string | null;
+    dateTo: string | null;
+  };
+  personDemographics: {
+    gender: string[];
+    race: string[];
+    ethnicity: string[];
+    yearOfBirthFrom: number | null;
+    yearOfBirthTo: number | null;
+  };
+  providerDemographics: {
+    gender: string[];
+    race: string[];
+    ethnicity: string[];
+    yearOfBirthFrom: number | null;
+    yearOfBirthTo: number | null;
+  };
+  clinical: {
+    hasConditions: boolean;
+    hasLabs: boolean;
+    hasDrugs: boolean;
+    hasProcedures: boolean;
+    hasNotes: boolean;
+    hasObservations: boolean;
+    hasMeasurements: boolean;
+  };
+  totalActiveFilters: number;
+}
+
+/**
+ * Helper to check if a clinical filter object has any non-empty values.
+ * Empty objects {} or objects with only empty arrays should return false.
+ */
+function hasNonEmptyFilterValues(obj: unknown): boolean {
+  if (!obj || typeof obj !== 'object') {
+    return false;
+  }
+  return Object.values(obj).some((value) => {
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+    if (typeof value === 'object' && value !== null) {
+      return hasNonEmptyFilterValues(value);
+    }
+    return value !== null && value !== undefined && value !== '';
+  });
+}
+
+/**
  * Calculates filter summary from VisitSearchFilters
  */
 export function getCohortFilterSummary(
@@ -69,7 +124,7 @@ export function getCohortFilterSummary(
     if (filters.visit.tier_id && filters.visit.tier_id.length > 0) {
       visitFilters++;
     }
-    if (filters.visit.visit_source_value) {
+    if (filters.visit.visit_source_value && filters.visit.visit_source_value.length > 0) {
       visitFilters++;
     }
     if (filters.visit.date_from) {
@@ -121,27 +176,27 @@ export function getCohortFilterSummary(
     }
   }
 
-  // Count clinical filters (future expansion)
+  // Count clinical filters - use hasNonEmptyFilterValues to handle empty objects
   if (filters.clinical) {
-    if (filters.clinical.conditions) {
+    if (hasNonEmptyFilterValues(filters.clinical.conditions)) {
       clinicalFilters++;
     }
-    if (filters.clinical.labs) {
+    if (hasNonEmptyFilterValues(filters.clinical.labs)) {
       clinicalFilters++;
     }
-    if (filters.clinical.drugs) {
+    if (hasNonEmptyFilterValues(filters.clinical.drugs)) {
       clinicalFilters++;
     }
-    if (filters.clinical.procedures) {
+    if (hasNonEmptyFilterValues(filters.clinical.procedures)) {
       clinicalFilters++;
     }
-    if (filters.clinical.notes) {
+    if (hasNonEmptyFilterValues(filters.clinical.notes)) {
       clinicalFilters++;
     }
-    if (filters.clinical.observations) {
+    if (hasNonEmptyFilterValues(filters.clinical.observations)) {
       clinicalFilters++;
     }
-    if (filters.clinical.measurements) {
+    if (hasNonEmptyFilterValues(filters.clinical.measurements)) {
       clinicalFilters++;
     }
   }
@@ -153,5 +208,173 @@ export function getCohortFilterSummary(
     clinicalFilters,
     totalActiveFilters:
       visitFilters + personDemographicFilters + providerDemographicFilters + clinicalFilters,
+  };
+}
+
+/**
+ * Gets detailed filter values for display in UI
+ * Returns actual filter values instead of just counts
+ */
+export function getDetailedFilterSummary(
+  filters: VisitSearchFilters | null | undefined
+): DetailedFilterSummary {
+  const emptyResult: DetailedFilterSummary = {
+    visit: {
+      tiers: [],
+      visitSources: [],
+      dateFrom: null,
+      dateTo: null,
+    },
+    personDemographics: {
+      gender: [],
+      race: [],
+      ethnicity: [],
+      yearOfBirthFrom: null,
+      yearOfBirthTo: null,
+    },
+    providerDemographics: {
+      gender: [],
+      race: [],
+      ethnicity: [],
+      yearOfBirthFrom: null,
+      yearOfBirthTo: null,
+    },
+    clinical: {
+      hasConditions: false,
+      hasLabs: false,
+      hasDrugs: false,
+      hasProcedures: false,
+      hasNotes: false,
+      hasObservations: false,
+      hasMeasurements: false,
+    },
+    totalActiveFilters: 0,
+  };
+
+  if (!filters) {
+    return emptyResult;
+  }
+
+  let totalActiveFilters = 0;
+
+  // Extract visit filters
+  const visit = {
+    tiers: filters.visit?.tier_id?.length ? [...filters.visit.tier_id] : [],
+    visitSources: filters.visit?.visit_source_value?.length
+      ? [...filters.visit.visit_source_value]
+      : [],
+    dateFrom: filters.visit?.date_from || null,
+    dateTo: filters.visit?.date_to || null,
+  };
+
+  if (visit.tiers.length > 0) {
+    totalActiveFilters++;
+  }
+  if (visit.visitSources.length > 0) {
+    totalActiveFilters++;
+  }
+  if (visit.dateFrom) {
+    totalActiveFilters++;
+  }
+  if (visit.dateTo) {
+    totalActiveFilters++;
+  }
+
+  // Extract person demographic filters
+  const personDemographics = {
+    gender: filters.person_demographics?.gender?.length
+      ? [...filters.person_demographics.gender]
+      : [],
+    race: filters.person_demographics?.race?.length ? [...filters.person_demographics.race] : [],
+    ethnicity: filters.person_demographics?.ethnicity?.length
+      ? [...filters.person_demographics.ethnicity]
+      : [],
+    yearOfBirthFrom: filters.person_demographics?.year_of_birth_from ?? null,
+    yearOfBirthTo: filters.person_demographics?.year_of_birth_to ?? null,
+  };
+
+  if (personDemographics.gender.length > 0) {
+    totalActiveFilters++;
+  }
+  if (personDemographics.race.length > 0) {
+    totalActiveFilters++;
+  }
+  if (personDemographics.ethnicity.length > 0) {
+    totalActiveFilters++;
+  }
+  if (personDemographics.yearOfBirthFrom !== null || personDemographics.yearOfBirthTo !== null) {
+    totalActiveFilters++;
+  }
+
+  // Extract provider demographic filters
+  const providerDemographics = {
+    gender: filters.provider_demographics?.gender?.length
+      ? [...filters.provider_demographics.gender]
+      : [],
+    race: filters.provider_demographics?.race?.length
+      ? [...filters.provider_demographics.race]
+      : [],
+    ethnicity: filters.provider_demographics?.ethnicity?.length
+      ? [...filters.provider_demographics.ethnicity]
+      : [],
+    yearOfBirthFrom: filters.provider_demographics?.year_of_birth_from ?? null,
+    yearOfBirthTo: filters.provider_demographics?.year_of_birth_to ?? null,
+  };
+
+  if (providerDemographics.gender.length > 0) {
+    totalActiveFilters++;
+  }
+  if (providerDemographics.race.length > 0) {
+    totalActiveFilters++;
+  }
+  if (providerDemographics.ethnicity.length > 0) {
+    totalActiveFilters++;
+  }
+  if (
+    providerDemographics.yearOfBirthFrom !== null ||
+    providerDemographics.yearOfBirthTo !== null
+  ) {
+    totalActiveFilters++;
+  }
+
+  // Extract clinical filters - use hasNonEmptyFilterValues to handle empty objects
+  const clinical = {
+    hasConditions: hasNonEmptyFilterValues(filters.clinical?.conditions),
+    hasLabs: hasNonEmptyFilterValues(filters.clinical?.labs),
+    hasDrugs: hasNonEmptyFilterValues(filters.clinical?.drugs),
+    hasProcedures: hasNonEmptyFilterValues(filters.clinical?.procedures),
+    hasNotes: hasNonEmptyFilterValues(filters.clinical?.notes),
+    hasObservations: hasNonEmptyFilterValues(filters.clinical?.observations),
+    hasMeasurements: hasNonEmptyFilterValues(filters.clinical?.measurements),
+  };
+
+  if (clinical.hasConditions) {
+    totalActiveFilters++;
+  }
+  if (clinical.hasLabs) {
+    totalActiveFilters++;
+  }
+  if (clinical.hasDrugs) {
+    totalActiveFilters++;
+  }
+  if (clinical.hasProcedures) {
+    totalActiveFilters++;
+  }
+  if (clinical.hasNotes) {
+    totalActiveFilters++;
+  }
+  if (clinical.hasObservations) {
+    totalActiveFilters++;
+  }
+  if (clinical.hasMeasurements) {
+    totalActiveFilters++;
+  }
+
+  return {
+    visit,
+    personDemographics,
+    providerDemographics,
+    clinical,
+    totalActiveFilters,
   };
 }
