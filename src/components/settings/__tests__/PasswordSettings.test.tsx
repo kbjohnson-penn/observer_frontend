@@ -46,12 +46,20 @@ const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 describe('PasswordSettings', () => {
   beforeEach(() => {
+    // Ensure we start with real timers, then clear everything
+    jest.useRealTimers();
     jest.clearAllMocks();
+    jest.clearAllTimers();
+    // Explicitly reset mockLogout to ensure clean state
+    mockLogout.mockClear();
     global.fetch = jest.fn();
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
+    // Clean up any timers that might be running
+    jest.clearAllTimers();
+    jest.useRealTimers();
   });
 
   describe('Component Rendering', () => {
@@ -397,6 +405,8 @@ describe('PasswordSettings', () => {
       // Verify logout was called
       expect(mockLogout).toHaveBeenCalledTimes(1);
 
+      // Clean up timers and restore before next test
+      jest.clearAllTimers();
       jest.useRealTimers();
     });
 
@@ -427,12 +437,17 @@ describe('PasswordSettings', () => {
         expect(screen.getByText('Password updated successfully!')).toBeInTheDocument();
       });
 
+      // Verify logout was not called after form submission
+      expect(mockLogout).not.toHaveBeenCalled();
+
       // Advance timers to ensure no logout is scheduled
       jest.advanceTimersByTime(5000);
 
-      // Logout should never be called when logout_required is false
+      // Logout should still not be called when logout_required is false
       expect(mockLogout).not.toHaveBeenCalled();
 
+      // Clean up timers and restore before next test
+      jest.clearAllTimers();
       jest.useRealTimers();
     });
   });
