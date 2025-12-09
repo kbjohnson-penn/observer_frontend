@@ -391,18 +391,17 @@ describe('PasswordSettings', () => {
       // Verify logout has not been called yet
       expect(mockLogout).not.toHaveBeenCalled();
 
-      // Fast-forward time by 3 seconds
+      // Fast-forward time by 3 seconds to trigger the logout timer
       jest.advanceTimersByTime(3000);
 
       // Verify logout was called
-      await waitFor(() => {
-        expect(mockLogout).toHaveBeenCalledTimes(1);
-      });
+      expect(mockLogout).toHaveBeenCalledTimes(1);
 
       jest.useRealTimers();
     });
 
     it('should not trigger logout when logout_required flag is false', async () => {
+      jest.useFakeTimers();
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -413,7 +412,7 @@ describe('PasswordSettings', () => {
 
       render(<PasswordSettings />, { wrapper: TestWrapper });
 
-      const user = userEvent.setup();
+      const user = userEvent.setup({ delay: null });
       const currentPasswordInput = screen.getByPlaceholderText('Enter your current password');
       const newPasswordInput = screen.getByPlaceholderText('Enter your new password');
       const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password');
@@ -428,10 +427,13 @@ describe('PasswordSettings', () => {
         expect(screen.getByText('Password updated successfully!')).toBeInTheDocument();
       });
 
-      // Wait a bit to ensure logout is not called
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      // Advance timers to ensure no logout is scheduled
+      jest.advanceTimersByTime(5000);
 
+      // Logout should never be called when logout_required is false
       expect(mockLogout).not.toHaveBeenCalled();
+
+      jest.useRealTimers();
     });
   });
 });
