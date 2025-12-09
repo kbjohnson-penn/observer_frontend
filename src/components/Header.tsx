@@ -92,6 +92,11 @@ const Header: React.FC<HeaderProps> = ({ showLinks = true, logo = { width: 200, 
   const { isAuthenticated, logout, user } = useAuth();
   const isActive = (route: string) => pathname === route;
 
+  // Force unauthenticated menu on auth pages to handle race conditions
+  // when session expires and redirects to /login before auth state updates
+  const isAuthPage = pathname === '/login' || pathname === '/register';
+  const showAuthenticatedMenu = isAuthenticated && !isAuthPage;
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -139,12 +144,12 @@ const Header: React.FC<HeaderProps> = ({ showLinks = true, logo = { width: 200, 
               {/* Avatar Menu */}
               <Menu.Root positioning={{ placement: 'bottom-end' }}>
                 <Menu.Trigger focusRing="outside">
-                  <UserAvatar isAuthenticated={isAuthenticated} user={user} />
+                  <UserAvatar isAuthenticated={showAuthenticatedMenu} user={user} />
                 </Menu.Trigger>
                 <Portal>
                   <Menu.Positioner>
                     <Menu.Content bg="white" border="1px" borderColor="gray.200" shadow="lg">
-                      {isAuthenticated ? (
+                      {showAuthenticatedMenu ? (
                         <>
                           <Menu.Item asChild value="settings">
                             <Link href="/settings">
@@ -218,7 +223,7 @@ const Header: React.FC<HeaderProps> = ({ showLinks = true, logo = { width: 200, 
           </NavigationLink>
 
           {/* Mobile Auth Section */}
-          {isAuthenticated ? (
+          {showAuthenticatedMenu ? (
             <Box mt={4} pt={4} borderTop="1px" borderColor="blue.700">
               <VStack gap={3}>
                 <NavigationLink href="/settings" isActive={isActive('/settings')} isMobile>

@@ -131,6 +131,13 @@ export const COLORS = {
     headerBg: 'gray.50',
     rowHoverBg: 'blue.50',
     borderColor: 'gray.200',
+    // Enhanced table colors
+    rowOddBg: 'gray.50',
+    rowEvenBg: 'white',
+    cellIdBg: 'gray.100',
+    cellIdText: 'gray.600',
+    cellNullText: 'gray.400',
+    headerShadow: '0 2px 4px rgba(0, 0, 0, 0.06)',
   },
 
   // Animation values

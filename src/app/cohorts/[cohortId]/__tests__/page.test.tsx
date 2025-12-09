@@ -23,8 +23,8 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock HealthcareDataBrowser
-jest.mock('@/components/multimodal/HealthcareDataBrowser', () => {
-  return function MockHealthcareDataBrowser({ sampleData }: any) {
+jest.mock('@/components/healthcare-browser', () => ({
+  HealthcareDataBrowser: function MockHealthcareDataBrowser({ sampleData }: any) {
     return (
       <div data-testid="healthcare-data-browser">
         Healthcare Data Browser
@@ -32,8 +32,8 @@ jest.mock('@/components/multimodal/HealthcareDataBrowser', () => {
         <div data-testid="person-count">{sampleData?.persons?.length || 0} persons</div>
       </div>
     );
-  };
-});
+  },
+}));
 
 // Mock ErrorBoundary
 jest.mock('@/components/ErrorBoundary', () => {

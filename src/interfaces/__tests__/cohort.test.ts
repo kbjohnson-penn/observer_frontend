@@ -502,7 +502,7 @@ describe('cohort interfaces', () => {
       result.personDemographics.gender.push('F');
 
       // Original filters should not be affected
-      expect(filters.visit.tier_id).toEqual([1, 2]);
+      expect(filters.visit?.tier_id).toEqual([1, 2]);
       expect(filters.person_demographics?.gender).toEqual(['M']);
     });
 
