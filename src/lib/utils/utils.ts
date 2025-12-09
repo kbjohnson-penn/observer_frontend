@@ -16,20 +16,6 @@ import {
   CSV_COLUMN_ORDER,
 } from '../../constants';
 
-export const capitalizeWords = (input: string): string => {
-  return input.replace(/(^|[\s\-_])\w/g, (match) => match.toUpperCase());
-};
-
-export const checkBoolean = (input: boolean): string => {
-  return input ? 'Yes' : 'No';
-};
-
-export const formatDepartmentName = (name: string): string => {
-  let formattedName = name.replace(/-/g, ' ');
-  formattedName = formattedName.replace(/\b\w/g, (l) => l.toUpperCase());
-  return formattedName;
-};
-
 export const formatDateForInput = (date: Date | string): string => {
   const d = typeof date === 'string' ? new Date(date) : date;
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -100,33 +86,6 @@ export const getSummaryStats = (
   };
 
   return stats;
-};
-
-export const getEncounterPerDepartment = (
-  filteredEncounterData: PublicEncounterDataType[],
-  departmentData: PublicDepartmentDataType[]
-): { department: string; count: number }[] => {
-  const data = departmentData.map((department) => {
-    const count = filteredEncounterData.filter(
-      (encounter) => encounter.department === department.name
-    ).length;
-    return { department: department.name, count };
-  });
-  return data;
-};
-
-export const getEncountersByAccess = (
-  filteredEncounterData: PublicEncounterDataType[]
-): { access: string; count: number }[] => {
-  const data = ['Access Controlled', 'Not Access Controlled'].map((access) => {
-    const count = filteredEncounterData.filter(
-      (encounter) =>
-        (access === 'Access Controlled' && encounter.is_restricted) ||
-        (access === 'Not Access Controlled' && !encounter.is_restricted)
-    ).length;
-    return { access, count };
-  });
-  return data;
 };
 
 export const getAccessControlByDepartment = (
@@ -208,35 +167,6 @@ export const getEncountersByMultiModalData = (
     name: key,
     count: data[key],
   }));
-};
-
-export const getEncountersOverTime = (
-  filteredEncounterData: PublicEncounterDataType[]
-): { date: string; count: number; cumulativeCount: number }[] => {
-  const data = filteredEncounterData.reduce(
-    (acc, encounter) => {
-      const date = new Date(encounter.encounter_date_and_time).toISOString().split('T')[0];
-      const found = acc.find((item) => item.date === date);
-      if (found) {
-        found.count++;
-      } else {
-        acc.push({ date, count: 1 });
-      }
-      return acc;
-    },
-    [] as { date: string; count: number }[]
-  );
-
-  data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-  // Calculate cumulative counts
-  let cumulativeCount = 0;
-  const dataWithCumulative = data.map((item) => {
-    cumulativeCount += item.count;
-    return { ...item, cumulativeCount };
-  });
-
-  return dataWithCumulative;
 };
 
 export const getEncountersByGroup = (

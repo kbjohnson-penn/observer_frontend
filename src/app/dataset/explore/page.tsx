@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Heading, Text, VStack } from '@chakra-ui/react';
 import { MediaViewersSection } from '@/components/dataset';
-import HealthcareDataBrowser from '@/components/multimodal/HealthcareDataBrowser';
+import { HealthcareDataBrowser } from '@/components/healthcare-browser';
 import TranscriptViewer from '@/components/multimodal/TranscriptViewer';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { logger } from '@/lib/logger';

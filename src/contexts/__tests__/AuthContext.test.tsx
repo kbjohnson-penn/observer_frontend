@@ -8,6 +8,14 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
+// Mock logger
+jest.mock('@/lib/logger', () => ({
+  logger: {
+    log: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
 const mockRouter = {
   push: jest.fn(),
   replace: jest.fn(),
@@ -201,7 +209,7 @@ describe('AuthContext', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      // Mock CSRF token fetch
+      // Mock CSRF token fetch for login
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: 'test-csrf-token' }),
@@ -225,6 +233,12 @@ describe('AuthContext', () => {
 
       expect(result.current.isAuthenticated).toBe(true);
 
+      // Mock CSRF token fetch for logout
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
+      });
+
       // Mock logout call
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -237,7 +251,7 @@ describe('AuthContext', () => {
 
       expect(result.current.user).toBeNull();
       expect(result.current.isAuthenticated).toBe(false);
-      expect(mockRouter.push).toHaveBeenCalledWith('/login');
+      expect(mockRouter.replace).toHaveBeenCalledWith('/login');
     });
 
     it('should handle logout even if API call fails', async () => {
@@ -253,7 +267,7 @@ describe('AuthContext', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      // Mock CSRF token fetch
+      // Mock CSRF token fetch for login
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: 'test-csrf-token' }),
@@ -275,7 +289,7 @@ describe('AuthContext', () => {
         await result.current.login('testuser', 'password123');
       });
 
-      // Mock failed logout call
+      // Mock failed CSRF fetch or logout call (network error)
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
       // Logout should still work even if API fails
@@ -285,7 +299,7 @@ describe('AuthContext', () => {
 
       expect(result.current.user).toBeNull();
       expect(result.current.isAuthenticated).toBe(false);
-      expect(mockRouter.push).toHaveBeenCalledWith('/login');
+      expect(mockRouter.replace).toHaveBeenCalledWith('/login');
     });
   });
 
@@ -303,10 +317,11 @@ describe('AuthContext', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      // Mock successful refresh + user data call
+      // Mock successful refresh with expires_at + user data call
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
+          json: async () => ({ expires_at: Math.floor(Date.now() / 1000) + 300 }),
         })
         .mockResolvedValueOnce({
           ok: true,
@@ -357,6 +372,7 @@ describe('AuthContext', () => {
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
+          json: async () => ({ expires_at: Math.floor(Date.now() / 1000) + 300 }),
         })
         .mockResolvedValueOnce({
           ok: false,
@@ -426,7 +442,7 @@ describe('AuthContext', () => {
         expect(result.current.isAuthenticated).toBe(false);
       });
 
-      expect(mockRouter.push).toHaveBeenCalledWith('/login');
+      expect(mockRouter.replace).toHaveBeenCalledWith('/login');
     });
   });
 
@@ -451,6 +467,7 @@ describe('AuthContext', () => {
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
+          json: async () => ({ expires_at: Math.floor(Date.now() / 1000) + 300 }),
         })
         .mockResolvedValueOnce({
           ok: true,
@@ -549,6 +566,7 @@ describe('AuthContext', () => {
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
+          json: async () => ({ expires_at: Math.floor(Date.now() / 1000) + 300 }),
         })
         .mockResolvedValueOnce({
           ok: true,
@@ -589,6 +607,7 @@ describe('AuthContext', () => {
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
+          json: async () => ({ expires_at: Math.floor(Date.now() / 1000) + 300 }),
         })
         .mockResolvedValueOnce({
           ok: true,
@@ -642,6 +661,392 @@ describe('AuthContext', () => {
       expect(removeEventListenerSpy).toHaveBeenCalledWith('auth:failed', expect.any(Function));
 
       removeEventListenerSpy.mockRestore();
+    });
+  });
+
+  describe('Auto-Logout Timer', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+    });
+
+    it('should schedule auto-logout after successful login', async () => {
+      // Mock initial refresh (fails)
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      });
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      // Token expires in 5 minutes (300 seconds) from NOW
+      // Compute this AFTER initial render to ensure timer consistency
+      const now = Math.floor(Date.now() / 1000);
+      const expiryTime = now + 300;
+
+      // Mock CSRF token fetch
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
+      });
+
+      // Mock login call with expires_at in response
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          user: {
+            username: 'testuser',
+            email: 'test@example.com',
+            id: 1,
+          },
+          expires_at: expiryTime,
+        }),
+      });
+
+      // Spy on dispatchEvent BEFORE login to track all events
+      const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+      await act(async () => {
+        await result.current.login('testuser', 'password123');
+      });
+
+      expect(result.current.isAuthenticated).toBe(true);
+
+      // Clear previous calls after login is complete
+      dispatchEventSpy.mockClear();
+
+      // Advance time to just before logout trigger (270 seconds = 300 - 30 buffer)
+      act(() => {
+        jest.advanceTimersByTime(269 * 1000);
+      });
+
+      // Should not have dispatched yet
+      expect(dispatchEventSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'auth:failed' })
+      );
+
+      // Advance 1 more second to trigger
+      act(() => {
+        jest.advanceTimersByTime(1000);
+      });
+
+      // Now should have dispatched auth:failed
+      expect(dispatchEventSpy).toHaveBeenCalledWith(expect.any(CustomEvent));
+      const authFailedCalls = dispatchEventSpy.mock.calls.filter(
+        (call) => (call[0] as CustomEvent).type === 'auth:failed'
+      );
+      expect(authFailedCalls.length).toBeGreaterThan(0);
+
+      dispatchEventSpy.mockRestore();
+    });
+
+    it('should schedule auto-logout after successful token refresh', async () => {
+      // Token expires in 5 minutes (300 seconds)
+      const now = Math.floor(Date.now() / 1000);
+      const expiryTime = now + 300;
+
+      // Mock initial refresh (fails)
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      });
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      // Mock successful refresh with expires_at + user data call
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ expires_at: expiryTime }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            username: 'testuser',
+            email: 'test@example.com',
+            id: 1,
+          }),
+        });
+
+      await act(async () => {
+        await result.current.refreshToken();
+      });
+
+      expect(result.current.isAuthenticated).toBe(true);
+
+      // Spy on dispatchEvent
+      const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+      // Advance time to trigger auto-logout (270 seconds = 300 - 30 buffer)
+      act(() => {
+        jest.advanceTimersByTime(270 * 1000);
+      });
+
+      // Should have dispatched auth:failed
+      const authFailedCalls = dispatchEventSpy.mock.calls.filter(
+        (call) => (call[0] as CustomEvent).type === 'auth:failed'
+      );
+      expect(authFailedCalls.length).toBeGreaterThan(0);
+
+      dispatchEventSpy.mockRestore();
+    });
+
+    it('should clear timer on logout', async () => {
+      // Token expires in 5 minutes
+      const now = Math.floor(Date.now() / 1000);
+      const expiryTime = now + 300;
+
+      // Mock initial refresh (fails)
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      });
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      // Login first
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
+      });
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          user: { username: 'testuser', email: 'test@example.com', id: 1 },
+          expires_at: expiryTime,
+        }),
+      });
+
+      await act(async () => {
+        await result.current.login('testuser', 'password123');
+      });
+
+      const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
+
+      // Mock CSRF fetch and logout call
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
+      });
+      mockFetch.mockResolvedValueOnce({ ok: true });
+
+      await act(async () => {
+        await result.current.logout();
+      });
+
+      // Timer should have been cleared
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+
+      clearTimeoutSpy.mockRestore();
+    });
+
+    it('should clear timer on auth:failed event', async () => {
+      // Token expires in 5 minutes
+      const now = Math.floor(Date.now() / 1000);
+      const expiryTime = now + 300;
+
+      // Mock initial refresh (fails)
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      });
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      // Login first
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
+      });
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          user: { username: 'testuser', email: 'test@example.com', id: 1 },
+          expires_at: expiryTime,
+        }),
+      });
+
+      await act(async () => {
+        await result.current.login('testuser', 'password123');
+      });
+
+      expect(result.current.isAuthenticated).toBe(true);
+
+      const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
+
+      // Simulate auth failure event
+      act(() => {
+        window.dispatchEvent(new CustomEvent('auth:failed'));
+      });
+
+      await waitFor(() => {
+        expect(result.current.user).toBeNull();
+      });
+
+      // Timer should have been cleared
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+
+      clearTimeoutSpy.mockRestore();
+    });
+
+    it('should dispatch auth:failed immediately if token already expired', async () => {
+      // Token already expired (expiry in the past)
+      const now = Math.floor(Date.now() / 1000);
+      const expiryTime = now - 60; // 60 seconds ago
+
+      const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+      // Mock initial refresh (fails)
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      });
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      // Login with expired token
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
+      });
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          user: { username: 'testuser', email: 'test@example.com', id: 1 },
+          expires_at: expiryTime,
+        }),
+      });
+
+      await act(async () => {
+        await result.current.login('testuser', 'password123');
+      });
+
+      // Should dispatch auth:failed immediately since token is expired
+      const authFailedCalls = dispatchEventSpy.mock.calls.filter(
+        (call) => (call[0] as CustomEvent).type === 'auth:failed'
+      );
+      expect(authFailedCalls.length).toBeGreaterThan(0);
+
+      dispatchEventSpy.mockRestore();
+    });
+
+    it('should handle missing expires_at in response gracefully', async () => {
+      // Mock initial refresh (fails)
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      });
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      // Login without expires_at
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
+      });
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          user: { username: 'testuser', email: 'test@example.com', id: 1 },
+          // No expires_at
+        }),
+      });
+
+      // Should not throw when no expires_at
+      await act(async () => {
+        await result.current.login('testuser', 'password123');
+      });
+
+      // Should still successfully login
+      expect(result.current.isAuthenticated).toBe(true);
+
+      const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+      // Advance time significantly - no timer should fire since no expires_at
+      act(() => {
+        jest.advanceTimersByTime(600 * 1000); // 10 minutes
+      });
+
+      // auth:failed should NOT be dispatched from timer
+      const authFailedFromTimer = dispatchEventSpy.mock.calls.filter(
+        (call) => (call[0] as CustomEvent).type === 'auth:failed'
+      );
+      expect(authFailedFromTimer.length).toBe(0);
+
+      dispatchEventSpy.mockRestore();
+    });
+
+    it('should clear timer on component unmount', async () => {
+      // Token expires in 5 minutes
+      const now = Math.floor(Date.now() / 1000);
+      const expiryTime = now + 300;
+
+      // Mock initial refresh (fails)
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      });
+
+      const { result, unmount } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      // Login first
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ csrfToken: 'test-csrf-token' }),
+      });
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          user: { username: 'testuser', email: 'test@example.com', id: 1 },
+          expires_at: expiryTime,
+        }),
+      });
+
+      await act(async () => {
+        await result.current.login('testuser', 'password123');
+      });
+
+      const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
+
+      // Unmount the component
+      unmount();
+
+      // Timer should have been cleared on unmount
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+
+      clearTimeoutSpy.mockRestore();
     });
   });
 });

@@ -5,7 +5,6 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import FloatingContactButton from '@/components/FloatingContactButton';
 import { fetchCsrfToken } from '@/lib/apiClient';
-// import FloatingAnnouncementsButton from "@/components/FloatingAnnouncementsButton";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   // Fetch CSRF token on mount for public operations (login, register, verify-email)
@@ -23,7 +22,6 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
       <Footer />
       <FloatingContactButton />
-      {/* <FloatingAnnouncementsButton /> */}
     </div>
   );
 }

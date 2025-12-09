@@ -38,8 +38,7 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
 jest.mock('@/lib/utils/cohortStorage', () => ({
   getCohorts: jest.fn(),
   deleteCohort: jest.fn(),
-  duplicateCohort: jest.fn(),
-  exportCohortToJSON: jest.fn(),
+  updateCohort: jest.fn(),
 }));
 
 // Mock logger
@@ -60,23 +59,20 @@ jest.mock('../CohortCard', () => {
   return function MockCohortCard({
     cohort,
     onView,
-    onDuplicate,
+    onRename,
     onDelete,
-    onExport,
   }: {
     cohort: Cohort;
     onView: (cohort: Cohort) => void;
-    onDuplicate: (cohort: Cohort) => void;
+    onRename: (cohort: Cohort) => void;
     onDelete: (cohortId: string) => void;
-    onExport: (cohort: Cohort) => void;
   }) {
     return (
       <div data-testid={`cohort-card-${cohort.id}`}>
         <div>Cohort: {cohort.name}</div>
         <button onClick={() => onView(cohort)}>View</button>
-        <button onClick={() => onDuplicate(cohort)}>Duplicate</button>
+        <button onClick={() => onRename(cohort)}>Rename</button>
         <button onClick={() => onDelete(cohort.id)}>Delete</button>
-        <button onClick={() => onExport(cohort)}>Export</button>
       </div>
     );
   };
@@ -123,6 +119,33 @@ jest.mock('../ConfirmDeleteDialog', () => {
   };
 });
 
+jest.mock('../RenameCohortDialog', () => {
+  return function MockRenameCohortDialog({
+    isOpen,
+    cohort,
+    onConfirm,
+    onCancel,
+  }: {
+    isOpen: boolean;
+    cohort: Cohort | null;
+    existingCohorts: Cohort[];
+    onConfirm: (newName: string, newDescription: string) => void;
+    onCancel: () => void;
+    loading?: boolean;
+  }) {
+    if (!isOpen || !cohort) {
+      return null;
+    }
+    return (
+      <div data-testid="rename-dialog">
+        <div>Edit Cohort: {cohort.name}</div>
+        <button onClick={() => onConfirm('New Name', 'New Description')}>Confirm</button>
+        <button onClick={onCancel}>Cancel</button>
+      </div>
+    );
+  };
+});
+
 // Test wrapper with Chakra Provider
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <Provider>{children}</Provider>;
@@ -163,8 +186,7 @@ const mockCohorts: Cohort[] = [
 describe('CohortTab', () => {
   const mockGetCohorts = cohortStorage.getCohorts as jest.Mock;
   const mockDeleteCohort = cohortStorage.deleteCohort as jest.Mock;
-  const mockDuplicateCohort = cohortStorage.duplicateCohort as jest.Mock;
-  const mockExportCohortToJSON = cohortStorage.exportCohortToJSON as jest.Mock;
+  const mockUpdateCohort = cohortStorage.updateCohort as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -283,46 +305,7 @@ describe('CohortTab', () => {
       expect(mockPush).toHaveBeenCalledWith('/cohorts/1');
     });
 
-    it('should call handleDuplicateCohort and update list', async () => {
-      const user = userEvent.setup();
-      const duplicatedCohort: Cohort = {
-        id: '3',
-        name: 'Copy of Test Cohort 1',
-        description: 'Description 1',
-        filters: {
-          visit: {},
-          person_demographics: {},
-          provider_demographics: {},
-          clinical: {},
-        },
-        visitCount: 100,
-        createdAt: '2024-01-17T10:00:00Z',
-        updatedAt: '2024-01-17T10:00:00Z',
-      };
-
-      mockDuplicateCohort.mockResolvedValue(duplicatedCohort);
-
-      render(<CohortTab />, { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(screen.getByTestId('cohort-card-1')).toBeInTheDocument();
-      });
-
-      const cohortCard = screen.getByTestId('cohort-card-1');
-      const duplicateButton = within(cohortCard).getByText('Duplicate');
-
-      await user.click(duplicateButton);
-
-      await waitFor(() => {
-        expect(mockDuplicateCohort).toHaveBeenCalledWith('1');
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('Cohort: Copy of Test Cohort 1')).toBeInTheDocument();
-      });
-    });
-
-    it('should call handleExportCohort when export is clicked', async () => {
+    it('should open rename dialog when rename is clicked', async () => {
       const user = userEvent.setup();
       render(<CohortTab />, { wrapper: TestWrapper });
 
@@ -331,17 +314,13 @@ describe('CohortTab', () => {
       });
 
       const cohortCard = screen.getByTestId('cohort-card-1');
-      const exportButton = within(cohortCard).getByText('Export');
+      const renameButton = within(cohortCard).getByText('Rename');
 
-      await user.click(exportButton);
+      await user.click(renameButton);
 
       await waitFor(() => {
-        expect(mockExportCohortToJSON).toHaveBeenCalledWith(
-          expect.objectContaining({
-            id: '1',
-            name: 'Test Cohort 1',
-          })
-        );
+        expect(screen.getByTestId('rename-dialog')).toBeInTheDocument();
+        expect(screen.getByText('Edit Cohort: Test Cohort 1')).toBeInTheDocument();
       });
     });
   });
@@ -469,9 +448,9 @@ describe('CohortTab', () => {
   });
 
   describe('Error Handling', () => {
-    it('should display error alert when duplicate fails', async () => {
+    it('should display error alert when rename fails', async () => {
       const user = userEvent.setup();
-      mockDuplicateCohort.mockRejectedValue(new Error('Duplicate failed'));
+      mockUpdateCohort.mockRejectedValue(new Error('Update failed'));
 
       render(<CohortTab />, { wrapper: TestWrapper });
 
@@ -479,31 +458,19 @@ describe('CohortTab', () => {
         expect(screen.getByTestId('cohort-card-1')).toBeInTheDocument();
       });
 
-      const duplicateButton = within(screen.getByTestId('cohort-card-1')).getByText('Duplicate');
-      await user.click(duplicateButton);
+      const renameButton = within(screen.getByTestId('cohort-card-1')).getByText('Rename');
+      await user.click(renameButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Failed to duplicate cohort')).toBeInTheDocument();
-      });
-    });
-
-    it('should display error alert when export fails', async () => {
-      const user = userEvent.setup();
-      mockExportCohortToJSON.mockImplementation(() => {
-        throw new Error('Export failed');
+        expect(screen.getByTestId('rename-dialog')).toBeInTheDocument();
       });
 
-      render(<CohortTab />, { wrapper: TestWrapper });
+      // Click confirm to trigger rename
+      const confirmButton = screen.getByRole('button', { name: /confirm/i });
+      await user.click(confirmButton);
 
       await waitFor(() => {
-        expect(screen.getByTestId('cohort-card-1')).toBeInTheDocument();
-      });
-
-      const exportButton = within(screen.getByTestId('cohort-card-1')).getByText('Export');
-      await user.click(exportButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('Failed to export cohort')).toBeInTheDocument();
+        expect(screen.getByText('Failed to update cohort')).toBeInTheDocument();
       });
     });
   });

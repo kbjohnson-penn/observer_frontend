@@ -1,8 +1,12 @@
 'use client';
 
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { CONFIG } from '@/lib/config';
+import { logger } from '@/lib/logger';
+
+// Buffer time before token expiry to trigger logout (in seconds)
+const AUTO_LOGOUT_BUFFER_SECONDS = 30;
 
 interface User {
   username: string;
@@ -33,6 +37,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const logoutTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Clear any existing logout timer
+  const clearLogoutTimer = useCallback(() => {
+    if (logoutTimerRef.current) {
+      clearTimeout(logoutTimerRef.current);
+      logoutTimerRef.current = null;
+    }
+  }, []);
+
+  // Schedule auto-logout based on token expiry
+  // expiresAt is a Unix timestamp in seconds from the backend response
+  const scheduleAutoLogout = useCallback(
+    (expiresAt: number) => {
+      clearLogoutTimer();
+
+      if (!expiresAt) {
+        return;
+      }
+
+      const now = Math.floor(Date.now() / 1000);
+      // Schedule logout before token expires to give buffer
+      const timeUntilExpiry = (expiresAt - now - AUTO_LOGOUT_BUFFER_SECONDS) * 1000;
+
+      if (timeUntilExpiry > 0) {
+        logger.log(`Auto-logout scheduled in ${Math.round(timeUntilExpiry / 1000)} seconds`);
+        logoutTimerRef.current = setTimeout(() => {
+          logger.log('Token expired, logging out...');
+          // Dispatch auth:failed event which will trigger logout flow
+          window.dispatchEvent(new CustomEvent('auth:failed'));
+        }, timeUntilExpiry);
+      } else {
+        // Token already expired or about to expire
+        window.dispatchEvent(new CustomEvent('auth:failed'));
+      }
+    },
+    [clearLogoutTimer]
+  );
 
   // Define refreshToken BEFORE useEffect that uses it
   const refreshToken = useCallback(async (): Promise<boolean> => {
@@ -46,6 +88,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (response.ok) {
+        // Get expires_at from refresh response for auto-logout scheduling
+        const refreshData = await response.json();
+        const expiresAt = refreshData.expires_at;
+
         // Backend handles setting new httpOnly cookies
         // We need to get user info from a protected endpoint
         const userResponse = await fetch(CONFIG.getApiUrl('/accounts/profile/'), {
@@ -60,6 +106,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             email: userData.user?.email || userData.email,
             id: userData.user?.id || userData.id,
           });
+          // Schedule auto-logout for the new token using expiry from response
+          if (expiresAt) {
+            scheduleAutoLogout(expiresAt);
+          }
           return true;
         } else {
           // Profile fetch failed - clear user state
@@ -75,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     return false;
-  }, []);
+  }, [scheduleAutoLogout]);
 
   // Check for existing auth on mount
   useEffect(() => {
@@ -96,8 +146,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Listen for auth failures from API client
     const handleAuthFailure = () => {
+      clearLogoutTimer();
       setUser(null);
-      router.push('/login');
+      router.replace('/login');
     };
 
     window.addEventListener('auth:failed', handleAuthFailure);
@@ -105,8 +156,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => {
       window.removeEventListener('auth:failed', handleAuthFailure);
+      // Clear auto-logout timer on unmount
+      clearLogoutTimer();
     };
-  }, [refreshToken, router]);
+  }, [refreshToken, router, clearLogoutTimer]);
 
   const login = async (username: string, password: string) => {
     // Fetch CSRF token first for state-changing operation
@@ -114,8 +167,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       method: 'GET',
       credentials: 'include',
     });
+
+    if (!csrfResponse.ok) {
+      throw new Error('Failed to obtain CSRF token');
+    }
+
     const csrfData = await csrfResponse.json();
     const csrfToken = csrfData.csrfToken;
+
+    if (!csrfToken) {
+      throw new Error('CSRF token missing from response');
+    }
 
     const response = await fetch(CONFIG.getApiUrl('/accounts/auth/token/'), {
       method: 'POST',
@@ -142,27 +204,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
     }
 
+    // Schedule auto-logout for the new token using expiry from response
+    if (data.expires_at) {
+      scheduleAutoLogout(data.expires_at);
+    }
+
     router.replace('/dashboard');
   };
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
+    // Clear the auto-logout timer
+    clearLogoutTimer();
+
     try {
-      await fetch(CONFIG.getApiUrl('/accounts/auth/logout/'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Include cookies in request
+      // Fetch CSRF token for state-changing operation
+      const csrfResponse = await fetch(CONFIG.getApiUrl('/accounts/auth/csrf-token/'), {
+        method: 'GET',
+        credentials: 'include',
       });
+
+      if (csrfResponse.ok) {
+        const csrfData = await csrfResponse.json();
+        const csrfToken = csrfData.csrfToken;
+
+        if (csrfToken) {
+          await fetch(CONFIG.getApiUrl('/accounts/auth/logout/'), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken,
+            },
+            credentials: 'include', // Include cookies in request
+          });
+        }
+      }
     } catch (error) {
       // Log logout error but continue with cleanup
-      console.error('Logout request failed:', error);
+      logger.error('Logout request failed:', error);
     }
 
     // httpOnly cookies are cleared by backend, no need to clear localStorage
     setUser(null);
-    router.push('/login');
-  };
+    router.replace('/login');
+  }, [clearLogoutTimer, router]);
 
   return (
     <AuthContext.Provider

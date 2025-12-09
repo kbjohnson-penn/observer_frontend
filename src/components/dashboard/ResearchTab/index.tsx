@@ -13,8 +13,7 @@ import {
   Stack,
   Skeleton,
 } from '@chakra-ui/react';
-import { useFilterOptions } from '@/hooks/useFilterOptions';
-import { useVisitSearch } from '@/hooks/useVisitSearch';
+import { useFilterOptions, useVisitSearch } from '@/hooks';
 import { VisitSearchSort } from '@/interfaces/research';
 import { LocalFilters, INITIAL_LOCAL_FILTERS } from '@/interfaces/researchTab';
 import { buildServerFilters } from '@/lib/utils/filterTransformer';

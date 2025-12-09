@@ -16,13 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { FaSearch, FaTimes, FaUsers } from 'react-icons/fa';
 import { Cohort } from '@/interfaces/cohort';
-import {
-  getCohorts,
-  deleteCohort,
-  duplicateCohort,
-  exportCohortToJSON,
-  updateCohort,
-} from '@/lib/utils/cohortStorage';
+import { getCohorts, deleteCohort, updateCohort } from '@/lib/utils/cohortStorage';
 import { logger } from '@/lib/logger';
 import CohortCard from './CohortCard';
 import EmptyState from './EmptyState';
@@ -141,36 +135,12 @@ export default function CohortTab({ isActive, onCohortCountChanged }: CohortTabP
     setCohortToRename(null);
   }, []);
 
-  const handleDuplicateCohort = useCallback(
-    async (cohort: Cohort) => {
-      try {
-        const duplicated = await duplicateCohort(cohort.id);
-        setCohorts((prev) => [...prev, duplicated]);
-        // Notify parent that cohort count changed
-        onCohortCountChanged?.();
-      } catch (err) {
-        logger.error('Duplicate cohort error:', err);
-        setError('Failed to duplicate cohort');
-      }
-    },
-    [onCohortCountChanged]
-  );
-
   const handleViewCohort = useCallback(
     (cohort: Cohort) => {
       router.push(`/cohorts/${cohort.id}`);
     },
     [router]
   );
-
-  const handleExportCohort = useCallback((cohort: Cohort) => {
-    try {
-      exportCohortToJSON(cohort);
-    } catch (err) {
-      logger.error('Export cohort error:', err);
-      setError('Failed to export cohort');
-    }
-  }, []);
 
   // Filter cohorts based on search term
   const filteredCohorts = useMemo(() => {
@@ -306,9 +276,7 @@ export default function CohortTab({ isActive, onCohortCountChanged }: CohortTabP
                   cohort={cohort}
                   onView={handleViewCohort}
                   onRename={handleRenameClick}
-                  onDuplicate={handleDuplicateCohort}
                   onDelete={handleDeleteClick}
-                  onExport={handleExportCohort}
                 />
               ))}
             </Grid>

@@ -35,6 +35,21 @@ export interface ColumnVisibility {
 const STORAGE_PREFIX = 'observer_';
 
 /**
+ * Type guard to validate parsed localStorage data is a valid ColumnVisibility object
+ *
+ * @param data - Unknown data parsed from localStorage
+ * @returns True if data is a valid ColumnVisibility object
+ */
+function isValidColumnVisibility(data: unknown): data is ColumnVisibility {
+  if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+    return false;
+  }
+  return Object.entries(data).every(
+    ([key, value]) => typeof key === 'string' && typeof value === 'boolean'
+  );
+}
+
+/**
  * Save column visibility preferences for a specific table
  *
  * Persists the visibility state of columns to localStorage so that user
@@ -78,7 +93,16 @@ export const loadColumnPreferences = (tableName: string): ColumnVisibility | nul
   try {
     const key = `${STORAGE_PREFIX}columns_${tableName}`;
     const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : null;
+    if (!saved) {
+      return null;
+    }
+
+    const parsed: unknown = JSON.parse(saved);
+    if (!isValidColumnVisibility(parsed)) {
+      logger.warn(`Invalid column preferences data for table ${tableName}, ignoring`);
+      return null;
+    }
+    return parsed;
   } catch (error) {
     logger.warn('Failed to load column preferences:', error);
     return null;

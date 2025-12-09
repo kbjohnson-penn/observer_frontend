@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Box, Heading, Text, VStack, HStack, Badge, Spinner, Center } from '@chakra-ui/react';
-import HealthcareDataBrowser from '@/components/multimodal/HealthcareDataBrowser';
+import { HealthcareDataBrowser } from '@/components/healthcare-browser';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { logger } from '@/lib/logger';
 import { useRouter } from 'next/navigation';

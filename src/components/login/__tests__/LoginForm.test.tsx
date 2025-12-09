@@ -57,6 +57,7 @@ const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 describe('LoginForm', () => {
   const mockRouter = {
     push: jest.fn(),
+    replace: jest.fn(),
   };
 
   const mockLogin = jest.fn();
@@ -69,6 +70,7 @@ describe('LoginForm', () => {
     mockUseAuth.mockReturnValue({
       login: mockLogin,
       isAuthenticated: false,
+      isLoading: false,
     });
   });
 
@@ -262,5 +264,62 @@ describe('LoginForm', () => {
     const logo = screen.getByAltText('Observer Project');
     expect(logo).toBeInTheDocument();
     expect(logo).toHaveAttribute('src', '/ObserverLogoLightBackground.svg');
+  });
+
+  describe('Back Button Navigation Fix', () => {
+    it('should redirect to dashboard when already authenticated', async () => {
+      mockUseAuth.mockReturnValue({
+        login: mockLogin,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+
+      render(<LoginForm />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
+      });
+    });
+
+    it('should not redirect while auth is still loading', () => {
+      mockUseAuth.mockReturnValue({
+        login: mockLogin,
+        isAuthenticated: false,
+        isLoading: true,
+      });
+
+      render(<LoginForm />, { wrapper: TestWrapper });
+
+      expect(mockRouter.replace).not.toHaveBeenCalled();
+    });
+
+    it('should not redirect when not authenticated', () => {
+      mockUseAuth.mockReturnValue({
+        login: mockLogin,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+
+      render(<LoginForm />, { wrapper: TestWrapper });
+
+      expect(mockRouter.replace).not.toHaveBeenCalled();
+    });
+
+    it('should use replace instead of push to prevent back navigation', async () => {
+      mockUseAuth.mockReturnValue({
+        login: mockLogin,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+
+      render(<LoginForm />, { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
+      });
+
+      // Ensure push was NOT called - we want replace to prevent back button issues
+      expect(mockRouter.push).not.toHaveBeenCalled();
+    });
   });
 });

@@ -6,7 +6,7 @@ import { FaSearch, FaUsers } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import ResearchTab from '@/components/dashboard/ResearchTab';
 import CohortTab from '@/components/dashboard/CohortTab';
-import { useFilterOptions } from '@/hooks/useFilterOptions';
+import { useFilterOptions } from '@/hooks';
 import { getCohorts } from '@/lib/utils/cohortStorage';
 import { logger } from '@/lib/logger';
 import { COLORS } from '@/constants/colors';

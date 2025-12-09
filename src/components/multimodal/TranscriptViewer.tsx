@@ -5,6 +5,7 @@ import { Box, Heading, Text, Flex, Badge, Spinner, Input, Button } from '@chakra
 import { FaSearch, FaDownload } from 'react-icons/fa';
 import Papa from 'papaparse';
 import { COLORS, SCROLLBAR_COLORS } from '@/constants/colors';
+import { logger } from '@/lib/logger';
 
 interface TranscriptEntry {
   timestamp?: string;
@@ -63,7 +64,7 @@ const TranscriptViewer: React.FC<TranscriptViewerProps> = ({ transcriptSrc }) =>
             setLoading(false);
           },
           error: (parseError: Error) => {
-            console.error('CSV Parse Error:', parseError);
+            logger.error('CSV Parse Error:', parseError);
             setError(
               `Failed to parse transcript CSV file: ${parseError.message || 'Unknown error'}`
             );
