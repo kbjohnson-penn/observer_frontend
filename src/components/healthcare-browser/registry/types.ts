@@ -8,6 +8,7 @@
 import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
 import { OMOPTableName, SampleDataAPIResponse, OMOPTableData } from '@/interfaces/observer-omop';
+import { ColumnLabelDefinition } from '@/constants/column-labels.constants';
 
 /**
  * Table category for grouping in UI
@@ -41,10 +42,12 @@ export interface ColumnConfig {
   pinnedColumns?: string[];
   /** Custom formatters for specific columns */
   formatters?: Record<string, ColumnFormatter>;
-  /** Custom tooltips for columns (overrides MEDICAL_TERMS) */
+  /** Custom tooltips for columns (deprecated - use columnLabels instead) */
   tooltips?: Record<string, string>;
   /** Column order (if different from data order) */
   order?: string[];
+  /** Custom labels and descriptions for columns */
+  columnLabels?: Record<string, ColumnLabelDefinition>;
 }
 
 /**
@@ -81,6 +84,8 @@ export interface DisplayConfig {
   color: string;
   /** Table category for grouping */
   category: TableCategory;
+  /** Context-specific search placeholder hint (optional) */
+  searchPlaceholder?: string;
 }
 
 /**

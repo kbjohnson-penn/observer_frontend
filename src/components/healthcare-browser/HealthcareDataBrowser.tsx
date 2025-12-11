@@ -134,13 +134,10 @@ function HealthcareDataBrowserContent() {
     return <EmptyState />;
   }
 
-  // Get which tables have data
-  const tablesWithData = tableRegistry.getAllIds().filter((tableId) => {
-    const data = tableRegistry.getTableData(tableId, rawData);
-    return data.length > 0;
-  });
+  // Get all registered tables (show all tables, even if empty)
+  const allTables = tableRegistry.getAllIds();
 
-  if (tablesWithData.length === 0) {
+  if (allTables.length === 0) {
     return <EmptyState />;
   }
 
@@ -148,7 +145,7 @@ function HealthcareDataBrowserContent() {
     <>
       {/* Table Selection Tabs */}
       <Box mb={6}>
-        <TableTabs visibleTables={tablesWithData} />
+        <TableTabs visibleTables={allTables} />
       </Box>
 
       {/* Active Table View (Tab Panel) */}

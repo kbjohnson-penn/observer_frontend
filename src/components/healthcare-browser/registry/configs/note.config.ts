@@ -1,6 +1,7 @@
 import { FaStickyNote } from 'react-icons/fa';
 import { TableConfig } from '../types';
 import { Note } from '@/interfaces/observer-omop';
+import { NOTE_LABELS } from '@/constants/column-labels.constants';
 
 export const noteConfig: TableConfig<Note> = {
   id: 'NOTE',
@@ -12,11 +13,13 @@ export const noteConfig: TableConfig<Note> = {
     icon: FaStickyNote,
     color: 'yellow',
     category: 'clinical',
+    searchPlaceholder: 'Search notes...',
   },
 
   columns: {
     defaultVisible: ['id', 'note_date', 'note_type', 'note_status', 'visit_occurrence_id'],
     pinnedColumns: ['id'],
+    columnLabels: NOTE_LABELS,
   },
 
   pagination: {

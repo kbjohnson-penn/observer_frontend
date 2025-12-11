@@ -1,6 +1,7 @@
 import { FaPills } from 'react-icons/fa';
 import { TableConfig } from '../types';
 import { DrugExposure } from '@/interfaces/observer-omop';
+import { DRUG_EXPOSURE_LABELS } from '@/constants/column-labels.constants';
 
 export const drugExposureConfig: TableConfig<DrugExposure> = {
   id: 'DRUG_EXPOSURE',
@@ -12,11 +13,13 @@ export const drugExposureConfig: TableConfig<DrugExposure> = {
     icon: FaPills,
     color: 'purple',
     category: 'clinical',
+    searchPlaceholder: 'Search medications...',
   },
 
   columns: {
     defaultVisible: ['id', 'visit_occurrence_id', 'description', 'drug_ordering_date', 'quantity'],
     pinnedColumns: ['id'],
+    columnLabels: DRUG_EXPOSURE_LABELS,
   },
 
   pagination: {

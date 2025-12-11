@@ -8,16 +8,43 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Text, Heading, Flex, Input, HStack, Button } from '@chakra-ui/react';
-import { FaSearch, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
+import { Box, Text, Heading, Flex, Input, HStack, Button, VStack } from '@chakra-ui/react';
+import {
+  MenuRoot,
+  MenuTrigger,
+  MenuContent,
+  MenuItem,
+  MenuSeparator,
+  MenuItemGroup,
+} from '@/components/ui/menu';
+import {
+  FaSearch,
+  FaSort,
+  FaSortUp,
+  FaSortDown,
+  FaDownload,
+  FaFileArchive,
+  FaChevronDown,
+  FaFileCsv,
+} from 'react-icons/fa';
 import { flexRender, SortDirection, Row } from '@tanstack/react-table';
 import { OMOPTableName, OMOPTableData } from '@/interfaces/observer-omop';
 import { Tooltip } from '@/components/ui/tooltip';
 import COLORS, { SCROLLBAR_COLORS } from '@/constants/colors';
 import { useTableInstance } from '@/hooks/useTableInstance';
 import { useDebounce } from '@/hooks';
+import { useDataBrowser } from './DataBrowserProvider';
+import { tableRegistry } from './registry';
 import { expandDemographic } from '@/lib/utils/utils';
-
+import {
+  exportTableToCSV,
+  exportAllTablesToZip,
+  TableExportData,
+  TableDocumentation,
+  buildTableDocumentation,
+  exportTableWithDocumentation,
+  exportAllTablesWithDocumentation,
+} from '@/lib/utils/csv-export';
 // ============================================================================
 // Demographic Column Mapping (for display formatting)
 // ============================================================================
@@ -152,12 +179,18 @@ function DataTable({ tableId }: DataTableProps) {
     // allColumnIds,
   } = useTableInstance({ tableId });
 
+  // Get data browser context for "Export All" functionality
+  const { getTableData, state } = useDataBrowser();
+
   // Debounce delay for search input (ms)
   const SEARCH_DEBOUNCE_MS = 300;
 
   // Local state for search input (allows immediate UI feedback)
   const [localFilter, setLocalFilter] = useState(globalFilter);
   const debouncedFilter = useDebounce(localFilter, SEARCH_DEBOUNCE_MS);
+
+  // Export state
+  const [isExporting, setIsExporting] = useState(false);
 
   // Track if filter change originated from local input
   const isLocalUpdateRef = useRef(false);
@@ -180,6 +213,188 @@ function DataTable({ tableId }: DataTableProps) {
   const displayName = config?.display.name || tableId;
   const description = config?.display.description || '';
   const IconComponent = config?.display.icon;
+
+  // ============================================================================
+  // Export Handlers
+  // ============================================================================
+
+  const handleExportCurrentTable = () => {
+    const allRows = table.getFilteredRowModel().rows;
+    const dataToExport = allRows.map((row) => row.original);
+
+    // Get column labels
+    const columnLabels: Record<string, string> = {};
+    table.getAllColumns().forEach((col) => {
+      columnLabels[col.id] = col.columnDef.header as string;
+    });
+
+    const filename = `${tableId.toLowerCase()}_${new Date().toISOString().split('T')[0]}`;
+
+    exportTableToCSV(dataToExport, {
+      filename,
+      columnLabels,
+    });
+  };
+
+  const handleExportAllTables = async () => {
+    if (isExporting) {
+      return;
+    }
+    if (!state.rawData) {
+      console.warn('No data available to export');
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const tablesToExport: TableExportData[] = [];
+      const registeredTables = tableRegistry.getAllIds();
+
+      for (const regTableId of registeredTables) {
+        let tableData = getTableData(regTableId);
+        const tableConfig = tableRegistry.get(regTableId);
+
+        // Only skip if no config (unconfigured tables)
+        if (!tableConfig) {
+          continue;
+        }
+
+        // Export even if data is empty - include table structure
+        if (!tableData) {
+          tableData = [];
+        }
+
+        // Get column labels from config
+        const columnLabels: Record<string, string> = {};
+        if (tableConfig?.columns?.columnLabels) {
+          Object.entries(tableConfig.columns.columnLabels).forEach(([key, labelDef]) => {
+            if (labelDef && typeof labelDef === 'object' && 'label' in labelDef) {
+              columnLabels[key] = labelDef.label;
+            }
+          });
+        }
+
+        tablesToExport.push({
+          tableName: regTableId,
+          displayName: tableConfig.display.name || regTableId,
+          data: tableData,
+          columnLabels,
+        });
+      }
+
+      if (tablesToExport.length === 0) {
+        console.warn('No tables with data to export');
+        return;
+      }
+
+      const zipFilename = `observer-data-export_${new Date().toISOString().split('T')[0]}`;
+      await exportAllTablesToZip(tablesToExport, zipFilename);
+    } catch (error) {
+      console.error('Export failed:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportCurrentTableWithDocs = async () => {
+    if (isExporting) {
+      return;
+    }
+
+    const allRows = table.getFilteredRowModel().rows;
+    const dataToExport = allRows.map((row) => row.original);
+
+    // Get column labels
+    const columnLabels: Record<string, string> = {};
+    table.getAllColumns().forEach((col) => {
+      columnLabels[col.id] = col.columnDef.header as string;
+    });
+
+    const filename = `${tableId.toLowerCase()}_${new Date().toISOString().split('T')[0]}`;
+
+    // Build documentation
+    const tableConfig = tableRegistry.get(tableId);
+    if (!tableConfig) {
+      console.error('Table config not found');
+      return;
+    }
+
+    const documentation = buildTableDocumentation(tableId, tableConfig, dataToExport);
+
+    setIsExporting(true);
+    try {
+      await exportTableWithDocumentation(dataToExport, { filename, columnLabels }, documentation);
+    } catch (error) {
+      console.error('Export with docs failed:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportAllTablesWithDocs = async () => {
+    if (isExporting) {
+      return;
+    }
+    if (!state.rawData) {
+      console.warn('No data available to export');
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const tablesToExport: TableExportData[] = [];
+      const documentations: TableDocumentation[] = [];
+      const registeredTables = tableRegistry.getAllIds();
+
+      for (const regTableId of registeredTables) {
+        let tableData = getTableData(regTableId);
+        const tableConfig = tableRegistry.get(regTableId);
+
+        // Only skip if no config
+        if (!tableConfig) {
+          continue;
+        }
+
+        // Export even if data is empty
+        if (!tableData) {
+          tableData = [];
+        }
+
+        // Get column labels from config
+        const columnLabels: Record<string, string> = {};
+        if (tableConfig.columns?.columnLabels) {
+          Object.entries(tableConfig.columns.columnLabels).forEach(([key, labelDef]) => {
+            if (labelDef && typeof labelDef === 'object' && 'label' in labelDef) {
+              columnLabels[key] = labelDef.label;
+            }
+          });
+        }
+
+        tablesToExport.push({
+          tableName: regTableId,
+          displayName: tableConfig.display.name || regTableId,
+          data: tableData,
+          columnLabels,
+        });
+
+        // Build documentation for this table
+        const documentation = buildTableDocumentation(regTableId, tableConfig, tableData);
+        documentations.push(documentation);
+      }
+
+      if (tablesToExport.length === 0) {
+        console.warn('No tables with data to export');
+        return;
+      }
+
+      const zipFilename = `observer-data-export_${new Date().toISOString().split('T')[0]}`;
+      await exportAllTablesWithDocumentation(tablesToExport, documentations, zipFilename);
+    } catch (error) {
+      console.error('Export with docs failed:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Header groups for rendering
   const headerGroups = table.getHeaderGroups();
@@ -356,27 +571,153 @@ function DataTable({ tableId }: DataTableProps) {
       border="1px"
       borderColor={COLORS.primary[200]}
     >
-      <Flex align="center" gap={3} mb={4}>
-        <Box color={COLORS.primary[600]} fontSize="lg">
-          {IconComponent && <IconComponent />}
-        </Box>
-        <Box flex={1}>
-          <Heading size="md" color={COLORS.primary[800]} mb={1}>
-            {displayName}
-          </Heading>
-          <Text fontSize="sm" color={COLORS.primary[700]}>
-            {description}
-          </Text>
-        </Box>
+      {/* Table Title and Export Button */}
+      <Flex align="center" justify="space-between" mb={4} gap={3} wrap="wrap">
+        <Flex align="center" gap={3} flex={1}>
+          <Box color={COLORS.primary[600]} fontSize="lg">
+            {IconComponent && <IconComponent />}
+          </Box>
+          <Box>
+            <Heading size="md" color={COLORS.primary[800]} mb={1}>
+              {displayName}
+            </Heading>
+            <Text fontSize="sm" color={COLORS.primary[700]}>
+              {description}
+            </Text>
+          </Box>
+        </Flex>
+
+        {/* Export Button */}
+        <MenuRoot positioning={{ placement: 'bottom-end' }}>
+          <MenuTrigger asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="blue"
+              color="blue.600"
+              borderColor="blue.500"
+              _hover={{ bg: 'blue.50', borderColor: 'blue.600' }}
+              disabled={isExporting}
+              opacity={isExporting ? 0.7 : 1}
+            >
+              <FaDownload style={{ marginRight: '6px' }} />
+              <Text fontSize="sm">{isExporting ? 'Exporting...' : 'Export Data'}</Text>
+              <FaChevronDown style={{ marginLeft: '6px' }} />
+            </Button>
+          </MenuTrigger>
+          <MenuContent
+            bg="white"
+            border="1px"
+            borderColor="gray.200"
+            shadow="lg"
+            minW="280px"
+            portalled
+          >
+            {/* Current Table Group */}
+            <MenuItemGroup title="Current Table">
+              <MenuItem
+                value="export-current-csv"
+                onClick={handleExportCurrentTable}
+                _hover={{ bg: 'blue.50' }}
+                cursor="pointer"
+              >
+                <HStack gap={2} width="full">
+                  <Box color="blue.600">
+                    <FaFileCsv />
+                  </Box>
+                  <VStack align="start" gap={0} flex={1}>
+                    <Text fontSize="sm" fontWeight="medium" color="gray.800">
+                      Export as CSV
+                    </Text>
+                    <Text fontSize="xs" color="gray.600">
+                      Data only
+                    </Text>
+                  </VStack>
+                </HStack>
+              </MenuItem>
+
+              <MenuItem
+                value="export-current-docs"
+                onClick={handleExportCurrentTableWithDocs}
+                _hover={{ bg: 'blue.50' }}
+                cursor="pointer"
+              >
+                <HStack gap={2} width="full">
+                  <Box color="blue.600">
+                    <FaFileArchive />
+                  </Box>
+                  <VStack align="start" gap={0} flex={1}>
+                    <Text fontSize="sm" fontWeight="medium" color="gray.800">
+                      Export with Documentation
+                    </Text>
+                    <Text fontSize="xs" color="gray.600">
+                      CSV + metadata files
+                    </Text>
+                  </VStack>
+                </HStack>
+              </MenuItem>
+            </MenuItemGroup>
+
+            <MenuSeparator />
+
+            {/* All Tables Group */}
+            <MenuItemGroup title="All Tables">
+              <MenuItem
+                value="export-all-csv"
+                onClick={handleExportAllTables}
+                _hover={{ bg: 'purple.50' }}
+                cursor="pointer"
+              >
+                <HStack gap={2} width="full">
+                  <Box color="purple.600">
+                    <FaFileArchive />
+                  </Box>
+                  <VStack align="start" gap={0} flex={1}>
+                    <Text fontSize="sm" fontWeight="medium" color="gray.800">
+                      Export as ZIP
+                    </Text>
+                    <Text fontSize="xs" color="gray.600">
+                      CSVs only
+                    </Text>
+                  </VStack>
+                </HStack>
+              </MenuItem>
+
+              <MenuItem
+                value="export-all-docs"
+                onClick={handleExportAllTablesWithDocs}
+                _hover={{ bg: 'purple.50' }}
+                cursor="pointer"
+              >
+                <HStack gap={2} width="full">
+                  <Box color="purple.600">
+                    <FaFileArchive />
+                  </Box>
+                  <VStack align="start" gap={0} flex={1}>
+                    <Text fontSize="sm" fontWeight="medium" color="gray.800">
+                      Export with Documentation
+                    </Text>
+                    <Text fontSize="xs" color="gray.600">
+                      Full data package
+                    </Text>
+                  </VStack>
+                </HStack>
+              </MenuItem>
+            </MenuItemGroup>
+          </MenuContent>
+        </MenuRoot>
       </Flex>
 
+      {/* Search and Record Count */}
       <Flex align="center" justify="space-between" wrap="wrap" gap={4}>
         <Box position="relative" w={{ base: '100%', md: '350px' }}>
           <Box position="absolute" left="3" top="50%" transform="translateY(-50%)" zIndex={1}>
-            <FaSearch color={COLORS.primary[500]} size="14px" />
+            <FaSearch color={COLORS.primary[500]} size="12px" />
           </Box>
           <Input
-            placeholder={`Search ${displayName.toLowerCase()}...`}
+            placeholder={
+              config?.display.searchPlaceholder || `Search ${displayName.toLowerCase()}...`
+            }
             value={localFilter}
             onChange={(e) => setLocalFilter(e.target.value)}
             size="sm"
@@ -386,45 +727,43 @@ function DataTable({ tableId }: DataTableProps) {
               borderColor: COLORS.primary[500],
               boxShadow: `0 0 0 1px ${COLORS.primary[500]}`,
             }}
-            _placeholder={{ color: COLORS.primary[400] }}
+            _placeholder={{ color: COLORS.primary[400], fontSize: 'xs' }}
             borderRadius="md"
             paddingLeft="10"
+            fontSize="xs"
           />
         </Box>
 
-        <Flex align="center" gap={4}>
-          {/* Column Selector - TODO: Import from ColumnSelector */}
-          <Text fontSize="sm" color={COLORS.primary[700]}>
-            {filteredRowCount > pageSize ? (
-              <>
-                <Text as="span" fontWeight="bold">
-                  {startIndex + 1}-{endIndex}
-                </Text>{' '}
-                of{' '}
-                <Text as="span" fontWeight="bold">
-                  {filteredRowCount}
-                </Text>{' '}
-                {globalFilter ? 'filtered' : ''} records
-              </>
-            ) : (
-              <>
-                <Text as="span" fontWeight="bold">
-                  {filteredRowCount}
-                </Text>{' '}
-                of{' '}
-                <Text as="span" fontWeight="bold">
-                  {totalDataCount}
-                </Text>{' '}
-                records
-              </>
-            )}
-            {globalFilter && (
-              <Text as="span" ml={2} fontStyle="italic">
-                matching &ldquo;{globalFilter}&rdquo;
-              </Text>
-            )}
-          </Text>
-        </Flex>
+        <Text fontSize="xs" color={COLORS.primary[700]}>
+          {filteredRowCount > pageSize ? (
+            <>
+              <Text as="span" fontWeight="bold">
+                {startIndex + 1}-{endIndex}
+              </Text>{' '}
+              of{' '}
+              <Text as="span" fontWeight="bold">
+                {filteredRowCount}
+              </Text>{' '}
+              {globalFilter ? 'filtered' : ''} records
+            </>
+          ) : (
+            <>
+              <Text as="span" fontWeight="bold">
+                {filteredRowCount}
+              </Text>{' '}
+              of{' '}
+              <Text as="span" fontWeight="bold">
+                {totalDataCount}
+              </Text>{' '}
+              records
+            </>
+          )}
+          {globalFilter && (
+            <Text as="span" ml={2} fontStyle="italic">
+              matching &ldquo;{globalFilter}&rdquo;
+            </Text>
+          )}
+        </Text>
       </Flex>
     </Box>
   );

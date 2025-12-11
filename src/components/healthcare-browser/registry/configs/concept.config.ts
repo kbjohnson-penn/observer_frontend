@@ -1,6 +1,7 @@
 import { FaBook } from 'react-icons/fa';
 import { TableConfig } from '../types';
 import { Concept } from '@/interfaces/observer-omop';
+import { CONCEPT_LABELS } from '@/constants/column-labels.constants';
 
 export const conceptConfig: TableConfig<Concept> = {
   id: 'CONCEPT',
@@ -12,6 +13,7 @@ export const conceptConfig: TableConfig<Concept> = {
     icon: FaBook,
     color: 'slate',
     category: 'admin',
+    searchPlaceholder: 'Search concepts...',
   },
 
   columns: {
@@ -24,6 +26,7 @@ export const conceptConfig: TableConfig<Concept> = {
       'standard_concept',
     ],
     pinnedColumns: ['concept_id'],
+    columnLabels: CONCEPT_LABELS,
   },
 
   pagination: {

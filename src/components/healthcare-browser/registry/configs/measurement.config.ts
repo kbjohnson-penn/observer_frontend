@@ -1,6 +1,7 @@
 import { FaHeartbeat } from 'react-icons/fa';
 import { TableConfig } from '../types';
 import { Measurement } from '@/interfaces/observer-omop';
+import { MEASUREMENT_LABELS } from '@/constants/column-labels.constants';
 
 export const measurementConfig: TableConfig<Measurement> = {
   id: 'MEASUREMENT',
@@ -12,6 +13,7 @@ export const measurementConfig: TableConfig<Measurement> = {
     icon: FaHeartbeat,
     color: 'orange',
     category: 'clinical',
+    searchPlaceholder: 'Search measurements...',
   },
 
   columns: {
@@ -25,6 +27,7 @@ export const measurementConfig: TableConfig<Measurement> = {
       'phys_spo2',
     ],
     pinnedColumns: ['id'],
+    columnLabels: MEASUREMENT_LABELS,
   },
 
   pagination: {

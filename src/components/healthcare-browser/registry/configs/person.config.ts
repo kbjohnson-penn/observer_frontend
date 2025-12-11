@@ -1,6 +1,7 @@
 import { FaUsers } from 'react-icons/fa';
 import { TableConfig } from '../types';
 import { Person } from '@/interfaces/observer-omop';
+import { PERSON_LABELS } from '@/constants/column-labels.constants';
 
 export const personConfig: TableConfig<Person> = {
   id: 'PERSON',
@@ -12,6 +13,7 @@ export const personConfig: TableConfig<Person> = {
     icon: FaUsers,
     color: 'teal',
     category: 'person',
+    searchPlaceholder: 'Search patients...',
   },
 
   columns: {
@@ -24,6 +26,7 @@ export const personConfig: TableConfig<Person> = {
       'ethnicity_source_value',
     ],
     pinnedColumns: ['id'],
+    columnLabels: PERSON_LABELS,
   },
 
   pagination: {

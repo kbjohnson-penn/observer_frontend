@@ -1,6 +1,7 @@
 import { FaHistory } from 'react-icons/fa';
 import { TableConfig } from '../types';
 import { AuditLogs } from '@/interfaces/observer-omop';
+import { AUDIT_LOGS_LABELS } from '@/constants/column-labels.constants';
 
 export const auditLogsConfig: TableConfig<AuditLogs> = {
   id: 'AUDIT_LOGS',
@@ -12,6 +13,7 @@ export const auditLogsConfig: TableConfig<AuditLogs> = {
     icon: FaHistory,
     color: 'gray',
     category: 'admin',
+    searchPlaceholder: 'Search logs...',
   },
 
   columns: {
@@ -24,6 +26,7 @@ export const auditLogsConfig: TableConfig<AuditLogs> = {
       'visit_occurrence_id',
     ],
     pinnedColumns: ['id'],
+    columnLabels: AUDIT_LOGS_LABELS,
   },
 
   pagination: {

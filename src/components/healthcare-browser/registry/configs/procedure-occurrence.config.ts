@@ -1,6 +1,7 @@
 import { FaProcedures } from 'react-icons/fa';
 import { TableConfig } from '../types';
 import { ProcedureOccurrence } from '@/interfaces/observer-omop';
+import { PROCEDURE_OCCURRENCE_LABELS } from '@/constants/column-labels.constants';
 
 export const procedureOccurrenceConfig: TableConfig<ProcedureOccurrence> = {
   id: 'PROCEDURE_OCCURRENCE',
@@ -12,6 +13,7 @@ export const procedureOccurrenceConfig: TableConfig<ProcedureOccurrence> = {
     icon: FaProcedures,
     color: 'pink',
     category: 'clinical',
+    searchPlaceholder: 'Search procedures...',
   },
 
   columns: {
@@ -23,6 +25,7 @@ export const procedureOccurrenceConfig: TableConfig<ProcedureOccurrence> = {
       'future_or_stand',
     ],
     pinnedColumns: ['id'],
+    columnLabels: PROCEDURE_OCCURRENCE_LABELS,
   },
 
   pagination: {

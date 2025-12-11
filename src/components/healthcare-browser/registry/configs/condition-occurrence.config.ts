@@ -1,6 +1,7 @@
 import { FaDiagnoses } from 'react-icons/fa';
 import { TableConfig } from '../types';
 import { ConditionOccurrence } from '@/interfaces/observer-omop';
+import { CONDITION_OCCURRENCE_LABELS } from '@/constants/column-labels.constants';
 
 export const conditionOccurrenceConfig: TableConfig<ConditionOccurrence> = {
   id: 'CONDITION_OCCURRENCE',
@@ -12,6 +13,7 @@ export const conditionOccurrenceConfig: TableConfig<ConditionOccurrence> = {
     icon: FaDiagnoses,
     color: 'red',
     category: 'clinical',
+    searchPlaceholder: 'Search conditions...',
   },
 
   columns: {
@@ -23,6 +25,7 @@ export const conditionOccurrenceConfig: TableConfig<ConditionOccurrence> = {
       'concept_code',
     ],
     pinnedColumns: ['id'],
+    columnLabels: CONDITION_OCCURRENCE_LABELS,
   },
 
   pagination: {
