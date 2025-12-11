@@ -2,18 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Box,
-  Grid,
-  VStack,
-  HStack,
-  Text,
-  Button,
-  Alert,
-  Input,
-  IconButton,
-  Card,
-} from '@chakra-ui/react';
+import { Box, Grid, VStack, HStack, Text, Button, Input, IconButton, Card } from '@chakra-ui/react';
+import { toaster } from '@/components/ui/toaster';
 import { FaSearch, FaTimes, FaUsers } from 'react-icons/fa';
 import { Cohort } from '@/interfaces/cohort';
 import { getCohorts, deleteCohort, updateCohort } from '@/lib/utils/cohortStorage';
@@ -33,7 +23,6 @@ export default function CohortTab({ isActive, onCohortCountChanged }: CohortTabP
   const router = useRouter();
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [cohortToDelete, setCohortToDelete] = useState<Cohort | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [cohortToRename, setCohortToRename] = useState<Cohort | null>(null);
@@ -43,12 +32,15 @@ export default function CohortTab({ isActive, onCohortCountChanged }: CohortTabP
   const loadCohorts = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
       const data = await getCohorts();
       setCohorts(data);
     } catch (err) {
-      setError('Failed to load cohorts');
       logger.error('Load cohorts error:', err);
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to load cohorts',
+        type: 'error',
+      });
     } finally {
       setLoading(false);
     }
@@ -83,7 +75,6 @@ export default function CohortTab({ isActive, onCohortCountChanged }: CohortTabP
 
     try {
       setIsDeleting(true);
-      setError(null);
       await deleteCohort(cohortToDelete.id);
       setCohorts((prev) => prev.filter((c) => c.id !== cohortToDelete.id));
       setCohortToDelete(null);
@@ -91,7 +82,11 @@ export default function CohortTab({ isActive, onCohortCountChanged }: CohortTabP
       onCohortCountChanged?.();
     } catch (err) {
       logger.error('Delete cohort error:', err);
-      setError('Failed to delete cohort');
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to delete cohort',
+        type: 'error',
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -114,7 +109,6 @@ export default function CohortTab({ isActive, onCohortCountChanged }: CohortTabP
 
       try {
         setIsRenaming(true);
-        setError(null);
         const updated = await updateCohort(cohortToRename.id, {
           name: newName,
           description: newDescription,
@@ -123,7 +117,11 @@ export default function CohortTab({ isActive, onCohortCountChanged }: CohortTabP
         setCohortToRename(null);
       } catch (err) {
         logger.error('Rename cohort error:', err);
-        setError('Failed to update cohort');
+        toaster.create({
+          title: 'Error',
+          description: 'Failed to update cohort',
+          type: 'error',
+        });
       } finally {
         setIsRenaming(false);
       }
@@ -238,13 +236,6 @@ export default function CohortTab({ isActive, onCohortCountChanged }: CohortTabP
           </VStack>
         </Card.Body>
       </Card.Root>
-
-      {/* Error Alert */}
-      {error && (
-        <Alert.Root status="error">
-          <Alert.Title>{error}</Alert.Title>
-        </Alert.Root>
-      )}
 
       {/* Cohorts Grid or Empty State */}
       {cohorts.length > 0 ? (

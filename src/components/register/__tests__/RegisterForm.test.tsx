@@ -49,6 +49,12 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   disconnect: jest.fn(),
 }));
 
+// Mock toaster
+jest.mock('@/components/ui/toaster', () => ({
+  toaster: { create: jest.fn() },
+  Toaster: () => null,
+}));
+
 // Mock fetch for registration API calls
 const mockFetch = jest.fn();
 global.fetch = mockFetch;

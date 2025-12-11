@@ -10,9 +10,9 @@ import {
   Text,
   Button,
   VStack,
-  Alert,
   Separator,
 } from '@chakra-ui/react';
+import { toaster } from '@/components/ui/toaster';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient } from '@/lib/apiClient';
 import { formatDateForDisplay } from '@/lib/utils/utils';
@@ -47,20 +47,22 @@ export default function ProfilePage() {
   const { logout } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        setError('');
 
         // Fetch user profile data
         const response = await apiClient.get('/profile/');
         setProfile(response.data);
       } catch {
         // Profile fetch error - show user-friendly message
-        setError('Failed to load profile data');
+        toaster.create({
+          title: 'Error',
+          description: 'Failed to load profile data',
+          type: 'error',
+        });
       } finally {
         setLoading(false);
       }
@@ -95,13 +97,6 @@ export default function ProfilePage() {
           </Heading>
           <Text color="gray.600">View your account information</Text>
         </Box>
-
-        {/* Error Alert */}
-        {error && (
-          <Alert.Root status="error">
-            <Alert.Title>{error}</Alert.Title>
-          </Alert.Root>
-        )}
 
         {/* Profile Information */}
         {profile && (

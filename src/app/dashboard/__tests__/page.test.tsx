@@ -31,6 +31,12 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   disconnect: jest.fn(),
 }));
 
+// Mock toaster
+jest.mock('@/components/ui/toaster', () => ({
+  toaster: { create: jest.fn() },
+  Toaster: () => null,
+}));
+
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(() => ({

@@ -7,7 +7,7 @@
 
 import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
-import { OMOPTableName, SampleDataAPIResponse, OMOPTableData } from '@/interfaces/observer-omop';
+import { OMOPTableName, CohortDataAPIResponse, OMOPTableData } from '@/interfaces/observer-omop';
 import { ColumnLabelDefinition } from '@/constants/column-labels.constants';
 
 /**
@@ -115,8 +115,8 @@ export interface TableConfig<TData extends OMOPTableData = OMOPTableData> {
   /** Unique table identifier (matches OMOPTableName) */
   id: OMOPTableName;
 
-  /** Key in SampleDataAPIResponse that contains this table's data */
-  apiKey: keyof Omit<SampleDataAPIResponse, '_metadata'>;
+  /** Key in CohortDataAPIResponse that contains this table's data */
+  apiKey: keyof Omit<CohortDataAPIResponse, '_metadata'>;
 
   /** Display configuration */
   display: DisplayConfig;
@@ -159,7 +159,7 @@ export const DEFAULT_PAGINATION: PaginationConfig = {
 /**
  * Type for the API key to table name mapping
  */
-export type ApiKeyMapping = Record<OMOPTableName, keyof Omit<SampleDataAPIResponse, '_metadata'>>;
+export type ApiKeyMapping = Record<OMOPTableName, keyof Omit<CohortDataAPIResponse, '_metadata'>>;
 
 /**
  * Table state managed per table
@@ -183,7 +183,7 @@ export interface TableState {
  */
 export interface DataBrowserState {
   /** Raw API response data */
-  rawData: SampleDataAPIResponse | null;
+  rawData: CohortDataAPIResponse | null;
   /** Loading state */
   isLoading: boolean;
   /** Error message if any */

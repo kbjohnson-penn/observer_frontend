@@ -10,7 +10,7 @@
 import React from 'react';
 import { Box, Heading, Text, Flex } from '@chakra-ui/react';
 import { FaDatabase } from 'react-icons/fa';
-import { SampleDataAPIResponse } from '@/interfaces/observer-omop';
+import { CohortDataAPIResponse } from '@/interfaces/observer-omop';
 import COLORS from '@/constants/colors';
 import { DataBrowserProvider, useDataBrowser } from './DataBrowserProvider';
 import { tableRegistry } from './registry';
@@ -23,8 +23,10 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 // ============================================================================
 
 interface HealthcareDataBrowserProps {
-  /** Sample data from API */
-  sampleData?: SampleDataAPIResponse | null;
+  /** Pre-loaded cohort data from API */
+  cohortData?: CohortDataAPIResponse | null;
+  /** Cohort ID for server-side operations like exports */
+  cohortId?: number | null;
 }
 
 // ============================================================================
@@ -160,9 +162,9 @@ function HealthcareDataBrowserContent() {
 // Main Component
 // ============================================================================
 
-function HealthcareDataBrowser({ sampleData }: HealthcareDataBrowserProps) {
+function HealthcareDataBrowser({ cohortData, cohortId }: HealthcareDataBrowserProps) {
   return (
-    <DataBrowserProvider sampleData={sampleData}>
+    <DataBrowserProvider cohortData={cohortData} cohortId={cohortId}>
       <Box p={6} bg="white" borderRadius="xl" boxShadow="sm" border="1px" borderColor="gray.200">
         <BrowserHeader />
         <ErrorBoundary componentName="HealthcareDataBrowser">

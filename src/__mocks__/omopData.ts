@@ -17,7 +17,7 @@ import {
   ProviderSurvey,
   AuditLogs,
   Concept,
-  SampleDataAPIResponse,
+  CohortDataAPIResponse,
 } from '@/interfaces/observer-omop';
 
 export const mockPersons: Person[] = [
@@ -294,7 +294,7 @@ export const mockConcepts: Concept[] = [
   },
 ];
 
-export const mockSampleData: SampleDataAPIResponse = {
+export const mockCohortData: CohortDataAPIResponse = {
   persons: mockPersons,
   providers: mockProviders,
   visits: mockVisits,

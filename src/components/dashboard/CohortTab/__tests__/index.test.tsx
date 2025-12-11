@@ -49,6 +49,15 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
+// Mock toaster
+const mockToasterCreate = jest.fn();
+jest.mock('@/components/ui/toaster', () => ({
+  toaster: {
+    create: (...args: unknown[]) => mockToasterCreate(...args),
+  },
+  Toaster: () => null,
+}));
+
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -190,6 +199,7 @@ describe('CohortTab', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockToasterCreate.mockClear();
     mockGetCohorts.mockResolvedValue(mockCohorts);
   });
 
@@ -437,9 +447,13 @@ describe('CohortTab', () => {
         expect(mockDeleteCohort).toHaveBeenCalledWith('1');
       });
 
-      // Should show error alert
+      // Should show error toast
       await waitFor(() => {
-        expect(screen.getByText('Failed to delete cohort')).toBeInTheDocument();
+        expect(mockToasterCreate).toHaveBeenCalledWith({
+          title: 'Error',
+          description: 'Failed to delete cohort',
+          type: 'error',
+        });
       });
 
       // Cohort should still be in list
@@ -448,7 +462,7 @@ describe('CohortTab', () => {
   });
 
   describe('Error Handling', () => {
-    it('should display error alert when rename fails', async () => {
+    it('should display error toast when rename fails', async () => {
       const user = userEvent.setup();
       mockUpdateCohort.mockRejectedValue(new Error('Update failed'));
 
@@ -470,7 +484,11 @@ describe('CohortTab', () => {
       await user.click(confirmButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Failed to update cohort')).toBeInTheDocument();
+        expect(mockToasterCreate).toHaveBeenCalledWith({
+          title: 'Error',
+          description: 'Failed to update cohort',
+          type: 'error',
+        });
       });
     });
   });

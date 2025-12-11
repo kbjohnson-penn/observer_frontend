@@ -66,6 +66,15 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
+// Mock toaster
+const mockToasterCreate = jest.fn();
+jest.mock('@/components/ui/toaster', () => ({
+  toaster: {
+    create: (...args: unknown[]) => mockToasterCreate(...args),
+  },
+  Toaster: () => null,
+}));
+
 // Mock child components
 jest.mock('../FilterSidebar', () => {
   return {
@@ -377,7 +386,7 @@ describe('ResearchTab', () => {
       expect(screen.getByText(/Showing 1-20 of 100 visits/)).toBeInTheDocument();
     });
 
-    it('should handle filter options error gracefully', () => {
+    it('should handle filter options error gracefully', async () => {
       mockUseFilterOptions.mockReturnValue({
         filterOptions: null,
         loading: false,
@@ -386,10 +395,16 @@ describe('ResearchTab', () => {
 
       render(<ResearchTab />, { wrapper: TestWrapper });
 
-      expect(screen.getByText('Failed to load filter options')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(mockToasterCreate).toHaveBeenCalledWith({
+          title: 'Error',
+          description: 'Failed to load filter options',
+          type: 'error',
+        });
+      });
     });
 
-    it('should handle visit search error gracefully', () => {
+    it('should handle visit search error gracefully', async () => {
       mockUseVisitSearch.mockReturnValue({
         ...defaultUseVisitSearchReturn,
         error: 'Failed to search visits',
@@ -397,7 +412,13 @@ describe('ResearchTab', () => {
 
       render(<ResearchTab />, { wrapper: TestWrapper });
 
-      expect(screen.getByText('Failed to search visits')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(mockToasterCreate).toHaveBeenCalledWith({
+          title: 'Error',
+          description: 'Failed to search visits',
+          type: 'error',
+        });
+      });
     });
 
     it('should display "no visits" message when no results', () => {
@@ -715,7 +736,7 @@ describe('ResearchTab', () => {
       });
     });
 
-    it('should show success message after cohort created', async () => {
+    it('should show success toast after cohort created', async () => {
       const user = userEvent.setup({ delay: null });
       mockCreateCohort.mockResolvedValue({
         id: '1',
@@ -730,35 +751,11 @@ describe('ResearchTab', () => {
       await user.click(screen.getByText('Save Cohort'));
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/Cohort saved successfully! View it in the Cohorts tab./i)
-        ).toBeInTheDocument();
-      });
-    });
-
-    it('should hide success message after 3 seconds', async () => {
-      const user = userEvent.setup({ delay: null });
-      mockCreateCohort.mockResolvedValue({
-        id: '1',
-        name: 'Test Cohort',
-        filters: {},
-        visitCount: 100,
-      });
-
-      render(<ResearchTab />, { wrapper: TestWrapper });
-
-      await user.click(screen.getByText('Save as Cohort'));
-      await user.click(screen.getByText('Save Cohort'));
-
-      await waitFor(() => {
-        expect(screen.getByText(/Cohort saved successfully!/i)).toBeInTheDocument();
-      });
-
-      // Fast-forward 3 seconds
-      jest.advanceTimersByTime(3000);
-
-      await waitFor(() => {
-        expect(screen.queryByText(/Cohort saved successfully!/i)).not.toBeInTheDocument();
+        expect(mockToasterCreate).toHaveBeenCalledWith({
+          title: 'Success',
+          description: 'Cohort saved successfully! View it in the Cohorts tab.',
+          type: 'success',
+        });
       });
     });
 
@@ -867,7 +864,7 @@ describe('ResearchTab', () => {
         });
       });
 
-      it('should display error when filter options API fails', () => {
+      it('should display error toast when filter options API fails', async () => {
         mockUseFilterOptions.mockReturnValue({
           filterOptions: null,
           loading: false,
@@ -876,7 +873,13 @@ describe('ResearchTab', () => {
 
         render(<ResearchTab />, { wrapper: TestWrapper });
 
-        expect(screen.getByText('Failed to load filter options')).toBeInTheDocument();
+        await waitFor(() => {
+          expect(mockToasterCreate).toHaveBeenCalledWith({
+            title: 'Error',
+            description: 'Failed to load filter options',
+            type: 'error',
+          });
+        });
       });
     });
 
@@ -966,7 +969,7 @@ describe('ResearchTab', () => {
         });
       });
 
-      it('should display error when visit search API fails', () => {
+      it('should display error toast when visit search API fails', async () => {
         mockUseVisitSearch.mockReturnValue({
           ...defaultUseVisitSearchReturn,
           error: 'Failed to search visits',
@@ -974,7 +977,13 @@ describe('ResearchTab', () => {
 
         render(<ResearchTab />, { wrapper: TestWrapper });
 
-        expect(screen.getByText('Failed to search visits')).toBeInTheDocument();
+        await waitFor(() => {
+          expect(mockToasterCreate).toHaveBeenCalledWith({
+            title: 'Error',
+            description: 'Failed to search visits',
+            type: 'error',
+          });
+        });
       });
     });
 
@@ -1004,7 +1013,7 @@ describe('ResearchTab', () => {
         });
       });
 
-      it('should show success message on successful cohort creation', async () => {
+      it('should show success toast on successful cohort creation', async () => {
         const user = userEvent.setup({ delay: null });
         mockCreateCohort.mockResolvedValue({
           id: '1',
@@ -1019,9 +1028,11 @@ describe('ResearchTab', () => {
         await user.click(screen.getByText('Save Cohort'));
 
         await waitFor(() => {
-          expect(
-            screen.getByText(/Cohort saved successfully! View it in the Cohorts tab./i)
-          ).toBeInTheDocument();
+          expect(mockToasterCreate).toHaveBeenCalledWith({
+            title: 'Success',
+            description: 'Cohort saved successfully! View it in the Cohorts tab.',
+            type: 'success',
+          });
         });
       });
 
@@ -1145,7 +1156,17 @@ describe('ResearchTab', () => {
 
         const { rerender } = render(<ResearchTab />, { wrapper: TestWrapper });
 
-        expect(screen.getByText('Network error')).toBeInTheDocument();
+        // Error shows via toast, not DOM text
+        await waitFor(() => {
+          expect(mockToasterCreate).toHaveBeenCalledWith({
+            title: 'Error',
+            description: 'Network error',
+            type: 'error',
+          });
+        });
+
+        // Clear mock to track new calls
+        mockToasterCreate.mockClear();
 
         // Simulate successful retry
         mockUseVisitSearch.mockReturnValue({
@@ -1161,7 +1182,10 @@ describe('ResearchTab', () => {
         );
 
         await waitFor(() => {
-          expect(screen.queryByText('Network error')).not.toBeInTheDocument();
+          // No new error toast should be shown
+          expect(mockToasterCreate).not.toHaveBeenCalledWith(
+            expect.objectContaining({ type: 'error' })
+          );
           expect(screen.getByText('Visits: 2')).toBeInTheDocument();
         });
       });

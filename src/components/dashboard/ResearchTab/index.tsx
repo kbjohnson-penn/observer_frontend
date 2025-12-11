@@ -1,18 +1,8 @@
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Button,
-  Card,
-  Alert,
-  Flex,
-  Stack,
-  Skeleton,
-} from '@chakra-ui/react';
+import { Box, VStack, HStack, Text, Button, Card, Flex, Stack, Skeleton } from '@chakra-ui/react';
+import { toaster } from '@/components/ui/toaster';
 import { useFilterOptions, useVisitSearch } from '@/hooks';
 import { VisitSearchSort } from '@/interfaces/research';
 import { LocalFilters, INITIAL_LOCAL_FILTERS } from '@/interfaces/researchTab';
@@ -55,7 +45,6 @@ export default function ResearchTab({ onCohortCreated }: ResearchTabProps) {
 
   // Cohort dialog state
   const [isCohortDialogOpen, setIsCohortDialogOpen] = useState(false);
-  const [cohortSuccess, setCohortSuccess] = useState(false);
   const [existingCohorts, setExistingCohorts] = useState<Cohort[]>([]);
 
   // Load existing cohorts for duplicate validation
@@ -110,7 +99,13 @@ export default function ResearchTab({ onCohortCreated }: ResearchTabProps) {
     async (cohortData: CohortCreateRequest) => {
       try {
         await createCohort(cohortData);
-        setCohortSuccess(true);
+
+        // Show success toast
+        toaster.create({
+          title: 'Success',
+          description: 'Cohort saved successfully! View it in the Cohorts tab.',
+          type: 'success',
+        });
 
         // Reload cohorts list for future validation
         const cohorts = await getCohorts();
@@ -118,11 +113,6 @@ export default function ResearchTab({ onCohortCreated }: ResearchTabProps) {
 
         // Notify parent component to update cohort count badge
         onCohortCreated?.();
-
-        // Hide success message after 3 seconds
-        setTimeout(() => {
-          setCohortSuccess(false);
-        }, 3000);
       } catch (error) {
         logger.error('Failed to create cohort:', error);
         // Error is already handled and shown in CreateCohortDialog
@@ -134,6 +124,17 @@ export default function ResearchTab({ onCohortCreated }: ResearchTabProps) {
 
   const error = filterOptionsError || visitsError;
 
+  // Show error toast when errors occur
+  useEffect(() => {
+    if (error) {
+      toaster.create({
+        title: 'Error',
+        description: error,
+        type: 'error',
+      });
+    }
+  }, [error]);
+
   // Show loading skeleton on initial load
   if (filterOptionsLoading && !filterOptions) {
     return <LoadingSkeleton />;
@@ -141,20 +142,6 @@ export default function ResearchTab({ onCohortCreated }: ResearchTabProps) {
 
   return (
     <VStack gap={6} align="stretch">
-      {/* Error Alert */}
-      {error && (
-        <Alert.Root status="error">
-          <Alert.Title>{error}</Alert.Title>
-        </Alert.Root>
-      )}
-
-      {/* Success Alert */}
-      {cohortSuccess && (
-        <Alert.Root status="success">
-          <Alert.Title>Cohort saved successfully! View it in the Cohorts tab.</Alert.Title>
-        </Alert.Root>
-      )}
-
       {/* Main Content Area */}
       {filterOptions && (
         <Flex gap={6} alignItems="flex-start">

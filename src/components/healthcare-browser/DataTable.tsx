@@ -9,14 +9,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Text, Heading, Flex, Input, HStack, Button, VStack } from '@chakra-ui/react';
-import {
-  MenuRoot,
-  MenuTrigger,
-  MenuContent,
-  MenuItem,
-  MenuSeparator,
-  MenuItemGroup,
-} from '@/components/ui/menu';
+import { toaster } from '@/components/ui/toaster';
+import { MenuRoot, MenuTrigger, MenuContent, MenuItem, MenuSeparator } from '@/components/ui/menu';
 import {
   FaSearch,
   FaSort,
@@ -25,7 +19,6 @@ import {
   FaDownload,
   FaFileArchive,
   FaChevronDown,
-  FaFileCsv,
 } from 'react-icons/fa';
 import { flexRender, SortDirection, Row } from '@tanstack/react-table';
 import { OMOPTableName, OMOPTableData } from '@/interfaces/observer-omop';
@@ -36,15 +29,14 @@ import { useDebounce } from '@/hooks';
 import { useDataBrowser } from './DataBrowserProvider';
 import { tableRegistry } from './registry';
 import { expandDemographic } from '@/lib/utils/utils';
+import ConfirmExportDialog, { ExportType } from './ConfirmExportDialog';
 import {
-  exportTableToCSV,
-  exportAllTablesToZip,
-  TableExportData,
-  TableDocumentation,
-  buildTableDocumentation,
-  exportTableWithDocumentation,
-  exportAllTablesWithDocumentation,
-} from '@/lib/utils/csv-export';
+  exportSingleTable,
+  exportAllTables,
+  downloadBlob,
+  ExportError,
+} from '@/services/exportService';
+import { logger } from '@/lib/logger';
 // ============================================================================
 // Demographic Column Mapping (for display formatting)
 // ============================================================================
@@ -179,8 +171,8 @@ function DataTable({ tableId }: DataTableProps) {
     // allColumnIds,
   } = useTableInstance({ tableId });
 
-  // Get data browser context for "Export All" functionality
-  const { getTableData, state } = useDataBrowser();
+  // Get data browser context for cohortId (used for server-side exports)
+  const { cohortId, getTableData } = useDataBrowser();
 
   // Debounce delay for search input (ms)
   const SEARCH_DEBOUNCE_MS = 300;
@@ -191,6 +183,8 @@ function DataTable({ tableId }: DataTableProps) {
 
   // Export state
   const [isExporting, setIsExporting] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [pendingExportType, setPendingExportType] = useState<ExportType | null>(null);
 
   // Track if filter change originated from local input
   const isLocalUpdateRef = useRef(false);
@@ -215,185 +209,89 @@ function DataTable({ tableId }: DataTableProps) {
   const IconComponent = config?.display.icon;
 
   // ============================================================================
-  // Export Handlers
+  // Export Handlers (Server-Side with Audit Logging)
   // ============================================================================
 
-  const handleExportCurrentTable = () => {
-    const allRows = table.getFilteredRowModel().rows;
-    const dataToExport = allRows.map((row) => row.original);
-
-    // Get column labels
-    const columnLabels: Record<string, string> = {};
-    table.getAllColumns().forEach((col) => {
-      columnLabels[col.id] = col.columnDef.header as string;
-    });
-
-    const filename = `${tableId.toLowerCase()}_${new Date().toISOString().split('T')[0]}`;
-
-    exportTableToCSV(dataToExport, {
-      filename,
-      columnLabels,
-    });
+  /**
+   * Get record count for export dialog display
+   */
+  const getExportRecordCount = (exportType: ExportType): number => {
+    if (exportType.startsWith('current-')) {
+      return table.getFilteredRowModel().rows.length;
+    }
+    // For all tables export, sum records from all registered tables
+    const registeredTables = tableRegistry.getAllIds();
+    return registeredTables.reduce((total, regTableId) => {
+      const tableData = getTableData(regTableId);
+      return total + (tableData?.length || 0);
+    }, 0);
   };
 
-  const handleExportAllTables = async () => {
-    if (isExporting) {
+  /**
+   * Request export - opens confirmation dialog
+   */
+  const requestExport = (type: ExportType) => {
+    if (!cohortId) {
+      logger.error('Cannot export: cohortId is not available');
       return;
     }
-    if (!state.rawData) {
-      console.warn('No data available to export');
+    setPendingExportType(type);
+    setExportDialogOpen(true);
+  };
+
+  /**
+   * Handle confirmed export - calls server-side API with cohortId
+   * Backend fetches data server-side with tier-based access control
+   */
+  const handleConfirmedExport = async () => {
+    if (!pendingExportType || !cohortId) {
+      logger.error('Cannot export: missing export type or cohortId');
       return;
     }
 
+    setExportDialogOpen(false);
     setIsExporting(true);
+
     try {
-      const tablesToExport: TableExportData[] = [];
-      const registeredTables = tableRegistry.getAllIds();
+      // Get the API key (lowercase) from config for backend API calls
+      // Backend TABLE_REGISTRY expects lowercase keys (e.g., 'persons', 'visits')
+      const exportTableId = config?.apiKey || tableId.toLowerCase();
 
-      for (const regTableId of registeredTables) {
-        let tableData = getTableData(regTableId);
-        const tableConfig = tableRegistry.get(regTableId);
-
-        // Only skip if no config (unconfigured tables)
-        if (!tableConfig) {
-          continue;
+      switch (pendingExportType) {
+        case 'current-with-docs': {
+          const blob = await exportSingleTable(cohortId, exportTableId, true);
+          downloadBlob(blob, `${exportTableId}_export.zip`);
+          break;
         }
-
-        // Export even if data is empty - include table structure
-        if (!tableData) {
-          tableData = [];
+        case 'all-with-docs': {
+          const blob = await exportAllTables(cohortId, true);
+          downloadBlob(blob, 'observer_export.zip');
+          break;
         }
-
-        // Get column labels from config
-        const columnLabels: Record<string, string> = {};
-        if (tableConfig?.columns?.columnLabels) {
-          Object.entries(tableConfig.columns.columnLabels).forEach(([key, labelDef]) => {
-            if (labelDef && typeof labelDef === 'object' && 'label' in labelDef) {
-              columnLabels[key] = labelDef.label;
-            }
-          });
-        }
-
-        tablesToExport.push({
-          tableName: regTableId,
-          displayName: tableConfig.display.name || regTableId,
-          data: tableData,
-          columnLabels,
-        });
       }
-
-      if (tablesToExport.length === 0) {
-        console.warn('No tables with data to export');
-        return;
-      }
-
-      const zipFilename = `observer-data-export_${new Date().toISOString().split('T')[0]}`;
-      await exportAllTablesToZip(tablesToExport, zipFilename);
+      logger.info(`Export completed: ${pendingExportType}`);
     } catch (error) {
-      console.error('Export failed:', error);
+      logger.error('Export failed:', error);
+      // Show user-friendly error toast
+      const errorMessage =
+        error instanceof ExportError ? error.message : 'Export failed. Please try again.';
+      toaster.create({
+        title: 'Export Failed',
+        description: errorMessage,
+        type: 'error',
+      });
     } finally {
       setIsExporting(false);
+      setPendingExportType(null);
     }
   };
 
-  const handleExportCurrentTableWithDocs = async () => {
-    if (isExporting) {
-      return;
-    }
-
-    const allRows = table.getFilteredRowModel().rows;
-    const dataToExport = allRows.map((row) => row.original);
-
-    // Get column labels
-    const columnLabels: Record<string, string> = {};
-    table.getAllColumns().forEach((col) => {
-      columnLabels[col.id] = col.columnDef.header as string;
-    });
-
-    const filename = `${tableId.toLowerCase()}_${new Date().toISOString().split('T')[0]}`;
-
-    // Build documentation
-    const tableConfig = tableRegistry.get(tableId);
-    if (!tableConfig) {
-      console.error('Table config not found');
-      return;
-    }
-
-    const documentation = buildTableDocumentation(tableId, tableConfig, dataToExport);
-
-    setIsExporting(true);
-    try {
-      await exportTableWithDocumentation(dataToExport, { filename, columnLabels }, documentation);
-    } catch (error) {
-      console.error('Export with docs failed:', error);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handleExportAllTablesWithDocs = async () => {
-    if (isExporting) {
-      return;
-    }
-    if (!state.rawData) {
-      console.warn('No data available to export');
-      return;
-    }
-
-    setIsExporting(true);
-    try {
-      const tablesToExport: TableExportData[] = [];
-      const documentations: TableDocumentation[] = [];
-      const registeredTables = tableRegistry.getAllIds();
-
-      for (const regTableId of registeredTables) {
-        let tableData = getTableData(regTableId);
-        const tableConfig = tableRegistry.get(regTableId);
-
-        // Only skip if no config
-        if (!tableConfig) {
-          continue;
-        }
-
-        // Export even if data is empty
-        if (!tableData) {
-          tableData = [];
-        }
-
-        // Get column labels from config
-        const columnLabels: Record<string, string> = {};
-        if (tableConfig.columns?.columnLabels) {
-          Object.entries(tableConfig.columns.columnLabels).forEach(([key, labelDef]) => {
-            if (labelDef && typeof labelDef === 'object' && 'label' in labelDef) {
-              columnLabels[key] = labelDef.label;
-            }
-          });
-        }
-
-        tablesToExport.push({
-          tableName: regTableId,
-          displayName: tableConfig.display.name || regTableId,
-          data: tableData,
-          columnLabels,
-        });
-
-        // Build documentation for this table
-        const documentation = buildTableDocumentation(regTableId, tableConfig, tableData);
-        documentations.push(documentation);
-      }
-
-      if (tablesToExport.length === 0) {
-        console.warn('No tables with data to export');
-        return;
-      }
-
-      const zipFilename = `observer-data-export_${new Date().toISOString().split('T')[0]}`;
-      await exportAllTablesWithDocumentation(tablesToExport, documentations, zipFilename);
-    } catch (error) {
-      console.error('Export with docs failed:', error);
-    } finally {
-      setIsExporting(false);
-    }
+  /**
+   * Cancel export - closes dialog without action
+   */
+  const handleCancelExport = () => {
+    setExportDialogOpen(false);
+    setPendingExportType(null);
   };
 
   // Header groups for rendering
@@ -613,97 +511,51 @@ function DataTable({ tableId }: DataTableProps) {
             minW="280px"
             portalled
           >
-            {/* Current Table Group */}
-            <MenuItemGroup title="Current Table">
-              <MenuItem
-                value="export-current-csv"
-                onClick={handleExportCurrentTable}
-                _hover={{ bg: 'blue.50' }}
-                cursor="pointer"
-              >
-                <HStack gap={2} width="full">
-                  <Box color="blue.600">
-                    <FaFileCsv />
-                  </Box>
-                  <VStack align="start" gap={0} flex={1}>
-                    <Text fontSize="sm" fontWeight="medium" color="gray.800">
-                      Export as CSV
-                    </Text>
-                    <Text fontSize="xs" color="gray.600">
-                      Data only
-                    </Text>
-                  </VStack>
-                </HStack>
-              </MenuItem>
-
-              <MenuItem
-                value="export-current-docs"
-                onClick={handleExportCurrentTableWithDocs}
-                _hover={{ bg: 'blue.50' }}
-                cursor="pointer"
-              >
-                <HStack gap={2} width="full">
-                  <Box color="blue.600">
-                    <FaFileArchive />
-                  </Box>
-                  <VStack align="start" gap={0} flex={1}>
-                    <Text fontSize="sm" fontWeight="medium" color="gray.800">
-                      Export with Documentation
-                    </Text>
-                    <Text fontSize="xs" color="gray.600">
-                      CSV + metadata files
-                    </Text>
-                  </VStack>
-                </HStack>
-              </MenuItem>
-            </MenuItemGroup>
+            {/* Current Table */}
+            <MenuItem
+              value="export-current-docs"
+              onClick={() => requestExport('current-with-docs')}
+              _hover={{ bg: 'blue.50' }}
+              cursor="pointer"
+            >
+              <HStack gap={2} width="full">
+                <Box color="blue.600">
+                  <FaFileArchive />
+                </Box>
+                <VStack align="start" gap={0} flex={1}>
+                  <Text fontSize="sm" fontWeight="medium" color="gray.800">
+                    Export Current Table
+                  </Text>
+                  <Text fontSize="xs" color="gray.600">
+                    ZIP with documentation
+                  </Text>
+                </VStack>
+              </HStack>
+            </MenuItem>
 
             <MenuSeparator />
 
-            {/* All Tables Group */}
-            <MenuItemGroup title="All Tables">
-              <MenuItem
-                value="export-all-csv"
-                onClick={handleExportAllTables}
-                _hover={{ bg: 'purple.50' }}
-                cursor="pointer"
-              >
-                <HStack gap={2} width="full">
-                  <Box color="purple.600">
-                    <FaFileArchive />
-                  </Box>
-                  <VStack align="start" gap={0} flex={1}>
-                    <Text fontSize="sm" fontWeight="medium" color="gray.800">
-                      Export as ZIP
-                    </Text>
-                    <Text fontSize="xs" color="gray.600">
-                      CSVs only
-                    </Text>
-                  </VStack>
-                </HStack>
-              </MenuItem>
-
-              <MenuItem
-                value="export-all-docs"
-                onClick={handleExportAllTablesWithDocs}
-                _hover={{ bg: 'purple.50' }}
-                cursor="pointer"
-              >
-                <HStack gap={2} width="full">
-                  <Box color="purple.600">
-                    <FaFileArchive />
-                  </Box>
-                  <VStack align="start" gap={0} flex={1}>
-                    <Text fontSize="sm" fontWeight="medium" color="gray.800">
-                      Export with Documentation
-                    </Text>
-                    <Text fontSize="xs" color="gray.600">
-                      Full data package
-                    </Text>
-                  </VStack>
-                </HStack>
-              </MenuItem>
-            </MenuItemGroup>
+            {/* All Tables */}
+            <MenuItem
+              value="export-all-docs"
+              onClick={() => requestExport('all-with-docs')}
+              _hover={{ bg: 'purple.50' }}
+              cursor="pointer"
+            >
+              <HStack gap={2} width="full">
+                <Box color="purple.600">
+                  <FaFileArchive />
+                </Box>
+                <VStack align="start" gap={0} flex={1}>
+                  <Text fontSize="sm" fontWeight="medium" color="gray.800">
+                    Export All Tables
+                  </Text>
+                  <Text fontSize="xs" color="gray.600">
+                    Full data package with documentation
+                  </Text>
+                </VStack>
+              </HStack>
+            </MenuItem>
           </MenuContent>
         </MenuRoot>
       </Flex>
@@ -841,11 +693,24 @@ function DataTable({ tableId }: DataTableProps) {
     return (
       <>
         {renderTableDescription()}
+
         <Box textAlign="center" py={8} bg="gray.50" borderRadius="lg">
           <Text color="gray.500" fontSize="md" fontWeight="medium">
             No data available for {displayName}
           </Text>
         </Box>
+
+        {/* Export Confirmation Dialog (needed for empty table exports) */}
+        <ConfirmExportDialog
+          isOpen={exportDialogOpen}
+          exportType={pendingExportType || 'current-with-docs'}
+          tableName={displayName}
+          tableCount={tableRegistry.getAllIds().length}
+          recordCount={pendingExportType ? getExportRecordCount(pendingExportType) : 0}
+          onConfirm={handleConfirmedExport}
+          onCancel={handleCancelExport}
+          loading={isExporting}
+        />
       </>
     );
   }
@@ -901,6 +766,18 @@ function DataTable({ tableId }: DataTableProps) {
       )}
 
       {renderPagination()}
+
+      {/* Export Confirmation Dialog */}
+      <ConfirmExportDialog
+        isOpen={exportDialogOpen}
+        exportType={pendingExportType || 'current-with-docs'}
+        tableName={displayName}
+        tableCount={tableRegistry.getAllIds().length}
+        recordCount={pendingExportType ? getExportRecordCount(pendingExportType) : 0}
+        onConfirm={handleConfirmedExport}
+        onCancel={handleCancelExport}
+        loading={isExporting}
+      />
     </>
   );
 }

@@ -5,7 +5,7 @@
  * Provides type-safe access to table configs and API mappings.
  */
 
-import { OMOPTableName, SampleDataAPIResponse, OMOPTableData } from '@/interfaces/observer-omop';
+import { OMOPTableName, CohortDataAPIResponse, OMOPTableData } from '@/interfaces/observer-omop';
 import {
   TableConfig,
   TableCategory,
@@ -106,7 +106,7 @@ class TableRegistry {
    */
   getTableData<TData extends OMOPTableData>(
     tableId: OMOPTableName,
-    apiResponse: SampleDataAPIResponse
+    apiResponse: CohortDataAPIResponse
   ): TData[] {
     const config = this.get(tableId);
     if (!config) {

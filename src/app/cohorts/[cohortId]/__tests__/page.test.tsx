@@ -24,12 +24,12 @@ jest.mock('next/navigation', () => ({
 
 // Mock HealthcareDataBrowser
 jest.mock('@/components/healthcare-browser', () => ({
-  HealthcareDataBrowser: function MockHealthcareDataBrowser({ sampleData }: any) {
+  HealthcareDataBrowser: function MockHealthcareDataBrowser({ cohortData }: any) {
     return (
       <div data-testid="healthcare-data-browser">
         Healthcare Data Browser
-        <div data-testid="visit-count">{sampleData?.visits?.length || 0} visits</div>
-        <div data-testid="person-count">{sampleData?.persons?.length || 0} persons</div>
+        <div data-testid="visit-count">{cohortData?.visits?.length || 0} visits</div>
+        <div data-testid="person-count">{cohortData?.persons?.length || 0} persons</div>
       </div>
     );
   },
@@ -48,6 +48,14 @@ jest.mock('@/lib/logger', () => ({
     error: jest.fn(),
     log: jest.fn(),
   },
+}));
+
+// Mock toaster
+jest.mock('@/components/ui/toaster', () => ({
+  toaster: {
+    create: jest.fn(),
+  },
+  Toaster: () => null,
 }));
 
 // Mock window.matchMedia
