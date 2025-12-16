@@ -1,6 +1,7 @@
 import { FaClipboardCheck } from 'react-icons/fa';
 import { TableConfig } from '../types';
 import { ProviderSurvey } from '@/interfaces/observer-omop';
+import { PROVIDER_SURVEY_LABELS } from '@/constants/column-labels.constants';
 
 export const providerSurveyConfig: TableConfig<ProviderSurvey> = {
   id: 'PROVIDER_SURVEY',
@@ -12,6 +13,7 @@ export const providerSurveyConfig: TableConfig<ProviderSurvey> = {
     icon: FaClipboardCheck,
     color: 'violet',
     category: 'survey',
+    searchPlaceholder: 'Search provider surveys...',
   },
 
   columns: {
@@ -25,6 +27,7 @@ export const providerSurveyConfig: TableConfig<ProviderSurvey> = {
       'years_hcp_experience',
     ],
     pinnedColumns: ['id'],
+    columnLabels: PROVIDER_SURVEY_LABELS,
   },
 
   pagination: {

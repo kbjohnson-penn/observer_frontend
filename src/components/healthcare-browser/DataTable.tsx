@@ -8,16 +8,35 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Text, Heading, Flex, Input, HStack, Button } from '@chakra-ui/react';
-import { FaSearch, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
+import { Box, Text, Heading, Flex, Input, HStack, Button, VStack } from '@chakra-ui/react';
+import { toaster } from '@/components/ui/toaster';
+import { MenuRoot, MenuTrigger, MenuContent, MenuItem, MenuSeparator } from '@/components/ui/menu';
+import {
+  FaSearch,
+  FaSort,
+  FaSortUp,
+  FaSortDown,
+  FaDownload,
+  FaFileArchive,
+  FaChevronDown,
+} from 'react-icons/fa';
 import { flexRender, SortDirection, Row } from '@tanstack/react-table';
 import { OMOPTableName, OMOPTableData } from '@/interfaces/observer-omop';
 import { Tooltip } from '@/components/ui/tooltip';
 import COLORS, { SCROLLBAR_COLORS } from '@/constants/colors';
 import { useTableInstance } from '@/hooks/useTableInstance';
 import { useDebounce } from '@/hooks';
+import { useDataBrowser } from './DataBrowserProvider';
+import { tableRegistry } from './registry';
 import { expandDemographic } from '@/lib/utils/utils';
-
+import ConfirmExportDialog, { ExportType } from './ConfirmExportDialog';
+import {
+  exportSingleTable,
+  exportAllTables,
+  downloadBlob,
+  ExportError,
+} from '@/services/exportService';
+import { logger } from '@/lib/logger';
 // ============================================================================
 // Demographic Column Mapping (for display formatting)
 // ============================================================================
@@ -152,12 +171,20 @@ function DataTable({ tableId }: DataTableProps) {
     // allColumnIds,
   } = useTableInstance({ tableId });
 
+  // Get data browser context for cohortId (used for server-side exports)
+  const { cohortId, getTableData } = useDataBrowser();
+
   // Debounce delay for search input (ms)
   const SEARCH_DEBOUNCE_MS = 300;
 
   // Local state for search input (allows immediate UI feedback)
   const [localFilter, setLocalFilter] = useState(globalFilter);
   const debouncedFilter = useDebounce(localFilter, SEARCH_DEBOUNCE_MS);
+
+  // Export state
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [pendingExportType, setPendingExportType] = useState<ExportType | null>(null);
 
   // Track if filter change originated from local input
   const isLocalUpdateRef = useRef(false);
@@ -180,6 +207,98 @@ function DataTable({ tableId }: DataTableProps) {
   const displayName = config?.display.name || tableId;
   const description = config?.display.description || '';
   const IconComponent = config?.display.icon;
+
+  // ============================================================================
+  // Export Handlers (Server-Side with Audit Logging)
+  // ============================================================================
+
+  /**
+   * Get record count for export dialog display
+   */
+  const getExportRecordCount = (exportType: ExportType): number => {
+    if (exportType.startsWith('current-')) {
+      return table.getFilteredRowModel().rows.length;
+    }
+    // For all tables export, sum records from all registered tables
+    const registeredTables = tableRegistry.getAllIds();
+    return registeredTables.reduce((total, regTableId) => {
+      const tableData = getTableData(regTableId);
+      return total + (tableData?.length || 0);
+    }, 0);
+  };
+
+  /**
+   * Request export - opens confirmation dialog
+   */
+  const requestExport = (type: ExportType) => {
+    if (!cohortId) {
+      logger.error('Cannot export: cohortId is not available');
+      return;
+    }
+    setPendingExportType(type);
+    setExportDialogOpen(true);
+  };
+
+  /**
+   * Handle confirmed export - calls server-side API with cohortId
+   * Backend fetches data server-side with tier-based access control
+   */
+  const handleConfirmedExport = async () => {
+    if (!pendingExportType || !cohortId) {
+      logger.error('Cannot export: missing export type or cohortId');
+      return;
+    }
+
+    setExportDialogOpen(false);
+    setIsExporting(true);
+
+    try {
+      // Get the API key (lowercase) from config for backend API calls
+      // Backend TABLE_REGISTRY expects lowercase keys (e.g., 'persons', 'visits')
+      const exportTableId = config?.apiKey || tableId.toLowerCase();
+
+      switch (pendingExportType) {
+        case 'current-with-docs': {
+          const blob = await exportSingleTable(cohortId, exportTableId, true);
+          downloadBlob(blob, `${exportTableId}_export.zip`);
+          break;
+        }
+        case 'all-with-docs': {
+          const blob = await exportAllTables(cohortId, true);
+          downloadBlob(blob, 'observer_export.zip');
+          break;
+        }
+      }
+      logger.info(`Export completed: ${pendingExportType}`);
+      // Show success toast
+      toaster.create({
+        title: 'Export Complete',
+        description: 'Your data has been downloaded successfully.',
+        type: 'success',
+      });
+    } catch (error) {
+      logger.error('Export failed:', error);
+      // Show user-friendly error toast
+      const errorMessage =
+        error instanceof ExportError ? error.message : 'Export failed. Please try again.';
+      toaster.create({
+        title: 'Export Failed',
+        description: errorMessage,
+        type: 'error',
+      });
+    } finally {
+      setIsExporting(false);
+      setPendingExportType(null);
+    }
+  };
+
+  /**
+   * Cancel export - closes dialog without action
+   */
+  const handleCancelExport = () => {
+    setExportDialogOpen(false);
+    setPendingExportType(null);
+  };
 
   // Header groups for rendering
   const headerGroups = table.getHeaderGroups();
@@ -356,27 +475,107 @@ function DataTable({ tableId }: DataTableProps) {
       border="1px"
       borderColor={COLORS.primary[200]}
     >
-      <Flex align="center" gap={3} mb={4}>
-        <Box color={COLORS.primary[600]} fontSize="lg">
-          {IconComponent && <IconComponent />}
-        </Box>
-        <Box flex={1}>
-          <Heading size="md" color={COLORS.primary[800]} mb={1}>
-            {displayName}
-          </Heading>
-          <Text fontSize="sm" color={COLORS.primary[700]}>
-            {description}
-          </Text>
-        </Box>
+      {/* Table Title and Export Button */}
+      <Flex align="center" justify="space-between" mb={4} gap={3} wrap="wrap">
+        <Flex align="center" gap={3} flex={1}>
+          <Box color={COLORS.primary[600]} fontSize="lg">
+            {IconComponent && <IconComponent />}
+          </Box>
+          <Box>
+            <Heading size="md" color={COLORS.primary[800]} mb={1}>
+              {displayName}
+            </Heading>
+            <Text fontSize="sm" color={COLORS.primary[700]}>
+              {description}
+            </Text>
+          </Box>
+        </Flex>
+
+        {/* Export Button */}
+        <MenuRoot positioning={{ placement: 'bottom-end' }}>
+          <MenuTrigger asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="blue"
+              color="blue.600"
+              borderColor="blue.500"
+              _hover={{ bg: 'blue.50', borderColor: 'blue.600' }}
+              disabled={isExporting}
+              opacity={isExporting ? 0.7 : 1}
+            >
+              <FaDownload style={{ marginRight: '6px' }} />
+              <Text fontSize="sm">{isExporting ? 'Exporting...' : 'Export Data'}</Text>
+              <FaChevronDown style={{ marginLeft: '6px' }} />
+            </Button>
+          </MenuTrigger>
+          <MenuContent
+            bg="white"
+            border="1px"
+            borderColor="gray.200"
+            shadow="lg"
+            minW="280px"
+            portalled
+          >
+            {/* Current Table */}
+            <MenuItem
+              value="export-current-docs"
+              onClick={() => requestExport('current-with-docs')}
+              _hover={{ bg: 'blue.50' }}
+              cursor="pointer"
+            >
+              <HStack gap={2} width="full">
+                <Box color="blue.600">
+                  <FaFileArchive />
+                </Box>
+                <VStack align="start" gap={0} flex={1}>
+                  <Text fontSize="sm" fontWeight="medium" color="gray.800">
+                    Export Current Table
+                  </Text>
+                  <Text fontSize="xs" color="gray.600">
+                    ZIP with documentation
+                  </Text>
+                </VStack>
+              </HStack>
+            </MenuItem>
+
+            <MenuSeparator />
+
+            {/* All Tables */}
+            <MenuItem
+              value="export-all-docs"
+              onClick={() => requestExport('all-with-docs')}
+              _hover={{ bg: 'purple.50' }}
+              cursor="pointer"
+            >
+              <HStack gap={2} width="full">
+                <Box color="purple.600">
+                  <FaFileArchive />
+                </Box>
+                <VStack align="start" gap={0} flex={1}>
+                  <Text fontSize="sm" fontWeight="medium" color="gray.800">
+                    Export All Tables
+                  </Text>
+                  <Text fontSize="xs" color="gray.600">
+                    Full data package with documentation
+                  </Text>
+                </VStack>
+              </HStack>
+            </MenuItem>
+          </MenuContent>
+        </MenuRoot>
       </Flex>
 
+      {/* Search and Record Count */}
       <Flex align="center" justify="space-between" wrap="wrap" gap={4}>
         <Box position="relative" w={{ base: '100%', md: '350px' }}>
           <Box position="absolute" left="3" top="50%" transform="translateY(-50%)" zIndex={1}>
-            <FaSearch color={COLORS.primary[500]} size="14px" />
+            <FaSearch color={COLORS.primary[500]} size="12px" />
           </Box>
           <Input
-            placeholder={`Search ${displayName.toLowerCase()}...`}
+            placeholder={
+              config?.display.searchPlaceholder || `Search ${displayName.toLowerCase()}...`
+            }
             value={localFilter}
             onChange={(e) => setLocalFilter(e.target.value)}
             size="sm"
@@ -386,45 +585,43 @@ function DataTable({ tableId }: DataTableProps) {
               borderColor: COLORS.primary[500],
               boxShadow: `0 0 0 1px ${COLORS.primary[500]}`,
             }}
-            _placeholder={{ color: COLORS.primary[400] }}
+            _placeholder={{ color: COLORS.primary[400], fontSize: 'xs' }}
             borderRadius="md"
             paddingLeft="10"
+            fontSize="xs"
           />
         </Box>
 
-        <Flex align="center" gap={4}>
-          {/* Column Selector - TODO: Import from ColumnSelector */}
-          <Text fontSize="sm" color={COLORS.primary[700]}>
-            {filteredRowCount > pageSize ? (
-              <>
-                <Text as="span" fontWeight="bold">
-                  {startIndex + 1}-{endIndex}
-                </Text>{' '}
-                of{' '}
-                <Text as="span" fontWeight="bold">
-                  {filteredRowCount}
-                </Text>{' '}
-                {globalFilter ? 'filtered' : ''} records
-              </>
-            ) : (
-              <>
-                <Text as="span" fontWeight="bold">
-                  {filteredRowCount}
-                </Text>{' '}
-                of{' '}
-                <Text as="span" fontWeight="bold">
-                  {totalDataCount}
-                </Text>{' '}
-                records
-              </>
-            )}
-            {globalFilter && (
-              <Text as="span" ml={2} fontStyle="italic">
-                matching &ldquo;{globalFilter}&rdquo;
-              </Text>
-            )}
-          </Text>
-        </Flex>
+        <Text fontSize="xs" color={COLORS.primary[700]}>
+          {filteredRowCount > pageSize ? (
+            <>
+              <Text as="span" fontWeight="bold">
+                {startIndex + 1}-{endIndex}
+              </Text>{' '}
+              of{' '}
+              <Text as="span" fontWeight="bold">
+                {filteredRowCount}
+              </Text>{' '}
+              {globalFilter ? 'filtered' : ''} records
+            </>
+          ) : (
+            <>
+              <Text as="span" fontWeight="bold">
+                {filteredRowCount}
+              </Text>{' '}
+              of{' '}
+              <Text as="span" fontWeight="bold">
+                {totalDataCount}
+              </Text>{' '}
+              records
+            </>
+          )}
+          {globalFilter && (
+            <Text as="span" ml={2} fontStyle="italic">
+              matching &ldquo;{globalFilter}&rdquo;
+            </Text>
+          )}
+        </Text>
       </Flex>
     </Box>
   );
@@ -502,11 +699,24 @@ function DataTable({ tableId }: DataTableProps) {
     return (
       <>
         {renderTableDescription()}
+
         <Box textAlign="center" py={8} bg="gray.50" borderRadius="lg">
           <Text color="gray.500" fontSize="md" fontWeight="medium">
             No data available for {displayName}
           </Text>
         </Box>
+
+        {/* Export Confirmation Dialog (needed for empty table exports) */}
+        <ConfirmExportDialog
+          isOpen={exportDialogOpen}
+          exportType={pendingExportType || 'current-with-docs'}
+          tableName={displayName}
+          tableCount={tableRegistry.getAllIds().length}
+          recordCount={pendingExportType ? getExportRecordCount(pendingExportType) : 0}
+          onConfirm={handleConfirmedExport}
+          onCancel={handleCancelExport}
+          loading={isExporting}
+        />
       </>
     );
   }
@@ -562,6 +772,18 @@ function DataTable({ tableId }: DataTableProps) {
       )}
 
       {renderPagination()}
+
+      {/* Export Confirmation Dialog */}
+      <ConfirmExportDialog
+        isOpen={exportDialogOpen}
+        exportType={pendingExportType || 'current-with-docs'}
+        tableName={displayName}
+        tableCount={tableRegistry.getAllIds().length}
+        recordCount={pendingExportType ? getExportRecordCount(pendingExportType) : 0}
+        onConfirm={handleConfirmedExport}
+        onCancel={handleCancelExport}
+        loading={isExporting}
+      />
     </>
   );
 }

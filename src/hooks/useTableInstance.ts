@@ -25,7 +25,6 @@ import {
 import { OMOPTableName, OMOPTableData } from '@/interfaces/observer-omop';
 import { TableConfig, TableState } from '@/components/healthcare-browser/registry';
 import { useDataBrowser } from '@/components/healthcare-browser/DataBrowserProvider';
-import { MEDICAL_TERMS } from '@/constants/table-info.constants';
 import { expandDemographic } from '@/lib/utils/utils';
 
 // ============================================================================
@@ -161,7 +160,7 @@ interface ColumnMeta {
  */
 function generateColumns<TData extends OMOPTableData>(
   data: TData[],
-  _config?: TableConfig<TData>
+  config?: TableConfig<TData>
 ): ColumnDef<TData, unknown>[] {
   if (!data.length) {
     return [];
@@ -169,23 +168,32 @@ function generateColumns<TData extends OMOPTableData>(
 
   const sampleRow = data[0];
   const keys = Object.keys(sampleRow) as (keyof TData)[];
+  const columnLabels = config?.columns?.columnLabels || {};
 
-  return keys.map((key) => ({
-    id: String(key),
-    accessorKey: key,
-    header: String(key)
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, (c) => c.toUpperCase()), // Title Case
-    cell: ({ getValue }) => {
-      const value = getValue();
-      return formatCellValue(value, String(key));
-    },
-    meta: {
-      tooltip: MEDICAL_TERMS[String(key)],
-    } as ColumnMeta,
-    enableSorting: true,
-    enableGlobalFilter: true,
-  }));
+  return keys.map((key) => {
+    const keyString = String(key);
+
+    // Get custom label from table config, fallback to auto-generated Title Case
+    const customLabel = columnLabels[keyString];
+    const header =
+      customLabel?.label || keyString.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    const description = customLabel?.description;
+
+    return {
+      id: keyString,
+      accessorKey: key,
+      header,
+      cell: ({ getValue }) => {
+        const value = getValue();
+        return formatCellValue(value, keyString);
+      },
+      meta: {
+        tooltip: description,
+      } as ColumnMeta,
+      enableSorting: true,
+      enableGlobalFilter: true,
+    };
+  });
 }
 
 // ============================================================================

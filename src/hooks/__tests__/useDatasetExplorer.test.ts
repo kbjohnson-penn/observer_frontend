@@ -1,7 +1,7 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useDatasetExplorer } from '../useDatasetExplorer';
 import { apiClient } from '@/lib/apiClient';
-import { SampleDataAPIResponse } from '@/interfaces/observer-omop';
+import { CohortDataAPIResponse } from '@/interfaces/observer-omop';
 
 // Mock the apiClient
 jest.mock('@/lib/apiClient', () => ({
@@ -13,7 +13,7 @@ jest.mock('@/lib/apiClient', () => ({
 const mockApiClient = apiClient as jest.Mocked<typeof apiClient>;
 
 describe('useDatasetExplorer', () => {
-  const mockApiResponse: SampleDataAPIResponse = {
+  const mockApiResponse: CohortDataAPIResponse = {
     persons: [
       {
         id: 1,

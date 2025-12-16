@@ -1,6 +1,7 @@
 import { FaClipboardList } from 'react-icons/fa';
 import { TableConfig } from '../types';
 import { PatientSurvey } from '@/interfaces/observer-omop';
+import { PATIENT_SURVEY_LABELS } from '@/constants/column-labels.constants';
 
 export const patientSurveyConfig: TableConfig<PatientSurvey> = {
   id: 'PATIENT_SURVEY',
@@ -12,6 +13,7 @@ export const patientSurveyConfig: TableConfig<PatientSurvey> = {
     icon: FaClipboardList,
     color: 'indigo',
     category: 'survey',
+    searchPlaceholder: 'Search patient surveys...',
   },
 
   columns: {
@@ -25,6 +27,7 @@ export const patientSurveyConfig: TableConfig<PatientSurvey> = {
       'patient_overall_health',
     ],
     pinnedColumns: ['id'],
+    columnLabels: PATIENT_SURVEY_LABELS,
   },
 
   pagination: {

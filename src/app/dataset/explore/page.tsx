@@ -90,7 +90,7 @@ const DatasetExplorePage = async () => {
       <VStack gap={8} align="stretch">
         {/* Healthcare Data Browser - Main Section */}
         <ErrorBoundary>
-          <HealthcareDataBrowser sampleData={sampleData} />
+          <HealthcareDataBrowser cohortData={sampleData} />
         </ErrorBoundary>
 
         {/* Media Viewers Section */}

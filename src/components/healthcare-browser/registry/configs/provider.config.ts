@@ -1,6 +1,7 @@
 import { FaUserMd } from 'react-icons/fa';
 import { TableConfig } from '../types';
 import { Provider } from '@/interfaces/observer-omop';
+import { PROVIDER_LABELS } from '@/constants/column-labels.constants';
 
 export const providerConfig: TableConfig<Provider> = {
   id: 'PROVIDER',
@@ -12,6 +13,7 @@ export const providerConfig: TableConfig<Provider> = {
     icon: FaUserMd,
     color: 'blue',
     category: 'person',
+    searchPlaceholder: 'Search providers...',
   },
 
   columns: {
@@ -24,6 +26,7 @@ export const providerConfig: TableConfig<Provider> = {
       'ethnicity_source_value',
     ],
     pinnedColumns: ['id'],
+    columnLabels: PROVIDER_LABELS,
   },
 
   pagination: {

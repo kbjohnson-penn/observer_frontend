@@ -6,7 +6,7 @@ import type {
   DatasetStats,
   VideoSources,
   CollapsibleStates,
-  SampleDataAPIResponse,
+  CohortDataAPIResponse,
   OMOPTableName,
 } from '@/interfaces/observer-omop';
 
@@ -41,7 +41,7 @@ export const useDatasetExplorer = () => {
         setError(null);
 
         // Call the API directly
-        const response = await apiClient.get<SampleDataAPIResponse>('/public/sample-data/', {
+        const response = await apiClient.get<CohortDataAPIResponse>('/public/sample-data/', {
           timeout: 10000, // 10 seconds timeout
         });
 

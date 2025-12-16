@@ -10,14 +10,14 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isLoggingOut } = useAuth();
 
   // Routes that should use authenticated layout
   const authenticatedRoutes = ['/dashboard', '/profile'];
   const shouldUseAuthLayout = authenticatedRoutes.some((route) => pathname.startsWith(route));
 
-  // Show loading state while checking authentication
-  if (isLoading) {
+  // Show loading state while checking authentication or during logout
+  if (isLoading || isLoggingOut) {
     return (
       <PublicLayout>
         <Box display="flex" justifyContent="center" alignItems="center" minH="50vh">

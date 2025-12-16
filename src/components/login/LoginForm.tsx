@@ -130,6 +130,18 @@ export default function LoginForm() {
                   />
                 </Field.Root>
 
+                <Box textAlign="right" width="100%">
+                  <ChakraLink
+                    as={Link}
+                    href="/forgot-password"
+                    color="blue.600"
+                    fontSize="sm"
+                    _hover={{ color: 'blue.700' }}
+                  >
+                    Forgot Password?
+                  </ChakraLink>
+                </Box>
+
                 <Button
                   type="submit"
                   bg="blue.600"

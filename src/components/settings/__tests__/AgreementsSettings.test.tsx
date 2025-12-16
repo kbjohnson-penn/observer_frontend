@@ -10,6 +10,12 @@ jest.mock('@/contexts/AuthContext', () => ({
   useAuth: jest.fn(),
 }));
 
+// Mock toaster
+jest.mock('@/components/ui/toaster', () => ({
+  toaster: { create: jest.fn() },
+  Toaster: () => null,
+}));
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

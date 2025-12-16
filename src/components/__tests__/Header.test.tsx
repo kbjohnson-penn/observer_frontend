@@ -50,6 +50,12 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   disconnect: jest.fn(),
 }));
 
+// Mock toaster
+jest.mock('@/components/ui/toaster', () => ({
+  toaster: { create: jest.fn() },
+  Toaster: () => null,
+}));
+
 // Test wrapper with ChakraProvider
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <Provider>{children}</Provider>;

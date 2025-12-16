@@ -19,7 +19,7 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import { OMOPTableName, SampleDataAPIResponse, OMOPTableData } from '@/interfaces/observer-omop';
+import { OMOPTableName, CohortDataAPIResponse, OMOPTableData } from '@/interfaces/observer-omop';
 import { tableRegistry, TableState, DataBrowserState, TableConfig } from './registry';
 import { loadColumnPreferences, saveColumnPreferences } from '@/lib/utils/userPreferences';
 
@@ -28,7 +28,7 @@ import { loadColumnPreferences, saveColumnPreferences } from '@/lib/utils/userPr
 // ============================================================================
 
 type DataBrowserAction =
-  | { type: 'SET_DATA'; payload: SampleDataAPIResponse }
+  | { type: 'SET_DATA'; payload: CohortDataAPIResponse }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_ACTIVE_TABLE'; payload: OMOPTableName }
@@ -48,6 +48,8 @@ type DataBrowserAction =
 interface DataBrowserContextValue {
   state: DataBrowserState;
   dispatch: React.Dispatch<DataBrowserAction>;
+  /** The cohort ID for server-side operations like exports */
+  cohortId: number | null;
   // Convenience methods
   setActiveTable: (tableId: OMOPTableName) => void;
   getTableData: <TData extends OMOPTableData>(tableId: OMOPTableName) => TData[];
@@ -69,8 +71,10 @@ interface DataBrowserContextValue {
 
 interface DataBrowserProviderProps {
   children: React.ReactNode;
-  /** Optional pre-loaded sample data */
-  sampleData?: SampleDataAPIResponse | null;
+  /** Pre-loaded cohort data from API */
+  cohortData?: CohortDataAPIResponse | null;
+  /** Cohort ID for server-side operations like exports */
+  cohortId?: number | null;
 }
 
 // ============================================================================
@@ -205,7 +209,7 @@ function reducer(state: DataBrowserState, action: DataBrowserAction): DataBrowse
 // Initial State
 // ============================================================================
 
-function createInitialState(sampleData?: SampleDataAPIResponse | null): DataBrowserState {
+function createInitialState(sampleData?: CohortDataAPIResponse | null): DataBrowserState {
   // Create initial states for all tables from registry
   const tableStates = tableRegistry.createAllInitialTableStates();
 
@@ -230,15 +234,15 @@ function createInitialState(sampleData?: SampleDataAPIResponse | null): DataBrow
 // Provider Component
 // ============================================================================
 
-export function DataBrowserProvider({ children, sampleData }: DataBrowserProviderProps) {
-  const [state, dispatch] = useReducer(reducer, sampleData, createInitialState);
+export function DataBrowserProvider({ children, cohortData, cohortId }: DataBrowserProviderProps) {
+  const [state, dispatch] = useReducer(reducer, cohortData, createInitialState);
 
-  // Update data when sampleData prop changes
+  // Update data when cohortData prop changes
   useEffect(() => {
-    if (sampleData) {
-      dispatch({ type: 'SET_DATA', payload: sampleData });
+    if (cohortData) {
+      dispatch({ type: 'SET_DATA', payload: cohortData });
     }
-  }, [sampleData]);
+  }, [cohortData]);
 
   // Track previous column visibility JSON to detect actual content changes
   const prevColumnVisibilityJsonRef = useRef<Record<OMOPTableName, string>>(
@@ -392,6 +396,7 @@ export function DataBrowserProvider({ children, sampleData }: DataBrowserProvide
     () => ({
       state,
       dispatch,
+      cohortId: cohortId ?? null,
       setActiveTable,
       getTableData,
       getTableConfig,
@@ -407,6 +412,7 @@ export function DataBrowserProvider({ children, sampleData }: DataBrowserProvide
     }),
     [
       state,
+      cohortId,
       setActiveTable,
       getTableData,
       getTableConfig,

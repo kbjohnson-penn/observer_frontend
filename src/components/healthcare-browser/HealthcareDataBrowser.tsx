@@ -10,7 +10,7 @@
 import React from 'react';
 import { Box, Heading, Text, Flex } from '@chakra-ui/react';
 import { FaDatabase } from 'react-icons/fa';
-import { SampleDataAPIResponse } from '@/interfaces/observer-omop';
+import { CohortDataAPIResponse } from '@/interfaces/observer-omop';
 import COLORS from '@/constants/colors';
 import { DataBrowserProvider, useDataBrowser } from './DataBrowserProvider';
 import { tableRegistry } from './registry';
@@ -23,8 +23,10 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 // ============================================================================
 
 interface HealthcareDataBrowserProps {
-  /** Sample data from API */
-  sampleData?: SampleDataAPIResponse | null;
+  /** Pre-loaded cohort data from API */
+  cohortData?: CohortDataAPIResponse | null;
+  /** Cohort ID for server-side operations like exports */
+  cohortId?: number | null;
 }
 
 // ============================================================================
@@ -134,13 +136,10 @@ function HealthcareDataBrowserContent() {
     return <EmptyState />;
   }
 
-  // Get which tables have data
-  const tablesWithData = tableRegistry.getAllIds().filter((tableId) => {
-    const data = tableRegistry.getTableData(tableId, rawData);
-    return data.length > 0;
-  });
+  // Get all registered tables (show all tables, even if empty)
+  const allTables = tableRegistry.getAllIds();
 
-  if (tablesWithData.length === 0) {
+  if (allTables.length === 0) {
     return <EmptyState />;
   }
 
@@ -148,7 +147,7 @@ function HealthcareDataBrowserContent() {
     <>
       {/* Table Selection Tabs */}
       <Box mb={6}>
-        <TableTabs visibleTables={tablesWithData} />
+        <TableTabs visibleTables={allTables} />
       </Box>
 
       {/* Active Table View (Tab Panel) */}
@@ -163,9 +162,9 @@ function HealthcareDataBrowserContent() {
 // Main Component
 // ============================================================================
 
-function HealthcareDataBrowser({ sampleData }: HealthcareDataBrowserProps) {
+function HealthcareDataBrowser({ cohortData, cohortId }: HealthcareDataBrowserProps) {
   return (
-    <DataBrowserProvider sampleData={sampleData}>
+    <DataBrowserProvider cohortData={cohortData} cohortId={cohortId}>
       <Box p={6} bg="white" borderRadius="xl" boxShadow="sm" border="1px" borderColor="gray.200">
         <BrowserHeader />
         <ErrorBoundary componentName="HealthcareDataBrowser">

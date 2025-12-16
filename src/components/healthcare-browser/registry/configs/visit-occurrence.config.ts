@@ -1,6 +1,7 @@
 import { FaCalendarAlt } from 'react-icons/fa';
 import { TableConfig } from '../types';
 import { VisitOccurrence } from '@/interfaces/observer-omop';
+import { VISIT_OCCURRENCE_LABELS } from '@/constants/column-labels.constants';
 
 export const visitOccurrenceConfig: TableConfig<VisitOccurrence> = {
   id: 'VISIT_OCCURRENCE',
@@ -12,6 +13,7 @@ export const visitOccurrenceConfig: TableConfig<VisitOccurrence> = {
     icon: FaCalendarAlt,
     color: 'green',
     category: 'clinical',
+    searchPlaceholder: 'Search visits...',
   },
 
   columns: {
@@ -24,6 +26,7 @@ export const visitOccurrenceConfig: TableConfig<VisitOccurrence> = {
       'visit_source_value',
     ],
     pinnedColumns: ['id'],
+    columnLabels: VISIT_OCCURRENCE_LABELS,
   },
 
   pagination: {

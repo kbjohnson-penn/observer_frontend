@@ -245,8 +245,8 @@ export type OMOPTableData =
   | AuditLogs
   | Concept;
 
-// API Response interface
-export interface SampleDataAPIResponse {
+// API Response interface for cohort OMOP data
+export interface CohortDataAPIResponse {
   persons: Person[];
   providers: Provider[];
   visits: VisitOccurrence[];
