@@ -152,6 +152,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       clearLogoutTimer();
       setUser(null);
       router.replace('/login');
+      // Reset isLoggingOut after navigation starts (slight delay to prevent flash)
+      setTimeout(() => setIsLoggingOut(false), 100);
     };
 
     window.addEventListener('auth:failed', handleAuthFailure);
@@ -254,6 +256,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // httpOnly cookies are cleared by backend, no need to clear localStorage
     setUser(null);
     router.replace('/login');
+    // Reset isLoggingOut after navigation starts (slight delay to prevent flash)
+    setTimeout(() => setIsLoggingOut(false), 100);
   }, [clearLogoutTimer, router]);
 
   return (
