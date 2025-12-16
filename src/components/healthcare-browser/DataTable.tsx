@@ -270,6 +270,12 @@ function DataTable({ tableId }: DataTableProps) {
         }
       }
       logger.info(`Export completed: ${pendingExportType}`);
+      // Show success toast
+      toaster.create({
+        title: 'Export Complete',
+        description: 'Your data has been downloaded successfully.',
+        type: 'success',
+      });
     } catch (error) {
       logger.error('Export failed:', error);
       // Show user-friendly error toast
