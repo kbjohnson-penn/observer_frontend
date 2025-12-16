@@ -18,6 +18,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isLoggingOut: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<boolean>;
@@ -37,6 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const logoutTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Clear any existing logout timer
@@ -146,6 +148,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Listen for auth failures from API client
     const handleAuthFailure = () => {
+      setIsLoggingOut(true);
       clearLogoutTimer();
       setUser(null);
       router.replace('/login');
@@ -162,6 +165,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [refreshToken, router, clearLogoutTimer]);
 
   const login = async (username: string, password: string) => {
+    // Reset logout state in case user is logging back in after timeout
+    setIsLoggingOut(false);
+
     // Fetch CSRF token first for state-changing operation
     const csrfResponse = await fetch(CONFIG.getApiUrl('/accounts/auth/csrf-token/'), {
       method: 'GET',
@@ -213,6 +219,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = useCallback(async () => {
+    // Prevent blank screen flash during logout
+    setIsLoggingOut(true);
     // Clear the auto-logout timer
     clearLogoutTimer();
 
@@ -254,6 +262,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isAuthenticated: !!user,
         isLoading,
+        isLoggingOut,
         login,
         logout,
         refreshToken,
