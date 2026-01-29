@@ -14,6 +14,7 @@ import {
   RACIAL_CATEGORIES,
   GENDER_CATEGORIES,
   CSV_COLUMN_ORDER,
+  NULL_MARKER,
 } from '../../constants';
 
 export const formatDateForInput = (date: Date | string): string => {
@@ -609,6 +610,11 @@ type DemographicType = 'gender' | 'race' | 'ethnicity';
 export const expandDemographic = (code: string | null, type: DemographicType): string => {
   if (!code) {
     return 'N/A';
+  }
+
+  // Handle the NULL marker from backend for filter display
+  if (code === NULL_MARKER) {
+    return 'Not Specified';
   }
 
   const normalizedCode = code.toUpperCase();

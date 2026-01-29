@@ -1,5 +1,13 @@
 import { DemographicFilterValues, LocalFilters } from '@/interfaces/researchTab';
 
+/**
+ * NULL_MARKER is used to represent NULL database values in API responses.
+ * Since JSON arrays cannot contain actual null values in a meaningful way for filtering,
+ * we use this special marker string. Displayed as "Not Specified" in the UI.
+ * This allows users to filter for records where demographic values are not recorded.
+ */
+export const NULL_MARKER = '__NULL__';
+
 export const RACIAL_CATEGORIES: { [key: string]: string } = {
   AI: 'American Indian or Alaska Native',
   A: 'Asian',

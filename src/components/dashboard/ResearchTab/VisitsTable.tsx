@@ -52,9 +52,7 @@ const VisitRow = React.memo(({ visit }: { visit: VisitSearchResult }) => {
   return (
     <Table.Row _hover={{ bg: COLORS.table.rowHoverBg, transition: 'all 0.2s' }}>
       <Table.Cell>
-        <Text fontWeight="semibold" color="blue.600" fontSize="md">
-          {visit.visit_id}
-        </Text>
+        <Text fontSize="sm">{visit.visit_id}</Text>
       </Table.Cell>
       <Table.Cell>
         <Text fontSize="sm">{visitDate}</Text>
