@@ -84,6 +84,12 @@ describe('expandDemographic', () => {
       expect(expandDemographic(null, 'ethnicity')).toBe('N/A');
     });
 
+    it('should return Not Specified for __NULL__ marker', () => {
+      expect(expandDemographic('__NULL__', 'gender')).toBe('Not Specified');
+      expect(expandDemographic('__NULL__', 'race')).toBe('Not Specified');
+      expect(expandDemographic('__NULL__', 'ethnicity')).toBe('Not Specified');
+    });
+
     it('should return original code for unknown codes', () => {
       expect(expandDemographic('UNKNOWN_CODE', 'gender')).toBe('UNKNOWN_CODE');
       expect(expandDemographic('XYZ', 'race')).toBe('XYZ');

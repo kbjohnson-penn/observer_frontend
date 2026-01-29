@@ -240,10 +240,16 @@ describe('RegisterForm', () => {
     });
 
     it('should show success message on successful registration', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ detail: 'Registration successful!' }),
-      });
+      // Mock CSRF token fetch first, then registration
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ csrfToken: 'test-csrf-token' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ detail: 'Registration successful!' }),
+        });
       const user = userEvent.setup();
 
       render(<RegisterForm />, { wrapper: TestWrapper });

@@ -18,6 +18,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { CONFIG } from '@/lib/config';
 
 interface RegistrationForm {
   email: string;
@@ -127,17 +128,27 @@ export default function RegisterForm() {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/auth/register/`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify(formData),
-        }
-      );
+      // Fetch CSRF token for state-changing operation
+      const csrfResponse = await fetch(CONFIG.getApiUrl('/accounts/auth/csrf-token/'), {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      let csrfToken = '';
+      if (csrfResponse.ok) {
+        const csrfData = await csrfResponse.json();
+        csrfToken = csrfData.csrfToken || '';
+      }
+
+      const response = await fetch(CONFIG.getApiUrl('/accounts/auth/register/'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'X-CSRFToken': csrfToken }),
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData),
+      });
 
       const data = await response.json();
 

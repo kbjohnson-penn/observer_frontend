@@ -226,37 +226,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Clear the auto-logout timer
     clearLogoutTimer();
 
-    try {
-      // Fetch CSRF token for state-changing operation
-      const csrfResponse = await fetch(CONFIG.getApiUrl('/accounts/auth/csrf-token/'), {
-        method: 'GET',
-        credentials: 'include',
-      });
+    const maxRetries = 2;
+    let backendLogoutSuccessful = false;
 
-      if (csrfResponse.ok) {
-        const csrfData = await csrfResponse.json();
-        const csrfToken = csrfData.csrfToken;
+    for (let attempt = 0; attempt <= maxRetries && !backendLogoutSuccessful; attempt++) {
+      try {
+        // Fetch CSRF token for state-changing operation
+        const csrfResponse = await fetch(CONFIG.getApiUrl('/accounts/auth/csrf-token/'), {
+          method: 'GET',
+          credentials: 'include',
+        });
 
-        if (csrfToken) {
-          await fetch(CONFIG.getApiUrl('/accounts/auth/logout/'), {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': csrfToken,
-            },
-            credentials: 'include', // Include cookies in request
-          });
+        if (csrfResponse.ok) {
+          const csrfData = await csrfResponse.json();
+          const csrfToken = csrfData.csrfToken;
+
+          if (csrfToken) {
+            const logoutResponse = await fetch(CONFIG.getApiUrl('/accounts/auth/logout/'), {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+              },
+              credentials: 'include',
+            });
+            backendLogoutSuccessful = logoutResponse.ok;
+          }
         }
+      } catch (error) {
+        logger.warn(`Logout attempt ${attempt + 1} failed:`, error);
       }
-    } catch (error) {
-      // Log logout error but continue with cleanup
-      logger.error('Logout request failed:', error);
     }
 
-    // httpOnly cookies are cleared by backend, no need to clear localStorage
+    if (!backendLogoutSuccessful) {
+      logger.error('Backend logout failed after retries - server session may still be active');
+    }
+
+    // Clear local state regardless of backend result
     setUser(null);
     router.replace('/login');
-    // Reset isLoggingOut after navigation starts (slight delay to prevent flash)
     setTimeout(() => setIsLoggingOut(false), 100);
   }, [clearLogoutTimer, router]);
 
