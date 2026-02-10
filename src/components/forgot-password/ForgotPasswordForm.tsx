@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { apiClient } from '@/lib/apiClient';
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
@@ -29,35 +30,21 @@ export default function ForgotPasswordForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/auth/password-reset/`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({ email }),
-        }
+      const response = await apiClient.post('/accounts/auth/password-reset/', { email });
+
+      setSuccessMessage(
+        response.data.detail ||
+          'If an account exists with this email, you will receive a password reset link.'
       );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccessMessage(
-          data.detail ||
-            'If an account exists with this email, you will receive a password reset link.'
-        );
-        setEmail('');
+      setEmail('');
+    } catch (err: any) {
+      if (err.response?.data?.errors?.email) {
+        setError(err.response.data.errors.email[0]);
+      } else if (err.response?.data?.detail) {
+        setError(err.response.data.detail);
       } else {
-        if (data.errors?.email) {
-          setError(data.errors.email[0]);
-        } else {
-          setError(data.detail || 'Failed to process request. Please try again.');
-        }
+        setError(err.message || 'Network error. Please check your connection and try again.');
       }
-    } catch {
-      setError('Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }

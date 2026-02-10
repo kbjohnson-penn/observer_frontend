@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, VStack, Text, Table, Button } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/AuthContext';
 import { logger } from '@/lib/logger';
+import { apiClient } from '@/lib/apiClient';
 
 interface Agreement {
   id: number;
@@ -37,20 +38,8 @@ export default function AgreementsSettings() {
 
       setIsLoading(true);
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/agreements/user-agreements/grouped/`,
-          {
-            method: 'GET',
-            credentials: 'include',
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          setAgreements(data);
-        } else {
-          logger.error('Failed to load agreements');
-        }
+        const response = await apiClient.get('/accounts/agreements/user-agreements/grouped/');
+        setAgreements(response.data);
       } catch (error) {
         logger.error('Error loading agreements:', error);
       }

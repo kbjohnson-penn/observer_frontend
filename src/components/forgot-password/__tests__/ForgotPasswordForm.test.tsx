@@ -43,6 +43,18 @@ jest.mock('@/components/ui/toaster', () => ({
   Toaster: () => null,
 }));
 
+// Mock apiClient
+const mockPost = jest.fn();
+jest.mock('@/lib/apiClient', () => ({
+  apiClient: {
+    post: (...args: unknown[]) => mockPost(...args),
+    get: jest.fn(),
+    put: jest.fn(),
+    patch: jest.fn(),
+    delete: jest.fn(),
+  },
+}));
+
 // Test wrapper with ChakraProvider
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <Provider>{children}</Provider>;
@@ -51,7 +63,6 @@ const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 describe('ForgotPasswordForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    global.fetch = jest.fn();
   });
 
   afterEach(() => {
@@ -127,11 +138,10 @@ describe('ForgotPasswordForm', () => {
 
   describe('Form Submission', () => {
     it('should submit password reset request successfully', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'If an account exists with this email, you will receive a password reset link.',
-        }),
+        },
       });
 
       render(<ForgotPasswordForm />, { wrapper: TestWrapper });
@@ -147,22 +157,16 @@ describe('ForgotPasswordForm', () => {
         expect(screen.getByText(/if an account exists with this email/i)).toBeInTheDocument();
       });
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/accounts/auth/password-reset/'),
-        expect.objectContaining({
-          method: 'POST',
-          credentials: 'include',
-          body: JSON.stringify({ email: 'test@example.com' }),
-        })
-      );
+      expect(mockPost).toHaveBeenCalledWith('/accounts/auth/password-reset/', {
+        email: 'test@example.com',
+      });
     });
 
     it('should show success view after successful submission (email form hidden)', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'If an account exists with this email, you will receive a password reset link.',
-        }),
+        },
       });
 
       render(<ForgotPasswordForm />, { wrapper: TestWrapper });
@@ -182,16 +186,15 @@ describe('ForgotPasswordForm', () => {
     });
 
     it('should show loading state during submission', async () => {
-      (global.fetch as jest.Mock).mockImplementation(
+      mockPost.mockImplementation(
         () =>
           new Promise((resolve) =>
             setTimeout(
               () =>
                 resolve({
-                  ok: true,
-                  json: async () => ({
+                  data: {
                     detail: 'Password reset link sent.',
-                  }),
+                  },
                 }),
               100
             )
@@ -213,14 +216,15 @@ describe('ForgotPasswordForm', () => {
     it('should display error message from API for email validation', async () => {
       // Note: HTML5 validation prevents submission of truly invalid emails
       // This tests the API error response when email passes HTML5 validation but fails backend validation
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          errors: {
-            email: ['Enter a valid email address.'],
+      mockPost.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: {
+            errors: {
+              email: ['Enter a valid email address.'],
+            },
           },
-        }),
+        },
       });
 
       render(<ForgotPasswordForm />, { wrapper: TestWrapper });
@@ -239,12 +243,13 @@ describe('ForgotPasswordForm', () => {
     });
 
     it('should display generic error message from API', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          detail: 'Rate limit exceeded. Please try again later.',
-        }),
+      mockPost.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: {
+            detail: 'Rate limit exceeded. Please try again later.',
+          },
+        },
       });
 
       render(<ForgotPasswordForm />, { wrapper: TestWrapper });
@@ -264,7 +269,7 @@ describe('ForgotPasswordForm', () => {
     });
 
     it('should handle network errors', async () => {
-      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+      mockPost.mockRejectedValueOnce(new Error('Network error'));
 
       render(<ForgotPasswordForm />, { wrapper: TestWrapper });
 
@@ -276,20 +281,17 @@ describe('ForgotPasswordForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Network error. Please check your connection and try again.')
-        ).toBeInTheDocument();
+        expect(screen.getByText(/network error/i)).toBeInTheDocument();
       });
     });
   });
 
   describe('Success State', () => {
     it('should show success view after successful submission', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'If an account exists with this email, you will receive a password reset link.',
-        }),
+        },
       });
 
       render(<ForgotPasswordForm />, { wrapper: TestWrapper });
@@ -308,11 +310,10 @@ describe('ForgotPasswordForm', () => {
     });
 
     it('should show "try again" link after success', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'Password reset link sent.',
-        }),
+        },
       });
 
       render(<ForgotPasswordForm />, { wrapper: TestWrapper });
@@ -330,11 +331,10 @@ describe('ForgotPasswordForm', () => {
     });
 
     it('should allow user to try again after success', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'Password reset link sent.',
-        }),
+        },
       });
 
       render(<ForgotPasswordForm />, { wrapper: TestWrapper });
@@ -362,11 +362,10 @@ describe('ForgotPasswordForm', () => {
     });
 
     it('should show "Back to Sign In" link in success view', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'Password reset link sent.',
-        }),
+        },
       });
 
       render(<ForgotPasswordForm />, { wrapper: TestWrapper });

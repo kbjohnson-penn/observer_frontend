@@ -16,6 +16,18 @@ jest.mock('@/components/ui/toaster', () => ({
   Toaster: () => null,
 }));
 
+// Mock apiClient
+const mockGet = jest.fn();
+jest.mock('@/lib/apiClient', () => ({
+  apiClient: {
+    post: jest.fn(),
+    get: (...args: unknown[]) => mockGet(...args),
+    put: jest.fn(),
+    patch: jest.fn(),
+    delete: jest.fn(),
+  },
+}));
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -87,7 +99,6 @@ describe('AgreementsSettings', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    global.fetch = jest.fn();
 
     mockUseAuth.mockReturnValue({
       user: mockUser,
@@ -101,12 +112,11 @@ describe('AgreementsSettings', () => {
 
   describe('Component Rendering', () => {
     it('should render agreements sections', () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           data_use_agreements: [],
           code_of_conduct: [],
-        }),
+        },
       });
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
@@ -129,34 +139,26 @@ describe('AgreementsSettings', () => {
 
   describe('Data Loading', () => {
     it('should load agreements on mount', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           data_use_agreements: mockDataUseAgreements,
           code_of_conduct: mockCodeOfConduct,
-        }),
+        },
       });
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('/accounts/agreements/user-agreements/grouped/'),
-          expect.objectContaining({
-            method: 'GET',
-            credentials: 'include',
-          })
-        );
+        expect(mockGet).toHaveBeenCalledWith('/accounts/agreements/user-agreements/grouped/');
       });
     });
 
     it('should display loaded data use agreements', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           data_use_agreements: mockDataUseAgreements,
           code_of_conduct: [],
-        }),
+        },
       });
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
@@ -171,12 +173,11 @@ describe('AgreementsSettings', () => {
     });
 
     it('should display loaded code of conduct agreements', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           data_use_agreements: [],
           code_of_conduct: mockCodeOfConduct,
-        }),
+        },
       });
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
@@ -189,9 +190,10 @@ describe('AgreementsSettings', () => {
     });
 
     it('should handle loading errors gracefully', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 500,
+      mockGet.mockRejectedValueOnce({
+        response: {
+          status: 500,
+        },
       });
 
       // Mock logger.error since we use logger instead of console
@@ -201,14 +203,14 @@ describe('AgreementsSettings', () => {
       render(<AgreementsSettings />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(loggerErrorSpy).toHaveBeenCalledWith('Failed to load agreements');
+        expect(loggerErrorSpy).toHaveBeenCalledWith('Error loading agreements:', expect.anything());
       });
 
       loggerErrorSpy.mockRestore();
     });
 
     it('should handle network errors', async () => {
-      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+      mockGet.mockRejectedValueOnce(new Error('Network error'));
 
       // Mock logger.error since we use logger instead of console
       const mockLogger = require('@/lib/logger');
@@ -226,12 +228,11 @@ describe('AgreementsSettings', () => {
 
   describe('Empty States', () => {
     it('should show empty state for data use agreements', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           data_use_agreements: [],
           code_of_conduct: [],
-        }),
+        },
       });
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
@@ -245,12 +246,11 @@ describe('AgreementsSettings', () => {
     });
 
     it('should show empty state for code of conduct', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           data_use_agreements: [],
           code_of_conduct: [],
-        }),
+        },
       });
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
@@ -263,12 +263,11 @@ describe('AgreementsSettings', () => {
 
   describe('View Agreement Functionality', () => {
     it('should open agreement URL in new tab when View Document is clicked', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           data_use_agreements: mockDataUseAgreements,
           code_of_conduct: [],
-        }),
+        },
       });
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
@@ -291,12 +290,11 @@ describe('AgreementsSettings', () => {
         viewUrl: undefined,
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           data_use_agreements: [agreementWithoutUrl],
           code_of_conduct: [],
-        }),
+        },
       });
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
@@ -312,12 +310,11 @@ describe('AgreementsSettings', () => {
         viewUrl: '#',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           data_use_agreements: [agreementWithHashUrl],
           code_of_conduct: [],
-        }),
+        },
       });
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
@@ -337,12 +334,11 @@ describe('AgreementsSettings', () => {
 
   describe('Table Display', () => {
     it('should display correct column headers for data use agreements', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           data_use_agreements: mockDataUseAgreements,
           code_of_conduct: [],
-        }),
+        },
       });
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
@@ -357,12 +353,11 @@ describe('AgreementsSettings', () => {
     });
 
     it('should display correct column headers for code of conduct', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           data_use_agreements: [],
           code_of_conduct: mockCodeOfConduct,
-        }),
+        },
       });
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
@@ -380,12 +375,11 @@ describe('AgreementsSettings', () => {
         project: '',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           data_use_agreements: [agreementWithoutProject],
           code_of_conduct: [],
-        }),
+        },
       });
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });
@@ -403,12 +397,11 @@ describe('AgreementsSettings', () => {
         version: '3.0',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           data_use_agreements: [agreementWithoutName],
           code_of_conduct: [],
-        }),
+        },
       });
 
       render(<AgreementsSettings />, { wrapper: TestWrapper });

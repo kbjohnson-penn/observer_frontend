@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/apiClient';
+import { CONFIG } from '@/lib/config';
 import type {
   DatasetStats,
   VideoSources,
@@ -80,22 +81,19 @@ export const useDatasetExplorer = () => {
         const newVideoSources: VideoSources = { patient: '', provider: '', room: '' };
         let newTranscriptSource = '';
 
-        // Base API URL for video streaming
-        const baseApiUrl = process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1';
-
         observations.forEach((obs) => {
           switch (obs.file_type) {
             case 'patient_view':
-              newVideoSources.patient = `${baseApiUrl}/public/video/${obs.file_path}/`;
+              newVideoSources.patient = CONFIG.getApiUrl(`/public/video/${obs.file_path}/`);
               break;
             case 'provider_view':
-              newVideoSources.provider = `${baseApiUrl}/public/video/${obs.file_path}/`;
+              newVideoSources.provider = CONFIG.getApiUrl(`/public/video/${obs.file_path}/`);
               break;
             case 'room_view':
-              newVideoSources.room = `${baseApiUrl}/public/video/${obs.file_path}/`;
+              newVideoSources.room = CONFIG.getApiUrl(`/public/video/${obs.file_path}/`);
               break;
             case 'transcript':
-              newTranscriptSource = `${baseApiUrl}/public/video/${obs.file_path}/`;
+              newTranscriptSource = CONFIG.getApiUrl(`/public/video/${obs.file_path}/`);
               break;
           }
         });

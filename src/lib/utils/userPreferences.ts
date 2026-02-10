@@ -1,12 +1,16 @@
 /**
  * User Preferences Utility
  *
- * Manages browser localStorage for persisting user preferences across sessions.
+ * Manages browser sessionStorage for persisting user preferences within a session.
  * Currently handles column visibility preferences for data tables.
  *
+ * NOTE: Uses sessionStorage (not localStorage) for HIPAA compliance.
+ * Preferences automatically clear when the browser tab/window closes.
+ *
  * Features:
- * - Persistent storage of UI preferences
- * - Graceful fallback when localStorage is unavailable (private browsing)
+ * - Session-scoped storage of UI preferences
+ * - Automatic cleanup on session end (improves privacy/security)
+ * - Graceful fallback when sessionStorage is unavailable (private browsing)
  * - Automatic error logging
  * - Namespaced keys to avoid conflicts
  *
@@ -31,13 +35,13 @@ export interface ColumnVisibility {
   [columnId: string]: boolean;
 }
 
-/** Prefix for all Observer localStorage keys to avoid conflicts */
+/** Prefix for all Observer sessionStorage keys to avoid conflicts */
 const STORAGE_PREFIX = 'observer_';
 
 /**
- * Type guard to validate parsed localStorage data is a valid ColumnVisibility object
+ * Type guard to validate parsed sessionStorage data is a valid ColumnVisibility object
  *
- * @param data - Unknown data parsed from localStorage
+ * @param data - Unknown data parsed from sessionStorage
  * @returns True if data is a valid ColumnVisibility object
  */
 function isValidColumnVisibility(data: unknown): data is ColumnVisibility {
@@ -52,8 +56,8 @@ function isValidColumnVisibility(data: unknown): data is ColumnVisibility {
 /**
  * Save column visibility preferences for a specific table
  *
- * Persists the visibility state of columns to localStorage so that user
- * preferences are retained across browser sessions.
+ * Persists the visibility state of columns to sessionStorage for the current
+ * browser session. Preferences are automatically cleared when the tab/window closes.
  *
  * @param tableName - Name of the table (e.g., 'PERSON', 'VISIT_OCCURRENCE')
  * @param visibility - Map of column IDs to their visibility states
@@ -67,9 +71,9 @@ function isValidColumnVisibility(data: unknown): data is ColumnVisibility {
 export const saveColumnPreferences = (tableName: string, visibility: ColumnVisibility): void => {
   try {
     const key = `${STORAGE_PREFIX}columns_${tableName}`;
-    localStorage.setItem(key, JSON.stringify(visibility));
+    sessionStorage.setItem(key, JSON.stringify(visibility));
   } catch (error) {
-    // Silently fail if localStorage is unavailable (e.g., private browsing)
+    // Silently fail if sessionStorage is unavailable (e.g., private browsing)
     logger.warn('Failed to save column preferences:', error);
   }
 };
@@ -77,7 +81,7 @@ export const saveColumnPreferences = (tableName: string, visibility: ColumnVisib
 /**
  * Load column visibility preferences for a specific table
  *
- * Retrieves previously saved column visibility preferences from localStorage.
+ * Retrieves previously saved column visibility preferences from sessionStorage.
  * Returns null if no preferences exist for the table.
  *
  * @param tableName - Name of the table (e.g., 'PERSON', 'VISIT_OCCURRENCE')
@@ -92,7 +96,7 @@ export const saveColumnPreferences = (tableName: string, visibility: ColumnVisib
 export const loadColumnPreferences = (tableName: string): ColumnVisibility | null => {
   try {
     const key = `${STORAGE_PREFIX}columns_${tableName}`;
-    const saved = localStorage.getItem(key);
+    const saved = sessionStorage.getItem(key);
     if (!saved) {
       return null;
     }
@@ -123,7 +127,7 @@ export const loadColumnPreferences = (tableName: string): ColumnVisibility | nul
 export const clearColumnPreferences = (tableName: string): void => {
   try {
     const key = `${STORAGE_PREFIX}columns_${tableName}`;
-    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
   } catch (error) {
     logger.warn('Failed to clear column preferences:', error);
   }
@@ -132,7 +136,7 @@ export const clearColumnPreferences = (tableName: string): void => {
 /**
  * Clear all user preferences
  *
- * Removes ALL Observer-related preferences from localStorage.
+ * Removes ALL Observer-related preferences from sessionStorage.
  * Use with caution as this cannot be undone.
  *
  * @example
@@ -141,10 +145,10 @@ export const clearColumnPreferences = (tableName: string): void => {
  */
 export const clearAllPreferences = (): void => {
   try {
-    const keys = Object.keys(localStorage);
+    const keys = Object.keys(sessionStorage);
     keys.forEach((key) => {
       if (key.startsWith(STORAGE_PREFIX)) {
-        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
       }
     });
   } catch (error) {

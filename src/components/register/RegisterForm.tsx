@@ -18,7 +18,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { CONFIG } from '@/lib/config';
+import { apiClient } from '@/lib/apiClient';
 
 interface RegistrationForm {
   email: string;
@@ -128,50 +128,29 @@ export default function RegisterForm() {
     }
 
     try {
-      // Fetch CSRF token for state-changing operation
-      const csrfResponse = await fetch(CONFIG.getApiUrl('/accounts/auth/csrf-token/'), {
-        method: 'GET',
-        credentials: 'include',
+      const response = await apiClient.post('/accounts/auth/register/', formData);
+
+      setSuccessMessage(
+        response.data.detail ||
+          'Registration successful! Please check your email to verify your account.'
+      );
+      // Clear form
+      setFormData({
+        email: '',
+        first_name: '',
+        last_name: '',
+        organization_name: '',
       });
-
-      let csrfToken = '';
-      if (csrfResponse.ok) {
-        const csrfData = await csrfResponse.json();
-        csrfToken = csrfData.csrfToken || '';
-      }
-
-      const response = await fetch(CONFIG.getApiUrl('/accounts/auth/register/'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(csrfToken && { 'X-CSRFToken': csrfToken }),
-        },
-        credentials: 'include',
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccessMessage(
-          data.detail || 'Registration successful! Please check your email to verify your account.'
-        );
-        // Clear form
-        setFormData({
-          email: '',
-          first_name: '',
-          last_name: '',
-          organization_name: '',
-        });
+    } catch (err: any) {
+      if (err.response?.data?.errors) {
+        setErrors(err.response.data.errors);
+      } else if (err.response?.data?.detail) {
+        setGeneralError(err.response.data.detail);
       } else {
-        if (data.errors) {
-          setErrors(data.errors);
-        } else {
-          setGeneralError(data.detail || 'Registration failed. Please try again.');
-        }
+        setGeneralError(
+          err.message || 'Network error. Please check your connection and try again.'
+        );
       }
-    } catch {
-      setGeneralError('Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }

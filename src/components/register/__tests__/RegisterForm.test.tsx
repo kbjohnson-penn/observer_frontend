@@ -55,9 +55,17 @@ jest.mock('@/components/ui/toaster', () => ({
   Toaster: () => null,
 }));
 
-// Mock fetch for registration API calls
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
+// Mock apiClient
+const mockPost = jest.fn();
+jest.mock('@/lib/apiClient', () => ({
+  apiClient: {
+    post: (...args: unknown[]) => mockPost(...args),
+    get: jest.fn(),
+    put: jest.fn(),
+    patch: jest.fn(),
+    delete: jest.fn(),
+  },
+}));
 
 // Test wrapper with ChakraProvider
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -80,7 +88,7 @@ describe('RegisterForm', () => {
       isAuthenticated: false,
       isLoading: false,
     });
-    mockFetch.mockReset();
+    mockPost.mockClear();
   });
 
   it('should render registration form', () => {
@@ -209,7 +217,7 @@ describe('RegisterForm', () => {
       const fetchPromise = new Promise((resolve) => {
         resolvePromise = resolve;
       });
-      mockFetch.mockImplementation(() => fetchPromise);
+      mockPost.mockImplementation(() => fetchPromise);
       const user = userEvent.setup();
 
       render(<RegisterForm />, { wrapper: TestWrapper });
@@ -231,7 +239,7 @@ describe('RegisterForm', () => {
       expect(screen.getByRole('button', { name: /creating account/i })).toBeDisabled();
 
       // Now resolve the promise to complete the submission
-      resolvePromise!({ ok: true, json: async () => ({ detail: 'Success' }) });
+      resolvePromise!({ data: { detail: 'Success' } });
 
       // After success, form shows success message (button disappears)
       await waitFor(() => {
@@ -240,16 +248,9 @@ describe('RegisterForm', () => {
     });
 
     it('should show success message on successful registration', async () => {
-      // Mock CSRF token fetch first, then registration
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ csrfToken: 'test-csrf-token' }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ detail: 'Registration successful!' }),
-        });
+      mockPost.mockResolvedValueOnce({
+        data: { detail: 'Registration successful!' },
+      });
       const user = userEvent.setup();
 
       render(<RegisterForm />, { wrapper: TestWrapper });
@@ -272,7 +273,7 @@ describe('RegisterForm', () => {
     });
 
     it('should handle network errors gracefully', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+      mockPost.mockRejectedValueOnce(new Error('Network error'));
       const user = userEvent.setup();
 
       render(<RegisterForm />, { wrapper: TestWrapper });

@@ -4,6 +4,7 @@ import React, { createContext, useState, useContext, useEffect, useCallback, use
 import { useRouter } from 'next/navigation';
 import { CONFIG } from '@/lib/config';
 import { logger } from '@/lib/logger';
+import { fetchWithTimeout } from '@/lib/utils/fetchWithTimeout';
 
 // Buffer time before token expiry to trigger logout (in seconds)
 const AUTO_LOGOUT_BUFFER_SECONDS = 30;
@@ -81,13 +82,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Define refreshToken BEFORE useEffect that uses it
   const refreshToken = useCallback(async (): Promise<boolean> => {
     try {
-      const response = await fetch(CONFIG.getApiUrl('/accounts/auth/token/refresh/'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetchWithTimeout(
+        CONFIG.getApiUrl('/accounts/auth/token/refresh/'),
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Include cookies in request
         },
-        credentials: 'include', // Include cookies in request
-      });
+        10000
+      );
 
       if (response.ok) {
         // Get expires_at from refresh response for auto-logout scheduling
@@ -96,10 +101,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Backend handles setting new httpOnly cookies
         // We need to get user info from a protected endpoint
-        const userResponse = await fetch(CONFIG.getApiUrl('/accounts/profile/'), {
-          method: 'GET',
-          credentials: 'include',
-        });
+        const userResponse = await fetchWithTimeout(
+          CONFIG.getApiUrl('/accounts/profile/'),
+          {
+            method: 'GET',
+            credentials: 'include',
+          },
+          10000
+        );
 
         if (userResponse.ok) {
           const userData = await userResponse.json();
@@ -171,10 +180,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoggingOut(false);
 
     // Fetch CSRF token first for state-changing operation
-    const csrfResponse = await fetch(CONFIG.getApiUrl('/accounts/auth/csrf-token/'), {
-      method: 'GET',
-      credentials: 'include',
-    });
+    const csrfResponse = await fetchWithTimeout(
+      CONFIG.getApiUrl('/accounts/auth/csrf-token/'),
+      {
+        method: 'GET',
+        credentials: 'include',
+      },
+      10000
+    );
 
     if (!csrfResponse.ok) {
       throw new Error('Failed to obtain CSRF token');
@@ -187,15 +200,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('CSRF token missing from response');
     }
 
-    const response = await fetch(CONFIG.getApiUrl('/accounts/auth/token/'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,
+    const response = await fetchWithTimeout(
+      CONFIG.getApiUrl('/accounts/auth/token/'),
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include', // Include cookies in request
       },
-      body: JSON.stringify({ username, password }),
-      credentials: 'include', // Include cookies in request
-    });
+      10000
+    );
 
     if (!response.ok) {
       throw new Error('Invalid username or password');
@@ -232,24 +249,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     for (let attempt = 0; attempt <= maxRetries && !backendLogoutSuccessful; attempt++) {
       try {
         // Fetch CSRF token for state-changing operation
-        const csrfResponse = await fetch(CONFIG.getApiUrl('/accounts/auth/csrf-token/'), {
-          method: 'GET',
-          credentials: 'include',
-        });
+        const csrfResponse = await fetchWithTimeout(
+          CONFIG.getApiUrl('/accounts/auth/csrf-token/'),
+          {
+            method: 'GET',
+            credentials: 'include',
+          },
+          10000
+        );
 
         if (csrfResponse.ok) {
           const csrfData = await csrfResponse.json();
           const csrfToken = csrfData.csrfToken;
 
           if (csrfToken) {
-            const logoutResponse = await fetch(CONFIG.getApiUrl('/accounts/auth/logout/'), {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken,
+            const logoutResponse = await fetchWithTimeout(
+              CONFIG.getApiUrl('/accounts/auth/logout/'),
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': csrfToken,
+                },
+                credentials: 'include',
               },
-              credentials: 'include',
-            });
+              10000
+            );
             backendLogoutSuccessful = logoutResponse.ok;
           }
         }

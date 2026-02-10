@@ -21,7 +21,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return (
       <PublicLayout>
         <Box display="flex" justifyContent="center" alignItems="center" minH="50vh">
-          <ProgressCircle.Root value={null} size="lg" colorPalette="blue">
+          <ProgressCircle.Root size="lg" colorPalette="blue">
             <ProgressCircle.Circle>
               <ProgressCircle.Track stroke="gray.200" />
               <ProgressCircle.Range />

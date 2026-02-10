@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Label } from 'recharts';
 import { DATA_PATH_COLORS } from '@/constants/colors';
 
@@ -159,14 +159,10 @@ const EncountersByMultiModalDataChart: React.FC<EncountersByMultiModalDataChartP
   const groupedData = useMemo(() => groupData(data), [data]);
 
   // Create a memoized custom tick component with the current screen width
-  const CustomTick = useMemo(() => {
-    // Give the component a display name to fix the ESLint error
-    const TickComponent = (props: any) => (
-      <CustomizedAxisTick {...props} screenWidth={screenWidth} />
-    );
-    TickComponent.displayName = 'CustomTick';
-    return TickComponent;
-  }, [screenWidth]);
+  const CustomTick = useCallback(
+    (props: any) => <CustomizedAxisTick {...props} screenWidth={screenWidth} />,
+    [screenWidth]
+  );
 
   // Sort data by count in descending order
   const sortedData = [...groupedData].sort((a, b) => b.count - a.count);

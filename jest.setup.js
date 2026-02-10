@@ -4,7 +4,9 @@ import '@testing-library/jest-dom';
 // Polyfill structuredClone for Node < 17
 if (typeof global.structuredClone === 'undefined') {
   global.structuredClone = (obj) => {
-    if (obj === undefined) return undefined;
+    if (obj === undefined) {
+      return undefined;
+    }
     return JSON.parse(JSON.stringify(obj));
   };
 }

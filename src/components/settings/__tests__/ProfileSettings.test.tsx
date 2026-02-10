@@ -16,6 +16,19 @@ jest.mock('@/components/ui/toaster', () => ({
   Toaster: () => null,
 }));
 
+// Mock apiClient
+const mockGet = jest.fn();
+const mockPatch = jest.fn();
+jest.mock('@/lib/apiClient', () => ({
+  apiClient: {
+    post: jest.fn(),
+    get: (...args: unknown[]) => mockGet(...args),
+    put: jest.fn(),
+    patch: (...args: unknown[]) => mockPatch(...args),
+    delete: jest.fn(),
+  },
+}));
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -52,7 +65,6 @@ describe('ProfileSettings', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    global.fetch = jest.fn();
 
     mockUseAuth.mockReturnValue({
       user: mockUser,
@@ -66,9 +78,8 @@ describe('ProfileSettings', () => {
 
   describe('Component Rendering', () => {
     it('should render the profile form', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           first_name: 'John',
           last_name: 'Doe',
           date_of_birth: '1990-01-01',
@@ -79,7 +90,7 @@ describe('ProfileSettings', () => {
           country: 'USA',
           zip_code: '19104',
           bio: 'Test bio',
-        }),
+        },
       });
 
       render(<ProfileSettings />, { wrapper: TestWrapper });
@@ -119,28 +130,22 @@ describe('ProfileSettings', () => {
         bio: 'Test bio',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => profileData,
+      mockGet.mockResolvedValueOnce({
+        data: profileData,
       });
 
       render(<ProfileSettings />, { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('/accounts/profile/'),
-          expect.objectContaining({
-            method: 'GET',
-            credentials: 'include',
-          })
-        );
+        expect(mockGet).toHaveBeenCalledWith('/accounts/profile/');
       });
     });
 
     it('should handle profile load failure gracefully', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 500,
+      mockGet.mockRejectedValueOnce({
+        response: {
+          status: 500,
+        },
       });
 
       render(<ProfileSettings />, { wrapper: TestWrapper });
@@ -157,13 +162,12 @@ describe('ProfileSettings', () => {
 
   describe('Form Interaction', () => {
     beforeEach(async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           first_name: 'John',
           last_name: 'Doe',
           phone_number: '',
-        }),
+        },
       });
     });
 
@@ -231,21 +235,19 @@ describe('ProfileSettings', () => {
 
   describe('Form Submission', () => {
     beforeEach(async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockGet.mockResolvedValueOnce({
+        data: {
           first_name: 'John',
           last_name: 'Doe',
-        }),
+        },
       });
     });
 
     it('should submit profile update successfully', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPatch.mockResolvedValueOnce({
+        data: {
           phone_number: '5551234567',
-        }),
+        },
       });
 
       render(<ProfileSettings />, { wrapper: TestWrapper });
@@ -265,14 +267,13 @@ describe('ProfileSettings', () => {
     });
 
     it('should show loading state during submission', async () => {
-      (global.fetch as jest.Mock).mockImplementation(
+      mockPatch.mockImplementation(
         () =>
           new Promise((resolve) =>
             setTimeout(
               () =>
                 resolve({
-                  ok: true,
-                  json: async () => ({}),
+                  data: {},
                 }),
               100
             )
@@ -294,12 +295,13 @@ describe('ProfileSettings', () => {
     });
 
     it('should display error message on submission failure', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          phone_number: ['Invalid phone number format'],
-        }),
+      mockPatch.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: {
+            phone_number: ['Invalid phone number format'],
+          },
+        },
       });
 
       render(<ProfileSettings />, { wrapper: TestWrapper });
@@ -319,7 +321,7 @@ describe('ProfileSettings', () => {
     });
 
     it('should handle network errors', async () => {
-      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+      mockPatch.mockRejectedValueOnce(new Error('Network error'));
 
       render(<ProfileSettings />, { wrapper: TestWrapper });
 
@@ -333,15 +335,16 @@ describe('ProfileSettings', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/Network error: Unable to connect to server/)).toBeInTheDocument();
+        expect(screen.getByText('Network error')).toBeInTheDocument();
       });
     });
 
     it('should handle 401 unauthorized error', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        json: async () => ({ detail: 'Unauthorized' }),
+      mockPatch.mockRejectedValueOnce({
+        response: {
+          status: 401,
+          data: { detail: 'Unauthorized' },
+        },
       });
 
       render(<ProfileSettings />, { wrapper: TestWrapper });

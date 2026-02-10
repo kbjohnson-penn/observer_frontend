@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { middleware } from '../middleware';
+import { proxy } from '../proxy';
 
 // Mock NextResponse
 jest.mock('next/server', () => ({
@@ -10,7 +10,7 @@ jest.mock('next/server', () => ({
   NextRequest: jest.fn(),
 }));
 
-describe('Middleware', () => {
+describe('Proxy', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -27,7 +27,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      middleware(request);
+      proxy(request);
 
       expect(request.cookies.get).toHaveBeenCalledWith('access_token');
       expect(NextResponse.redirect).toHaveBeenCalledWith(
@@ -48,7 +48,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      middleware(request);
+      proxy(request);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
     });
@@ -64,7 +64,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      middleware(request);
+      proxy(request);
 
       expect(request.cookies.get).toHaveBeenCalledWith('access_token');
       expect(NextResponse.redirect).toHaveBeenCalled();
@@ -81,7 +81,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      middleware(request);
+      proxy(request);
 
       expect(request.cookies.get).toHaveBeenCalledWith('access_token');
       expect(NextResponse.next).toHaveBeenCalled();
@@ -98,7 +98,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      middleware(request);
+      proxy(request);
 
       expect(NextResponse.next).toHaveBeenCalled();
     });
@@ -114,7 +114,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      middleware(request);
+      proxy(request);
 
       expect(NextResponse.redirect).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -136,7 +136,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      middleware(request);
+      proxy(request);
 
       expect(NextResponse.redirect).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -156,7 +156,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      middleware(request);
+      proxy(request);
 
       expect(NextResponse.next).toHaveBeenCalled();
     });
@@ -174,7 +174,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      middleware(request);
+      proxy(request);
 
       expect(NextResponse.next).toHaveBeenCalled();
     });
@@ -195,7 +195,7 @@ describe('Middleware', () => {
           },
         } as unknown as NextRequest;
 
-        middleware(request);
+        proxy(request);
 
         // Should not redirect
         expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -215,7 +215,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      middleware(request);
+      proxy(request);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
     });
@@ -231,7 +231,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      middleware(request);
+      proxy(request);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
     });
@@ -252,7 +252,7 @@ describe('Middleware', () => {
           },
         } as unknown as NextRequest;
 
-        middleware(request);
+        proxy(request);
 
         expect(NextResponse.redirect).toHaveBeenCalled();
       });
@@ -269,7 +269,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      middleware(request);
+      proxy(request);
 
       expect(NextResponse.next).toHaveBeenCalled();
     });
@@ -285,7 +285,7 @@ describe('Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      middleware(request);
+      proxy(request);
 
       expect(NextResponse.next).toHaveBeenCalled();
     });

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, VStack, HStack, Input, Text, Button, Alert, Textarea } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/AuthContext';
 import { logger } from '@/lib/logger';
+import { apiClient } from '@/lib/apiClient';
 
 // Reusable form field component
 interface FormFieldProps {
@@ -91,29 +92,19 @@ export default function ProfileSettings() {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/profile/`,
-          {
-            method: 'GET',
-            credentials: 'include',
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          setProfileData({
-            first_name: data.first_name || '',
-            last_name: data.last_name || '',
-            date_of_birth: data.date_of_birth || '',
-            phone_number: data.phone_number || '',
-            address: data.address || '',
-            city: data.city || '',
-            state: data.state || '',
-            country: data.country || '',
-            zip_code: data.zip_code || '',
-            bio: data.bio || '',
-          });
-        }
+        const response = await apiClient.get('/accounts/profile/');
+        setProfileData({
+          first_name: response.data.first_name || '',
+          last_name: response.data.last_name || '',
+          date_of_birth: response.data.date_of_birth || '',
+          phone_number: response.data.phone_number || '',
+          address: response.data.address || '',
+          city: response.data.city || '',
+          state: response.data.state || '',
+          country: response.data.country || '',
+          zip_code: response.data.zip_code || '',
+          bio: response.data.bio || '',
+        });
       } catch (error) {
         logger.error('Failed to load profile:', error);
       }
@@ -181,109 +172,91 @@ export default function ProfileSettings() {
 
       logger.debug('Sending profile update request:', requestData);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/profile/`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify(requestData),
-        }
-      );
+      const response = await apiClient.patch('/accounts/profile/', requestData);
 
-      if (response.ok) {
-        const responseData = await response.json();
-        setMessage({ type: 'success', text: 'Profile updated successfully!' });
+      setMessage({ type: 'success', text: 'Profile updated successfully!' });
 
-        // Update local state with the response data to reflect any server changes
-        setProfileData({
-          first_name: responseData.first_name || '',
-          last_name: responseData.last_name || '',
-          date_of_birth: responseData.date_of_birth || '',
-          phone_number: responseData.phone_number || '',
-          address: responseData.address || '',
-          city: responseData.city || '',
-          state: responseData.state || '',
-          country: responseData.country || '',
-          zip_code: responseData.zip_code || '',
-          bio: responseData.bio || '',
-        });
-      } else {
-        logger.error(`Profile update failed with status: ${response.status}`);
+      // Update local state with the response data to reflect any server changes
+      setProfileData({
+        first_name: response.data.first_name || '',
+        last_name: response.data.last_name || '',
+        date_of_birth: response.data.date_of_birth || '',
+        phone_number: response.data.phone_number || '',
+        address: response.data.address || '',
+        city: response.data.city || '',
+        state: response.data.state || '',
+        country: response.data.country || '',
+        zip_code: response.data.zip_code || '',
+        bio: response.data.bio || '',
+      });
+    } catch (error: any) {
+      logger.error('Profile update error:', error);
 
-        let errorMessage = 'Failed to update profile';
+      let errorMessage = 'Failed to update profile';
 
-        try {
-          const errorData = await response.json();
-          logger.error('Error response:', errorData);
+      // Handle different types of errors
+      if (error.response) {
+        const status = error.response.status;
+        const errorData = error.response.data;
 
-          // Handle different types of errors
-          if (response.status === 401) {
-            errorMessage = 'Authentication required. Please log in again.';
-          } else if (response.status === 403) {
-            errorMessage = "You don't have permission to update this profile.";
-          } else if (response.status === 400) {
-            // Handle validation errors
-            if (errorData.detail) {
-              errorMessage = errorData.detail;
-            } else {
-              // Handle field-specific errors
-              const fieldErrors = [];
-              if (errorData.date_of_birth) {
-                fieldErrors.push(`Date of birth: ${errorData.date_of_birth[0]}`);
-              }
-              if (errorData.phone_number) {
-                fieldErrors.push(`Phone: ${errorData.phone_number[0]}`);
-              }
-              if (errorData.address) {
-                fieldErrors.push(`Address: ${errorData.address[0]}`);
-              }
-              if (errorData.city) {
-                fieldErrors.push(`City: ${errorData.city[0]}`);
-              }
-              if (errorData.state) {
-                fieldErrors.push(`State: ${errorData.state[0]}`);
-              }
-              if (errorData.country) {
-                fieldErrors.push(`Country: ${errorData.country[0]}`);
-              }
-              if (errorData.zip_code) {
-                fieldErrors.push(`ZIP: ${errorData.zip_code[0]}`);
-              }
-              if (errorData.bio) {
-                fieldErrors.push(`Bio: ${errorData.bio[0]}`);
-              }
+        logger.error('Error response:', errorData);
 
-              if (fieldErrors.length > 0) {
-                errorMessage = fieldErrors.join('; ');
-              }
-            }
-          } else if (errorData.detail) {
+        if (status === 401) {
+          errorMessage = 'Authentication required. Please log in again.';
+        } else if (status === 403) {
+          errorMessage = "You don't have permission to update this profile.";
+        } else if (status === 400) {
+          // Handle validation errors
+          if (errorData.detail) {
             errorMessage = errorData.detail;
-          } else if (errorData.message) {
-            errorMessage = errorData.message;
-          }
-        } catch (parseError) {
-          logger.error('Could not parse error response:', parseError);
-          errorMessage = `Server error (${response.status}). Please try again.`;
-        }
+          } else {
+            // Handle field-specific errors
+            const fieldErrors = [];
+            if (errorData.date_of_birth) {
+              fieldErrors.push(`Date of birth: ${errorData.date_of_birth[0]}`);
+            }
+            if (errorData.phone_number) {
+              fieldErrors.push(`Phone: ${errorData.phone_number[0]}`);
+            }
+            if (errorData.address) {
+              fieldErrors.push(`Address: ${errorData.address[0]}`);
+            }
+            if (errorData.city) {
+              fieldErrors.push(`City: ${errorData.city[0]}`);
+            }
+            if (errorData.state) {
+              fieldErrors.push(`State: ${errorData.state[0]}`);
+            }
+            if (errorData.country) {
+              fieldErrors.push(`Country: ${errorData.country[0]}`);
+            }
+            if (errorData.zip_code) {
+              fieldErrors.push(`ZIP: ${errorData.zip_code[0]}`);
+            }
+            if (errorData.bio) {
+              fieldErrors.push(`Bio: ${errorData.bio[0]}`);
+            }
 
-        setMessage({
-          type: 'error',
-          text: errorMessage,
-        });
+            if (fieldErrors.length > 0) {
+              errorMessage = fieldErrors.join('; ');
+            }
+          }
+        } else if (errorData.detail) {
+          errorMessage = errorData.detail;
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
       }
-    } catch (error) {
-      logger.error('Profile update network error:', error);
+
       setMessage({
         type: 'error',
-        text: 'Network error: Unable to connect to server. Please check your connection and try again.',
+        text: errorMessage,
       });
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (

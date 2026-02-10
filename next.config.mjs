@@ -3,7 +3,7 @@
  *
  * @type {import('next').NextConfig}
  */
-export default {
+const nextConfig = {
   // Experimental features
   experimental: {
     optimizePackageImports: ['@chakra-ui/react'],
@@ -106,3 +106,5 @@ export default {
     ];
   },
 };
+
+export default nextConfig;

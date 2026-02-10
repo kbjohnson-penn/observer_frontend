@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Box, VStack, HStack, Text, Button, Alert } from '@chakra-ui/react';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useAuth } from '@/contexts/AuthContext';
+import { apiClient } from '@/lib/apiClient';
 
 // Reusable password field component
 interface PasswordFieldProps {
@@ -105,71 +106,55 @@ export default function PasswordSettings() {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/auth/change-password/`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            old_password: formData.current_password,
-            new_password: formData.new_password,
-            new_password_confirm: formData.confirm_password,
-          }),
-        }
-      );
+      const response = await apiClient.post('/accounts/auth/change-password/', {
+        old_password: formData.current_password,
+        new_password: formData.new_password,
+        new_password_confirm: formData.confirm_password,
+      });
 
-      if (response.ok) {
-        const data = await response.json();
+      setMessage({
+        type: 'success',
+        text:
+          response.data.detail ||
+          'Password updated successfully! You will be logged out in 3 seconds...',
+      });
+      setFormData({
+        current_password: '',
+        new_password: '',
+        confirm_password: '',
+      });
 
-        setMessage({
-          type: 'success',
-          text:
-            data.detail || 'Password updated successfully! You will be logged out in 3 seconds...',
-        });
-        setFormData({
-          current_password: '',
-          new_password: '',
-          confirm_password: '',
-        });
-
-        // Check if backend requires logout (for security after password change)
-        if (data.logout_required) {
-          // Wait 3 seconds to show the success message, then logout
-          setTimeout(() => {
-            logout();
-          }, 3000);
-        }
-      } else {
-        const errorData = await response.json();
-        let errorMessage = 'Failed to update password';
-
-        // Handle different error formats from the API
-        if (errorData.detail) {
-          errorMessage = errorData.detail;
-        } else if (errorData.old_password?.[0]) {
-          errorMessage = errorData.old_password[0];
-        } else if (errorData.new_password?.[0]) {
-          errorMessage = errorData.new_password[0];
-        } else if (errorData.new_password_confirm?.[0]) {
-          errorMessage = errorData.new_password_confirm[0];
-        }
-
-        setMessage({
-          type: 'error',
-          text: errorMessage,
-        });
+      // Check if backend requires logout (for security after password change)
+      if (response.data.logout_required) {
+        // Wait 3 seconds to show the success message, then logout
+        setTimeout(() => {
+          logout();
+        }, 3000);
       }
-    } catch {
+    } catch (err: any) {
+      const errorData = err.response?.data;
+      let errorMessage = 'Failed to update password';
+
+      // Handle different error formats from the API
+      if (errorData?.detail) {
+        errorMessage = errorData.detail;
+      } else if (errorData?.old_password?.[0]) {
+        errorMessage = errorData.old_password[0];
+      } else if (errorData?.new_password?.[0]) {
+        errorMessage = errorData.new_password[0];
+      } else if (errorData?.new_password_confirm?.[0]) {
+        errorMessage = errorData.new_password_confirm[0];
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
       setMessage({
         type: 'error',
-        text: 'An error occurred while updating your password',
+        text: errorMessage,
       });
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (

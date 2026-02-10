@@ -18,6 +18,7 @@ import {
 import { PasswordInput } from '@/components/ui/password-input';
 import Image from 'next/image';
 import Link from 'next/link';
+import { apiClient } from '@/lib/apiClient';
 
 interface ResetPasswordForm {
   token: string;
@@ -98,44 +99,32 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/auth/password-reset/confirm/`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify(formData),
-        }
+      const response = await apiClient.post('/accounts/auth/password-reset/confirm/', formData);
+
+      setSuccessMessage(
+        response.data.detail || 'Your password has been reset successfully. You can now log in.'
       );
+      // Clear form
+      setFormData((prev) => ({
+        ...prev,
+        password: '',
+        password_confirm: '',
+      }));
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccessMessage(
-          data.detail || 'Your password has been reset successfully. You can now log in.'
-        );
-        // Clear form
-        setFormData((prev) => ({
-          ...prev,
-          password: '',
-          password_confirm: '',
-        }));
-
-        // Redirect to login after 3 seconds
-        setTimeout(() => {
-          router.push('/login');
-        }, 3000);
+      // Redirect to login after 3 seconds
+      setTimeout(() => {
+        router.push('/login');
+      }, 3000);
+    } catch (err: any) {
+      if (err.response?.data?.errors) {
+        setErrors(err.response.data.errors);
+      } else if (err.response?.data?.detail) {
+        setGeneralError(err.response.data.detail);
       } else {
-        if (data.errors) {
-          setErrors(data.errors);
-        } else {
-          setGeneralError(data.detail || 'Password reset failed. Please try again.');
-        }
+        setGeneralError(
+          err.message || 'Network error. Please check your connection and try again.'
+        );
       }
-    } catch {
-      setGeneralError('Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }

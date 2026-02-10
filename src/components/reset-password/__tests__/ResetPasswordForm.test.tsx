@@ -49,6 +49,18 @@ jest.mock('@/components/ui/toaster', () => ({
   Toaster: () => null,
 }));
 
+// Mock apiClient
+const mockPost = jest.fn();
+jest.mock('@/lib/apiClient', () => ({
+  apiClient: {
+    post: (...args: unknown[]) => mockPost(...args),
+    get: jest.fn(),
+    put: jest.fn(),
+    patch: jest.fn(),
+    delete: jest.fn(),
+  },
+}));
+
 // Test wrapper with ChakraProvider
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <Provider>{children}</Provider>;
@@ -66,7 +78,6 @@ describe('ResetPasswordForm', () => {
     jest.clearAllMocks();
     jest.useFakeTimers();
     mockUseRouter.mockReturnValue(mockRouter);
-    global.fetch = jest.fn();
   });
 
   afterEach(() => {
@@ -247,11 +258,10 @@ describe('ResetPasswordForm', () => {
   describe('Form Submission', () => {
     it('should submit password reset successfully', async () => {
       jest.useRealTimers();
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'Your password has been reset successfully. You can now log in.',
-        }),
+        },
       });
 
       render(<ResetPasswordForm token="valid-token-123" />, { wrapper: TestWrapper });
@@ -271,27 +281,19 @@ describe('ResetPasswordForm', () => {
         ).toBeInTheDocument();
       });
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/accounts/auth/password-reset/confirm/'),
-        expect.objectContaining({
-          method: 'POST',
-          credentials: 'include',
-          body: JSON.stringify({
-            token: 'valid-token-123',
-            password: 'NewPassword123!',
-            password_confirm: 'NewPassword123!',
-          }),
-        })
-      );
+      expect(mockPost).toHaveBeenCalledWith('/accounts/auth/password-reset/confirm/', {
+        token: 'valid-token-123',
+        password: 'NewPassword123!',
+        password_confirm: 'NewPassword123!',
+      });
     });
 
     it('should show success view after successful submission (form hidden)', async () => {
       jest.useRealTimers();
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'Password reset successful.',
-        }),
+        },
       });
 
       render(<ResetPasswordForm token="valid-token-123" />, { wrapper: TestWrapper });
@@ -314,16 +316,15 @@ describe('ResetPasswordForm', () => {
 
     it('should show loading state during submission', async () => {
       jest.useRealTimers();
-      (global.fetch as jest.Mock).mockImplementation(
+      mockPost.mockImplementation(
         () =>
           new Promise((resolve) =>
             setTimeout(
               () =>
                 resolve({
-                  ok: true,
-                  json: async () => ({
+                  data: {
                     detail: 'Password reset successful.',
-                  }),
+                  },
                 }),
               100
             )
@@ -345,11 +346,10 @@ describe('ResetPasswordForm', () => {
     });
 
     it('should redirect to login after successful reset', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'Password reset successful.',
-        }),
+        },
       });
 
       render(<ResetPasswordForm token="valid-token-123" />, { wrapper: TestWrapper });
@@ -379,12 +379,13 @@ describe('ResetPasswordForm', () => {
     it('should display error for invalid token from API', async () => {
       jest.useRealTimers();
       // When API returns a token error via detail (not nested errors), it shows the error view
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          detail: 'Invalid or expired token.',
-        }),
+      mockPost.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: {
+            detail: 'Invalid or expired token.',
+          },
+        },
       });
 
       render(<ResetPasswordForm token="expired-token" />, { wrapper: TestWrapper });
@@ -405,14 +406,15 @@ describe('ResetPasswordForm', () => {
 
     it('should display error for weak password from API', async () => {
       jest.useRealTimers();
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          errors: {
-            password: ['This password is too common.'],
+      mockPost.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: {
+            errors: {
+              password: ['This password is too common.'],
+            },
           },
-        }),
+        },
       });
 
       render(<ResetPasswordForm token="valid-token-123" />, { wrapper: TestWrapper });
@@ -433,12 +435,13 @@ describe('ResetPasswordForm', () => {
 
     it('should display generic API error', async () => {
       jest.useRealTimers();
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        json: async () => ({
-          detail: 'Internal server error',
-        }),
+      mockPost.mockRejectedValueOnce({
+        response: {
+          status: 500,
+          data: {
+            detail: 'Internal server error',
+          },
+        },
       });
 
       render(<ResetPasswordForm token="valid-token-123" />, { wrapper: TestWrapper });
@@ -459,7 +462,7 @@ describe('ResetPasswordForm', () => {
 
     it('should handle network errors', async () => {
       jest.useRealTimers();
-      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+      mockPost.mockRejectedValueOnce(new Error('Network error'));
 
       render(<ResetPasswordForm token="valid-token-123" />, { wrapper: TestWrapper });
 
@@ -473,9 +476,7 @@ describe('ResetPasswordForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Network error. Please check your connection and try again.')
-        ).toBeInTheDocument();
+        expect(screen.getByText('Network error')).toBeInTheDocument();
       });
     });
   });
@@ -483,11 +484,10 @@ describe('ResetPasswordForm', () => {
   describe('Success State', () => {
     it('should show success view with redirect message', async () => {
       jest.useRealTimers();
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'Password reset successful.',
-        }),
+        },
       });
 
       render(<ResetPasswordForm token="valid-token-123" />, { wrapper: TestWrapper });
@@ -508,11 +508,10 @@ describe('ResetPasswordForm', () => {
 
     it('should show link to login immediately after success', async () => {
       jest.useRealTimers();
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'Password reset successful.',
-        }),
+        },
       });
 
       render(<ResetPasswordForm token="valid-token-123" />, { wrapper: TestWrapper });
@@ -538,12 +537,13 @@ describe('ResetPasswordForm', () => {
   describe('Error State', () => {
     it('should show link to request new reset when error occurs', async () => {
       jest.useRealTimers();
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          detail: 'Token expired',
-        }),
+      mockPost.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: {
+            detail: 'Token expired',
+          },
+        },
       });
 
       render(<ResetPasswordForm token="expired-token" />, { wrapper: TestWrapper });

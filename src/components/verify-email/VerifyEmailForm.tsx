@@ -18,6 +18,7 @@ import {
 import { PasswordInput } from '@/components/ui/password-input';
 import Image from 'next/image';
 import Link from 'next/link';
+import { apiClient } from '@/lib/apiClient';
 
 interface VerificationForm {
   token: string;
@@ -98,42 +99,30 @@ export default function VerifyEmailForm({ token }: VerifyEmailFormProps) {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8000/api/v1'}/accounts/auth/verify-email/`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await apiClient.post('/accounts/auth/verify-email/', formData);
 
-      const data = await response.json();
+      setSuccessMessage(response.data.detail || 'Email verified successfully! You can now log in.');
+      // Clear form
+      setFormData((prev) => ({
+        ...prev,
+        password: '',
+        password_confirm: '',
+      }));
 
-      if (response.ok) {
-        setSuccessMessage(data.detail || 'Email verified successfully! You can now log in.');
-        // Clear form
-        setFormData((prev) => ({
-          ...prev,
-          password: '',
-          password_confirm: '',
-        }));
-
-        // Redirect to login after 3 seconds
-        setTimeout(() => {
-          router.push('/login');
-        }, 3000);
+      // Redirect to login after 3 seconds
+      setTimeout(() => {
+        router.push('/login');
+      }, 3000);
+    } catch (err: any) {
+      if (err.response?.data?.errors) {
+        setErrors(err.response.data.errors);
+      } else if (err.response?.data?.detail) {
+        setGeneralError(err.response.data.detail);
       } else {
-        if (data.errors) {
-          setErrors(data.errors);
-        } else {
-          setGeneralError(data.detail || 'Email verification failed. Please try again.');
-        }
+        setGeneralError(
+          err.message || 'Network error. Please check your connection and try again.'
+        );
       }
-    } catch {
-      setGeneralError('Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }

@@ -23,6 +23,18 @@ jest.mock('@/components/ui/toaster', () => ({
   Toaster: () => null,
 }));
 
+// Mock apiClient
+const mockPost = jest.fn();
+jest.mock('@/lib/apiClient', () => ({
+  apiClient: {
+    post: (...args: unknown[]) => mockPost(...args),
+    get: jest.fn(),
+    put: jest.fn(),
+    patch: jest.fn(),
+    delete: jest.fn(),
+  },
+}));
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -58,7 +70,6 @@ describe('PasswordSettings', () => {
     jest.clearAllTimers();
     // Explicitly reset mockLogout to ensure clean state
     mockLogout.mockClear();
-    global.fetch = jest.fn();
   });
 
   afterEach(() => {
@@ -149,12 +160,11 @@ describe('PasswordSettings', () => {
 
   describe('Form Submission', () => {
     it('should submit password change successfully', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'Password updated successfully. Please log in again with your new password.',
           logout_required: true,
-        }),
+        },
       });
 
       render(<PasswordSettings />, { wrapper: TestWrapper });
@@ -178,27 +188,19 @@ describe('PasswordSettings', () => {
         ).toBeInTheDocument();
       });
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/accounts/auth/change-password/'),
-        expect.objectContaining({
-          method: 'POST',
-          credentials: 'include',
-          body: JSON.stringify({
-            old_password: 'OldPassword123!',
-            new_password: 'NewPassword456!',
-            new_password_confirm: 'NewPassword456!',
-          }),
-        })
-      );
+      expect(mockPost).toHaveBeenCalledWith('/accounts/auth/change-password/', {
+        old_password: 'OldPassword123!',
+        new_password: 'NewPassword456!',
+        new_password_confirm: 'NewPassword456!',
+      });
     });
 
     it('should clear form fields after successful submission', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'Password updated successfully. Please log in again with your new password.',
           logout_required: true,
-        }),
+        },
       });
 
       render(<PasswordSettings />, { wrapper: TestWrapper });
@@ -228,18 +230,17 @@ describe('PasswordSettings', () => {
     });
 
     it('should show loading state during submission', async () => {
-      (global.fetch as jest.Mock).mockImplementation(
+      mockPost.mockImplementation(
         () =>
           new Promise((resolve) =>
             setTimeout(
               () =>
                 resolve({
-                  ok: true,
-                  json: async () => ({
+                  data: {
                     detail:
                       'Password updated successfully. Please log in again with your new password.',
                     logout_required: true,
-                  }),
+                  },
                 }),
               100
             )
@@ -263,12 +264,13 @@ describe('PasswordSettings', () => {
     });
 
     it('should display error message for incorrect current password', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          old_password: ['Incorrect password'],
-        }),
+      mockPost.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: {
+            old_password: ['Incorrect password'],
+          },
+        },
       });
 
       render(<PasswordSettings />, { wrapper: TestWrapper });
@@ -290,12 +292,13 @@ describe('PasswordSettings', () => {
     });
 
     it('should handle weak password error', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          new_password: ['This password is too common'],
-        }),
+      mockPost.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: {
+            new_password: ['This password is too common'],
+          },
+        },
       });
 
       render(<PasswordSettings />, { wrapper: TestWrapper });
@@ -321,12 +324,13 @@ describe('PasswordSettings', () => {
     });
 
     it('should handle generic API error', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        json: async () => ({
-          detail: 'Internal server error',
-        }),
+      mockPost.mockRejectedValueOnce({
+        response: {
+          status: 500,
+          data: {
+            detail: 'Internal server error',
+          },
+        },
       });
 
       render(<PasswordSettings />, { wrapper: TestWrapper });
@@ -348,7 +352,7 @@ describe('PasswordSettings', () => {
     });
 
     it('should handle network errors', async () => {
-      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+      mockPost.mockRejectedValueOnce(new Error('Network error'));
 
       render(<PasswordSettings />, { wrapper: TestWrapper });
 
@@ -364,9 +368,7 @@ describe('PasswordSettings', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText('An error occurred while updating your password')
-        ).toBeInTheDocument();
+        expect(screen.getByText('Network error')).toBeInTheDocument();
       });
     });
 
@@ -375,12 +377,11 @@ describe('PasswordSettings', () => {
       await new Promise((resolve) => setTimeout(resolve, 3200));
       const callsFromPreviousTests = mockLogout.mock.calls.length;
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'Password updated successfully. Please log in again with your new password.',
           logout_required: true,
-        }),
+        },
       });
 
       render(<PasswordSettings />, { wrapper: TestWrapper });
@@ -417,12 +418,11 @@ describe('PasswordSettings', () => {
       await new Promise((resolve) => setTimeout(resolve, 3200));
       const callsFromPreviousTests = mockLogout.mock.calls.length;
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+      mockPost.mockResolvedValueOnce({
+        data: {
           detail: 'Password updated successfully!',
           logout_required: false,
-        }),
+        },
       });
 
       render(<PasswordSettings />, { wrapper: TestWrapper });

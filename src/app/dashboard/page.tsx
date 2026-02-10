@@ -39,14 +39,8 @@ export default function DashboardPage() {
   // Initial load on mount
   useEffect(() => {
     loadCohortCount();
-  }, [loadCohortCount]);
-
-  // Reload cohort count when switching to cohorts tab (backup mechanism)
-  useEffect(() => {
-    if (activeTab === 'cohorts') {
-      loadCohortCount();
-    }
-  }, [activeTab, loadCohortCount]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const totalVisits = filterOptions?.total_accessible_visits || 0;
 
@@ -71,7 +65,12 @@ export default function DashboardPage() {
         defaultValue="research"
         variant="line"
         value={activeTab}
-        onValueChange={(e) => setActiveTab(e.value)}
+        onValueChange={(e) => {
+          setActiveTab(e.value);
+          if (e.value === 'cohorts') {
+            loadCohortCount();
+          }
+        }}
       >
         <Tabs.List gap={4} borderBottom="2px" borderColor="gray.200">
           <Tabs.Trigger

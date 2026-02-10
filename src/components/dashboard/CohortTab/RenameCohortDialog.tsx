@@ -46,8 +46,15 @@ export default function RenameCohortDialog({
       setNewName(cohort.name);
       setNewDescription(cohort.description || '');
       setError(null);
+    } else if (!isOpen) {
+      // Reset when dialog closes
+      setNewName('');
+      setNewDescription('');
+      setError(null);
     }
-  }, [isOpen, cohort]);
+    // Only run when isOpen or cohort.id changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, cohort?.id]);
 
   const handleSubmit = () => {
     // Use shared validation utility
