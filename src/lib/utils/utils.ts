@@ -574,7 +574,6 @@ export const downloadData = (combinedData: CombinedDataType[], format: string) =
 const VISIT_SOURCE_LABELS: Record<string, string> = {
   clinic: 'Clinic',
   simcenter: 'Sim Center',
-  pennpersonalizedcare: 'Penn Personalized Care',
 };
 
 /**

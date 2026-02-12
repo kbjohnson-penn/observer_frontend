@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import PlayGround from './_components/PlayGround';
 import axios from 'axios';
@@ -13,7 +15,9 @@ import { getDepartmentColors } from '@/lib/utils/utils';
 
 const fetchPatientsData = async (): Promise<PublicPatientDataType[]> => {
   try {
-    const response = await axios.get(`${process.env.INTERNAL_BACKEND_API}/public/patients/`);
+    const response = await axios.get(
+      `${process.env.INTERNAL_BACKEND_API}/clinical/public/patients/`
+    );
     return response.data;
   } catch {
     // Error fetching patients - return empty array
@@ -23,7 +27,9 @@ const fetchPatientsData = async (): Promise<PublicPatientDataType[]> => {
 
 const fetchProvidersData = async (): Promise<PublicProviderDataType[]> => {
   try {
-    const response = await axios.get(`${process.env.INTERNAL_BACKEND_API}/public/providers/`);
+    const response = await axios.get(
+      `${process.env.INTERNAL_BACKEND_API}/clinical/public/providers/`
+    );
     return response.data;
   } catch {
     // Error fetching providers - return empty array
@@ -33,7 +39,9 @@ const fetchProvidersData = async (): Promise<PublicProviderDataType[]> => {
 
 const fetchDepartmentData = async (): Promise<PublicDepartmentDataType[]> => {
   try {
-    const response = await axios.get(`${process.env.INTERNAL_BACKEND_API}/public/departments/`);
+    const response = await axios.get(
+      `${process.env.INTERNAL_BACKEND_API}/clinical/public/departments/`
+    );
     return response.data;
   } catch {
     // Error fetching departments - return empty array
@@ -43,7 +51,9 @@ const fetchDepartmentData = async (): Promise<PublicDepartmentDataType[]> => {
 
 const fetchEncounterData = async (): Promise<PublicEncounterDataType[]> => {
   try {
-    const response = await axios.get(`${process.env.INTERNAL_BACKEND_API}/public/encounters/`);
+    const response = await axios.get(
+      `${process.env.INTERNAL_BACKEND_API}/clinical/public/encounters/`
+    );
     return response.data;
   } catch {
     // Error fetching encounters - return empty array
@@ -53,7 +63,7 @@ const fetchEncounterData = async (): Promise<PublicEncounterDataType[]> => {
 
 const fetchMultiModalData = async (): Promise<PublicMultiModalDataType[]> => {
   try {
-    const response = await axios.get(`${process.env.INTERNAL_BACKEND_API}/public/mmdata/`);
+    const response = await axios.get(`${process.env.INTERNAL_BACKEND_API}/clinical/public/mmdata/`);
     return response.data;
   } catch {
     // Error fetching multimodal data - return empty array

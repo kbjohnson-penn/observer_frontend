@@ -33,7 +33,6 @@ export const GENDER_CATEGORIES: { [key: string]: string } = {
 export const SOURCE_OPTIONS = [
   { value: 'Simcenter', label: 'Simulation Center' },
   { value: 'Clinic', label: 'Clinic' },
-  { value: 'Pennpersonalizedcare', label: 'Penn Personalized Care' },
 ];
 
 export const DEIDENTIFIED_OPTIONS = [

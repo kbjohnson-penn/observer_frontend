@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { Box, Heading, Text, VStack } from '@chakra-ui/react';
 import { MediaViewersSection } from '@/components/dataset';
@@ -10,9 +12,12 @@ import axios from 'axios';
 // Server-side data fetching function
 const fetchSampleData = async () => {
   try {
-    const response = await axios.get(`${process.env.INTERNAL_BACKEND_API}/public/sample-data/`, {
-      timeout: 10000,
-    });
+    const response = await axios.get(
+      `${process.env.INTERNAL_BACKEND_API}/research/public/sample-data/`,
+      {
+        timeout: 10000,
+      }
+    );
     return response.data;
   } catch (error) {
     logger.error('Error fetching sample data:', error);
