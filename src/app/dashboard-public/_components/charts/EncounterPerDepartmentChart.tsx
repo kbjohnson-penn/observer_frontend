@@ -1,14 +1,5 @@
-import React from "react";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Cell,
-  Label,
-} from "recharts";
+import React from 'react';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, Label } from 'recharts';
 
 interface EncounterPerDepartmentChartProps {
   data: {
@@ -21,8 +12,12 @@ interface EncounterPerDepartmentChartProps {
 }
 
 const getBarSize = (screenWidth: number) => {
-  if (screenWidth <= 768) return 20;
-  if (screenWidth > 768 && screenWidth <= 1024) return 40;
+  if (screenWidth <= 768) {
+    return 20;
+  }
+  if (screenWidth > 768 && screenWidth <= 1024) {
+    return 40;
+  }
   return 60;
 };
 
@@ -34,7 +29,7 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
   const isTablet = screenWidth > 768 && screenWidth <= 1024;
 
   // Adjust font size based on screen size
-  const fontSize = isMobile ? "8px" : isTablet ? "9px" : "10px";
+  const fontSize = isMobile ? '8px' : isTablet ? '9px' : '10px';
   const lineHeight = parseInt(fontSize) * 1.2;
 
   // For short text (1-2 words), keep it on one line
@@ -42,15 +37,15 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
   const shouldSplit = displayText.length > 14;
 
   let firstLine = displayText;
-  let secondLine = "";
+  let secondLine = '';
 
   if (shouldSplit) {
     // Find a space near the middle to split on
     const middle = Math.floor(displayText.length / 2);
-    let splitIndex = displayText.lastIndexOf(" ", middle);
+    let splitIndex = displayText.lastIndexOf(' ', middle);
 
     if (splitIndex === -1) {
-      splitIndex = displayText.indexOf(" ", middle);
+      splitIndex = displayText.indexOf(' ', middle);
     }
 
     if (splitIndex !== -1) {
@@ -75,25 +70,17 @@ const CustomizedAxisTick: React.FC<any> = ({ x, y, payload, screenWidth }) => {
   );
 };
 
-const CustomTooltip: React.FC<any> = ({
-  active,
-  payload,
-  label,
-  departmentColors,
-}) => {
+const CustomTooltip: React.FC<any> = ({ active, payload, label, departmentColors }) => {
   if (active && payload && payload.length) {
-    const total = payload.reduce(
-      (acc: number, entry: any) => acc + entry.value,
-      0
-    );
+    const total = payload.reduce((acc: number, entry: any) => acc + entry.value, 0);
 
     return (
       <div
         className="custom-tooltip"
         style={{
-          backgroundColor: "#fff",
-          padding: "10px",
-          border: "1px solid #ccc",
+          backgroundColor: '#fff',
+          padding: '10px',
+          border: '1px solid #ccc',
         }}
       >
         <p
@@ -102,7 +89,7 @@ const CustomTooltip: React.FC<any> = ({
         >{`${label}`}</p>
         {payload.map((entry: any, index: number) => (
           <p key={index} className="text-sm">{`${
-            entry.name === "accessControlled" ? "Restricted" : "Not Restricted"
+            entry.name === 'accessControlled' ? 'Restricted' : 'Not Restricted'
           }: ${entry.value}`}</p>
         ))}
         <p className="text-sm">{`Total: ${total}`}</p>
@@ -113,19 +100,15 @@ const CustomTooltip: React.FC<any> = ({
   return null;
 };
 
-const EncounterPerDepartmentChart: React.FC<
-  EncounterPerDepartmentChartProps
-> = ({ data, departmentColors, screenWidth }) => {
+const EncounterPerDepartmentChart: React.FC<EncounterPerDepartmentChartProps> = ({
+  data,
+  departmentColors,
+  screenWidth,
+}) => {
   const barSize = getBarSize(screenWidth);
   return (
     <ResponsiveContainer width="100%" height={350}>
-      <BarChart
-        width={500}
-        height={350}
-        data={data}
-        barGap={5}
-        barCategoryGap={20}
-      >
+      <BarChart width={500} height={350} data={data} barGap={5} barCategoryGap={20}>
         {data.map((entry, index) => (
           <defs key={`def-${index}`}>
             <pattern
@@ -153,26 +136,13 @@ const EncounterPerDepartmentChart: React.FC<
           tickMargin={10}
           interval={0}
         />
-        <YAxis
-          allowDecimals={false}
-          style={{ fontSize: screenWidth <= 768 ? "10px" : "11px" }}
-        >
-          <Label
-            value="Encounters"
-            angle={-90}
-            style={{ fontSize: "12px" }}
-            offset={-5}
-          />
+        <YAxis allowDecimals={false} style={{ fontSize: screenWidth <= 768 ? '10px' : '11px' }}>
+          <Label value="Encounters" angle={-90} style={{ fontSize: '12px' }} offset={-5} />
         </YAxis>
-        <Tooltip
-          content={<CustomTooltip departmentColors={departmentColors} />}
-        />
+        <Tooltip content={<CustomTooltip departmentColors={departmentColors} />} />
         <Bar dataKey="accessControlled" barSize={barSize} stackId="a">
           {data.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={departmentColors[entry.department]}
-            />
+            <Cell key={`cell-${index}`} fill={departmentColors[entry.department]} />
           ))}
         </Bar>
         <Bar dataKey="notAccessControlled" barSize={barSize} stackId="a">

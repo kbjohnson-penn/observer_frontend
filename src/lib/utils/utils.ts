@@ -1,45 +1,67 @@
-import * as d3 from "d3";
-import { PublicDepartmentDataType } from "@/interfaces/department";
-import { PublicPatientDataType } from "@/interfaces/patient";
-import { PublicProviderDataType } from "@/interfaces/provider";
+import * as d3 from 'd3';
+import { PublicDepartmentDataType } from '@/interfaces/department';
+import { PublicPatientDataType } from '@/interfaces/patient';
+import { PublicProviderDataType } from '@/interfaces/provider';
 import {
   PublicEncounterDataType,
   CombinedDataType,
   FlattenedCombinedDataType,
   NestedCombinedDataType,
-} from "@/interfaces/encounter";
-import { PublicMultiModalDataType } from "@/interfaces/mmd";
+} from '@/interfaces/encounter';
+import { PublicMultiModalDataType } from '@/interfaces/mmd';
 import {
   ETHNIC_CATEGORIES,
   RACIAL_CATEGORIES,
+  GENDER_CATEGORIES,
   CSV_COLUMN_ORDER,
-} from "../../constants";
+  NULL_MARKER,
+} from '../../constants';
 
-export const capitalizeWords = (input: string): string => {
-  return input.replace(/\b\w/g, (char) => char.toUpperCase());
+export const formatDateForInput = (date: Date | string): string => {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
-export const checkBoolean = (input: boolean): string => {
-  return input ? "Yes" : "No";
+export const parseLocalDate = (dateString: string): Date => {
+  const parts = dateString.split('-');
+  if (parts.length !== 3) {
+    return new Date(NaN); // Return Invalid Date for malformed input
+  }
+  const [year, month, day] = parts.map(Number);
+  if (isNaN(year) || isNaN(month) || isNaN(day)) {
+    return new Date(NaN);
+  }
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return new Date(NaN);
+  }
+  return new Date(year, month - 1, day);
 };
 
-export const formatDepartmentName = (name: string): string => {
-  let formattedName = name.replace(/-/g, " ");
-  formattedName = formattedName.replace(/\b\w/g, (l) => l.toUpperCase());
-  return formattedName;
+export const formatDateForDisplay = (dateStr: string | null | undefined): string => {
+  if (!dateStr) {
+    return 'N/A';
+  }
+
+  // Validate format: must be YYYY-MM-DD
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) {
+    return 'N/A';
+  }
+
+  const [year, month, day] = parts.map(Number);
+
+  // Validate parsed values
+  if (isNaN(year) || isNaN(month) || isNaN(day)) {
+    return 'N/A';
+  }
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return 'N/A';
+  }
+
+  return new Date(year, month - 1, day).toLocaleDateString();
 };
 
-export const formatVisitDate = (date: string) => {
-  const d = new Date(date);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}-${String(d.getDate()).padStart(2, "0")}`;
-};
-
-export const getDepartmentColors = (
-  departmentData: PublicDepartmentDataType[]
-) => {
+export const getDepartmentColors = (departmentData: PublicDepartmentDataType[]) => {
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
   const departmentColors: { [key: string]: string } = {}; // Add index signature
 
@@ -58,43 +80,13 @@ export const getSummaryStats = (
     totalPatients: new Set(allEncounterData.map((e) => e.patient_id)).size,
     totalProviders: new Set(allEncounterData.map((e) => e.provider_id)).size,
     totalDepartments: new Set(allEncounterData.map((e) => e.department)).size,
-    totalAccessControlled: allEncounterData.filter((e) => e.is_restricted)
-      .length,
-    totalNotAccessControlled: allEncounterData.filter((e) => !e.is_restricted)
-      .length,
+    totalAccessControlled: allEncounterData.filter((e) => e.is_restricted).length,
+    totalNotAccessControlled: allEncounterData.filter((e) => !e.is_restricted).length,
     totalDeidentified: allEncounterData.filter((e) => e.is_deidentified).length,
-    totalNotDeidentified: allEncounterData.filter((e) => !e.is_deidentified)
-      .length,
+    totalNotDeidentified: allEncounterData.filter((e) => !e.is_deidentified).length,
   };
 
   return stats;
-};
-
-export const getEncounterPerDepartment = (
-  filteredEncounterData: PublicEncounterDataType[],
-  departmentData: PublicDepartmentDataType[]
-): { department: string; count: number }[] => {
-  const data = departmentData.map((department) => {
-    const count = filteredEncounterData.filter(
-      (encounter) => encounter.department === department.name
-    ).length;
-    return { department: department.name, count };
-  });
-  return data;
-};
-
-export const getEncountersByAccess = (
-  filteredEncounterData: PublicEncounterDataType[]
-): { access: string; count: number }[] => {
-  const data = ["Access Controlled", "Not Access Controlled"].map((access) => {
-    const count = filteredEncounterData.filter(
-      (encounter) =>
-        (access === "Access Controlled" && encounter.is_restricted) ||
-        (access === "Not Access Controlled" && !encounter.is_restricted)
-    ).length;
-    return { access, count };
-  });
-  return data;
 };
 
 export const getAccessControlByDepartment = (
@@ -107,12 +99,10 @@ export const getAccessControlByDepartment = (
 }[] => {
   const data = departmentData.map((department) => {
     const accessControlled = filteredEncounterData.filter(
-      (encounter) =>
-        encounter.department === department.name && encounter.is_restricted
+      (encounter) => encounter.department === department.name && encounter.is_restricted
     ).length;
     const notAccessControlled = filteredEncounterData.filter(
-      (encounter) =>
-        encounter.department === department.name && !encounter.is_restricted
+      (encounter) => encounter.department === department.name && !encounter.is_restricted
     ).length;
     return {
       department: department.name,
@@ -176,7 +166,7 @@ export const getEncountersByMultiModalData = (
   // TODO: Remove this hardcoded logic once Simcenter transcript data is properly stored in multimodal data
   // Check if Simcenter encounters are included in the filtered data
   const hasSimcenterEncounters = filteredEncounterData.some(
-    encounter => encounter.encounter_source === 'Simcenter'
+    (encounter) => encounter.encounter_source === 'Simcenter'
   );
 
   // Add 122 to transcript count if Simcenter is included in the filtered data
@@ -192,39 +182,11 @@ export const getEncountersByMultiModalData = (
   }));
 };
 
-export const getEncountersOverTime = (
-  filteredEncounterData: PublicEncounterDataType[]
-): { date: string; count: number; cumulativeCount: number }[] => {
-  const data = filteredEncounterData.reduce((acc, encounter) => {
-    const date = new Date(encounter.encounter_date_and_time)
-      .toISOString()
-      .split("T")[0];
-    const found = acc.find((item) => item.date === date);
-    if (found) {
-      found.count++;
-    } else {
-      acc.push({ date, count: 1 });
-    }
-    return acc;
-  }, [] as { date: string; count: number }[]);
-
-  data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-  // Calculate cumulative counts
-  let cumulativeCount = 0;
-  const dataWithCumulative = data.map((item) => {
-    cumulativeCount += item.count;
-    return { ...item, cumulativeCount };
-  });
-
-  return dataWithCumulative;
-};
-
 export const getEncountersByGroup = (
   filteredEncounterData: PublicEncounterDataType[],
   patientsData: PublicPatientDataType[],
   providerData: PublicProviderDataType[],
-  groupKey: "race" | "ethnicity",
+  groupKey: 'race' | 'ethnicity',
   groupCategories: { [key: string]: string }
 ): { name: string; patientCount: number; providerCount: number }[] => {
   const groupNames = Object.keys(groupCategories);
@@ -244,12 +206,8 @@ export const getEncountersByGroup = (
   });
 
   // Convert to lookup maps for more efficient lookup
-  const patientsMap = new Map(
-    patientsData.map((patient) => [String(patient.id), patient])
-  );
-  const providersMap = new Map(
-    providerData.map((provider) => [String(provider.id), provider])
-  );
+  const patientsMap = new Map(patientsData.map((patient) => [String(patient.id), patient]));
+  const providersMap = new Map(providerData.map((provider) => [String(provider.id), provider]));
 
   for (const encounter of filteredEncounterData) {
     // Skip if patient_id or provider_id is missing
@@ -304,7 +262,7 @@ export const getEncountersByEthnicGroups = (
     filteredEncounterData,
     patientsData,
     providerData,
-    "ethnicity",
+    'ethnicity',
     ETHNIC_CATEGORIES
   );
 };
@@ -318,7 +276,7 @@ export const getEncountersByRacialGroups = (
     filteredEncounterData,
     patientsData,
     providerData,
-    "race",
+    'race',
     RACIAL_CATEGORIES
   );
 };
@@ -353,12 +311,12 @@ export const getSatisfactionData = (
       try {
         // Convert string satisfaction to number if needed and check if both aren't zero
         const patientSat =
-          typeof encounter.patient_satisfaction === "string"
+          typeof encounter.patient_satisfaction === 'string'
             ? parseFloat(encounter.patient_satisfaction)
             : encounter.patient_satisfaction;
 
         const providerSat =
-          typeof encounter.provider_satisfaction === "string"
+          typeof encounter.provider_satisfaction === 'string'
             ? parseFloat(encounter.provider_satisfaction)
             : encounter.provider_satisfaction;
 
@@ -368,7 +326,7 @@ export const getSatisfactionData = (
         }
 
         return !(patientSat === 0 && providerSat === 0);
-      } catch (error) {
+      } catch {
         // Error processing satisfaction data - skip encounter
         return false;
       }
@@ -377,12 +335,12 @@ export const getSatisfactionData = (
       try {
         // Parse satisfaction values to numbers if they're strings
         const patientSat =
-          typeof encounter.patient_satisfaction === "string"
+          typeof encounter.patient_satisfaction === 'string'
             ? parseFloat(encounter.patient_satisfaction)
             : encounter.patient_satisfaction;
 
         const providerSat =
-          typeof encounter.provider_satisfaction === "string"
+          typeof encounter.provider_satisfaction === 'string'
             ? parseFloat(encounter.provider_satisfaction)
             : encounter.provider_satisfaction;
 
@@ -404,7 +362,7 @@ export const getSatisfactionData = (
           patientSatisfaction: normalizedPatientSatisfaction,
           providerSatisfaction: normalizedProviderSatisfaction,
         };
-      } catch (error) {
+      } catch {
         // Error normalizing satisfaction data - skip encounter
         // Return default values if there's an error
         return {
@@ -438,13 +396,10 @@ const addPrefixToKeys = (
   return result;
 };
 
-const orderObject = (
-  obj: Record<string, any>,
-  order: string[]
-): Record<string, any> => {
+const orderObject = (obj: Record<string, any>, order: string[]): Record<string, any> => {
   const ordered: Record<string, any> = {};
   for (const key of order) {
-    ordered[key] = obj[key] === undefined ? "" : obj[key];
+    ordered[key] = obj[key] === undefined ? '' : obj[key];
   }
   return ordered;
 };
@@ -458,27 +413,25 @@ export const compileData = (
 ): CombinedDataType[] => {
   const patientsMap = new Map(patientsData.map((item) => [item.id, item]));
   const providersMap = new Map(providerData.map((item) => [item.id, item]));
-  const multiModalDataMap = new Map(
-    multiModalData.map((item) => [item.id, item])
-  );
+  const multiModalDataMap = new Map(multiModalData.map((item) => [item.id, item]));
 
   // Filter out encounters with missing related data
   const validEncounters = filteredEncounterData.filter((encounter) => {
     // Handle string or number ids for lookup
     const patient = patientsMap.get(
-      typeof encounter.patient_id === "string"
+      typeof encounter.patient_id === 'string'
         ? parseInt(encounter.patient_id, 10)
         : encounter.patient_id
     );
 
     const provider = providersMap.get(
-      typeof encounter.provider_id === "string"
+      typeof encounter.provider_id === 'string'
         ? parseInt(encounter.provider_id, 10)
         : encounter.provider_id
     );
 
     const multiModalDataPath = multiModalDataMap.get(
-      typeof encounter.multi_modal_data_id === "string"
+      typeof encounter.multi_modal_data_id === 'string'
         ? parseInt(encounter.multi_modal_data_id, 10)
         : encounter.multi_modal_data_id
     );
@@ -489,19 +442,19 @@ export const compileData = (
   const combinedData = validEncounters.map((encounter) => {
     // Handle string or number ids for lookup
     const patient = patientsMap.get(
-      typeof encounter.patient_id === "string"
+      typeof encounter.patient_id === 'string'
         ? parseInt(encounter.patient_id, 10)
         : encounter.patient_id
     );
 
     const provider = providersMap.get(
-      typeof encounter.provider_id === "string"
+      typeof encounter.provider_id === 'string'
         ? parseInt(encounter.provider_id, 10)
         : encounter.provider_id
     );
 
     const multiModalDataPath = multiModalDataMap.get(
-      typeof encounter.multi_modal_data_id === "string"
+      typeof encounter.multi_modal_data_id === 'string'
         ? parseInt(encounter.multi_modal_data_id, 10)
         : encounter.multi_modal_data_id
     );
@@ -515,30 +468,24 @@ export const compileData = (
     const safeEncounter = {
       ...encounter,
       encounter_date_and_time:
-        "encounter_date_and_time" in encounter
+        'encounter_date_and_time' in encounter
           ? (encounter as PublicEncounterDataType).encounter_date_and_time
           : null,
       patient_satisfaction:
-        "patient_satisfaction" in encounter
+        'patient_satisfaction' in encounter
           ? (encounter as PublicEncounterDataType).patient_satisfaction
           : null,
       provider_satisfaction:
-        "provider_satisfaction" in encounter
+        'provider_satisfaction' in encounter
           ? (encounter as PublicEncounterDataType).provider_satisfaction
           : null,
       is_deidentified: encounter.is_deidentified,
       is_restricted: encounter.is_restricted,
     };
 
-    if (format === "csv") {
-      const { id: _, ...patientWithoutId } = addPrefixToKeys(
-        patient,
-        "patient_"
-      );
-      const { id: __, ...providerWithoutId } = addPrefixToKeys(
-        provider,
-        "provider_"
-      );
+    if (format === 'csv') {
+      const { id: _, ...patientWithoutId } = addPrefixToKeys(patient, 'patient_');
+      const { id: __, ...providerWithoutId } = addPrefixToKeys(provider, 'provider_');
 
       // Explicitly type the flattened data to match the interface
       const flattenedData: FlattenedCombinedDataType = {
@@ -573,56 +520,46 @@ export const compileData = (
   return filteredCombinedData as CombinedDataType[];
 };
 
-export const downloadData = (
-  combinedData: CombinedDataType[],
-  format: string
-) => {
+export const downloadData = (combinedData: CombinedDataType[], format: string) => {
   let dataString: string;
   let mimeType: string;
   let fileExtension: string;
 
-  if (format === "csv") {
-    const flattenObject = (obj: any, prefix = "") => {
-      return Object.keys(obj).reduce((acc, k) => {
-        const pre = prefix.length ? prefix + "." : "";
-        if (
-          typeof obj[k] === "object" &&
-          obj[k] !== null &&
-          !Array.isArray(obj[k])
-        ) {
-          Object.assign(acc, flattenObject(obj[k], pre + k));
-        } else {
-          acc[pre + k] = obj[k];
-        }
-        return acc;
-      }, {} as Record<string, any>);
+  if (format === 'csv') {
+    const flattenObject = (obj: any, prefix = '') => {
+      return Object.keys(obj).reduce(
+        (acc, k) => {
+          const pre = prefix.length ? prefix + '.' : '';
+          if (typeof obj[k] === 'object' && obj[k] !== null && !Array.isArray(obj[k])) {
+            Object.assign(acc, flattenObject(obj[k], pre + k));
+          } else {
+            acc[pre + k] = obj[k];
+          }
+          return acc;
+        },
+        {} as Record<string, any>
+      );
     };
 
     const flattenedData = combinedData.map((item) => flattenObject(item));
-    const orderedData = flattenedData.map((item) =>
-      orderObject(item, CSV_COLUMN_ORDER)
-    );
-    const header = CSV_COLUMN_ORDER.join(",");
+    const orderedData = flattenedData.map((item) => orderObject(item, CSV_COLUMN_ORDER));
+    const header = CSV_COLUMN_ORDER.join(',');
     const csvRows = [header];
 
     for (const row of orderedData) {
       const values = Object.values(row).map((value) =>
-        typeof value === "object"
-          ? JSON.stringify(value)
-          : value === null
-          ? ""
-          : String(value)
+        typeof value === 'object' ? JSON.stringify(value) : value === null ? '' : String(value)
       );
-      csvRows.push(values.join(","));
+      csvRows.push(values.join(','));
     }
 
-    dataString = csvRows.join("\n");
-    mimeType = "text/csv";
-    fileExtension = "csv";
-  } else if (format === "json") {
+    dataString = csvRows.join('\n');
+    mimeType = 'text/csv';
+    fileExtension = 'csv';
+  } else if (format === 'json') {
     dataString = JSON.stringify(combinedData, null, 2);
-    mimeType = "application/json";
-    fileExtension = "json";
+    mimeType = 'application/json';
+    fileExtension = 'json';
   } else {
     throw new Error(`Unsupported export format: ${format}`);
   }
@@ -630,10 +567,74 @@ export const downloadData = (
   const blob = new Blob([dataString], { type: mimeType });
   const url = URL.createObjectURL(blob);
 
-  const link = document.createElement("a");
+  const link = document.createElement('a');
   link.href = url;
   link.download = `observer_platform_data_export.${fileExtension}`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
+/**
+ * Visit source formatting
+ */
+
+/**
+ * Maps visit source values to their display labels
+ */
+const VISIT_SOURCE_LABELS: Record<string, string> = {
+  clinic: 'Clinic',
+  simcenter: 'Sim Center',
+};
+
+/**
+ * Formats visit source values to display labels
+ * Handles known values with explicit mapping, falls back to title case
+ * @param source - The visit source value (e.g., 'clinic', 'sim_center')
+ * @returns Formatted display label (e.g., 'Clinic', 'Sim Center')
+ */
+export const formatVisitSource = (source: string): string => {
+  const normalizedSource = source.toLowerCase();
+  if (VISIT_SOURCE_LABELS[normalizedSource]) {
+    return VISIT_SOURCE_LABELS[normalizedSource];
+  }
+  // Fallback: split on underscores and capitalize each word
+  return source
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+/**
+ * Demographics utilities
+ */
+type DemographicType = 'gender' | 'race' | 'ethnicity';
+
+/**
+ * Expands demographic codes to full text
+ * @param code - The demographic code (e.g., 'M', 'W', 'NH')
+ * @param type - The type of demographic data
+ * @returns Full text representation (e.g., 'Male', 'White', 'Not Hispanic or Latino')
+ */
+export const expandDemographic = (code: string | null, type: DemographicType): string => {
+  if (!code) {
+    return 'N/A';
+  }
+
+  // Handle the NULL marker from backend for filter display
+  if (code === NULL_MARKER) {
+    return 'Not Specified';
+  }
+
+  const normalizedCode = code.toUpperCase();
+
+  const mappings: Record<DemographicType, Record<string, string>> = {
+    gender: GENDER_CATEGORIES,
+    race: RACIAL_CATEGORIES,
+    ethnicity: ETHNIC_CATEGORIES,
+  };
+
+  return mappings[type][normalizedCode] || code;
 };

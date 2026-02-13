@@ -1,16 +1,11 @@
-"use client";
+'use client';
 
-import React, { useCallback } from "react";
-import { Box, Flex, Text, Button, Checkbox } from "@chakra-ui/react";
-import Select, { MultiValue, SingleValue } from "react-select";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import React from 'react';
+import { Box, Flex, Text, Button, Checkbox, Input } from '@chakra-ui/react';
+import Select, { MultiValue, SingleValue } from 'react-select';
 
-import {
-  SOURCE_OPTIONS,
-  DEIDENTIFIED_OPTIONS,
-  EXPORT_OPTIONS,
-} from "@/constants";
+import { SOURCE_OPTIONS, DEIDENTIFIED_OPTIONS, EXPORT_OPTIONS } from '@/constants';
+import { formatDateForInput, parseLocalDate } from '@/lib/utils/utils';
 
 interface DropDownOption {
   value: string;
@@ -19,7 +14,6 @@ interface DropDownOption {
 
 interface FilterPanelProps {
   selectedSources: DropDownOption[];
-  isDeidentified: boolean | null;
   isDatePickerEnabled: boolean;
   startDate: Date;
   endDate: Date;
@@ -38,7 +32,6 @@ interface FilterPanelProps {
 
 const FilterPanel: React.FC<FilterPanelProps> = ({
   selectedSources,
-  isDeidentified,
   isDatePickerEnabled,
   startDate,
   endDate,
@@ -54,11 +47,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 }) => {
   return (
     <Box
-      width={{ base: "100%", lg: "300px" }}
+      width={{ base: '100%', lg: '300px' }}
       bg="white"
       p={5}
-      borderBottomWidth={{ base: "1px", lg: 0 }}
-      borderRightWidth={{ base: 0, lg: "1px" }}
+      borderBottomWidth={{ base: '1px', lg: 0 }}
+      borderRightWidth={{ base: 0, lg: '1px' }}
       borderColor="gray.200"
     >
       <Text fontSize="lg" fontWeight="bold" mb={4}>
@@ -107,8 +100,8 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             checked={isDatePickerEnabled}
             onChange={onToggleDateFilter}
             id="date-filter-toggle"
-            variant={"solid"}
-            colorPalette={"blue"}
+            variant={'solid'}
+            colorPalette={'blue'}
             disabled={isFiltering}
           >
             <Checkbox.HiddenInput />
@@ -125,34 +118,32 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           <Text fontSize="sm" mb={1} color="gray.600">
             Start Date
           </Text>
-          <Box position="relative" className="date-picker-container">
-            <DatePicker
-              selected={startDate}
-              onChange={onStartDateChange}
-              disabled={!isDatePickerEnabled || isFiltering}
-              className="date-picker w-full"
-              dateFormat="yyyy-MM-dd"
-              wrapperClassName="date-picker-wrapper"
-              maxDate={endDate}
-            />
-          </Box>
+          <Input
+            type="date"
+            size="sm"
+            value={formatDateForInput(startDate)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              e.target.value && onStartDateChange(parseLocalDate(e.target.value))
+            }
+            disabled={!isDatePickerEnabled || isFiltering}
+            max={formatDateForInput(endDate)}
+          />
         </Box>
 
         <Box>
           <Text fontSize="sm" mb={1} color="gray.600">
             End Date
           </Text>
-          <Box position="relative" className="date-picker-container">
-            <DatePicker
-              selected={endDate}
-              onChange={onEndDateChange}
-              disabled={!isDatePickerEnabled || isFiltering}
-              className="date-picker w-full"
-              dateFormat="yyyy-MM-dd"
-              wrapperClassName="date-picker-wrapper"
-              minDate={startDate}
-            />
-          </Box>
+          <Input
+            type="date"
+            size="sm"
+            value={formatDateForInput(endDate)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              e.target.value && onEndDateChange(parseLocalDate(e.target.value))
+            }
+            disabled={!isDatePickerEnabled || isFiltering}
+            min={formatDateForInput(startDate)}
+          />
         </Box>
       </Box>
 
@@ -179,11 +170,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           px={4}
           borderRadius="md"
           color="white"
-          bg={exportFormat && !isFiltering ? "blue.500" : "gray.300"}
-          _hover={exportFormat && !isFiltering ? { bg: "blue.600" } : {}}
-          cursor={exportFormat && !isFiltering ? "pointer" : "not-allowed"}
+          bg={exportFormat && !isFiltering ? 'blue.500' : 'gray.300'}
+          _hover={exportFormat && !isFiltering ? { bg: 'blue.600' } : {}}
+          cursor={exportFormat && !isFiltering ? 'pointer' : 'not-allowed'}
         >
-          {isFiltering ? "Filtering..." : "Export Data"}
+          {isFiltering ? 'Filtering...' : 'Export Data'}
         </Button>
       </Box>
     </Box>

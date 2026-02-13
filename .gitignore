@@ -42,3 +42,9 @@ data/
 
 # Public Media
 public/encounters/*
+
+# Backup files
+*.backup
+*.old
+*.tmp
+*~

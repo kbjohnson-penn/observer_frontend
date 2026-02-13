@@ -1,28 +1,27 @@
-"use client";
+'use client';
 
-import React from "react";
-import { usePathname } from "next/navigation";
-import { Box, ProgressCircle } from "@chakra-ui/react";
-import { useAuth } from "@/contexts/AuthContext";
-import PublicLayout from "./layouts/PublicLayout";
-import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
+import React from 'react';
+import { usePathname } from 'next/navigation';
+import { Box, ProgressCircle } from '@chakra-ui/react';
+import { useAuth } from '@/contexts/AuthContext';
+import PublicLayout from './layouts/PublicLayout';
+import AuthenticatedLayout from './layouts/AuthenticatedLayout';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isLoggingOut } = useAuth();
 
   // Routes that should use authenticated layout
-  const authenticatedRoutes = ["/dashboard", "/profile"];
-  const shouldUseAuthLayout = authenticatedRoutes.some(route => 
-    pathname.startsWith(route)
-  );
+  const authenticatedRoutes = ['/dashboard', '/profile'];
+  const shouldUseAuthLayout = authenticatedRoutes.some((route) => pathname.startsWith(route));
 
-  // Show loading state while checking authentication
-  if (isLoading) {
+  // Show loading state while checking authentication or during logout
+  if (isLoading || isLoggingOut) {
     return (
       <PublicLayout>
         <Box display="flex" justifyContent="center" alignItems="center" minH="50vh">
-          <ProgressCircle.Root value={null} size="lg" colorPalette="blue">
+          <ProgressCircle.Root size="lg" colorPalette="blue">
             <ProgressCircle.Circle>
               <ProgressCircle.Track stroke="gray.200" />
               <ProgressCircle.Range />
@@ -35,11 +34,19 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // For authenticated routes, use AuthenticatedLayout if user is logged in
   if (shouldUseAuthLayout && isAuthenticated) {
-    return <AuthenticatedLayout>{children}</AuthenticatedLayout>;
+    return (
+      <ErrorBoundary componentName="AuthenticatedLayout">
+        <AuthenticatedLayout>{children}</AuthenticatedLayout>
+      </ErrorBoundary>
+    );
   }
 
   // For all other routes (public routes, login, etc.), use PublicLayout
-  return <PublicLayout>{children}</PublicLayout>;
+  return (
+    <ErrorBoundary componentName="PublicLayout">
+      <PublicLayout>{children}</PublicLayout>
+    </ErrorBoundary>
+  );
 };
 
 export default AppLayout;

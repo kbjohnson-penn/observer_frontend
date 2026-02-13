@@ -73,7 +73,7 @@ src/
 ├── contexts/          # React context providers (AuthContext)
 ├── interfaces/        # TypeScript type definitions
 ├── lib/               # API client and utilities
-└── middleware.ts      # Authentication middleware
+└── proxy.ts           # Authentication proxy
 ```
 
 ### Environment Configuration

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
 import { Box } from '@chakra-ui/react';
@@ -8,6 +8,7 @@ import DatasetHeader from '@/components/dataset/DatasetHeader';
 import DatabaseStructure from '@/components/dataset/DatabaseStructure';
 import DatasetInformation from '@/components/dataset/DatasetInformation';
 import DeIdentificationProcess from '@/components/dataset/DeIdentificationProcess';
+import TierComparisonTable from '@/components/dataset/TierComparisonTable';
 import CitationUsage from '@/components/dataset/CitationUsage';
 import CitationModal from '@/components/dataset/CitationModal';
 
@@ -20,6 +21,7 @@ const DatasetPage = () => {
       <DatabaseStructure />
       <DatasetInformation />
       <DeIdentificationProcess />
+      <TierComparisonTable />
       <CitationUsage onOpenModal={() => setIsModalOpen(true)} />
       <CitationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </Box>

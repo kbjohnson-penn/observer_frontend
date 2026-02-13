@@ -1,37 +1,29 @@
-import React, { useMemo } from "react";
-import {
-  BarChart,
-  Bar,
-  Cell,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Label,
-} from "recharts";
-import { Box, Text } from "@chakra-ui/react";
+import React, { useMemo, useCallback } from 'react';
+import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Label } from 'recharts';
+import { Box, Text } from '@chakra-ui/react';
+import { DATA_PATH_COLORS } from '@/constants/colors';
 
 // Define the mapping for grouping data types
 const DATA_TYPE_GROUPING = {
-  provider_view: "egocentric_view",
-  patient_view: "egocentric_view",
-  room_view: "room_view",
-  audio: "audio_only",
-  transcript: "transcript",
-  patient_survey: "survey",
-  provider_survey: "survey",
-  patient_annotation: "annotations",
-  provider_annotation: "annotations",
+  provider_view: 'egocentric_view',
+  patient_view: 'egocentric_view',
+  room_view: 'room_view',
+  audio: 'audio',
+  transcript: 'transcript',
+  patient_survey: 'survey',
+  provider_survey: 'survey',
+  patient_annotation: 'annotations',
+  provider_annotation: 'annotations',
 };
 
-// Define colors for the grouped categories
+// Map grouped categories to colors from centralized constants
 const GROUP_COLORS = {
-  egocentric_view: "#4285F4", // Blue
-  room_view: "#34A853", // Green
-  audio_only: "#FBBC05", // Yellow
-  transcript: "#EA4335", // Red
-  survey: "#8F44AD", // Purple
-  annotations: "#16A085", // Teal
+  egocentric_view: DATA_PATH_COLORS.providerView,
+  room_view: DATA_PATH_COLORS.roomView,
+  audio: DATA_PATH_COLORS.audio,
+  transcript: DATA_PATH_COLORS.transcript,
+  survey: DATA_PATH_COLORS.survey,
+  annotations: DATA_PATH_COLORS.annotations,
 };
 
 interface GroupedDataItem {
@@ -62,8 +54,7 @@ const groupData = (data: RawDataItem[]): GroupedDataItem[] => {
 
   // Process the data we have
   data.forEach((item) => {
-    const groupName =
-      DATA_TYPE_GROUPING[item.name as keyof typeof DATA_TYPE_GROUPING];
+    const groupName = DATA_TYPE_GROUPING[item.name as keyof typeof DATA_TYPE_GROUPING];
     if (!groupName) {
       // No group defined for data type - skip grouping
       return;
@@ -82,15 +73,15 @@ const CustomizedAxisTick: React.FC<any> = (props) => {
 
   // Split and capitalize words
   const words = payload.value
-    .split("_")
+    .split('_')
     .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1));
 
-  const displayText = words.join(" ");
+  const displayText = words.join(' ');
 
   const isMobile = screenWidth <= 768;
   const isTablet = screenWidth > 768 && screenWidth <= 1024;
 
-  const fontSize = isMobile ? "8px" : isTablet ? "9px" : "10px";
+  const fontSize = isMobile ? '8px' : isTablet ? '9px' : '10px';
   const lineHeight = parseInt(fontSize) * 1.2;
 
   // For short text (1-2 words), keep it on one line
@@ -98,15 +89,15 @@ const CustomizedAxisTick: React.FC<any> = (props) => {
   const shouldSplit = displayText.length > 14;
 
   let firstLine = displayText;
-  let secondLine = "";
+  let secondLine = '';
 
   if (shouldSplit) {
     // Find a space near the middle to split on
     const middle = Math.floor(displayText.length / 2);
-    let splitIndex = displayText.lastIndexOf(" ", middle);
+    let splitIndex = displayText.lastIndexOf(' ', middle);
 
     if (splitIndex === -1) {
-      splitIndex = displayText.indexOf(" ", middle);
+      splitIndex = displayText.indexOf(' ', middle);
     }
 
     if (splitIndex !== -1) {
@@ -134,25 +125,23 @@ const CustomizedAxisTick: React.FC<any> = (props) => {
 const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     const words = label
-      .split("_")
+      .split('_')
       .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+      .join(' ');
 
     return (
       <div
         className="custom-tooltip"
         style={{
-          backgroundColor: "#fff",
-          padding: "10px",
-          border: `1px solid ${
-            GROUP_COLORS[label as keyof typeof GROUP_COLORS] || "#ccc"
-          }`,
+          backgroundColor: '#fff',
+          padding: '10px',
+          border: `1px solid ${GROUP_COLORS[label as keyof typeof GROUP_COLORS] || '#ccc'}`,
         }}
       >
         <p
           className="text-base font-medium"
           style={{
-            color: GROUP_COLORS[label as keyof typeof GROUP_COLORS] || "#ccc",
+            color: GROUP_COLORS[label as keyof typeof GROUP_COLORS] || '#ccc',
           }}
         >{`${words}`}</p>
         <p className="text-sm">{`Total: ${payload[0].value}`}</p>
@@ -163,21 +152,18 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
   return null;
 };
 
-const EncountersByMultiModalDataChart: React.FC<
-  EncountersByMultiModalDataChartProps
-> = ({ data = [], screenWidth = 1024 }) => {
+const EncountersByMultiModalDataChart: React.FC<EncountersByMultiModalDataChartProps> = ({
+  data = [],
+  screenWidth = 1024,
+}) => {
   // Group the data
   const groupedData = useMemo(() => groupData(data), [data]);
 
   // Create a memoized custom tick component with the current screen width
-  const CustomTick = useMemo(() => {
-    // Give the component a display name to fix the ESLint error
-    const TickComponent = (props: any) => (
-      <CustomizedAxisTick {...props} screenWidth={screenWidth} />
-    );
-    TickComponent.displayName = "CustomTick";
-    return TickComponent;
-  }, [screenWidth]);
+  const CustomTick = useCallback(
+    (props: any) => <CustomizedAxisTick {...props} screenWidth={screenWidth} />,
+    [screenWidth]
+  );
 
   // Sort data by count in descending order
   const sortedData = [...groupedData].sort((a, b) => b.count - a.count);
@@ -185,14 +171,7 @@ const EncountersByMultiModalDataChart: React.FC<
   return (
     <Box width="100%">
       <ResponsiveContainer width="100%" height={350}>
-        <BarChart
-          width={500}
-          height={350}
-          barGap={5}
-          barCategoryGap={20}
-          data={sortedData}
-          // margin={{ top: 20, right: 20, left: 20, bottom: 50 }}
-        >
+        <BarChart width={500} height={350} barGap={5} barCategoryGap={20} data={sortedData}>
           <XAxis
             dataKey="name"
             type="category"
@@ -204,13 +183,12 @@ const EncountersByMultiModalDataChart: React.FC<
           <YAxis
             type="number"
             allowDecimals={false}
-            style={{ fontSize: screenWidth <= 768 ? "10px" : "11px" }}
+            style={{ fontSize: screenWidth <= 768 ? '10px' : '11px' }}
           >
             <Label
               value="Total Available Data"
-              // position="insideLeft"
               angle={-90}
-              style={{ fontSize: "12px" }}
+              style={{ fontSize: '12px' }}
               offset={-5}
             />
           </YAxis>
@@ -224,7 +202,7 @@ const EncountersByMultiModalDataChart: React.FC<
             ))}
           </Bar>
         </BarChart>
-      </ResponsiveContainer>      
+      </ResponsiveContainer>
 
       <Box textAlign="center" mt={2} px={4}>
         <Text fontSize="xs" color="gray.600" fontStyle="italic">

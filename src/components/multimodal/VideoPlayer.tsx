@@ -13,12 +13,7 @@ interface VideoPlayerProps {
   className?: string;
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({
-  src,
-  title,
-  poster,
-  className
-}) => {
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, title, poster, className }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<any>(null);
 
@@ -33,7 +28,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         preload: 'none',
         poster: poster,
         sources: [{ src: src, type: 'video/mp4' }],
-        playbackRates: [0.5, 1, 1.25, 1.5, 2]
+        playbackRates: [0.5, 1, 1.25, 1.5, 2],
       });
 
       // Pause other videos when this one starts playing
@@ -59,23 +54,24 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   // Update source when src changes
   useEffect(() => {
     if (playerRef.current && src) {
-      playerRef.current.src([{
-        src: src,
-        type: 'video/mp4'
-      }]);
+      playerRef.current.src([
+        {
+          src: src,
+          type: 'video/mp4',
+        },
+      ]);
     }
   }, [src]);
 
   return (
     <Box className={className}>
       <Box mb={3}>
-        <Heading size="md" color={COLORS.primary[800]}>{title}</Heading>
+        <Heading size="md" color={COLORS.primary[800]}>
+          {title}
+        </Heading>
       </Box>
       <Box borderRadius="md" overflow="hidden">
-        <video
-          ref={videoRef}
-          className="video-js vjs-default-skin"
-        />
+        <video ref={videoRef} className="video-js vjs-default-skin" />
       </Box>
     </Box>
   );
