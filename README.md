@@ -1,6 +1,6 @@
 # Observer Frontend
 
-Next.js 14 frontend application for healthcare data visualization and analysis.
+Next.js 16.1.6 frontend application for healthcare data visualization and analysis.
 
 ## Features
 
@@ -9,7 +9,7 @@ Next.js 14 frontend application for healthcare data visualization and analysis.
 - **Responsive Design**: Optimized for desktop and mobile devices
 - **Hybrid Styling**: Chakra UI v3 components + TailwindCSS utilities
 - **TypeScript**: Full type safety and IntelliSense support
-- **App Router**: Next.js 14 App Router architecture
+- **App Router**: Next.js 16.1.6 App Router architecture
 
 **Note**: This is a Git submodule. For Docker setup, see the main repository README.
 
@@ -40,13 +40,15 @@ npm run build       # Production build
 npm run start       # Production server
 npm run lint        # ESLint checks
 npx tsc --noEmit    # TypeScript checks
+npm run format       # Prettier code formatting
+npm run test        # Run tests (if implemented)
 ```
 
 ## Architecture
 
 ### Framework Stack
 
-- **Next.js 14** with App Router
+- **Next.js 16.1.6** with App Router
 - **TypeScript** for type safety
 - **Chakra UI v3** component library
 - **TailwindCSS** utility classes (hybrid approach)
