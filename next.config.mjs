@@ -75,7 +75,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'", // unsafe-inline needed for Chakra UI
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' http://localhost:8000 https://observer-prd.pmacs.upenn.edu",
+              "connect-src 'self' http://localhost:8000",
               "media-src 'self' blob:",
               "object-src 'none'",
               "base-uri 'self'",

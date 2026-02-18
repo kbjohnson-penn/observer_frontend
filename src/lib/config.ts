@@ -39,13 +39,18 @@ const getBackendUrl = (): string => {
     );
   }
 
+  // Allow relative paths (e.g., /api/v1) for production behind a reverse proxy
+  if (url.startsWith('/')) {
+    return url;
+  }
+
   // Validate URL format
   try {
     new URL(url);
   } catch {
     throw new Error(
       `Invalid NEXT_PUBLIC_BACKEND_API URL format: "${url}". ` +
-        'Must be a valid URL (e.g., http://localhost:8000/api/v1)'
+        'Must be a valid URL (e.g., http://localhost:8000/api/v1) or a relative path (e.g., /api/v1)'
     );
   }
 
@@ -140,7 +145,7 @@ if (typeof window !== 'undefined') {
 
   // Validate critical settings in production
   if (CONFIG.IS_PROD) {
-    if (!CONFIG.BACKEND_API.startsWith('https://')) {
+    if (!CONFIG.BACKEND_API.startsWith('https://') && !CONFIG.BACKEND_API.startsWith('/')) {
       logger.warn(
         'Production environment is not using HTTPS. ' +
           'This is insecure and may cause authentication issues.'
