@@ -60,6 +60,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, title = 'Audio Recording
     audio.addEventListener('canplay', onCanPlay);
 
     return () => {
+      audio.pause();
       audio.removeEventListener('loadedmetadata', onLoadedMetadata);
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('ended', onEnded);
@@ -68,15 +69,13 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, title = 'Audio Recording
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('waiting', onWaiting);
       audio.removeEventListener('canplay', onCanPlay);
+      setHasError(false);
+      setIsPlaying(false);
+      setIsLoading(false);
+      setCurrentTime(0);
+      setDuration(0);
     };
-  }, []);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    return () => {
-      audio?.pause();
-    };
-  }, []);
+  }, [src]);
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
@@ -112,43 +111,44 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, title = 'Audio Recording
     setCurrentTime(time);
   }, []);
 
-  const handleVolumeChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const audio = audioRef.current;
-      if (!audio) {
-        return;
-      }
-      const vol = parseFloat(e.target.value);
-      audio.volume = vol;
-      setVolume(vol);
-      if (vol > 0 && isMuted) {
-        audio.muted = false;
-        setIsMuted(false);
-      }
-    },
-    [isMuted]
-  );
+  const handleVolumeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
+    const vol = parseFloat(e.target.value);
+    audio.volume = vol;
+    setVolume(vol);
+    if (vol > 0 && audio.muted) {
+      audio.muted = false;
+      setIsMuted(false);
+    }
+  }, []);
 
   const toggleMute = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) {
       return;
     }
-    audio.muted = !audio.muted;
-    setIsMuted(!isMuted);
-  }, [isMuted]);
+    setIsMuted((prev) => {
+      audio.muted = !prev;
+      return !prev;
+    });
+  }, []);
 
   const cyclePlaybackRate = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) {
       return;
     }
-    const currentIndex = PLAYBACK_RATES.indexOf(playbackRate);
-    const nextIndex = (currentIndex + 1) % PLAYBACK_RATES.length;
-    const nextRate = PLAYBACK_RATES[nextIndex];
-    audio.playbackRate = nextRate;
-    setPlaybackRate(nextRate);
-  }, [playbackRate]);
+    setPlaybackRate((prev) => {
+      const currentIndex = PLAYBACK_RATES.indexOf(prev);
+      const nextIndex = (currentIndex + 1) % PLAYBACK_RATES.length;
+      const nextRate = PLAYBACK_RATES[nextIndex];
+      audio.playbackRate = nextRate;
+      return nextRate;
+    });
+  }, []);
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
   const volumePercent = isMuted ? 0 : volume * 100;
@@ -236,6 +236,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, title = 'Audio Recording
             cursor="pointer"
             whiteSpace="nowrap"
             _hover={{ bg: 'gray.300' }}
+            _focusVisible={{ outline: '2px solid', outlineColor: 'blue.500', outlineOffset: '2px' }}
             onClick={cyclePlaybackRate}
             aria-label={`Playback speed ${playbackRate}x`}
           >

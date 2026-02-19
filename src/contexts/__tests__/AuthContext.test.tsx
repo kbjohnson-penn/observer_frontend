@@ -724,6 +724,12 @@ describe('AuthContext', () => {
       // Clear previous calls after login is complete
       dispatchEventSpy.mockClear();
 
+      // Mock the refresh attempt that fires when the timer expires (fail it)
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      });
+
       // Advance time to just before logout trigger (270 seconds = 300 - 30 buffer)
       act(() => {
         jest.advanceTimersByTime(269 * 1000);
@@ -734,13 +740,17 @@ describe('AuthContext', () => {
         expect.objectContaining({ type: 'auth:failed' })
       );
 
-      // Advance 1 more second to trigger
+      // Advance 1 more second to trigger the timer
       act(() => {
         jest.advanceTimersByTime(1000);
       });
 
-      // Now should have dispatched auth:failed
-      expect(dispatchEventSpy).toHaveBeenCalledWith(expect.any(CustomEvent));
+      // Flush the async refresh attempt
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      // Now should have dispatched auth:failed (refresh failed)
       const authFailedCalls = dispatchEventSpy.mock.calls.filter(
         (call) => (call[0] as CustomEvent).type === 'auth:failed'
       );
@@ -787,6 +797,12 @@ describe('AuthContext', () => {
 
       expect(result.current.isAuthenticated).toBe(true);
 
+      // Mock the refresh attempt that fires when the timer expires (fail it)
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+      });
+
       // Spy on dispatchEvent
       const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
@@ -795,7 +811,12 @@ describe('AuthContext', () => {
         jest.advanceTimersByTime(270 * 1000);
       });
 
-      // Should have dispatched auth:failed
+      // Flush the async refresh attempt
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      // Should have dispatched auth:failed (refresh failed)
       const authFailedCalls = dispatchEventSpy.mock.calls.filter(
         (call) => (call[0] as CustomEvent).type === 'auth:failed'
       );

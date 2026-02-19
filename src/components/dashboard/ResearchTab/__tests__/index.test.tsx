@@ -35,6 +35,11 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   disconnect: jest.fn(),
 }));
 
+// Mock auth context
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({ isAuthenticated: true }),
+}));
+
 // Mock hooks
 const mockUseFilterOptions = jest.fn();
 const mockUseVisitSearch = jest.fn();

@@ -4,6 +4,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Box, VStack, HStack, Text, Button, Card, Flex, Stack, Skeleton } from '@chakra-ui/react';
 import { toaster } from '@/components/ui/toaster';
 import { useFilterOptions, useVisitSearch } from '@/hooks';
+import { useAuth } from '@/contexts/AuthContext';
 import { VisitSearchSort } from '@/interfaces/research';
 import { LocalFilters, INITIAL_LOCAL_FILTERS } from '@/interfaces/researchTab';
 import { buildServerFilters } from '@/lib/utils/filterTransformer';
@@ -22,11 +23,12 @@ interface ResearchTabProps {
 }
 
 export default function ResearchTab({ onCohortCreated }: ResearchTabProps) {
+  const { isAuthenticated } = useAuth();
   const {
     filterOptions,
     loading: filterOptionsLoading,
     error: filterOptionsError,
-  } = useFilterOptions();
+  } = useFilterOptions(isAuthenticated);
 
   const {
     results: visits,

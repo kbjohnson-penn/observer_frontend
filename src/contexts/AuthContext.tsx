@@ -41,6 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const logoutTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const refreshTokenRef = useRef<() => Promise<boolean>>(async () => false);
 
   // Clear any existing logout timer
   const clearLogoutTimer = useCallback(() => {
@@ -65,15 +66,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const timeUntilExpiry = (expiresAt - now - AUTO_LOGOUT_BUFFER_SECONDS) * 1000;
 
       if (timeUntilExpiry > 0) {
-        logger.log(`Auto-logout scheduled in ${Math.round(timeUntilExpiry / 1000)} seconds`);
-        logoutTimerRef.current = setTimeout(() => {
-          logger.log('Token expired, logging out...');
-          // Dispatch auth:failed event which will trigger logout flow
-          window.dispatchEvent(new CustomEvent('auth:failed'));
+        logger.log(`Token refresh scheduled in ${Math.round(timeUntilExpiry / 1000)} seconds`);
+        logoutTimerRef.current = setTimeout(async () => {
+          logger.log('Access token expiring, attempting refresh...');
+          const refreshed = await refreshTokenRef.current();
+          if (!refreshed) {
+            window.dispatchEvent(new CustomEvent('auth:failed'));
+          }
         }, timeUntilExpiry);
       } else {
-        // Token already expired or about to expire
-        window.dispatchEvent(new CustomEvent('auth:failed'));
+        // Token already expired — try refresh before giving up
+        refreshTokenRef.current().then((refreshed) => {
+          if (!refreshed) {
+            window.dispatchEvent(new CustomEvent('auth:failed'));
+          }
+        });
       }
     },
     [clearLogoutTimer]
@@ -137,6 +144,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return false;
   }, [scheduleAutoLogout]);
+
+  // eslint-disable-next-line react-hooks/refs
+  refreshTokenRef.current = refreshToken;
 
   // Check for existing auth on mount
   useEffect(() => {
