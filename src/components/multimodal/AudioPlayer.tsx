@@ -69,6 +69,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, title = 'Audio Recording
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('waiting', onWaiting);
       audio.removeEventListener('canplay', onCanPlay);
+      setHasError(false);
+      setIsPlaying(false);
+      setIsLoading(false);
+      setCurrentTime(0);
+      setDuration(0);
     };
   }, [src]);
 
