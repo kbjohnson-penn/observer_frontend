@@ -8,11 +8,11 @@ import TranscriptViewer from '@/components/multimodal/TranscriptViewer';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { logger } from '@/lib/logger';
 import axios from 'axios';
+import type { CohortDataAPIResponse, Observation } from '@/interfaces/observer-omop';
 
-// Server-side data fetching function
-const fetchSampleData = async () => {
+const fetchSampleData = async (): Promise<CohortDataAPIResponse | null> => {
   try {
-    const response = await axios.get(
+    const response = await axios.get<CohortDataAPIResponse>(
       `${process.env.INTERNAL_BACKEND_API}/research/public/sample-data/`,
       {
         timeout: 10000,
@@ -26,19 +26,16 @@ const fetchSampleData = async () => {
 };
 
 const DatasetExplorePage = async () => {
-  // Fetch data on the server
   const sampleData = await fetchSampleData();
 
-  // Process video sources based on the public directory structure
   const processMediaSources = () => {
     const videoSources = { patient: '', provider: '', room: '' };
+    let audioSource = '';
     let transcriptSource = '';
 
     if (sampleData?.observations) {
-      // Process observations to extract video paths
-      sampleData.observations.forEach((obs: any) => {
-        // Extract encounter info - this should come from the observation data
-        // For now, using the example encounter
+      sampleData.observations.forEach((obs: Observation) => {
+        // TODO: Replace hardcoded demo paths with observation data (file_path, visit_occurrence_id)
         const encounterType = 'clinic';
         const encounterId = '103';
 
@@ -52,6 +49,9 @@ const DatasetExplorePage = async () => {
           case 'room_view':
             videoSources.room = `/encounters/${encounterType}/${encounterId}/room_view.MP4`;
             break;
+          case 'audio':
+            audioSource = `/encounters/${encounterType}/${encounterId}/anonymized.mp3`;
+            break;
           case 'transcript':
             transcriptSource = `/encounters/${encounterType}/${encounterId}/transcript.csv`;
             break;
@@ -59,22 +59,22 @@ const DatasetExplorePage = async () => {
       });
     }
 
-    // Fallback to example videos if no observations or videos found
+    // TODO: Replace hardcoded demo fallback paths once dynamic encounter routing is implemented
     if (!videoSources.patient && !videoSources.provider && !videoSources.room) {
       videoSources.patient = '/encounters/clinic/103/patient_view.MP4';
       videoSources.provider = '/encounters/clinic/103/provider_view.MP4';
       videoSources.room = '/encounters/clinic/103/room_view.MP4';
+      audioSource = '/encounters/clinic/103/anonymized.mp3';
       transcriptSource = '/encounters/clinic/103/transcript.csv';
     }
 
-    return { videoSources, transcriptSource };
+    return { videoSources, audioSource, transcriptSource };
   };
 
-  const { videoSources, transcriptSource } = processMediaSources();
+  const { videoSources, audioSource, transcriptSource } = processMediaSources();
 
   return (
     <Box maxW="6xl" mx="auto" py={8} px={{ base: 4, md: 6 }}>
-      {/* Header Section */}
       <Box textAlign="center" mb={12}>
         <Heading
           as="h1"
@@ -93,17 +93,14 @@ const DatasetExplorePage = async () => {
       </Box>
 
       <VStack gap={8} align="stretch">
-        {/* Healthcare Data Browser - Main Section */}
         <ErrorBoundary>
           <HealthcareDataBrowser cohortData={sampleData} />
         </ErrorBoundary>
 
-        {/* Media Viewers Section */}
         <ErrorBoundary>
-          <MediaViewersSection videoSources={videoSources} />
+          <MediaViewersSection videoSources={videoSources} audioSource={audioSource} />
         </ErrorBoundary>
 
-        {/* Transcript Viewer Section */}
         {transcriptSource && (
           <ErrorBoundary>
             <TranscriptViewer transcriptSrc={transcriptSource} />
