@@ -11,7 +11,7 @@
     "lint-staged": "lint-staged",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky",
+    "prepare": "husky || true",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
