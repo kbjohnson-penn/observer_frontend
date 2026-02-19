@@ -17,7 +17,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('research');
   const [cohortCount, setCohortCount] = useState(0);
-  const { filterOptions } = useFilterOptions();
+  const { filterOptions } = useFilterOptions(isAuthenticated);
 
   // Load cohort count function (reusable for callbacks and tab switches)
   const loadCohortCount = useCallback(async () => {

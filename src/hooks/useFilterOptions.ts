@@ -15,9 +15,9 @@ interface UseFilterOptionsReturn {
  * Fetches available filter values based on user's tier access
  * Cached on backend for 5 minutes
  */
-export function useFilterOptions(): UseFilterOptionsReturn {
+export function useFilterOptions(enabled: boolean = true): UseFilterOptionsReturn {
   const [filterOptions, setFilterOptions] = useState<FilterOptions | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   const fetchFilterOptions = async () => {
@@ -36,8 +36,10 @@ export function useFilterOptions(): UseFilterOptionsReturn {
   };
 
   useEffect(() => {
-    fetchFilterOptions();
-  }, []);
+    if (enabled) {
+      fetchFilterOptions();
+    }
+  }, [enabled]);
 
   return {
     filterOptions,

@@ -34,6 +34,12 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
+.seek::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: transparent;
+}
+
 .volume {
   -webkit-appearance: none;
   appearance: none;
@@ -68,4 +74,10 @@
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.volume::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: transparent;
 }
