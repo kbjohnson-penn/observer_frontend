@@ -121,7 +121,7 @@ export function getCohortFilterSummary(
 
   // Count visit filters
   if (filters.visit) {
-    if (filters.visit.tier_id && filters.visit.tier_id.length > 0) {
+    if (filters.visit.tier_level && filters.visit.tier_level.length > 0) {
       visitFilters++;
     }
     if (filters.visit.visit_source_value && filters.visit.visit_source_value.length > 0) {
@@ -259,7 +259,7 @@ export function getDetailedFilterSummary(
 
   // Extract visit filters
   const visit = {
-    tiers: filters.visit?.tier_id?.length ? [...filters.visit.tier_id] : [],
+    tiers: filters.visit?.tier_level?.length ? [...filters.visit.tier_level] : [],
     visitSources: filters.visit?.visit_source_value?.length
       ? [...filters.visit.visit_source_value]
       : [],

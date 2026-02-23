@@ -280,7 +280,7 @@ export default function VisitsTable({ visits, sort, onSort }: VisitsTableProps) 
               currentSort={sort}
               onSort={onSort}
             />
-            <SortableHeader field="tier_id" label="Tier" currentSort={sort} onSort={onSort} />
+            <SortableHeader field="tier_level" label="Tier" currentSort={sort} onSort={onSort} />
             <Table.ColumnHeader>
               <Text fontWeight="semibold" color="gray.700" p={2}>
                 Patient Demographics

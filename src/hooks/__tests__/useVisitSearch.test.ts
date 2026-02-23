@@ -118,7 +118,7 @@ describe('useVisitSearch', () => {
 
     // Change filters
     result.current.setFilters({
-      visit: { tier_id: [1] },
+      visit: { tier_level: [1] },
     });
     rerender();
 
@@ -168,11 +168,11 @@ describe('useVisitSearch', () => {
     mockApiClient.post.mockClear();
 
     // Change filters multiple times quickly
-    result.current.setFilters({ visit: { tier_id: [1] } });
+    result.current.setFilters({ visit: { tier_level: [1] } });
     rerender();
-    result.current.setFilters({ visit: { tier_id: [1, 2] } });
+    result.current.setFilters({ visit: { tier_level: [1, 2] } });
     rerender();
-    result.current.setFilters({ visit: { tier_id: [1, 2, 3] } });
+    result.current.setFilters({ visit: { tier_level: [1, 2, 3] } });
     rerender();
 
     // Should not call API immediately
