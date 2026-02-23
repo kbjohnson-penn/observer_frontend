@@ -53,7 +53,7 @@ const mockUseAuth = jest.fn(() => ({
     username: 'testuser',
     email: 'test@example.com',
     id: 1,
-    tier: { tier_name: 'Tier 1', level: 1 },
+    tier: { tier_name: 'Tier 1', level: 1 } as { tier_name: string; level: number } | null,
   },
   login: jest.fn(),
   logout: jest.fn(),
@@ -338,7 +338,7 @@ describe('DashboardPage', () => {
       mockUseAuth.mockReturnValueOnce({
         isAuthenticated: true,
         isLoading: false,
-        user: { username: 'testuser', email: 'test@example.com', id: 1, tier: null as null },
+        user: { username: 'testuser', email: 'test@example.com', id: 1, tier: null },
         login: jest.fn(),
         logout: jest.fn(),
         refreshToken: jest.fn(),
