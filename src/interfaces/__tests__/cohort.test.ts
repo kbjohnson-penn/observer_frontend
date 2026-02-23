@@ -10,7 +10,7 @@ describe('cohort interfaces', () => {
     it('should count visit filters correctly', () => {
       const filters: VisitSearchFilters = {
         visit: {
-          tier_id: [1, 2],
+          tier_level: [1, 2],
           visit_source_value: ['ER'],
           date_from: '2024-01-01',
           date_to: '2024-12-31',
@@ -102,7 +102,7 @@ describe('cohort interfaces', () => {
     it('should handle mixed filters from all categories', () => {
       const filters: VisitSearchFilters = {
         visit: {
-          tier_id: [1],
+          tier_level: [1],
           date_from: '2024-01-01',
         },
         person_demographics: {
@@ -146,7 +146,7 @@ describe('cohort interfaces', () => {
     it('should not count empty arrays as filters', () => {
       const filters: VisitSearchFilters = {
         visit: {
-          tier_id: [], // Empty array should not count
+          tier_level: [], // Empty array should not count
           visit_source_value: [], // Empty array should not count
         },
         person_demographics: {
@@ -302,7 +302,7 @@ describe('cohort interfaces', () => {
     it('should extract visit filter details correctly', () => {
       const filters: VisitSearchFilters = {
         visit: {
-          tier_id: [1, 2, 3],
+          tier_level: [1, 2, 3],
           visit_source_value: ['clinic', 'simcenter'],
           date_from: '2024-01-01',
           date_to: '2024-12-31',
@@ -399,7 +399,7 @@ describe('cohort interfaces', () => {
     it('should handle mixed filters from all categories', () => {
       const filters: VisitSearchFilters = {
         visit: {
-          tier_id: [1],
+          tier_level: [1],
           date_from: '2024-01-01',
         },
         person_demographics: {
@@ -428,7 +428,7 @@ describe('cohort interfaces', () => {
     it('should not count empty arrays as filters', () => {
       const filters: VisitSearchFilters = {
         visit: {
-          tier_id: [],
+          tier_level: [],
           visit_source_value: [],
         },
         person_demographics: {
@@ -486,7 +486,7 @@ describe('cohort interfaces', () => {
     it('should return copies of arrays, not references', () => {
       const filters: VisitSearchFilters = {
         visit: {
-          tier_id: [1, 2],
+          tier_level: [1, 2],
         },
         person_demographics: {
           gender: ['M'],
@@ -502,7 +502,7 @@ describe('cohort interfaces', () => {
       result.personDemographics.gender.push('F');
 
       // Original filters should not be affected
-      expect(filters.visit?.tier_id).toEqual([1, 2]);
+      expect(filters.visit?.tier_level).toEqual([1, 2]);
       expect(filters.person_demographics?.gender).toEqual(['M']);
     });
 

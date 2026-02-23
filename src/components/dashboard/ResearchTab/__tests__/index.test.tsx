@@ -354,14 +354,14 @@ describe('ResearchTab', () => {
         error: null,
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       expect(screen.getByTestId('loading-skeleton')).toBeInTheDocument();
       expect(screen.getByText('Loading...')).toBeInTheDocument();
     });
 
     it('should render main components after successful load', async () => {
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       await waitFor(() => {
         expect(screen.getByTestId('filter-sidebar')).toBeInTheDocument();
@@ -379,14 +379,14 @@ describe('ResearchTab', () => {
         loading: true,
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       // Should not show visits table when loading
       expect(screen.queryByTestId('visits-table')).not.toBeInTheDocument();
     });
 
     it('should display filter summary with visit counts', () => {
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       expect(screen.getByText(/Showing 1-20 of 100 visits/)).toBeInTheDocument();
     });
@@ -398,7 +398,7 @@ describe('ResearchTab', () => {
         error: 'Failed to load filter options',
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       await waitFor(() => {
         expect(mockToasterCreate).toHaveBeenCalledWith({
@@ -415,7 +415,7 @@ describe('ResearchTab', () => {
         error: 'Failed to search visits',
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       await waitFor(() => {
         expect(mockToasterCreate).toHaveBeenCalledWith({
@@ -436,7 +436,7 @@ describe('ResearchTab', () => {
         },
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       expect(screen.getByText(/No visits match your current filters/i)).toBeInTheDocument();
     });
@@ -445,7 +445,7 @@ describe('ResearchTab', () => {
   describe('Filter Interactions', () => {
     it('should call buildServerFilters when filter changes', async () => {
       const user = userEvent.setup({ delay: null });
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       const changeTierButton = screen.getByText('Change Tier Filter');
       await user.click(changeTierButton);
@@ -457,21 +457,21 @@ describe('ResearchTab', () => {
 
     it('should call updateFilters with server filters when local filter changes', async () => {
       const user = userEvent.setup({ delay: null });
-      mockBuildServerFilters.mockReturnValue({ visit: { tier_id: [1] } });
+      mockBuildServerFilters.mockReturnValue({ visit: { tier_level: [1] } });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       const changeTierButton = screen.getByText('Change Tier Filter');
       await user.click(changeTierButton);
 
       await waitFor(() => {
-        expect(mockSetFilters).toHaveBeenCalledWith({ visit: { tier_id: [1] } });
+        expect(mockSetFilters).toHaveBeenCalledWith({ visit: { tier_level: [1] } });
       });
     });
 
     it('should clear all filters when clear button clicked', async () => {
       const user = userEvent.setup({ delay: null });
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       const clearButton = screen.getByText('Clear Filters');
       await user.click(clearButton);
@@ -490,7 +490,7 @@ describe('ResearchTab', () => {
         },
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       // Check that filter count is displayed (appears in both sidebar and table header)
       const filterCountElements = screen.getAllByText(/(3 filters active)/i);
@@ -506,7 +506,7 @@ describe('ResearchTab', () => {
         },
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       expect(screen.getByText(/(1 filter active)/i)).toBeInTheDocument();
     });
@@ -525,7 +525,7 @@ describe('ResearchTab', () => {
         },
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       const clearButtons = screen.getAllByText('Clear Filters');
       expect(clearButtons.length).toBeGreaterThan(0);
@@ -535,7 +535,7 @@ describe('ResearchTab', () => {
   describe('Sort Functionality', () => {
     it('should toggle sort direction when clicking same column', async () => {
       const user = userEvent.setup({ delay: null });
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       const sortByIdButton = screen.getByText('Sort by ID');
 
@@ -552,7 +552,7 @@ describe('ResearchTab', () => {
 
     it('should change sort field when clicking different column', async () => {
       const user = userEvent.setup({ delay: null });
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       const sortByDateButton = screen.getByText('Sort by Date');
       await user.click(sortByDateButton);
@@ -566,7 +566,7 @@ describe('ResearchTab', () => {
     });
 
     it('should display current sort info', () => {
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       expect(screen.getByTestId('sort-info')).toHaveTextContent('id - asc');
     });
@@ -581,7 +581,7 @@ describe('ResearchTab', () => {
         },
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       const sortButton = screen.getByText('Sort by ID');
       await user.click(sortButton);
@@ -598,7 +598,7 @@ describe('ResearchTab', () => {
   describe('Pagination', () => {
     it('should call setPage with next page when next button clicked', async () => {
       const user = userEvent.setup({ delay: null });
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       const nextButton = screen.getByText('Next');
       await user.click(nextButton);
@@ -619,7 +619,7 @@ describe('ResearchTab', () => {
         },
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       const previousButton = screen.getByText('Previous');
       await user.click(previousButton);
@@ -638,13 +638,13 @@ describe('ResearchTab', () => {
         },
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       expect(screen.getByText('Page 5')).toBeInTheDocument();
     });
 
     it('should disable previous button on first page', () => {
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       const previousButton = screen.getByText('Previous');
       expect(previousButton).toBeDisabled();
@@ -659,7 +659,7 @@ describe('ResearchTab', () => {
         },
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       const nextButton = screen.getByText('Next');
       expect(nextButton).toBeDisabled();
@@ -675,7 +675,7 @@ describe('ResearchTab', () => {
         },
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       expect(screen.getByText(/Showing 41-60 of 150 visits/)).toBeInTheDocument();
     });
@@ -684,7 +684,7 @@ describe('ResearchTab', () => {
   describe('Cohort Creation Flow', () => {
     it('should open CreateCohortDialog when save cohort button clicked', async () => {
       const user = userEvent.setup({ delay: null });
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       const saveCohortButton = screen.getByText('Save as Cohort');
       await user.click(saveCohortButton);
@@ -704,7 +704,7 @@ describe('ResearchTab', () => {
         },
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       await user.click(screen.getByText('Save as Cohort'));
 
@@ -722,7 +722,7 @@ describe('ResearchTab', () => {
         visitCount: 100,
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       await user.click(screen.getByText('Save as Cohort'));
 
@@ -750,7 +750,7 @@ describe('ResearchTab', () => {
         visitCount: 100,
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       await user.click(screen.getByText('Save as Cohort'));
       await user.click(screen.getByText('Save Cohort'));
@@ -773,7 +773,7 @@ describe('ResearchTab', () => {
         visitCount: 100,
       });
 
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       await user.click(screen.getByText('Save as Cohort'));
 
@@ -790,7 +790,7 @@ describe('ResearchTab', () => {
 
     it('should close dialog when cancel clicked', async () => {
       const user = userEvent.setup({ delay: null });
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       await user.click(screen.getByText('Save as Cohort'));
 
@@ -808,31 +808,31 @@ describe('ResearchTab', () => {
 
   describe('Integration with Hooks', () => {
     it('should use useFilterOptions hook on mount', () => {
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       expect(mockUseFilterOptions).toHaveBeenCalled();
     });
 
     it('should use useVisitSearch hook on mount', () => {
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       expect(mockUseVisitSearch).toHaveBeenCalled();
     });
 
     it('should pass filter options to FilterSidebar', () => {
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       expect(screen.getByTestId('filter-sidebar')).toBeInTheDocument();
     });
 
     it('should pass visits data to VisitsTable', () => {
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       expect(screen.getByText('Visits: 2')).toBeInTheDocument();
     });
 
     it('should pass pagination data to PaginationControls', () => {
-      render(<ResearchTab />, { wrapper: TestWrapper });
+      render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
       expect(screen.getByText('Total: 100')).toBeInTheDocument();
     });
@@ -847,7 +847,7 @@ describe('ResearchTab', () => {
           error: null,
         });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         // Should show loading skeleton
         expect(screen.getByTestId('loading-skeleton')).toBeInTheDocument();
@@ -861,7 +861,7 @@ describe('ResearchTab', () => {
           error: null,
         });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         await waitFor(() => {
           expect(screen.getByTestId('filter-sidebar')).toBeInTheDocument();
@@ -876,7 +876,7 @@ describe('ResearchTab', () => {
           error: 'Failed to load filter options',
         });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         await waitFor(() => {
           expect(mockToasterCreate).toHaveBeenCalledWith({
@@ -896,7 +896,7 @@ describe('ResearchTab', () => {
           loading: false,
         });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         await waitFor(() => {
           expect(screen.getByText('Visits: 2')).toBeInTheDocument();
@@ -909,7 +909,7 @@ describe('ResearchTab', () => {
           loading: true,
         });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         // Should not show visits table when loading
         expect(screen.queryByTestId('visits-table')).not.toBeInTheDocument();
@@ -925,17 +925,17 @@ describe('ResearchTab', () => {
           },
         });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         expect(screen.getByText(/No visits match your current filters/i)).toBeInTheDocument();
       });
 
       it('should call setFilters when filters change', async () => {
         const user = userEvent.setup({ delay: null });
-        const mockFilters = { visit: { tier_id: [1] } };
+        const mockFilters = { visit: { tier_level: [1] } };
         mockBuildServerFilters.mockReturnValue(mockFilters);
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         const changeTierButton = screen.getByText('Change Tier Filter');
         await user.click(changeTierButton);
@@ -948,7 +948,7 @@ describe('ResearchTab', () => {
       it('should call setSort when sort changes', async () => {
         const user = userEvent.setup({ delay: null });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         const sortButton = screen.getByText('Sort by Date');
         await user.click(sortButton);
@@ -964,7 +964,7 @@ describe('ResearchTab', () => {
       it('should call setPage when pagination changes', async () => {
         const user = userEvent.setup({ delay: null });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         const nextButton = screen.getByText('Next');
         await user.click(nextButton);
@@ -980,7 +980,7 @@ describe('ResearchTab', () => {
           error: 'Failed to search visits',
         });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         await waitFor(() => {
           expect(mockToasterCreate).toHaveBeenCalledWith({
@@ -995,7 +995,7 @@ describe('ResearchTab', () => {
     describe('Cohort Creation API', () => {
       it('should call createCohort with correct parameters', async () => {
         const user = userEvent.setup({ delay: null });
-        const mockFilters = { visit: { tier_id: [1] } };
+        const mockFilters = { visit: { tier_level: [1] } };
         mockBuildServerFilters.mockReturnValue(mockFilters);
         mockCreateCohort.mockResolvedValue({
           id: '1',
@@ -1004,7 +1004,7 @@ describe('ResearchTab', () => {
           visitCount: 100,
         });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         await user.click(screen.getByText('Save as Cohort'));
         await user.click(screen.getByText('Save Cohort'));
@@ -1027,7 +1027,7 @@ describe('ResearchTab', () => {
           visitCount: 100,
         });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         await user.click(screen.getByText('Save as Cohort'));
         await user.click(screen.getByText('Save Cohort'));
@@ -1044,7 +1044,7 @@ describe('ResearchTab', () => {
       it('should pass current filter state to cohort creation', async () => {
         const user = userEvent.setup({ delay: null });
         const mockFilters = {
-          visit: { tier_id: [1, 2] },
+          visit: { tier_level: [1, 2] },
           person_demographics: { gender: ['M'] },
         };
         mockBuildServerFilters.mockReturnValue(mockFilters);
@@ -1063,7 +1063,7 @@ describe('ResearchTab', () => {
           },
         });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         await user.click(screen.getByText('Save as Cohort'));
 
@@ -1088,7 +1088,7 @@ describe('ResearchTab', () => {
         const user = userEvent.setup({ delay: null });
         mockBuildServerFilters.mockClear();
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         await user.click(screen.getByText('Change Tier Filter'));
 
@@ -1103,7 +1103,7 @@ describe('ResearchTab', () => {
         const user = userEvent.setup({ delay: null });
         mockBuildServerFilters.mockReturnValue({});
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         await user.click(screen.getByText('Clear Filters'));
 
@@ -1124,7 +1124,7 @@ describe('ResearchTab', () => {
           filterSummary: customFilterSummary,
         });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         expect(screen.getByText(/Showing 1-20 of 100 visits/)).toBeInTheDocument();
         // Filter count appears in both sidebar and table header
@@ -1144,7 +1144,7 @@ describe('ResearchTab', () => {
           },
         });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         expect(screen.getByText('Page 3')).toBeInTheDocument();
         expect(screen.getByText(/Showing 41-60 of 500 visits/)).toBeInTheDocument();
@@ -1159,7 +1159,7 @@ describe('ResearchTab', () => {
           error: 'Network error',
         });
 
-        const { rerender } = render(<ResearchTab />, { wrapper: TestWrapper });
+        const { rerender } = render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         // Error shows via toast, not DOM text
         await waitFor(() => {
@@ -1182,7 +1182,7 @@ describe('ResearchTab', () => {
 
         rerender(
           <TestWrapper>
-            <ResearchTab />
+            <ResearchTab hasValidTier />
           </TestWrapper>
         );
 
@@ -1199,7 +1199,7 @@ describe('ResearchTab', () => {
         const user = userEvent.setup({ delay: null });
         mockCreateCohort.mockRejectedValue(new Error('Failed to create cohort'));
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         await user.click(screen.getByText('Save as Cohort'));
 
@@ -1219,7 +1219,7 @@ describe('ResearchTab', () => {
           results: mockVisits, // But still showing old data
         });
 
-        render(<ResearchTab />, { wrapper: TestWrapper });
+        render(<ResearchTab hasValidTier />, { wrapper: TestWrapper });
 
         // Should show loading state instead of table when loading
         expect(screen.queryByTestId('visits-table')).not.toBeInTheDocument();

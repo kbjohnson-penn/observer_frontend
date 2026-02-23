@@ -13,6 +13,10 @@ interface User {
   username: string;
   email?: string;
   id?: number;
+  tier?: {
+    tier_name: string;
+    level: number;
+  } | null;
 }
 
 interface AuthContextType {
@@ -123,6 +127,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             username: userData.user?.username || userData.username || 'user',
             email: userData.user?.email || userData.email,
             id: userData.user?.id || userData.id,
+            tier: userData.tier
+              ? { tier_name: userData.tier.tier_name, level: userData.tier.level }
+              : null,
           });
           // Schedule auto-logout for the new token using expiry from response
           if (expiresAt) {
@@ -237,6 +244,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: data.user.email,
         id: data.user.id,
       });
+
+      // Fetch profile to get tier data (login response doesn't include it)
+      try {
+        const profileResponse = await fetchWithTimeout(
+          CONFIG.getApiUrl('/accounts/profile/'),
+          { method: 'GET', credentials: 'include' },
+          10000
+        );
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json();
+          setUser((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  tier: profileData.tier
+                    ? { tier_name: profileData.tier.tier_name, level: profileData.tier.level }
+                    : null,
+                }
+              : prev
+          );
+        }
+      } catch {
+        // Profile fetch failed — tier will be populated on next token refresh
+      }
     }
 
     // Schedule auto-logout for the new token using expiry from response

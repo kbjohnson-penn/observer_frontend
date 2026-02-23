@@ -1,7 +1,21 @@
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { Box, VStack, HStack, Text, Button, Card, Flex, Stack, Skeleton } from '@chakra-ui/react';
+import {
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Button,
+  Card,
+  Flex,
+  Stack,
+  Skeleton,
+  Center,
+  Heading,
+  Link,
+} from '@chakra-ui/react';
+import { FaEnvelope } from 'react-icons/fa';
 import { toaster } from '@/components/ui/toaster';
 import { useFilterOptions, useVisitSearch } from '@/hooks';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,10 +33,11 @@ import LoadingSkeleton from './LoadingSkeleton';
 import CreateCohortDialog from '../CohortTab/CreateCohortDialog';
 
 interface ResearchTabProps {
+  hasValidTier?: boolean;
   onCohortCreated?: () => void;
 }
 
-export default function ResearchTab({ onCohortCreated }: ResearchTabProps) {
+export default function ResearchTab({ hasValidTier, onCohortCreated }: ResearchTabProps) {
   const { isAuthenticated } = useAuth();
   const {
     filterOptions,
@@ -184,7 +199,30 @@ export default function ResearchTab({ onCohortCreated }: ResearchTabProps) {
                 </HStack>
               </Card.Header>
               <Card.Body>
-                {visitsLoading ? (
+                {!hasValidTier ? (
+                  <Center py={12}>
+                    <VStack gap={4}>
+                      <Box color="blue.500" fontSize="2xl">
+                        <FaEnvelope />
+                      </Box>
+                      <Heading size="lg" color="gray.900">
+                        Request Data Access
+                      </Heading>
+                      <Text color="gray.600" textAlign="center" maxW="md">
+                        Your account has been created, but you don&apos;t have data access yet.
+                        Please reach out to our team to get started.
+                      </Text>
+                      <Link
+                        href="mailto:observerproject@pennmedicine.upenn.edu"
+                        color="blue.600"
+                        fontWeight="semibold"
+                        _hover={{ color: 'blue.800', textDecoration: 'underline' }}
+                      >
+                        observerproject@pennmedicine.upenn.edu
+                      </Link>
+                    </VStack>
+                  </Center>
+                ) : visitsLoading ? (
                   <Box overflowX="auto">
                     <Stack gap={2}>
                       {Array.from({ length: 5 }).map((_, i) => (

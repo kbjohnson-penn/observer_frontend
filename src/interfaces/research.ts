@@ -76,7 +76,7 @@ export interface FilterOptions {
 
 export interface VisitSearchFilters {
   visit?: {
-    tier_id?: number[];
+    tier_level?: number[];
     date_from?: string;
     date_to?: string;
     visit_source_value?: string[];
@@ -129,7 +129,13 @@ export interface VisitSearchFilters {
 }
 
 export interface VisitSearchSort {
-  field: 'id' | 'visit_start_date' | 'tier_id' | 'visit_source_value' | 'person_id' | 'provider_id';
+  field:
+    | 'id'
+    | 'visit_start_date'
+    | 'tier_level'
+    | 'visit_source_value'
+    | 'person_id'
+    | 'provider_id';
   direction: 'asc' | 'desc';
 }
 

@@ -13,7 +13,7 @@ import { COLORS } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function DashboardPage() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('research');
   const [cohortCount, setCohortCount] = useState(0);
@@ -57,6 +57,12 @@ export default function DashboardPage() {
   if (!isAuthenticated) {
     return null;
   }
+
+  const hasValidTier =
+    user?.tier !== null &&
+    user?.tier !== undefined &&
+    user.tier.level !== null &&
+    user.tier.level !== undefined;
 
   return (
     <Container maxW="container.xl" py={8}>
@@ -130,7 +136,7 @@ export default function DashboardPage() {
         </Tabs.List>
 
         <Tabs.Content value="research" mt={6}>
-          <ResearchTab onCohortCreated={loadCohortCount} />
+          <ResearchTab hasValidTier={hasValidTier} onCohortCreated={loadCohortCount} />
         </Tabs.Content>
 
         <Tabs.Content value="cohorts" mt={6}>

@@ -96,6 +96,14 @@ describe('AuthContext', () => {
         }),
       });
 
+      // Mock profile fetch for tier data
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tier: { id: 1, tier_name: 'Tier 1', level: 1 },
+        }),
+      });
+
       await act(async () => {
         await result.current.login('testuser', 'password123');
       });
@@ -104,6 +112,7 @@ describe('AuthContext', () => {
         username: 'testuser',
         email: 'test@example.com',
         id: 1,
+        tier: { tier_name: 'Tier 1', level: 1 },
       });
       expect(result.current.isAuthenticated).toBe(true);
       expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
@@ -174,6 +183,14 @@ describe('AuthContext', () => {
         }),
       });
 
+      // Mock profile fetch for tier data
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tier: { id: 1, tier_name: 'Tier 1', level: 1 },
+        }),
+      });
+
       await act(async () => {
         await result.current.login('testuser', 'password123');
       });
@@ -225,6 +242,14 @@ describe('AuthContext', () => {
             email: 'test@example.com',
             id: 1,
           },
+        }),
+      });
+
+      // Mock profile fetch for tier data
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tier: { id: 1, tier_name: 'Tier 1', level: 1 },
         }),
       });
 
@@ -286,6 +311,14 @@ describe('AuthContext', () => {
         }),
       });
 
+      // Mock profile fetch for tier data
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tier: { id: 1, tier_name: 'Tier 1', level: 1 },
+        }),
+      });
+
       await act(async () => {
         await result.current.login('testuser', 'password123');
       });
@@ -318,7 +351,7 @@ describe('AuthContext', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      // Mock successful refresh with expires_at + user data call
+      // Mock successful refresh with expires_at + user data call (profile includes tier)
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
@@ -330,6 +363,7 @@ describe('AuthContext', () => {
             username: 'testuser',
             email: 'test@example.com',
             id: 1,
+            tier: { id: 1, tier_name: 'Tier 1', level: 1 },
           }),
         });
 
@@ -343,6 +377,7 @@ describe('AuthContext', () => {
         username: 'testuser',
         email: 'test@example.com',
         id: 1,
+        tier: { tier_name: 'Tier 1', level: 1 },
       });
       expect(result.current.isAuthenticated).toBe(true);
     });
@@ -427,6 +462,14 @@ describe('AuthContext', () => {
         }),
       });
 
+      // Mock profile fetch for tier data
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tier: { id: 1, tier_name: 'Tier 1', level: 1 },
+        }),
+      });
+
       await act(async () => {
         await result.current.login('testuser', 'password123');
       });
@@ -476,6 +519,7 @@ describe('AuthContext', () => {
             username: 'testuser',
             email: 'test@example.com',
             id: 1,
+            tier: { id: 1, tier_name: 'Tier 1', level: 1 },
           }),
         });
 
@@ -489,6 +533,7 @@ describe('AuthContext', () => {
         username: 'testuser',
         email: 'test@example.com',
         id: 1,
+        tier: { tier_name: 'Tier 1', level: 1 },
       });
       expect(result.current.isAuthenticated).toBe(true);
     });
@@ -577,6 +622,7 @@ describe('AuthContext', () => {
               email: 'test@example.com',
               id: 1,
             },
+            tier: { id: 2, tier_name: 'Tier 2', level: 2 },
           }),
         });
 
@@ -590,6 +636,7 @@ describe('AuthContext', () => {
         username: 'testuser',
         email: 'test@example.com',
         id: 1,
+        tier: { tier_name: 'Tier 2', level: 2 },
       });
     });
 
@@ -627,6 +674,7 @@ describe('AuthContext', () => {
         username: 'testuser',
         email: undefined,
         id: undefined,
+        tier: null,
       });
     });
 
@@ -709,6 +757,14 @@ describe('AuthContext', () => {
             id: 1,
           },
           expires_at: expiryTime,
+        }),
+      });
+
+      // Mock profile fetch for tier data
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tier: { id: 1, tier_name: 'Tier 1', level: 1 },
         }),
       });
 
@@ -854,6 +910,13 @@ describe('AuthContext', () => {
           expires_at: expiryTime,
         }),
       });
+      // Mock profile fetch for tier data
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tier: { id: 1, tier_name: 'Tier 1', level: 1 },
+        }),
+      });
 
       await act(async () => {
         await result.current.login('testuser', 'password123');
@@ -905,6 +968,13 @@ describe('AuthContext', () => {
         json: async () => ({
           user: { username: 'testuser', email: 'test@example.com', id: 1 },
           expires_at: expiryTime,
+        }),
+      });
+      // Mock profile fetch for tier data
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tier: { id: 1, tier_name: 'Tier 1', level: 1 },
         }),
       });
 
@@ -962,6 +1032,13 @@ describe('AuthContext', () => {
           expires_at: expiryTime,
         }),
       });
+      // Mock profile fetch for tier data
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tier: { id: 1, tier_name: 'Tier 1', level: 1 },
+        }),
+      });
 
       await act(async () => {
         await result.current.login('testuser', 'password123');
@@ -999,6 +1076,13 @@ describe('AuthContext', () => {
         json: async () => ({
           user: { username: 'testuser', email: 'test@example.com', id: 1 },
           // No expires_at
+        }),
+      });
+      // Mock profile fetch for tier data
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tier: { id: 1, tier_name: 'Tier 1', level: 1 },
         }),
       });
 
@@ -1053,6 +1137,13 @@ describe('AuthContext', () => {
         json: async () => ({
           user: { username: 'testuser', email: 'test@example.com', id: 1 },
           expires_at: expiryTime,
+        }),
+      });
+      // Mock profile fetch for tier data
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tier: { id: 1, tier_name: 'Tier 1', level: 1 },
         }),
       });
 

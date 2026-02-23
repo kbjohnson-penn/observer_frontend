@@ -46,15 +46,22 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock AuthContext
+const mockUseAuth = jest.fn(() => ({
+  isAuthenticated: true,
+  isLoading: false,
+  user: {
+    username: 'testuser',
+    email: 'test@example.com',
+    id: 1,
+    tier: { tier_name: 'Tier 1', level: 1 },
+  },
+  login: jest.fn(),
+  logout: jest.fn(),
+  refreshToken: jest.fn(),
+}));
+
 jest.mock('@/contexts/AuthContext', () => ({
-  useAuth: jest.fn(() => ({
-    isAuthenticated: true,
-    isLoading: false,
-    user: { username: 'testuser', email: 'test@example.com', id: 1 },
-    login: jest.fn(),
-    logout: jest.fn(),
-    refreshToken: jest.fn(),
-  })),
+  useAuth: () => mockUseAuth(),
 }));
 
 // Mock the hooks
@@ -138,6 +145,19 @@ describe('DashboardPage', () => {
     jest.clearAllMocks();
     cohortTabRenderCount = 0;
     cohortTabKeys.length = 0;
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: true,
+      isLoading: false,
+      user: {
+        username: 'testuser',
+        email: 'test@example.com',
+        id: 1,
+        tier: { tier_name: 'Tier 1', level: 1 },
+      },
+      login: jest.fn(),
+      logout: jest.fn(),
+      refreshToken: jest.fn(),
+    });
   });
 
   describe('Initial Rendering', () => {
@@ -310,6 +330,24 @@ describe('DashboardPage', () => {
       expect(screen.getByTestId('cohort-tab')).toBeInTheDocument();
       expect(screen.getByTestId('research-tab')).toBeInTheDocument();
       expect(cohortTabRenderCount).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('No Tier - Dashboard Still Renders Tabs', () => {
+    it('should still render tabs when user has no tier', () => {
+      mockUseAuth.mockReturnValueOnce({
+        isAuthenticated: true,
+        isLoading: false,
+        user: { username: 'testuser', email: 'test@example.com', id: 1, tier: null as null },
+        login: jest.fn(),
+        logout: jest.fn(),
+        refreshToken: jest.fn(),
+      });
+
+      render(<DashboardPage />, { wrapper: TestWrapper });
+
+      expect(screen.getByText('Research Data')).toBeInTheDocument();
+      expect(screen.getByText('Cohorts')).toBeInTheDocument();
     });
   });
 
