@@ -1,10 +1,17 @@
-import React from 'react';
 import { Box, Heading, Text, Grid, VStack } from '@chakra-ui/react';
 import { ACCESS_REQUIREMENTS } from '@/constants/dataset.constants';
 
 const DatasetInformation = () => {
   return (
-    <Box mb={16} py={12} bg="white" borderRadius="xl" border="1px" borderColor="gray.200">
+    <Box
+      id="access-requirements"
+      mb={16}
+      py={12}
+      bg="white"
+      borderRadius="xl"
+      border="1px"
+      borderColor="gray.200"
+    >
       <Heading size="2xl" mb={2} color="blue.700" textAlign="center" fontWeight="bold">
         Access Requirements
       </Heading>

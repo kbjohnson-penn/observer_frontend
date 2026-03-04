@@ -6,7 +6,18 @@ import { HealthcareDataBrowser } from '@/components/healthcare-browser';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { logger } from '@/lib/logger';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { apiClient } from '@/lib/apiClient';
+import { AxiosError } from 'axios';
+import { CohortDataAPIResponse } from '@/interfaces/observer-omop';
+import { FaArrowLeft } from 'react-icons/fa';
+
+interface CohortMetadata {
+  name: string;
+  description?: string;
+  visit_count: number;
+  created_at: string;
+}
 
 interface CohortViewPageProps {
   params: Promise<{
@@ -22,8 +33,8 @@ const CohortViewPage = ({ params }: CohortViewPageProps) => {
     params.then((p) => setCohortId(p.cohortId));
   }, [params]);
   const router = useRouter();
-  const [cohort, setCohort] = useState<any>(null);
-  const [cohortData, setCohortData] = useState<any>(null);
+  const [cohort, setCohort] = useState<CohortMetadata | null>(null);
+  const [cohortData, setCohortData] = useState<CohortDataAPIResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,9 +60,9 @@ const CohortViewPage = ({ params }: CohortViewPageProps) => {
         // Fetch cohort OMOP data
         const dataResponse = await apiClient.get(`/research/private/cohorts/${cohortId}/data/`);
         setCohortData(dataResponse.data);
-      } catch (err: any) {
+      } catch (err: unknown) {
         logger.error('Error fetching cohort:', err);
-        if (err.response?.status === 404) {
+        if (err instanceof AxiosError && err.response?.status === 404) {
           router.push('/404');
         } else {
           setError('Failed to load cohort data. Please try again.');
@@ -89,6 +100,23 @@ const CohortViewPage = ({ params }: CohortViewPageProps) => {
 
   return (
     <Box maxW="6xl" mx="auto" py={8} px={{ base: 4, md: 6 }}>
+      {/* Back Navigation */}
+      <Link href="/dashboard?tab=cohorts" style={{ textDecoration: 'none' }}>
+        <HStack
+          gap={2}
+          mb={6}
+          color="blue.600"
+          _hover={{ color: 'blue.800' }}
+          cursor="pointer"
+          transition="color 0.2s"
+        >
+          <FaArrowLeft size={14} />
+          <Text fontSize="sm" fontWeight="medium">
+            Back to Cohorts
+          </Text>
+        </HStack>
+      </Link>
+
       {/* Header Section */}
       <Box textAlign="center" mb={12}>
         <Heading

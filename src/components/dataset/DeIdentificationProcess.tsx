@@ -1,9 +1,16 @@
-import React from 'react';
 import { Box, Heading, Text, VStack, Link } from '@chakra-ui/react';
 
 const DeIdentificationProcess = () => {
   return (
-    <Box mb={16} py={12} bg="white" borderRadius="xl" border="1px" borderColor="gray.200">
+    <Box
+      id="de-identification"
+      mb={16}
+      py={12}
+      bg="white"
+      borderRadius="xl"
+      border="1px"
+      borderColor="gray.200"
+    >
       <Heading size="2xl" mb={6} color="blue.700" textAlign="center" fontWeight="bold">
         De-identification Process
       </Heading>

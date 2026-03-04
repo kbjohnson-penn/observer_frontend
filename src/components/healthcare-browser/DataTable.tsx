@@ -203,6 +203,12 @@ function DataTable({ tableId }: DataTableProps) {
     isLocalUpdateRef.current = false;
   }, [globalFilter]);
 
+  // Clear search input when switching between tables
+   
+  useEffect(() => {
+    setLocalFilter(globalFilter);
+  }, [tableId]);
+
   // Get display info from registry
   const displayName = config?.display.name || tableId;
   const description = config?.display.description || '';

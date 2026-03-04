@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { Suspense, useState, useEffect, useCallback } from 'react';
 import { Box, Container, Text, Tabs, HStack, Badge, Spinner, Center } from '@chakra-ui/react';
 import { FaSearch, FaUsers } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ResearchTab from '@/components/dashboard/ResearchTab';
 import CohortTab from '@/components/dashboard/CohortTab';
 import { useFilterOptions } from '@/hooks';
@@ -12,10 +12,30 @@ import { logger } from '@/lib/logger';
 import { COLORS } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 
+function DashboardLoading() {
+  return (
+    <Center h="50vh">
+      <Spinner size="xl" color="blue.500" />
+    </Center>
+  );
+}
+
 export default function DashboardPage() {
+  return (
+    <Suspense fallback={<DashboardLoading />}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+function DashboardContent() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('research');
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState(() => {
+    const tab = searchParams.get('tab');
+    return tab === 'cohorts' ? 'cohorts' : 'research';
+  });
   const [cohortCount, setCohortCount] = useState(0);
   const { filterOptions } = useFilterOptions(isAuthenticated);
 
@@ -36,9 +56,12 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, authLoading, router]);
 
-  // Initial load on mount
+  // Initial load on mount and sync URL with active tab
   useEffect(() => {
     loadCohortCount();
+    if (!searchParams.get('tab')) {
+      router.replace(`/dashboard?tab=${activeTab}`, { scroll: false });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -61,8 +84,8 @@ export default function DashboardPage() {
   const hasValidTier =
     user?.tier !== null &&
     user?.tier !== undefined &&
-    user.tier.level !== null &&
-    user.tier.level !== undefined;
+    user?.tier?.level !== null &&
+    user?.tier?.level !== undefined;
 
   return (
     <Container maxW="container.xl" py={8}>
@@ -73,6 +96,7 @@ export default function DashboardPage() {
         value={activeTab}
         onValueChange={(e) => {
           setActiveTab(e.value);
+          router.replace(`/dashboard?tab=${e.value}`, { scroll: false });
           if (e.value === 'cohorts') {
             loadCohortCount();
           }

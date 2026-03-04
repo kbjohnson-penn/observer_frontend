@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import { AxiosError, AxiosHeaders } from 'axios';
 import CohortViewPage from '../page';
 import { apiClient } from '@/lib/apiClient';
 import { useRouter } from 'next/navigation';
@@ -212,6 +213,19 @@ describe('CohortViewPage', () => {
         expect(screen.getByText(/Created January 15, 2024/i)).toBeInTheDocument();
       });
     });
+
+    it('should render back to cohorts link', async () => {
+      render(<CohortViewPage params={Promise.resolve({ cohortId: '1' })} />, {
+        wrapper: TestWrapper,
+      });
+
+      await waitFor(() => {
+        const backLink = screen.getByText('Back to Cohorts');
+        expect(backLink).toBeInTheDocument();
+        const linkElement = backLink.closest('a');
+        expect(linkElement).toHaveAttribute('href', '/dashboard?tab=cohorts');
+      });
+    });
   });
 
   // ============================================================================
@@ -259,7 +273,14 @@ describe('CohortViewPage', () => {
     it('should redirect to 404 when cohort not found', async () => {
       mockApiClient.get.mockImplementation((url: string) => {
         if (url.includes('/accounts/cohorts/')) {
-          return Promise.reject({ response: { status: 404 } });
+          const error = new AxiosError('Not Found', '404', undefined, undefined, {
+            status: 404,
+            data: {},
+            statusText: 'Not Found',
+            headers: {},
+            config: { headers: new AxiosHeaders() },
+          });
+          return Promise.reject(error);
         }
         return Promise.resolve({ data: mockCohortData });
       });

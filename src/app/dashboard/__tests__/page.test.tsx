@@ -38,11 +38,15 @@ jest.mock('@/components/ui/toaster', () => ({
 }));
 
 // Mock next/navigation
+const mockReplace = jest.fn();
+const mockPush = jest.fn();
+
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(() => ({
-    push: jest.fn(),
-    replace: jest.fn(),
+    push: mockPush,
+    replace: mockReplace,
   })),
+  useSearchParams: jest.fn(() => new URLSearchParams()),
 }));
 
 // Mock AuthContext
@@ -227,6 +231,33 @@ describe('DashboardPage', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('research-tab')).toBeInTheDocument();
+      });
+    });
+
+    it('should update URL when switching to cohorts tab', async () => {
+      const user = userEvent.setup();
+      render(<DashboardPage />, { wrapper: TestWrapper });
+
+      await user.click(screen.getByText('Cohorts'));
+
+      await waitFor(() => {
+        expect(mockReplace).toHaveBeenCalledWith('/dashboard?tab=cohorts', { scroll: false });
+      });
+    });
+
+    it('should update URL when switching to research tab', async () => {
+      const user = userEvent.setup();
+      render(<DashboardPage />, { wrapper: TestWrapper });
+
+      // Switch to cohorts first
+      await user.click(screen.getByText('Cohorts'));
+      mockReplace.mockClear();
+
+      // Switch back to research
+      await user.click(screen.getByText('Research Data'));
+
+      await waitFor(() => {
+        expect(mockReplace).toHaveBeenCalledWith('/dashboard?tab=research', { scroll: false });
       });
     });
 

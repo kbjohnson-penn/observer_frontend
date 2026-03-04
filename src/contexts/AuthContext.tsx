@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }, timeUntilExpiry);
       } else {
-        // Token already expired — try refresh before giving up
+        // Token already expired - try refresh before giving up
         refreshTokenRef.current().then((refreshed) => {
           if (!refreshed) {
             window.dispatchEvent(new CustomEvent('auth:failed'));
@@ -266,7 +266,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           );
         }
       } catch {
-        // Profile fetch failed — tier will be populated on next token refresh
+        // Profile fetch failed - tier will be populated on next token refresh
       }
     }
 
