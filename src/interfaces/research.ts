@@ -87,6 +87,8 @@ export interface VisitSearchFilters {
     ethnicity?: string[];
     year_of_birth_from?: number;
     year_of_birth_to?: number;
+    age_from?: number;
+    age_to?: number;
   };
   provider_demographics?: {
     gender?: string[];
@@ -94,6 +96,8 @@ export interface VisitSearchFilters {
     ethnicity?: string[];
     year_of_birth_from?: number;
     year_of_birth_to?: number;
+    age_from?: number;
+    age_to?: number;
   };
   clinical?: {
     notes?: {

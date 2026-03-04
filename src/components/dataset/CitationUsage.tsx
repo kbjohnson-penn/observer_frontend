@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Box, Heading, Text, Button, HStack, IconButton } from '@chakra-ui/react';
 import { FaQuoteLeft, FaCopy, FaCheck } from 'react-icons/fa';
@@ -16,7 +16,7 @@ const CitationUsage = ({ onOpenModal }: CitationUsageProps) => {
   };
 
   return (
-    <Box mb={12}>
+    <Box id="citation" mb={12}>
       {/* Citation Card */}
       <Box bg="blue.50" p={8} borderRadius="xl" border="1px" borderColor="blue.200">
         <Heading size="xl" mb={6} color="blue.700" textAlign="center" fontWeight="bold">

@@ -342,7 +342,7 @@ export const OBSERVATION_LABELS: ColumnLabelsMap = {
 // =============================================================================
 
 export const PERSON_LABELS: ColumnLabelsMap = {
-  id: { label: 'Person ID', description: 'Unique identifier for this patient' },
+  id: { label: 'Patient ID', description: 'Unique identifier for this patient' },
   person_display_id: { label: 'Display ID', description: 'Patient identifier shown to users' },
   year_of_birth: { label: 'Birth Year', description: 'Year the patient was born' },
   gender_source_value: { label: 'Gender', description: 'Patient gender as recorded' },

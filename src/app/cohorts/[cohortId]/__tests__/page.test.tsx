@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import { AxiosError, AxiosHeaders } from 'axios';
 import CohortViewPage from '../page';
 import { apiClient } from '@/lib/apiClient';
 import { useRouter } from 'next/navigation';
@@ -20,6 +21,14 @@ jest.mock('@/lib/apiClient', () => ({
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
+}));
+
+// Mock AuthContext
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({
+    isAuthenticated: true,
+    isLoading: false,
+  }),
 }));
 
 // Mock HealthcareDataBrowser
@@ -259,7 +268,14 @@ describe('CohortViewPage', () => {
     it('should redirect to 404 when cohort not found', async () => {
       mockApiClient.get.mockImplementation((url: string) => {
         if (url.includes('/accounts/cohorts/')) {
-          return Promise.reject({ response: { status: 404 } });
+          const error = new AxiosError('Not Found', '404', undefined, undefined, {
+            status: 404,
+            data: {},
+            statusText: 'Not Found',
+            headers: {},
+            config: { headers: new AxiosHeaders() },
+          });
+          return Promise.reject(error);
         }
         return Promise.resolve({ data: mockCohortData });
       });

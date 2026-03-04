@@ -85,7 +85,7 @@ const VisitRow = React.memo(({ visit }: { visit: VisitSearchResult }) => {
               </Tooltip.Trigger>
               <Tooltip.Positioner>
                 <Tooltip.Content>
-                  <Text fontSize="xs">Age at time of visit</Text>
+                  <Text fontSize="xs">Approximate age at time of visit (based on birth year)</Text>
                   <Tooltip.Arrow>
                     <Tooltip.ArrowTip />
                   </Tooltip.Arrow>
@@ -135,7 +135,7 @@ const VisitRow = React.memo(({ visit }: { visit: VisitSearchResult }) => {
               </Tooltip.Trigger>
               <Tooltip.Positioner>
                 <Tooltip.Content>
-                  <Text fontSize="xs">Age at time of visit</Text>
+                  <Text fontSize="xs">Approximate age at time of visit (based on birth year)</Text>
                   <Tooltip.Arrow>
                     <Tooltip.ArrowTip />
                   </Tooltip.Arrow>
