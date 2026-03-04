@@ -6,11 +6,9 @@ import { HealthcareDataBrowser } from '@/components/healthcare-browser';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { logger } from '@/lib/logger';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { apiClient } from '@/lib/apiClient';
 import { AxiosError } from 'axios';
 import { CohortDataAPIResponse } from '@/interfaces/observer-omop';
-import { FaArrowLeft } from 'react-icons/fa';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface CohortMetadata {
@@ -48,8 +46,8 @@ const CohortViewPage = ({ params }: CohortViewPageProps) => {
   }, [isAuthenticated, authLoading, router]);
 
   useEffect(() => {
-    if (!cohortId) {
-      return; // Wait for cohortId to be set
+    if (!cohortId || authLoading || !isAuthenticated) {
+      return; // Wait for cohortId and auth to be ready
     }
 
     const fetchData = async () => {
@@ -82,7 +80,7 @@ const CohortViewPage = ({ params }: CohortViewPageProps) => {
     };
 
     fetchData();
-  }, [cohortId, router]);
+  }, [cohortId, router, authLoading, isAuthenticated]);
 
   if (authLoading || loading) {
     return (
@@ -113,23 +111,6 @@ const CohortViewPage = ({ params }: CohortViewPageProps) => {
 
   return (
     <Box maxW="6xl" mx="auto" py={8} px={{ base: 4, md: 6 }}>
-      {/* Back Navigation */}
-      <Link href="/dashboard?tab=cohorts" style={{ textDecoration: 'none' }}>
-        <HStack
-          gap={2}
-          mb={6}
-          color="blue.600"
-          _hover={{ color: 'blue.800' }}
-          cursor="pointer"
-          transition="color 0.2s"
-        >
-          <FaArrowLeft size={14} />
-          <Text fontSize="sm" fontWeight="medium">
-            Back to Cohorts
-          </Text>
-        </HStack>
-      </Link>
-
       {/* Header Section */}
       <Box textAlign="center" mb={12}>
         <Heading

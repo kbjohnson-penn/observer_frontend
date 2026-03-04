@@ -221,19 +221,6 @@ describe('CohortViewPage', () => {
         expect(screen.getByText(/Created January 15, 2024/i)).toBeInTheDocument();
       });
     });
-
-    it('should render back to cohorts link', async () => {
-      render(<CohortViewPage params={Promise.resolve({ cohortId: '1' })} />, {
-        wrapper: TestWrapper,
-      });
-
-      await waitFor(() => {
-        const backLink = screen.getByText('Back to Cohorts');
-        expect(backLink).toBeInTheDocument();
-        const linkElement = backLink.closest('a');
-        expect(linkElement).toHaveAttribute('href', '/dashboard?tab=cohorts');
-      });
-    });
   });
 
   // ============================================================================
