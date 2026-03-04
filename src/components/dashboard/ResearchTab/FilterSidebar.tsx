@@ -397,7 +397,11 @@ export default function FilterSidebar({
                       </Select.Positioner>
                     </Select.Root>
                     {/* Link to full tier comparison table */}
-                    <Link href="/dataset" target="_blank" rel="noopener noreferrer">
+                    <Link
+                      href="/dataset#data-access-tiers"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <HStack gap={1} fontSize="xs" color="blue.600" _hover={{ color: 'blue.800' }}>
                         <FaExternalLinkAlt size={10} />
                         <Text>View full tier comparison table</Text>

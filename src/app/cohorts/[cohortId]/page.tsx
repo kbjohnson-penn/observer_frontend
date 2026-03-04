@@ -7,6 +7,16 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { logger } from '@/lib/logger';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
+import { AxiosError } from 'axios';
+import { CohortDataAPIResponse } from '@/interfaces/observer-omop';
+import { useAuth } from '@/contexts/AuthContext';
+
+interface CohortMetadata {
+  name: string;
+  description?: string;
+  visit_count: number;
+  created_at: string;
+}
 
 interface CohortViewPageProps {
   params: Promise<{
@@ -22,14 +32,22 @@ const CohortViewPage = ({ params }: CohortViewPageProps) => {
     params.then((p) => setCohortId(p.cohortId));
   }, [params]);
   const router = useRouter();
-  const [cohort, setCohort] = useState<any>(null);
-  const [cohortData, setCohortData] = useState<any>(null);
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const [cohort, setCohort] = useState<CohortMetadata | null>(null);
+  const [cohortData, setCohortData] = useState<CohortDataAPIResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Redirect to login if not authenticated
   useEffect(() => {
-    if (!cohortId) {
-      return; // Wait for cohortId to be set
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  useEffect(() => {
+    if (!cohortId || authLoading || !isAuthenticated) {
+      return; // Wait for cohortId and auth to be ready
     }
 
     const fetchData = async () => {
@@ -49,9 +67,9 @@ const CohortViewPage = ({ params }: CohortViewPageProps) => {
         // Fetch cohort OMOP data
         const dataResponse = await apiClient.get(`/research/private/cohorts/${cohortId}/data/`);
         setCohortData(dataResponse.data);
-      } catch (err: any) {
+      } catch (err: unknown) {
         logger.error('Error fetching cohort:', err);
-        if (err.response?.status === 404) {
+        if (err instanceof AxiosError && err.response?.status === 404) {
           router.push('/404');
         } else {
           setError('Failed to load cohort data. Please try again.');
@@ -62,14 +80,18 @@ const CohortViewPage = ({ params }: CohortViewPageProps) => {
     };
 
     fetchData();
-  }, [cohortId, router]);
+  }, [cohortId, router, authLoading, isAuthenticated]);
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <Center h="50vh">
         <Spinner size="xl" color="blue.500" />
       </Center>
     );
+  }
+
+  if (!isAuthenticated) {
+    return null;
   }
 
   if (error || !cohort) {

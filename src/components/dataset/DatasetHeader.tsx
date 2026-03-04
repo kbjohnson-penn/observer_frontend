@@ -1,6 +1,5 @@
-import React from 'react';
 import Link from 'next/link';
-import { Box, Heading, Text, Button } from '@chakra-ui/react';
+import { Box, Heading, Text, Button, HStack } from '@chakra-ui/react';
 
 const DatasetHeader = () => {
   return (
@@ -29,20 +28,36 @@ const DatasetHeader = () => {
         <Text color="blue.700" mb={6} fontSize="xl" fontWeight="medium" lineHeight="tall">
           Interactive data browser with video players, transcript viewer, and table explorer
         </Text>
-        <Link href="/dataset/explore">
-          <Button
-            size="lg"
-            colorPalette="blue"
-            bg="blue.500"
-            _hover={{ bg: 'blue.600' }}
-            transition="all 0.2s"
-            color="white"
-            minW="200px"
-            padding={2}
-          >
-            Explore Sample Dataset
-          </Button>
-        </Link>
+        <HStack justify="center" gap={4} flexWrap="wrap">
+          <Link href="/dataset/explore">
+            <Button
+              size="lg"
+              colorPalette="blue"
+              bg="blue.500"
+              _hover={{ bg: 'blue.600' }}
+              transition="all 0.2s"
+              color="white"
+              minW="200px"
+              padding={2}
+            >
+              Explore Sample Dataset
+            </Button>
+          </Link>
+          <Link href="/documentation">
+            <Button
+              size="lg"
+              colorPalette="blue"
+              bg="blue.500"
+              _hover={{ bg: 'blue.600' }}
+              transition="all 0.2s"
+              color="white"
+              minW="200px"
+              padding={2}
+            >
+              Dataset Documentation
+            </Button>
+          </Link>
+        </HStack>
       </Box>
     </Box>
   );

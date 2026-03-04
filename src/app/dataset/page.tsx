@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box } from '@chakra-ui/react';
 
 // Import modular components
@@ -14,6 +14,17 @@ import CitationModal from '@/components/dataset/CitationModal';
 
 const DatasetPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Scroll to hash anchor after page renders (needed for client-side navigation)
+  useEffect(() => {
+    if (window.location.hash) {
+      const id = window.location.hash.slice(1);
+      // Small delay to ensure DOM elements are rendered
+      setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, []);
 
   return (
     <Box maxW="6xl" mx="auto" py={8} px={{ base: 4, md: 6 }}>

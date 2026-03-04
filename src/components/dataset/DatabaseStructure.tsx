@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Heading, Text, Grid, VStack } from '@chakra-ui/react';
 import { DATABASE_STRUCTURE } from '@/constants/dataset.constants';
 
@@ -6,7 +5,7 @@ const dataStructure = DATABASE_STRUCTURE;
 
 const DatabaseStructure = () => {
   return (
-    <Box mb={16} py={12} bg="gray.50" borderRadius="xl">
+    <Box id="dataset-structure" mb={16} py={12} bg="gray.50" borderRadius="xl">
       <Heading size="2xl" mb={6} color="blue.700" textAlign="center" fontWeight="bold">
         Dataset Structure & Data Types
       </Heading>

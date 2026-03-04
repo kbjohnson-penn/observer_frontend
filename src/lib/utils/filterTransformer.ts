@@ -7,45 +7,37 @@ import { LocalFilters, DemographicFilterValues } from '@/interfaces/researchTab'
 import { VisitSearchFilters } from '@/interfaces/research';
 
 /**
- * Converts age to year of birth range
- * @param ageFrom - Minimum age
- * @param ageTo - Maximum age
- * @returns Object with year_of_birth_from and year_of_birth_to
- * @throws Error if age values are invalid
+ * Parses and validates age range values.
+ * Returns age_from/age_to for backend filtering on age at time of visit.
+ * @param ageFrom - Minimum age string
+ * @param ageTo - Maximum age string
+ * @returns Object with age_from and age_to
  */
-function ageToYearOfBirth(
-  ageFrom: string,
-  ageTo: string
-): { year_of_birth_from?: number; year_of_birth_to?: number } {
-  const currentYear = new Date().getFullYear();
-  const result: { year_of_birth_from?: number; year_of_birth_to?: number } = {};
+function parseAgeRange(ageFrom: string, ageTo: string): { age_from?: number; age_to?: number } {
+  const result: { age_from?: number; age_to?: number } = {};
 
   if (ageFrom) {
-    const age = parseInt(ageFrom, 10); // Always specify radix
+    const age = parseInt(ageFrom, 10);
     if (isNaN(age) || age < 0 || age > 150) {
-      throw new Error('Invalid minimum age: must be between 0 and 150');
+      return {};
     }
-    // Min age means max year of birth (someone who is at least X years old)
-    result.year_of_birth_to = currentYear - age;
+    result.age_from = age;
   }
 
   if (ageTo) {
-    const age = parseInt(ageTo, 10); // Always specify radix
+    const age = parseInt(ageTo, 10);
     if (isNaN(age) || age < 0 || age > 150) {
-      throw new Error('Invalid maximum age: must be between 0 and 150');
+      return {};
     }
-    // Max age means min year of birth (someone who is at most X years old)
-    result.year_of_birth_from = currentYear - age;
+    result.age_to = age;
   }
 
   // Validate logical consistency only if both values are valid numbers
   if (ageFrom && ageTo) {
     const minAge = parseInt(ageFrom, 10);
     const maxAge = parseInt(ageTo, 10);
-    // Only validate if both are valid numbers (not NaN)
     if (!isNaN(minAge) && !isNaN(maxAge) && minAge > maxAge) {
       // Don't throw error during typing - just skip the invalid range
-      // The backend will handle this or we can show a warning in the UI
       return {};
     }
   }
@@ -87,8 +79,8 @@ function buildDemographicFilters(
   }
 
   if (values.ageFrom || values.ageTo) {
-    const yearOfBirth = ageToYearOfBirth(values.ageFrom, values.ageTo);
-    Object.assign(filters, yearOfBirth);
+    const ageRange = parseAgeRange(values.ageFrom, values.ageTo);
+    Object.assign(filters, ageRange);
   }
 
   return filters;
