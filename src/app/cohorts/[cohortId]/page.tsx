@@ -11,6 +11,7 @@ import { apiClient } from '@/lib/apiClient';
 import { AxiosError } from 'axios';
 import { CohortDataAPIResponse } from '@/interfaces/observer-omop';
 import { FaArrowLeft } from 'react-icons/fa';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface CohortMetadata {
   name: string;
@@ -33,10 +34,18 @@ const CohortViewPage = ({ params }: CohortViewPageProps) => {
     params.then((p) => setCohortId(p.cohortId));
   }, [params]);
   const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [cohort, setCohort] = useState<CohortMetadata | null>(null);
   const [cohortData, setCohortData] = useState<CohortDataAPIResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   useEffect(() => {
     if (!cohortId) {
@@ -75,12 +84,16 @@ const CohortViewPage = ({ params }: CohortViewPageProps) => {
     fetchData();
   }, [cohortId, router]);
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <Center h="50vh">
         <Spinner size="xl" color="blue.500" />
       </Center>
     );
+  }
+
+  if (!isAuthenticated) {
+    return null;
   }
 
   if (error || !cohort) {

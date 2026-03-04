@@ -204,7 +204,7 @@ function DataTable({ tableId }: DataTableProps) {
   }, [globalFilter]);
 
   // Clear search input when switching between tables
-   
+
   useEffect(() => {
     setLocalFilter(globalFilter);
   }, [tableId]);

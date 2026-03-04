@@ -23,6 +23,14 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
+// Mock AuthContext
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({
+    isAuthenticated: true,
+    isLoading: false,
+  }),
+}));
+
 // Mock HealthcareDataBrowser
 jest.mock('@/components/healthcare-browser', () => ({
   HealthcareDataBrowser: function MockHealthcareDataBrowser({ cohortData }: any) {
