@@ -43,6 +43,7 @@ export default function ResearchTab({ hasValidTier, onCohortCreated }: ResearchT
     filterOptions,
     loading: filterOptionsLoading,
     error: filterOptionsError,
+    refetch: refetchFilterOptions,
   } = useFilterOptions(isAuthenticated);
 
   const {
@@ -157,115 +158,124 @@ export default function ResearchTab({ hasValidTier, onCohortCreated }: ResearchT
     return <LoadingSkeleton />;
   }
 
+  // Show error state if filter options failed to load
+  if (!filterOptions) {
+    return (
+      <Center py={16}>
+        <VStack gap={4}>
+          <Text color="gray.500">Failed to load research data.</Text>
+          <Button size="sm" variant="outline" onClick={refetchFilterOptions}>
+            Retry
+          </Button>
+        </VStack>
+      </Center>
+    );
+  }
+
   return (
     <VStack gap={6} align="stretch">
       {/* Main Content Area */}
-      {filterOptions && (
-        <Flex gap={6} alignItems="flex-start">
-          {/* Filter Sidebar */}
-          <FilterSidebar
-            localFilters={localFilters}
-            filterOptions={filterOptions}
-            filterSummary={filterSummary}
-            onFilterChange={handleFilterChange}
-            onClearFilters={clearFilters}
-            onSaveCohort={handleSaveCohort}
-          />
+      <Flex gap={6} alignItems="flex-start">
+        {/* Filter Sidebar */}
+        <FilterSidebar
+          localFilters={localFilters}
+          filterOptions={filterOptions}
+          filterSummary={filterSummary}
+          onFilterChange={handleFilterChange}
+          onClearFilters={clearFilters}
+          onSaveCohort={handleSaveCohort}
+        />
 
-          {/* Data Table */}
-          <Box flex={1}>
-            <Card.Root bg="white" shadow="md" border="1px" borderColor="gray.200">
-              <Card.Header>
-                <HStack justify="space-between">
-                  <Text fontWeight="semibold">Research Visits</Text>
-                  <Text color="gray.600" fontSize="sm">
-                    {filterSummary && pagination.totalCount > 0 && (
-                      <>
-                        Showing {(pagination.currentPage - 1) * DEFAULT_PAGE_SIZE + 1}-
-                        {Math.min(
-                          pagination.currentPage * DEFAULT_PAGE_SIZE,
-                          pagination.totalCount
-                        )}{' '}
-                        of {pagination.totalCount} visits
-                        {filterSummary.activeFilters > 0 && (
-                          <Text as="span" color="blue.600" fontSize="xs" ml={1}>
-                            ({filterSummary.activeFilters}{' '}
-                            {filterSummary.activeFilters === 1 ? 'filter' : 'filters'} active)
-                          </Text>
-                        )}
-                      </>
-                    )}
-                  </Text>
-                </HStack>
-              </Card.Header>
-              <Card.Body>
-                {!hasValidTier ? (
-                  <Center py={12}>
-                    <VStack gap={4}>
-                      <Box color="blue.500" fontSize="2xl">
-                        <FaEnvelope />
-                      </Box>
-                      <Heading size="lg" color="gray.900">
-                        Request Data Access
-                      </Heading>
-                      <Text color="gray.600" textAlign="center" maxW="md">
-                        Your account has been created, but you don&apos;t have data access yet.
-                        Please reach out to our team to get started.
-                      </Text>
-                      <Link
-                        href="mailto:observerproject@pennmedicine.upenn.edu"
-                        color="blue.600"
-                        fontWeight="semibold"
-                        _hover={{ color: 'blue.800', textDecoration: 'underline' }}
-                      >
-                        observerproject@pennmedicine.upenn.edu
-                      </Link>
-                    </VStack>
-                  </Center>
-                ) : visitsLoading ? (
-                  <Box overflowX="auto">
-                    <Stack gap={2}>
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <HStack key={i} gap={4}>
-                          <Skeleton height="40px" width="80px" />
-                          <Skeleton height="40px" width="120px" />
-                          <Skeleton height="40px" width="100px" />
-                          <Skeleton height="40px" width="80px" />
-                          <Skeleton height="40px" flex="1" />
-                          <Skeleton height="40px" flex="1" />
-                        </HStack>
-                      ))}
-                    </Stack>
-                  </Box>
-                ) : visits.length > 0 ? (
-                  <>
-                    <VisitsTable visits={visits} sort={sort} onSort={handleSort} />
-                    <PaginationControls
-                      currentPage={pagination.currentPage}
-                      totalCount={pagination.totalCount}
-                      hasNext={pagination.hasNext}
-                      hasPrevious={pagination.hasPrevious}
-                      loading={visitsLoading}
-                      onPageChange={setPage}
-                    />
-                  </>
-                ) : (
-                  <VStack gap={4} py={8}>
-                    <Text color="gray.600" textAlign="center">
-                      No visits match your current filters. Try adjusting your search criteria.
+        {/* Data Table */}
+        <Box flex={1}>
+          <Card.Root bg="white" shadow="md" border="1px" borderColor="gray.200">
+            <Card.Header>
+              <HStack justify="space-between">
+                <Text fontWeight="semibold">Research Visits</Text>
+                <Text color="gray.600" fontSize="sm">
+                  {filterSummary && pagination.totalCount > 0 && (
+                    <>
+                      Showing {(pagination.currentPage - 1) * DEFAULT_PAGE_SIZE + 1}-
+                      {Math.min(pagination.currentPage * DEFAULT_PAGE_SIZE, pagination.totalCount)}{' '}
+                      of {pagination.totalCount} visits
+                      {filterSummary.activeFilters > 0 && (
+                        <Text as="span" color="blue.600" fontSize="xs" ml={1}>
+                          ({filterSummary.activeFilters}{' '}
+                          {filterSummary.activeFilters === 1 ? 'filter' : 'filters'} active)
+                        </Text>
+                      )}
+                    </>
+                  )}
+                </Text>
+              </HStack>
+            </Card.Header>
+            <Card.Body>
+              {!hasValidTier ? (
+                <Center py={12}>
+                  <VStack gap={4}>
+                    <Box color="blue.500" fontSize="2xl">
+                      <FaEnvelope />
+                    </Box>
+                    <Heading size="lg" color="gray.900">
+                      Request Data Access
+                    </Heading>
+                    <Text color="gray.600" textAlign="center" maxW="md">
+                      Your account has been created, but you don&apos;t have data access yet. Please
+                      reach out to our team to get started.
                     </Text>
-                    {filterSummary && filterSummary.activeFilters > 0 && (
-                      <Button size="sm" variant="outline" onClick={clearFilters}>
-                        Clear Filters
-                      </Button>
-                    )}
+                    <Link
+                      href="mailto:observerproject@pennmedicine.upenn.edu"
+                      color="blue.600"
+                      fontWeight="semibold"
+                      _hover={{ color: 'blue.800', textDecoration: 'underline' }}
+                    >
+                      observerproject@pennmedicine.upenn.edu
+                    </Link>
                   </VStack>
-                )}
-              </Card.Body>
-            </Card.Root>
-          </Box>
-        </Flex>
-      )}
+                </Center>
+              ) : visitsLoading ? (
+                <Box overflowX="auto">
+                  <Stack gap={2}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <HStack key={i} gap={4}>
+                        <Skeleton height="40px" width="80px" />
+                        <Skeleton height="40px" width="120px" />
+                        <Skeleton height="40px" width="100px" />
+                        <Skeleton height="40px" width="80px" />
+                        <Skeleton height="40px" flex="1" />
+                        <Skeleton height="40px" flex="1" />
+                      </HStack>
+                    ))}
+                  </Stack>
+                </Box>
+              ) : visits.length > 0 ? (
+                <>
+                  <VisitsTable visits={visits} sort={sort} onSort={handleSort} />
+                  <PaginationControls
+                    currentPage={pagination.currentPage}
+                    totalCount={pagination.totalCount}
+                    hasNext={pagination.hasNext}
+                    hasPrevious={pagination.hasPrevious}
+                    loading={visitsLoading}
+                    onPageChange={setPage}
+                  />
+                </>
+              ) : (
+                <VStack gap={4} py={8}>
+                  <Text color="gray.600" textAlign="center">
+                    No visits match your current filters. Try adjusting your search criteria.
+                  </Text>
+                  {filterSummary && filterSummary.activeFilters > 0 && (
+                    <Button size="sm" variant="outline" onClick={clearFilters}>
+                      Clear Filters
+                    </Button>
+                  )}
+                </VStack>
+              )}
+            </Card.Body>
+          </Card.Root>
+        </Box>
+      </Flex>
 
       {/* Create Cohort Dialog */}
       {filterSummary && (

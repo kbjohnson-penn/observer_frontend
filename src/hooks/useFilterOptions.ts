@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { FilterOptions } from '@/interfaces/research';
 import { logger } from '@/lib/logger';
@@ -20,7 +20,7 @@ export function useFilterOptions(enabled: boolean = true): UseFilterOptionsRetur
   const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchFilterOptions = async () => {
+  const fetchFilterOptions = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -33,13 +33,13 @@ export function useFilterOptions(enabled: boolean = true): UseFilterOptionsRetur
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (enabled) {
       fetchFilterOptions();
     }
-  }, [enabled]);
+  }, [enabled, fetchFilterOptions]);
 
   return {
     filterOptions,
