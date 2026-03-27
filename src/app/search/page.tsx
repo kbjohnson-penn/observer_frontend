@@ -1,16 +1,20 @@
 'use client';
 
 import React, { Suspense, useEffect, useState } from 'react';
-import { Box, Container, HStack, Spinner, Center, Text } from '@chakra-ui/react';
+import { Box, Button, Container, HStack, Spinner, Center, Text } from '@chakra-ui/react';
+import { FaSave, FaCheckSquare, FaTimes } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEncounterSearch } from '@/hooks';
 import { EncounterSearchFilters, EncounterSearchHit } from '@/interfaces/search';
+import { Cohort } from '@/interfaces/cohort';
 import SearchBar from '@/components/search/SearchBar';
 import FacetSidebar from '@/components/search/FacetSidebar';
 import ResultsList from '@/components/search/ResultsList';
 import PaginationControls from '@/components/dashboard/ResearchTab/PaginationControls';
 import VisitDetailDrawer from '@/components/search/VisitDetailDrawer';
+import SaveSearchCohortDialog, { SaveCohortMode } from '@/components/search/SaveSearchCohortDialog';
+import { toaster } from '@/components/ui/toaster';
 
 function SearchLoading() {
   return (
@@ -47,6 +51,14 @@ function SearchContent() {
   const [localFilters, setLocalFilters] = useState<EncounterSearchFilters>({});
   const [selectedVisit, setSelectedVisit] = useState<EncounterSearchHit | null>(null);
 
+  // --- Cohort save dialog ---
+  const [saveCohortOpen, setSaveCohortOpen] = useState(false);
+  const [saveCohortMode, setSaveCohortMode] = useState<SaveCohortMode>('search');
+
+  // --- Selection mode ---
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       router.push('/login');
@@ -75,6 +87,46 @@ function SearchContent() {
     setLocalFilters(filters);
     setFilters(filters);
   }
+
+  function handleToggleSelect(encounterId: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(encounterId)) {
+        next.delete(encounterId);
+      } else {
+        next.add(encounterId);
+      }
+      return next;
+    });
+  }
+
+  function handleSaveSearch() {
+    setSaveCohortMode('search');
+    setSaveCohortOpen(true);
+  }
+
+  function handleSaveSelected() {
+    setSaveCohortMode('selected');
+    setSaveCohortOpen(true);
+  }
+
+  function handleCohortSaved(cohort: Cohort) {
+    toaster.create({
+      title: 'Cohort saved',
+      description: `"${cohort.name}" created with ${cohort.visitCount.toLocaleString()} encounters.`,
+      type: 'success',
+      duration: 4000,
+    });
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  }
+
+  function exitSelectionMode() {
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  }
+
+  const showToolbar = hasSearched && !loading && pagination.totalCount > 0;
 
   return (
     <Box minH="100vh" bg="gray.50">
@@ -113,12 +165,69 @@ function SearchContent() {
           </Box>
 
           <Box flex={1} minW={0}>
+            {/* Cohort toolbar */}
+            {showToolbar && (
+              <HStack mb={3} gap={2} flexWrap="wrap">
+                {!selectionMode ? (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      colorPalette="blue"
+                      onClick={handleSaveSearch}
+                    >
+                      <FaSave />
+                      Save Search as Cohort
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      colorPalette="gray"
+                      onClick={() => setSelectionMode(true)}
+                    >
+                      <FaCheckSquare />
+                      Select Encounters
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      size="sm"
+                      colorPalette="blue"
+                      onClick={handleSaveSelected}
+                      disabled={selectedIds.size === 0}
+                    >
+                      <FaSave />
+                      Save {selectedIds.size} Selected
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      colorPalette="gray"
+                      onClick={exitSelectionMode}
+                    >
+                      <FaTimes />
+                      Cancel
+                    </Button>
+                    {selectedIds.size > 0 && (
+                      <Text fontSize="xs" color="gray.500">
+                        {selectedIds.size} encounter{selectedIds.size !== 1 ? 's' : ''} selected
+                      </Text>
+                    )}
+                  </>
+                )}
+              </HStack>
+            )}
+
             <ResultsList
               results={results}
               loading={loading}
               totalCount={pagination.totalCount}
               hasSearched={hasSearched}
-              onSelect={setSelectedVisit}
+              onSelect={selectionMode ? undefined : setSelectedVisit}
+              selectionMode={selectionMode}
+              selectedIds={selectedIds}
+              onToggleSelect={handleToggleSelect}
             />
 
             {hasSearched && !loading && pagination.totalCount > 0 && (
@@ -141,6 +250,17 @@ function SearchContent() {
         visitSourceId={selectedVisit ? parseInt(selectedVisit.encounter_id) : null}
         isOpen={!!selectedVisit}
         onClose={() => setSelectedVisit(null)}
+      />
+
+      <SaveSearchCohortDialog
+        isOpen={saveCohortOpen}
+        onClose={() => setSaveCohortOpen(false)}
+        onSaved={handleCohortSaved}
+        mode={saveCohortMode}
+        filters={localFilters}
+        query={query}
+        totalCount={pagination.totalCount}
+        encounterIds={saveCohortMode === 'selected' ? Array.from(selectedIds) : undefined}
       />
     </Box>
   );

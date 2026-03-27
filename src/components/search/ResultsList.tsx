@@ -12,6 +12,9 @@ interface ResultsListProps {
   hasSearched: boolean;
   sort?: EncounterSearchSort;
   onSelect?: (hit: EncounterSearchHit) => void;
+  selectionMode?: boolean;
+  selectedIds?: Set<string>;
+  onToggleSelect?: (encounterId: string) => void;
 }
 
 function LoadingSkeleton() {
@@ -31,6 +34,9 @@ export default function ResultsList({
   hasSearched,
   sort,
   onSelect,
+  selectionMode,
+  selectedIds,
+  onToggleSelect,
 }: ResultsListProps) {
   const sortLabel = sort?.visit_date
     ? `sorted by date (${sort.visit_date === 'asc' ? 'oldest first' : 'newest first'})`
@@ -87,7 +93,14 @@ export default function ResultsList({
         </Text>
       </HStack>
       {results.map((hit) => (
-        <ResultCard key={hit.encounter_id} hit={hit} onSelect={onSelect} />
+        <ResultCard
+          key={hit.encounter_id}
+          hit={hit}
+          onSelect={onSelect}
+          selectionMode={selectionMode}
+          isSelected={selectedIds?.has(hit.encounter_id)}
+          onToggleSelect={onToggleSelect}
+        />
       ))}
     </VStack>
   );
