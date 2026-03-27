@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Button, Input, Textarea, VStack, Text } from '@chakra-ui/react';
+import React, { useState, useEffect } from 'react';
+import { Button, Input, Textarea, VStack, Text, Badge, HStack } from '@chakra-ui/react';
 import {
   DialogRoot,
   DialogContent,
@@ -12,36 +12,50 @@ import {
   DialogCloseTrigger,
 } from '@/components/ui/dialog';
 import { Field } from '@/components/ui/field';
-import { Cohort, CohortCreateRequest } from '@/interfaces/cohort';
-import { VisitSearchFilters } from '@/interfaces/research';
+import { CohortCreateRequest, Cohort } from '@/interfaces/cohort';
+import { EncounterSearchFilters } from '@/interfaces/search';
 import { validateCohortName, COHORT_NAME_MAX_LENGTH } from '@/lib/utils/cohortValidation';
+import { createCohort, getCohorts } from '@/lib/utils/cohortStorage';
 
-interface CreateCohortDialogProps {
+export type SaveCohortMode = 'search' | 'selected';
+
+interface SaveSearchCohortDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (cohort: CohortCreateRequest) => Promise<void>;
-  filters: VisitSearchFilters;
-  visitCount: number;
-  existingCohorts: Cohort[];
+  onSaved: (cohort: Cohort) => void;
+  mode: SaveCohortMode;
+  filters: EncounterSearchFilters;
+  query: string;
+  totalCount: number;
+  encounterIds?: string[];
 }
 
-export default function CreateCohortDialog({
+export default function SaveSearchCohortDialog({
   isOpen,
   onClose,
-  onSave,
+  onSaved,
+  mode,
   filters,
-  visitCount,
-  existingCohorts,
-}: CreateCohortDialogProps) {
+  query,
+  totalCount,
+  encounterIds,
+}: SaveSearchCohortDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [existingCohorts, setExistingCohorts] = useState<Cohort[]>([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      getCohorts().then(setExistingCohorts);
+    }
+  }, [isOpen]);
+
+  const count = mode === 'selected' ? (encounterIds?.length ?? 0) : totalCount;
 
   const handleSave = async () => {
-    // Use shared validation utility
     const validationError = validateCohortName(name, existingCohorts);
-
     if (validationError) {
       setError(validationError);
       return;
@@ -51,17 +65,20 @@ export default function CreateCohortDialog({
       setLoading(true);
       setError(null);
 
-      await onSave({
+      const request: CohortCreateRequest = {
         name: name.trim(),
         description: description.trim() || undefined,
-        source: 'research',
-        filters,
-        visitCount,
-      });
+        source: 'search',
+        filters: mode === 'search' ? filters : undefined,
+        encounterIds: mode === 'selected' ? encounterIds : undefined,
+        searchQuery: query || undefined,
+        visitCount: count,
+      };
 
-      // Reset form
+      const cohort = await createCohort(request);
       setName('');
       setDescription('');
+      onSaved(cohort);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create cohort');
@@ -97,13 +114,29 @@ export default function CreateCohortDialog({
 
         <DialogBody py={6}>
           <VStack gap={4} align="stretch">
-            {/* Visit Count Info */}
-            <Text fontSize="sm" color="gray.600">
-              This cohort will include <strong>{visitCount.toLocaleString()}</strong> visits based
-              on your current filters.
-            </Text>
+            {/* Context */}
+            <HStack gap={2} flexWrap="wrap">
+              <Text fontSize="sm" color="gray.600">
+                {mode === 'selected' ? (
+                  <>
+                    Saving <strong>{count.toLocaleString()}</strong> selected encounter
+                    {count !== 1 ? 's' : ''}
+                  </>
+                ) : (
+                  <>
+                    Saving search with <strong>{count.toLocaleString()}</strong> encounter
+                    {count !== 1 ? 's' : ''}
+                  </>
+                )}
+              </Text>
+              {query && (
+                <Badge colorPalette="blue" variant="subtle" size="sm">
+                  query: {query.length > 30 ? `${query.slice(0, 30)}...` : query}
+                </Badge>
+              )}
+            </HStack>
 
-            {/* Name Field */}
+            {/* Name */}
             <Field
               label="Cohort Name"
               required
@@ -120,7 +153,7 @@ export default function CreateCohortDialog({
                   setError(null);
                 }}
                 onKeyDown={handleKeyDown}
-                placeholder="e.g., Pediatric Patients 2024"
+                placeholder="e.g., Diabetic patients with transcript"
                 disabled={loading}
                 maxLength={COHORT_NAME_MAX_LENGTH}
                 variant="outline"
@@ -132,7 +165,7 @@ export default function CreateCohortDialog({
               />
             </Field>
 
-            {/* Description Field */}
+            {/* Description */}
             <Field label="Description (Optional)">
               <Textarea
                 value={description}

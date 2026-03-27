@@ -6,6 +6,7 @@ export * from './patient';
 export * from './department';
 export * from './mmd';
 export * from './research';
+export * from './search';
 
 // Explicit re-exports to avoid naming conflicts
 export type {

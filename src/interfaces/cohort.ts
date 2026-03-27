@@ -1,32 +1,46 @@
 /**
- * Cohort-related TypeScript interfaces
- * Designed for future server-side API integration
+ * Cohort-related TypeScript interfaces.
+ * Supports two cohort sources:
+ *  - "research": Dashboard research tab (nested VisitSearchFilters)
+ *  - "search":   Encounter Search page (flat EncounterSearchFilters)
  */
 
 import { VisitSearchFilters } from './research';
+import { EncounterSearchFilters } from './search';
+
+export type CohortSource = 'research' | 'search';
+
+export type CohortFilters = VisitSearchFilters | EncounterSearchFilters;
 
 export interface Cohort {
   id: string;
   name: string;
   description?: string;
-  filters: VisitSearchFilters;
+  source: CohortSource;
+  filters: CohortFilters;
+  encounterIds?: string[] | null;
+  encounterIdCount?: number | null;
+  searchQuery?: string;
   visitCount: number;
-  createdAt: string; // ISO date string for serialization
-  updatedAt: string; // ISO date string
-  userId?: number; // For server-side ownership
+  createdAt: string;
+  updatedAt: string;
+  userId?: number;
 }
 
 export interface CohortCreateRequest {
   name: string;
   description?: string;
-  filters: VisitSearchFilters;
+  source: CohortSource;
+  filters?: CohortFilters;
+  encounterIds?: string[];
+  searchQuery?: string;
   visitCount: number;
 }
 
 export interface CohortUpdateRequest {
   name?: string;
   description?: string;
-  filters?: VisitSearchFilters;
+  filters?: CohortFilters;
 }
 
 export interface CohortListResponse {
@@ -98,7 +112,27 @@ function hasNonEmptyFilterValues(obj: unknown): boolean {
 }
 
 /**
- * Calculates filter summary from VisitSearchFilters
+ * Counts active filters in a flat EncounterSearchFilters object.
+ */
+export function getSearchFilterCount(filters: EncounterSearchFilters | null | undefined): number {
+  if (!filters) {
+    return 0;
+  }
+  let count = 0;
+  for (const [, value] of Object.entries(filters)) {
+    if (Array.isArray(value) && value.length > 0) {
+      count++;
+    } else if (typeof value === 'boolean' && value) {
+      count++;
+    } else if (typeof value === 'string' && value) {
+      count++;
+    }
+  }
+  return count;
+}
+
+/**
+ * Calculates filter summary from VisitSearchFilters (research source).
  */
 export function getCohortFilterSummary(
   filters: VisitSearchFilters | null | undefined

@@ -140,6 +140,7 @@ const Header: React.FC<HeaderProps> = ({ showLinks = true, logo = { width: 200, 
                 Dashboard
               </NavigationLink>
               <NavigationLink href="/dataset">Dataset</NavigationLink>
+              <NavigationLink href="/search">Search</NavigationLink>
 
               {/* Avatar Menu */}
               <Menu.Root positioning={{ placement: 'bottom-end' }}>
@@ -220,6 +221,10 @@ const Header: React.FC<HeaderProps> = ({ showLinks = true, logo = { width: 200, 
 
           <NavigationLink href="/dataset" isActive={isActive('/dataset')} isMobile>
             Dataset
+          </NavigationLink>
+
+          <NavigationLink href="/search" isActive={isActive('/search')} isMobile>
+            Search
           </NavigationLink>
 
           {/* Mobile Auth Section */}

@@ -2,8 +2,10 @@
 
 import React, { useMemo } from 'react';
 import { Card, VStack, HStack, Text, Button, Badge, Box } from '@chakra-ui/react';
-import { FaTrash, FaEye, FaPencilAlt } from 'react-icons/fa';
-import { Cohort, getDetailedFilterSummary } from '@/interfaces/cohort';
+import { FaTrash, FaEye, FaPencilAlt, FaSearch } from 'react-icons/fa';
+import { Cohort, getDetailedFilterSummary, getSearchFilterCount } from '@/interfaces/cohort';
+import { VisitSearchFilters } from '@/interfaces/research';
+import { EncounterSearchFilters } from '@/interfaces/search';
 import { COLORS } from '@/constants/colors';
 import { COHORT_NAME_MAX_LENGTH } from '@/lib/utils/cohortValidation';
 import { formatVisitSource, expandDemographic, formatDateForDisplay } from '@/lib/utils/utils';
@@ -211,9 +213,91 @@ interface CohortCardProps {
   onDelete: (cohortId: string) => void;
 }
 
+/**
+ * Simple summary for search-source cohorts (flat EncounterSearchFilters).
+ */
+function SearchFilterSummary({
+  filters,
+  encounterIds,
+  searchQuery,
+}: {
+  filters: EncounterSearchFilters;
+  encounterIds?: string[] | null;
+  searchQuery?: string;
+}) {
+  if (encounterIds && encounterIds.length > 0) {
+    return (
+      <HStack gap={1} flexWrap="wrap">
+        <Badge size="sm" colorPalette="blue" variant="subtle">
+          {encounterIds.length} selected encounter{encounterIds.length !== 1 ? 's' : ''}
+        </Badge>
+      </HStack>
+    );
+  }
+
+  const activeCount = getSearchFilterCount(filters);
+  const badges: React.ReactNode[] = [];
+
+  if (searchQuery) {
+    badges.push(
+      <Badge key="q" size="sm" colorPalette="blue" variant="subtle">
+        query: {searchQuery.length > 20 ? `${searchQuery.slice(0, 20)}...` : searchQuery}
+      </Badge>
+    );
+  }
+  if (filters.department && filters.department.length > 0) {
+    badges.push(
+      <Badge key="dept" size="sm" colorPalette="orange" variant="subtle">
+        {filters.department.join(', ')}
+      </Badge>
+    );
+  }
+  if (filters.date_from || filters.date_to) {
+    const label =
+      filters.date_from && filters.date_to
+        ? `${filters.date_from} – ${filters.date_to}`
+        : filters.date_from
+          ? `from ${filters.date_from}`
+          : `to ${filters.date_to}`;
+    badges.push(
+      <Badge key="date" size="sm" colorPalette="blue" variant="subtle">
+        {label}
+      </Badge>
+    );
+  }
+  if (filters.patient_gender && filters.patient_gender.length > 0) {
+    badges.push(
+      <Badge key="pg" size="sm" colorPalette="purple" variant="subtle">
+        {filters.patient_gender.join(', ')}
+      </Badge>
+    );
+  }
+
+  return (
+    <VStack align="stretch" gap={1}>
+      {badges.length > 0 ? (
+        <HStack gap={1} flexWrap="wrap">
+          {badges}
+        </HStack>
+      ) : (
+        <Text fontSize="xs" color="gray.400" fontStyle="italic">
+          {activeCount > 0
+            ? `${activeCount} filter${activeCount !== 1 ? 's' : ''} applied`
+            : 'No filters'}
+        </Text>
+      )}
+    </VStack>
+  );
+}
+
 export default function CohortCard({ cohort, onView, onRename, onDelete }: CohortCardProps) {
-  // Memoize detailed filter summary calculation
-  const filterDetails = useMemo(() => getDetailedFilterSummary(cohort.filters), [cohort.filters]);
+  const isSearchSource = cohort.source === 'search';
+
+  // Only compute research filter details for research-source cohorts
+  const filterDetails = useMemo(
+    () => (isSearchSource ? null : getDetailedFilterSummary(cohort.filters as VisitSearchFilters)),
+    [cohort.filters, isSearchSource]
+  );
 
   // Truncate name for display if too long
   const displayName = useMemo(() => {
@@ -277,31 +361,40 @@ export default function CohortCard({ cohort, onView, onRename, onDelete }: Cohor
             </VStack>
           </HStack>
 
-          {/* Filter Summary - Always show all categories with labels */}
-          <VStack align="stretch" gap={2}>
-            {/* Visit Filters */}
-            <VisitFilterSection visit={filterDetails.visit} />
-
-            {/* Patient Demographic Filters */}
-            <DemographicFilterSection
-              label="Patient"
-              colorPalette="purple"
-              labelColor="purple.600"
-              demographics={filterDetails.personDemographics}
-              keyPrefix="p"
-            />
-
-            {/* Provider Demographic Filters */}
-            <DemographicFilterSection
-              label="Provider"
-              colorPalette="teal"
-              labelColor="teal.600"
-              demographics={filterDetails.providerDemographics}
-              keyPrefix="pr"
-            />
-
-            {/* TODO: Add Clinical Filters section when clinical filtering is implemented */}
-          </VStack>
+          {/* Filter Summary */}
+          {isSearchSource ? (
+            <VStack align="stretch" gap={2}>
+              <HStack gap={1}>
+                <FaSearch size={10} color="gray" />
+                <Badge size="sm" colorPalette="blue" variant="outline">
+                  Search
+                </Badge>
+              </HStack>
+              <SearchFilterSummary
+                filters={cohort.filters as EncounterSearchFilters}
+                encounterIds={cohort.encounterIds}
+                searchQuery={cohort.searchQuery}
+              />
+            </VStack>
+          ) : filterDetails ? (
+            <VStack align="stretch" gap={2}>
+              <VisitFilterSection visit={filterDetails.visit} />
+              <DemographicFilterSection
+                label="Patient"
+                colorPalette="purple"
+                labelColor="purple.600"
+                demographics={filterDetails.personDemographics}
+                keyPrefix="p"
+              />
+              <DemographicFilterSection
+                label="Provider"
+                colorPalette="teal"
+                labelColor="teal.600"
+                demographics={filterDetails.providerDemographics}
+                keyPrefix="pr"
+              />
+            </VStack>
+          ) : null}
 
           {/* Actions */}
           <HStack gap={2} pt={2} justify="stretch">

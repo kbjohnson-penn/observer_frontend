@@ -13,7 +13,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading, isLoggingOut } = useAuth();
 
   // Routes that should use authenticated layout
-  const authenticatedRoutes = ['/dashboard', '/profile'];
+  const authenticatedRoutes = ['/dashboard', '/profile', '/search'];
   const shouldUseAuthLayout = authenticatedRoutes.some((route) => pathname.startsWith(route));
 
   // Show loading state while checking authentication or during logout
