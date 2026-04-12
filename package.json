@@ -26,7 +26,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.13",
     "@types/video.js": "^7.3.58",
-    "axios": "^1.10.0",
+    "axios": "^1.15.0",
     "d3": "^7.9.0",
     "date-fns": "^3.6.0",
     "date-fns-tz": "^3.1.3",
